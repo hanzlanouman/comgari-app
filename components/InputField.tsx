@@ -49,7 +49,7 @@ const InputField = ({
             {secureTextEntry && (
               <TouchableOpacity
                 onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                className="p-2.5"
+                className="p-2.5 mr-1"
               >
                 {isPasswordVisible ? (
                   <EyeOff width={18} height={18} color="#4A4A4A" />

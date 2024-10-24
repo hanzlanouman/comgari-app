@@ -32,18 +32,18 @@ const Onboarding = () => {
               className="w-full h-[250px] sm:h-[320px] mt-4"
               resizeMode="contain"
             />
-            <Text className="text-navy text-2xl sm:text-3xl font-ManropBold sm:px-8 px-10 text-center mt-5">
+            <Text className="text-navy text-2xl sm:text-3xl font-ManropeBold sm:px-8 px-10 text-center mt-5">
               {item.title}
             </Text>
-            <Text className="text-dark-100 text-sm sm:text-base font-ManropMedium px-6 text-center mt-5">
+            <Text className="text-dark-100 text-sm sm:text-base font-ManropeMedium px-6 text-center mt-5">
               {item.description}
             </Text>
           </View>
         ))}
       </Swiper>
       <View className="w-full flex-row items-center justify-between px-4 mt-10">
-        <TouchableOpacity onPress={() => router.replace("/(auth)/welcome")}>
-          <Text className="text-sm sm:text-base text-dark font-ManropSemibold">
+        <TouchableOpacity onPress={() => router.push("/(auth)/welcome")}>
+          <Text className="text-sm sm:text-base text-dark font-ManropeSemibold">
             Skip
           </Text>
         </TouchableOpacity>

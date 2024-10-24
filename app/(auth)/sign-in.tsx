@@ -18,7 +18,7 @@ const SignIn = () => {
       className="w-full h-screen"
     >
       <View className="bg-white rounded-t-3xl p-5 absolute left-0 bottom-0 w-full">
-        <Text className="text-dark text-center font-ManropBold text-xl sm:text-2xl">
+        <Text className="text-dark text-center font-ManropeBold text-xl sm:text-2xl">
           Let’s Connect With Us!
         </Text>
         <View className="mt-6">
@@ -43,7 +43,7 @@ const SignIn = () => {
         </View>
         <TouchableOpacity
           onPress={() => {
-            router.replace("/(auth)/forgot-password");
+            router.push("/(auth)/forgot-password");
           }}
           className="flex-row justify-end mt-3"
         >
@@ -55,7 +55,7 @@ const SignIn = () => {
           <CustomButton title="Sign In" onPress={() => router.replace("/")} />
         </View>
         <View className="flex-row items-center justify-center my-5">
-          <Text className="text-sm sm:text-base text-dark font-ManropMedium">
+          <Text className="text-sm sm:text-base text-dark font-ManropeMedium">
             Already have an account?
           </Text>
           <TouchableOpacity
@@ -64,7 +64,7 @@ const SignIn = () => {
             }}
             className="ml-1 relative -top-[1]"
           >
-            <Text className="text-blue text-sm sm:text-base font-ManropSemibold">
+            <Text className="text-blue text-sm sm:text-base font-ManropeSemibold">
               Sign Up
             </Text>
           </TouchableOpacity>
