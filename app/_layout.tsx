@@ -1,8 +1,13 @@
+/* eslint-disable prettier/prettier */
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import "react-native-reanimated";
+import { Provider, useSelector } from "react-redux";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { store } from "@/store";
+import { useAppSelector } from "@/hooks/redux";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,13 +31,26 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-
+  const queryClient = new QueryClient();
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(root)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <LayoutWrapper />
+      </Provider>
+    </QueryClientProvider>
+  );
+}
+
+function LayoutWrapper() {
+  const isLoading = useAppSelector((state) => state.app.isloading);
+  return (
+    <Fragment>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(root)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </Fragment>
   );
 }

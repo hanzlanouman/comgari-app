@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useState } from "react";
 import {
   TextInput,
@@ -20,6 +21,8 @@ const InputField = ({
   containerStyle,
   inputStyle,
   iconStyle,
+  error, // New error prop
+  errorStyle, // New error style prop
   className,
   ...props
 }: InputFieldProps) => {
@@ -27,8 +30,7 @@ const InputField = ({
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+      behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="w-full">
           {label && (
@@ -37,8 +39,7 @@ const InputField = ({
             </Text>
           )}
           <View
-            className={`flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}
-          >
+            className={`flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}>
             {icon && <View className={`ml-4 ${iconStyle}`}>{icon}</View>}
             <TextInput
               className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 lowercase ${inputStyle} text-left`}
@@ -49,8 +50,7 @@ const InputField = ({
             {secureTextEntry && (
               <TouchableOpacity
                 onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                className="p-2.5 mr-1"
-              >
+                className="p-2.5 mr-1">
                 {isPasswordVisible ? (
                   <EyeOff width={18} height={18} color="#4A4A4A" />
                 ) : (
@@ -59,6 +59,7 @@ const InputField = ({
               </TouchableOpacity>
             )}
           </View>
+          {error && <Text style={{ color: "red" }}>{error}</Text>}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
