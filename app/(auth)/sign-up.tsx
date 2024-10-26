@@ -67,7 +67,7 @@ const SignUp = () => {
               label=""
               value={form.password}
               onChangeText={(value: string) =>
-                setForm({ ...form, newPassword: value })
+                setForm({ ...form, password: value })
               }
               placeholder="Password"
               secureTextEntry={true}
