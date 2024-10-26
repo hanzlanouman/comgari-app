@@ -4,13 +4,13 @@ import * as yup from "yup";
 
 const SignupSchema = yup.object({
   user_name: yup.string().required("User name is required"),
-  fullName: yup.string().required("Full name is required"),
+  full_name: yup.string().required("Full name is required"),
   email: yup
     .string()
     .email("Invalid email format")
     .required("Email is required"),
-  businessName: yup.string().required("Business name is required"),
-  phoneNumber: yup.string().required("Contact number is required"),
+  business_name: yup.string().required("Business name is required"),
+  phone: yup.string().required("Contact number is required"),
   password: yup
     .string()
     .min(6, "Password must be at least 6 characters")

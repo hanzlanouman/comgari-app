@@ -13,7 +13,7 @@ import { SignupPayload } from "@/repositories/auth/schemas";
 const SignUp = () => {
   const authRepo = AuthRepository.getInstance();
   const { mutate, isError, error } = useMutation({
-    mutationFn: (payload: SignupPayload) => authRepo.register(payload),
+    mutationFn: (payload: Partial<SignupPayload>) => authRepo.register(payload),
   });
   const formik = useFormik({
     initialValues: {
@@ -41,7 +41,16 @@ const SignUp = () => {
         .required("Confirm password is required"),
     }),
     onSubmit: (values) => {
-      mutate(values, {
+      const payload = {
+        business_name: values.businessName,
+        full_name: values.fullName,
+        password: values.password,
+        user_name: values.user_name,
+        email: values.email,
+        role_id: 1,
+      };
+      console.log(payload, "Pay load is ");
+      mutate(payload, {
         onSuccess: (data) => {},
       });
     },
@@ -49,7 +58,7 @@ const SignUp = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AppContainer isError={isError} error={error?.message}>
+      <AppContainer isError={isError} message={error?.message}>
         <View className="flex-1 px-5 py-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
             Please complete all information to create your account on Comgari.
@@ -141,7 +150,13 @@ const SignUp = () => {
       </AppContainer>
 
       <View className="px-4 pt-4 bg-white">
-        <CustomButton title="Sign Up" onPress={formik.handleSubmit} />
+        <CustomButton
+          title="Sign Up"
+          onPress={() => {
+            console.log(formik.errors, " i am press");
+            formik.handleSubmit();
+          }}
+        />
       </View>
     </SafeAreaView>
   );

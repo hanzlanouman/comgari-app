@@ -91,10 +91,9 @@ export const AppContainer = (props: Props) => {
             <Text style={styles.heading}>{title}</Text>
             <Text style={styles.textStyle}>{props.message}</Text>
             <ThemeButton
-              handlePress={handleClose}
-              containerStyles="mt-2.5 bg-black border border-stone-300"
-              textStyles="text-white"
-              buttonText="Ok"
+              onPress={handleClose}
+              className="mt-2.5 bg-black border border-stone-300"
+              title="Ok"
             />
           </View>
         </View>

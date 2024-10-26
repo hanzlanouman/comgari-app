@@ -61,11 +61,12 @@ export class AuthRepository implements IAuthRepository {
   ): Promise<TLoginResponse> {
     console.log(END_POINTS.AUTH.REGISTER);
     try {
-      const res: ApiReponse<AuthReponse> = await post(
+      const res = await post(
         `${BaseUrl + END_POINTS.AUTH.REGISTER.route}`,
-        signupPayLoad
+        signupPayLoad,
+        { show_loader: true }
       );
-      return res;
+      return res?.data;
     } catch (e: AxiosError | any) {
       console.log(e, "Error");
       throw new Error(getErrorMessage(e));

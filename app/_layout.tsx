@@ -8,6 +8,7 @@ import { Provider, useSelector } from "react-redux";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { store } from "@/store";
 import { useAppSelector } from "@/hooks/redux";
+import { SimpleActivityIndicator } from "@/common/components/Loader";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,6 +46,8 @@ function LayoutWrapper() {
   const isLoading = useAppSelector((state) => state.app.isloading);
   return (
     <Fragment>
+      {isLoading && <SimpleActivityIndicator />}
+
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
