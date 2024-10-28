@@ -11,7 +11,11 @@ import {
   ResetPasswordPayload,
   SignupPayload,
 } from "@/repositories/auth/schemas";
-import { TLoginResponse, TReponse } from "@/repositories/auth/types";
+import {
+  TLoginResponse,
+  TReponse,
+  TVerifyCredPayload,
+} from "@/repositories/auth/types";
 import { AxiosError } from "axios";
 
 interface IAuthRepository {
@@ -21,7 +25,10 @@ interface IAuthRepository {
   forgotPassword(
     forgotPasswordPayload: forgotPasswordPayload
   ): Promise<TReponse>;
-  verifyCred(otpPayload: OtpPayload): Promise<TReponse>;
+  verifyCred(
+    otpPayLoad: TVerifyCredPayload,
+    authResponse: TLoginResponse
+  ): Promise<TReponse>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -39,9 +46,10 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async login(payload: LoginPayload): Promise<TLoginResponse> {
+    console.log();
     try {
       const res: ApiReponse<TLoginResponse> = await post(
-        `${END_POINTS.AUTH.LOGIN}`,
+        `${BaseUrl + END_POINTS.AUTH.LOGIN.route}`,
         payload
       );
       return res;
@@ -66,6 +74,8 @@ export class AuthRepository implements IAuthRepository {
         signupPayLoad,
         { show_loader: true }
       );
+      await this.sendOtp({ username: signupPayLoad.email! });
+
       return res?.data;
     } catch (e: AxiosError | any) {
       console.log(e, "Error");
@@ -77,34 +87,56 @@ export class AuthRepository implements IAuthRepository {
   ): Promise<TReponse> {
     try {
       const res: ApiReponse<any> = await post(
-        `${BaseUrl + END_POINTS.AUTH.FORGOT_PASSWORD}`,
-        forgotPasswordPayLoad
+        `${BaseUrl + END_POINTS.AUTH.FORGOT_PASSWORD.route}`,
+        forgotPasswordPayLoad,
+        { show_loader: true }
       );
       return res;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
     }
   }
-  async verifyCred(otpPayLoad: OtpPayload): Promise<TReponse> {
+  async verifyCred(
+    otpPayLoad: TVerifyCredPayload,
+    authResponse: TLoginResponse
+  ): Promise<TReponse> {
     try {
-      const res: ApiReponse<any> = await put(
-        `${BaseUrl + END_POINTS.AUTH.VERFY_CRED}`,
-        otpPayLoad
-      );
+      const res = await put(END_POINTS.AUTH.VERFY_CRED.route, otpPayLoad, {
+        show_loader: true,
+        headers: { Authorization: `Bearer ${authResponse.access_token}` },
+      });
+
       return res;
-    } catch (e: AxiosError | any) {
+    } catch (e: any) {
       throw new Error(getErrorMessage(e));
     }
   }
+
   async resetPassword(resetPayLoad: ResetPasswordPayload): Promise<TReponse> {
     console.log("eee");
     try {
       const res: ApiReponse<any> = await post(
-        `${BaseUrl + END_POINTS.AUTH.RESET_PASSWORD}`,
-        resetPayLoad
+        `${BaseUrl + END_POINTS.AUTH.RESET_PASSWORD.route}`,
+        resetPayLoad,
+        { show_loader: true }
       );
       return res;
     } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async sendOtp(
+    forgotPasswordPayload: forgotPasswordPayload
+  ): Promise<TReponse> {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.OTP.route}`,
+        forgotPasswordPayload,
+        { show_loader: true }
+      );
+
+      return res;
+    } catch (e: any) {
       throw new Error(getErrorMessage(e));
     }
   }

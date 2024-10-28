@@ -34,4 +34,7 @@ export const Colors = {
     modalBg,
     shadowColor,
   },
+  error: {
+    red: "#ff0000",
+  },
 };

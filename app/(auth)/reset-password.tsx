@@ -1,51 +1,92 @@
 import { SafeAreaView, View, Text } from "react-native";
 import { useState } from "react";
-import InputField from "@/components/InputField";
-import CustomButton from "@/components/CustomButton";
-import { router } from "expo-router";
-
+import InputField from "@/common/components/InputField";
+import CustomButton from "@/common/components/CustomButton";
+import { router, useLocalSearchParams, useRouter } from "expo-router";
+import { useMutation } from "react-query";
+import {
+  ResetPassowrdSchema,
+  ResetPasswordPayload,
+} from "@/repositories/auth/schemas";
+import { useFormik } from "formik";
+import { AuthRepository } from "@/repositories/auth/auth";
+import AppContainer from "@/common/components/AppContainer";
+import { route } from "@/common";
+type ResetPasswordProps = {
+  otp: string;
+  username: string;
+};
 const ResetPassword = () => {
-  const [form, setForm] = useState({
-    newPassword: "",
-    confirmPassword: "",
+  const AuthRepo = AuthRepository.getInstance();
+  const { otp, username } = useLocalSearchParams<ResetPasswordProps>();
+
+  const router = useRouter();
+
+  const { mutate, isError, error } = useMutation({
+    mutationFn: (resetPasswordPayload: ResetPasswordPayload) =>
+      AuthRepo.resetPassword(resetPasswordPayload),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      password: "",
+      passwordConfirm: "",
+      username: username,
+      otp: otp,
+    },
+    validationSchema: ResetPassowrdSchema,
+    onSubmit: (values) => {
+      mutate(values, {
+        onSuccess: () => {
+          router.push(route.auth.register);
+        },
+      });
+    },
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 p-4">
-        <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
-          Reset Your Password
-        </Text>
-        <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-          Password must be different than before.
-        </Text>
-        <View className="mt-6">
-          <InputField
-            label=""
-            value={form.newPassword}
-            onChangeText={(value: string) =>
-              setForm({ ...form, newPassword: value })
-            }
-            placeholder="New password"
-            secureTextEntry={true}
+    <AppContainer isError={isError} message={error?.message}>
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 p-4">
+          <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
+            Reset Your Password
+          </Text>
+          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
+            Password must be different than before.
+          </Text>
+          <View className="mt-6">
+            <InputField
+              label=""
+              value={formik.values.password}
+              onChangeText={formik.handleChange("password")}
+              placeholder="New password"
+              onBlur={() => {
+                formik.handleBlur("password");
+              }}
+              secureTextEntry={true}
+            />
+          </View>
+          <View className="mt-3">
+            <InputField
+              label=""
+              value={formik.values.passwordConfirm}
+              onChangeText={formik.handleChange("passwordConfirm")}
+              placeholder="Confirm password"
+              secureTextEntry={true}
+            />
+          </View>
+        </View>
+        <View className="px-4">
+          <CustomButton
+            title="Reset Password"
+            onPress={() => {
+              formik.values.username = username;
+              formik.handleSubmit();
+            }}
           />
         </View>
-        <View className="mt-3">
-          <InputField
-            label=""
-            value={form.confirmPassword}
-            onChangeText={(value: string) =>
-              setForm({ ...form, confirmPassword: value })
-            }
-            placeholder="Confirm password"
-            secureTextEntry={true}
-          />
-        </View>
-      </View>
-      <View className="px-4">
-        <CustomButton title="Reset Password" onPress={() => router.push("/")} />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </AppContainer>
   );
 };
 

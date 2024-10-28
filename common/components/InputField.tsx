@@ -13,7 +13,7 @@ import {
 import { Eye, EyeOff } from "lucide-react-native";
 import { InputFieldProps } from "@/types/type";
 
-const InputField = ({
+export const InputField = ({
   label,
   icon,
   secureTextEntry = false,
@@ -24,6 +24,7 @@ const InputField = ({
   error, // New error prop
   errorStyle, // New error style prop
   className,
+  ref,
   ...props
 }: InputFieldProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(secureTextEntry);
@@ -46,6 +47,7 @@ const InputField = ({
               secureTextEntry={isPasswordVisible}
               {...props}
               placeholderTextColor="#4A4A4A"
+              ref={ref}
             />
             {secureTextEntry && (
               <TouchableOpacity

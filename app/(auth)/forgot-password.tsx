@@ -1,12 +1,46 @@
 import { View, Text, SafeAreaView } from "react-native";
 import { useState } from "react";
-import InputField from "@/components/InputField";
-import { router } from "expo-router";
-import CustomButton from "@/components/CustomButton";
+import InputField from "@/common/components/InputField";
+import { router, useRouter } from "expo-router";
+import CustomButton from "@/common/components/CustomButton";
+import { useFormik } from "formik";
+import {
+  forgotPasswordPayload,
+  forgotPasswordSchema,
+} from "@/repositories/auth/schemas";
+import { AuthRepository } from "@/repositories/auth/auth";
+import { useMutation } from "react-query";
+import { OTP_TYPE } from "@/common/enum";
+type ForgotPasswordProps = {
+  otpRoute: string;
+};
+const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
+  const router = useRouter();
+  const authrepo = AuthRepository.getInstance();
 
-const ForgotPassword = () => {
-  const [form, setForm] = useState({
-    email: "",
+  const { mutate } = useMutation({
+    mutationFn: (forgotPasswordPayLoad: forgotPasswordPayload) =>
+      authrepo.forgotPassword(forgotPasswordPayLoad),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      username: "",
+    },
+    validationSchema: forgotPasswordSchema,
+    onSubmit: (values) => {
+      mutate(values, {
+        onSuccess: () => {
+          router.push({
+            pathname: "/(auth)/otp",
+            params: {
+              username: formik.values.username,
+              type: OTP_TYPE.PASSWORD_RESET,
+            },
+          });
+        },
+      });
+    },
   });
 
   return (
@@ -22,8 +56,8 @@ const ForgotPassword = () => {
         <View className="mt-6">
           <InputField
             label=""
-            value={form.email}
-            onChangeText={(value: string) => setForm({ ...form, email: value })}
+            value={formik.values.username}
+            onChangeText={formik.handleChange("username")}
             placeholder="Email"
             keyboardType="email-address"
           />
@@ -32,7 +66,9 @@ const ForgotPassword = () => {
       <View className="px-4">
         <CustomButton
           title="Send Code"
-          onPress={() => router.push("/(auth)/otp")}
+          onPress={() => {
+            formik.handleSubmit();
+          }}
         />
       </View>
     </SafeAreaView>

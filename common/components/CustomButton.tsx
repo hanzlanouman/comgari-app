@@ -4,7 +4,12 @@ import { TouchableOpacity, Text } from "react-native";
 import { ButtonProps } from "@/types/type";
 import { LinearGradient } from "expo-linear-gradient";
 
-const CustomButton = ({ onPress, title, className, ...props }: ButtonProps) => {
+export const CustomButton = ({
+  onPress,
+  title,
+  className,
+  ...props
+}: ButtonProps) => {
   return (
     <LinearGradient
       colors={["#1C78B9", "#4B4C9E"]}

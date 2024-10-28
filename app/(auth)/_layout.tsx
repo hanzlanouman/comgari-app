@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { TouchableOpacity, Text } from "react-native";
 import { router, Stack } from "expo-router";
 import "react-native-reanimated";
@@ -16,8 +17,7 @@ const Layout = () => {
           shadowOpacity: 0,
         },
         headerShadowVisible: false,
-      }}
-    >
+      }}>
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />

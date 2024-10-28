@@ -26,6 +26,11 @@ export const END_POINTS = {
       route: AuthUrl + "/signup",
       mothod: "POST",
     },
+    OTP: {
+      route: AuthUrl + "/otp",
+      mothod: "POST",
+    },
+
     FORGOT_PASSWORD: {
       route: AuthUrl + "/forgot-password",
       mothod: "POST",

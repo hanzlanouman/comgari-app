@@ -2,13 +2,15 @@
 import { SafeAreaView, ScrollView, View, Text } from "react-native";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import InputField from "@/components/InputField";
-import CustomButton from "@/components/CustomButton";
+import InputField from "@/common/components/InputField";
+import CustomButton from "@/common/components/CustomButton";
 import { router } from "expo-router";
 import { AuthRepository } from "@/repositories/auth/auth";
 import AppContainer from "@/common/components/AppContainer";
 import { useMutation } from "react-query";
 import { SignupPayload } from "@/repositories/auth/schemas";
+import { OTP_TYPE } from "@/common/enum";
+import { route } from "@/common";
 
 const SignUp = () => {
   const authRepo = AuthRepository.getInstance();
@@ -46,12 +48,22 @@ const SignUp = () => {
         full_name: values.fullName,
         password: values.password,
         user_name: values.user_name,
+        phone: values.phoneNumber,
         email: values.email,
         role_id: 1,
       };
       console.log(payload, "Pay load is ");
       mutate(payload, {
-        onSuccess: (data) => {},
+        onSuccess: (data) => {
+          router.push({
+            pathname: route.auth.Otp,
+            params: {
+              username: formik.values.email,
+              type: OTP_TYPE.VIERIFICATION,
+              authResponse: JSON.stringify(data),
+            },
+          });
+        },
       });
     },
   });
@@ -141,7 +153,7 @@ const SignUp = () => {
               onBlur={formik.handleBlur("confirmPassword")}
               error={
                 formik.touched.confirmPassword && formik.errors.confirmPassword
-              } // Pass error message
+              }
               placeholder="Confirm password"
               secureTextEntry={true}
             />
@@ -153,7 +165,6 @@ const SignUp = () => {
         <CustomButton
           title="Sign Up"
           onPress={() => {
-            console.log(formik.errors, " i am press");
             formik.handleSubmit();
           }}
         />

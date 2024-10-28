@@ -34,7 +34,7 @@ export type LoginPayload = yup.InferType<typeof LoginSchema>;
 export { LoginSchema };
 
 const forgotPasswordSchema = yup.object().shape({
-  email: yup
+  username: yup
     .string()
     .email("Invalid Email Address")
     .required("Email is required"),
@@ -52,7 +52,7 @@ export type OtpPayload = yup.InferType<typeof OtpSchema>;
 export { OtpSchema };
 
 const ResetPassowrdSchema = yup.object().shape({
-  email: yup.string().required("Email is required"),
+  username: yup.string().required("Email is required"),
   otp: yup.string().required("Otp is required"),
   password: yup.string().required("Password is required"),
   passwordConfirm: yup

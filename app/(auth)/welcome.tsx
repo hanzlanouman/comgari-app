@@ -9,14 +9,14 @@ import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { scale, vs, verticalScale } from "react-native-size-matters";
 import { router } from "expo-router";
+import { route } from "@/common";
 
 const Welcome = () => {
   return (
     <ImageBackground
       source={images.welcome}
       resizeMode="cover"
-      className="w-full h-screen"
-    >
+      className="w-full h-screen">
       <LinearGradient
         colors={["#1D78B9", "#52469A"]}
         className="absolute top-0 left-0 w-full h-full opacity-[.85]"
@@ -37,17 +37,17 @@ const Welcome = () => {
           Here to mend your world with care and a smile, one fix at a time.
         </Text>
         <TouchableOpacity
-          onPress={() => router.push("/(auth)/sign-in")}
-          className="bg-white w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center"
-        >
+          onPress={() => router.push(route.auth.login)}
+          className="bg-white w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">
           <Text className="text-sm sm:text-base font-ManropeSemibold text-blue">
             I have an account
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => router.push("/(auth)/sign-up")}
-          className="bg-navy w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center mt-2.5"
-        >
+          onPress={() => {
+            router.push(route.auth.OnBoarding);
+          }}
+          className="bg-navy w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center mt-2.5">
           <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
             I’ m new here
           </Text>

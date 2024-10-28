@@ -17,4 +17,5 @@ declare interface InputFieldProps extends TextInputProps {
   error?: string;
   errorStyle?: string;
   className?: string;
+  ref?: any;
 }
