@@ -5,6 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fdf5ddad-41fc-44f4-b9b0-fb98a7d7c128" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/_layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/add-member.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/members.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/add-card.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/go-pro.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/payment-method.tsx" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker.min.css" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/moment/js/moment.min.js" afterDir="false" />
@@ -32,6 +38,20 @@
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-business/index.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-reviewer/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(auth)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(auth)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(auth)/sign-up.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(auth)/sign-up.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/member.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/appointment.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/CustomButton.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/CustomButton.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/InputField.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/InputField.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/constants/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/reset-project.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/reset-project.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/components/business-card/business-card.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/components/business-card/business-card.js" afterDir="false" />
@@ -64,7 +84,7 @@
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;js.linters.configure.manually.selectedeslint&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/macbookpro/Projects/comgari/app/(auth)&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/macbookpro/Projects/comgari/app/(root)/(tabs)/member&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -80,14 +100,21 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
+      <recent name="$PROJECT_DIR$/app/(root)" />
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)" />
       <recent name="$PROJECT_DIR$/app/(auth)" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
+      <recent name="$PROJECT_DIR$/app/(root)" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)" />
     </key>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-WS-242.23339.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-WS-242.23726.96" />
       </set>
     </attachedChunks>
   </component>
@@ -109,6 +136,11 @@
       <workItem from="1729700012215" duration="1399000" />
       <workItem from="1729762916503" duration="5973000" />
       <workItem from="1729796272276" duration="2869000" />
+      <workItem from="1729933962420" duration="528000" />
+      <workItem from="1729952803257" duration="995000" />
+      <workItem from="1729970210710" duration="15994000" />
+      <workItem from="1730132272389" duration="21786000" />
+      <workItem from="1730220270173" duration="9300000" />
     </task>
     <servers />
   </component>

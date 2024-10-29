@@ -5,6 +5,12 @@ import onboarding3 from "@/assets/images/onboarding3.jpg";
 import welcome from "@/assets/images/welcome.jpg";
 import logo from "@/assets/images/logo.png";
 import login from "@/assets/images/login.jpg";
+import donat from "@/assets/images/donat.png";
+import card from "@/assets/images/card.png";
+import masterCard from "@/assets/images/master-card.png";
+import visa from "@/assets/images/visa.png";
+import member from "@/assets/images/member.png";
+import user from "@/assets/images/user.jpg";
 
 export const images = {
   onboarding1,
@@ -13,6 +19,12 @@ export const images = {
   welcome,
   logo,
   login,
+  donat,
+  card,
+  masterCard,
+  visa,
+  member,
+  user,
 };
 
 export const onboarding = [

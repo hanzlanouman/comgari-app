@@ -1,6 +1,5 @@
 import { TouchableOpacity, Text } from "react-native";
 import { router, Stack } from "expo-router";
-import "react-native-reanimated";
 
 const Layout = () => {
   return (

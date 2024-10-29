@@ -32,19 +32,20 @@ const InputField = ({
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="w-full">
           {label && (
-            <Text className={`text-sm font-ManropMedium ${labelStyle}`}>
+            <Text className={`text-sm font-ManropeMedium mb-1.5 ${labelStyle}`}>
               {label}
             </Text>
           )}
           <View
-            className={`flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}
+            className={`h-12 sm:h-[52] flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}
           >
             {icon && <View className={`ml-4 ${iconStyle}`}>{icon}</View>}
             <TextInput
-              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 lowercase ${inputStyle} text-left`}
+              className={`rounded-xl p-4 font-ManropeMedium text-[15px] flex-1 lowercase ${inputStyle} text-left`}
               secureTextEntry={isPasswordVisible}
               {...props}
               placeholderTextColor="#4A4A4A"
+              style={{ paddingBottom: Platform.OS === "ios" ? 16 : 15 }}
             />
             {secureTextEntry && (
               <TouchableOpacity

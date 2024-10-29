@@ -87,7 +87,10 @@ const SignUp = () => {
         </View>
       </ScrollView>
       <View className="px-4 pt-4 bg-white">
-        <CustomButton title="Sign Up" onPress={() => router.push("/")} />
+        <CustomButton
+          title="Sign Up"
+          onPress={() => router.push("/(root)/go-pro")}
+        />
       </View>
     </SafeAreaView>
   );
