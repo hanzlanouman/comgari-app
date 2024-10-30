@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fdf5ddad-41fc-44f4-b9b0-fb98a7d7c128" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/_layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/add-client.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/clients.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/brief.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/client-detail.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/ProgressBar.tsx" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker.min.css" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/moment/js/moment.min.js" afterDir="false" />
@@ -35,9 +35,11 @@
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-business/index.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-reviewer/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/members/members.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/members.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/add-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/add-client.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/clients.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/clients.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/InputField.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/InputField.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/constants/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" afterDir="false" />
@@ -71,7 +73,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "js.linters.configure.manually.selectedeslint": "true",
-    "last_opened_file_path": "/Users/macbookpro/Projects/comgari/app/(root)/(tabs)",
+    "last_opened_file_path": "/Users/macbookpro/Projects/comgari/app/(root)/(tabs)/clients",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -87,10 +89,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/clients" />
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/clients/[id]" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
       <recent name="$PROJECT_DIR$/app/(root)" />
-      <recent name="$PROJECT_DIR$/app/(auth)" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
@@ -129,6 +132,7 @@
       <workItem from="1730132272389" duration="21786000" />
       <workItem from="1730220270173" duration="10258000" />
       <workItem from="1730276354057" duration="2301000" />
+      <workItem from="1730289813336" duration="13187000" />
     </task>
     <servers />
   </component>

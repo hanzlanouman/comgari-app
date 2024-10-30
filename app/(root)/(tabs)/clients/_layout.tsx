@@ -45,6 +45,14 @@ const Layout = () => {
         name="add-client"
         options={{ headerShown: true, title: "Add Client" }}
       />
+      <Stack.Screen
+        name="client-detail"
+        options={{ headerShown: true, title: "Client Detail" }}
+      />
+      <Stack.Screen
+        name="brief"
+        options={{ headerShown: true, title: "Brief" }}
+      />
     </Stack>
   );
 };

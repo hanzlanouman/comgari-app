@@ -1,13 +1,23 @@
-import { Platform, SafeAreaView, ScrollView, View } from "react-native";
+import {
+  Image,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
 import InputField from "@/components/InputField";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   SelectList,
   MultipleSelectList,
 } from "react-native-dropdown-select-list";
-import { ChevronDown, Search, X } from "lucide-react-native";
+import { ChevronDown, Search, Upload, X } from "lucide-react-native";
+import { images } from "@/constants";
+import { vs } from "react-native-size-matters";
 
 const role = [
   { key: "1", value: "Super Admin" },
@@ -26,12 +36,29 @@ const AddClient = () => {
     fullName: "",
     email: "",
     phoneNumber: "",
+    description: "",
   });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        <View className="mt-2.5">
+        <View
+          className="mt-2.5 relative mx-auto"
+          style={{ width: vs(80), height: vs(80) }}
+        >
+          <Image
+            source={images.user}
+            resizeMode="cover"
+            className="rounded-full mx-auto w-full h-full"
+          />
+          <TouchableOpacity
+            onPress={() => {}}
+            className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px"
+          >
+            <Upload size={13} color="#ffffff" />
+          </TouchableOpacity>
+        </View>
+        <View className="mt-5">
           <InputField
             label=""
             value={form.fullName}
@@ -57,47 +84,12 @@ const AddClient = () => {
           />
         </View>
         <View className="mt-3">
-          <SelectList
-            setSelected={(val) => setSelectedRole(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Select Role"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              backgroundColor: "#fff",
-            }}
-          />
-        </View>
-        <View className="mt-3">
           <MultipleSelectList
             setSelected={(val) => setSelectedPermissions(val)}
             data={role}
             save="value"
             fontFamily="Manrope-Medium"
-            placeholder="Permissions"
+            placeholder="Assign member"
             search={false}
             searchPlaceholder="Search..."
             arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
@@ -137,6 +129,41 @@ const AddClient = () => {
             }}
           />
         </View>
+        <View className="mt-3">
+          <SelectList
+            setSelected={(val) => setSelectedRole(val)}
+            data={role}
+            save="value"
+            fontFamily="Manrope-Medium"
+            placeholder="Select Type"
+            search={false}
+            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
+            placeholderTextColor="#1B78B9"
+            boxStyles={{
+              backgroundColor: "#fff",
+              height: 54,
+              borderStyle: "solid",
+              borderWidth: 1,
+              borderColor: "#EDEDED",
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingTop: Platform.OS === "ios" ? 12 : 10,
+              alignItems: "center",
+            }}
+            inputStyles={{
+              color: "#1C1C1C",
+              paddingHorizontal: 0,
+              fontSize: 15,
+            }}
+            dropdownStyles={{
+              borderStyle: "solid",
+              borderWidth: 1,
+              borderColor: "#EDEDED",
+              borderRadius: 12,
+              backgroundColor: "#fff",
+            }}
+          />
+        </View>
         <View className="mt-2.5">
           <SelectList
             setSelected={(val) => setSelectedStatus(val)}
@@ -170,6 +197,18 @@ const AddClient = () => {
               borderRadius: 12,
               transition: "all 0.1s ease",
             }}
+          />
+        </View>
+        <View className="mt-3">
+          <TextInput
+            className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] flex-1 lowercase text-left"
+            value={form.description}
+            editable
+            multiline
+            numberOfLines={4}
+            placeholderTextColor="#1C1C1C"
+            placeholder="Description"
+            onChangeText={(value) => setForm({ ...form, description: value })}
           />
         </View>
       </ScrollView>

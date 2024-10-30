@@ -44,7 +44,7 @@ const InputField = ({
               className={`rounded-xl p-4 font-ManropeMedium text-[15px] flex-1 lowercase ${inputStyle} text-left`}
               secureTextEntry={isPasswordVisible}
               {...props}
-              placeholderTextColor="#4A4A4A"
+              placeholderTextColor="#1C1C1C"
               style={{ paddingBottom: Platform.OS === "ios" ? 16 : 15 }}
             />
             {secureTextEntry && (
