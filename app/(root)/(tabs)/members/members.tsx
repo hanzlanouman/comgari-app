@@ -20,7 +20,7 @@ const Members = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
         {hasData ? (
           <View className="pb-4">
-            <TouchableOpacity className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
               <View className="relative items-center">
                 <Image
                   source={images.user}
@@ -55,8 +55,8 @@ const Members = () => {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+            </View>
+            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
               <View className="relative items-center">
                 <Image
                   source={images.user}
@@ -91,8 +91,8 @@ const Members = () => {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+            </View>
+            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
               <View className="relative items-center">
                 <Image
                   source={images.user}
@@ -127,8 +127,8 @@ const Members = () => {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+            </View>
+            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
               <View className="relative items-center">
                 <Image
                   source={images.user}
@@ -163,8 +163,8 @@ const Members = () => {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+            </View>
+            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
               <View className="relative items-center">
                 <Image
                   source={images.user}
@@ -199,8 +199,8 @@ const Members = () => {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+            </View>
+            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
               <View className="relative items-center">
                 <Image
                   source={images.user}
@@ -235,7 +235,7 @@ const Members = () => {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
+            </View>
           </View>
         ) : (
           <View className="flex-grow flex-col items-center justify-center px-4">

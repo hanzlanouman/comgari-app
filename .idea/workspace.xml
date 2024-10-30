@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fdf5ddad-41fc-44f4-b9b0-fb98a7d7c128" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/_layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/add-member.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/members.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/add-card.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/go-pro.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/payment-method.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/_layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/add-client.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/clients.tsx" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker.min.css" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../magna-new/assets/vendor/moment/js/moment.min.js" afterDir="false" />
@@ -38,19 +35,9 @@
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-business/index.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-reviewer/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(auth)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(auth)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(auth)/sign-up.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(auth)/sign-up.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/member.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/appointment.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/members/members.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/members/members.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/CustomButton.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/CustomButton.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/InputField.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/InputField.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/constants/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/reset-project.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/reset-project.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" afterDir="false" />
@@ -78,31 +65,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;js.linters.configure.manually.selectedeslint&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/macbookpro/Projects/comgari/app/(root)/(tabs)/member&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;/Users/macbookpro/Projects/comgari/node_modules/eslint&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/macbookpro/Projects/comgari/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/macbookpro/Projects/comgari/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "js.linters.configure.manually.selectedeslint": "true",
+    "last_opened_file_path": "/Users/macbookpro/Projects/comgari/app/(root)/(tabs)",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "/Users/macbookpro/Projects/comgari/node_modules/eslint",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "/Users/macbookpro/Projects/comgari/node_modules/prettier",
+    "settings.editor.selected.configurable": "Errors",
+    "ts.external.directory.path": "/Users/macbookpro/Projects/comgari/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
       <recent name="$PROJECT_DIR$/app/(root)" />
-      <recent name="$PROJECT_DIR$/app/(root)/(tabs)" />
       <recent name="$PROJECT_DIR$/app/(auth)" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -140,7 +127,8 @@
       <workItem from="1729952803257" duration="995000" />
       <workItem from="1729970210710" duration="15994000" />
       <workItem from="1730132272389" duration="21786000" />
-      <workItem from="1730220270173" duration="9300000" />
+      <workItem from="1730220270173" duration="10258000" />
+      <workItem from="1730276354057" duration="2301000" />
     </task>
     <servers />
   </component>
