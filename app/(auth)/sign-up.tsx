@@ -50,11 +50,11 @@ const SignUp = () => {
         user_name: values.user_name,
         phone: values.phoneNumber,
         email: values.email,
-        role_id: 1,
       };
-      console.log(payload, "Pay load is ");
+
       mutate(payload, {
         onSuccess: (data) => {
+          console.log(data, "Auth Response");
           router.push({
             pathname: route.auth.Otp,
             params: {

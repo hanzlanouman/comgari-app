@@ -1,9 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { TouchableOpacity, Text } from "react-native";
-import { router, Stack } from "expo-router";
+import { Href, Redirect, router, Stack } from "expo-router";
 import "react-native-reanimated";
+import { useAppSelector } from "@/hooks/redux";
+import { route } from "@/common";
 
 const Layout = () => {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  if (isAuthenticated) {
+    return <Redirect href={route.root.home as unknown as Href} />;
+  }
+
   return (
     <Stack
       screenOptions={{

@@ -46,11 +46,12 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async login(payload: LoginPayload): Promise<TLoginResponse> {
-    console.log();
+    console.log(BaseUrl + END_POINTS.AUTH.LOGIN.route, "Route is");
     try {
       const res: ApiReponse<TLoginResponse> = await post(
         `${BaseUrl + END_POINTS.AUTH.LOGIN.route}`,
-        payload
+        payload,
+        { show_loader: true }
       );
       return res;
     } catch (e: AxiosError | any) {
@@ -100,6 +101,7 @@ export class AuthRepository implements IAuthRepository {
     otpPayLoad: TVerifyCredPayload,
     authResponse: TLoginResponse
   ): Promise<TReponse> {
+    console.log(authResponse, "Auth Response");
     try {
       const res = await put(END_POINTS.AUTH.VERFY_CRED.route, otpPayLoad, {
         show_loader: true,

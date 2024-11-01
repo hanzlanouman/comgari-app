@@ -13,7 +13,7 @@ import {
 
 import { ms } from "react-native-size-matters";
 
-import ThemeButton from "@/common/components/CustomButton";
+import ThemeButton, { CustomButton } from "@/common/components/CustomButton";
 
 import { Colors } from "@/common/Colors";
 
@@ -90,11 +90,7 @@ export const AppContainer = (props: Props) => {
           <View style={styles.modal}>
             <Text style={styles.heading}>{title}</Text>
             <Text style={styles.textStyle}>{props.message}</Text>
-            <ThemeButton
-              onPress={handleClose}
-              className="mt-2.5 bg-black border border-stone-300 text-center"
-              title="Ok"
-            />
+            <CustomButton onPress={handleClose} title="Ok" />
           </View>
         </View>
       </Modal>

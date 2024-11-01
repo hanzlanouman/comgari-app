@@ -48,4 +48,18 @@ export const END_POINTS = {
       mothod: "POST",
     },
   },
+  Member: {
+    GET_ROLE: {
+      route: UserUrl + "/roles",
+    },
+    GET_PERMISSION: {
+      route: UserUrl + "/all-permission",
+    },
+    CREATE_MEMBER: {
+      route: UserUrl + "/member",
+    },
+    GET_MEMBER: {
+      route: UserUrl + "/member",
+    },
+  },
 };

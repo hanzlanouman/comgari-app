@@ -14,9 +14,12 @@ import AppContainer from "@/common/components/AppContainer";
 import { AuthRepository } from "@/repositories/auth/auth";
 import { useMutation } from "react-query";
 import { route } from "@/common";
+import { useAppDispatch } from "@/hooks/redux";
+import { login } from "@/store";
 
 const SignIn = () => {
   const AuthRepo = AuthRepository.getInstance();
+  const dispatch = useAppDispatch();
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: LoginPayload) => AuthRepo.login(payload),
   });
@@ -30,6 +33,7 @@ const SignIn = () => {
       console.log(formik.values, "Value");
       mutate(value, {
         onSuccess: (data) => {
+          dispatch(login(data));
           console.log(data, "data");
         },
       });

@@ -10,7 +10,7 @@ import {
   Platform,
   TouchableOpacity,
 } from "react-native";
-import { Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff, RefreshCcw } from "lucide-react-native"; // Import an icon for password generation
 import { InputFieldProps } from "@/types/type";
 
 export const InputField = ({
@@ -21,13 +21,24 @@ export const InputField = ({
   containerStyle,
   inputStyle,
   iconStyle,
-  error, // New error prop
-  errorStyle, // New error style prop
+  error,
+  errorStyle,
+  generatePasswordIcon = false, // New prop for displaying generate password icon
+  onGeneratePassword, // New function prop for generating password
   className,
   ref,
   ...props
 }: InputFieldProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(secureTextEntry);
+  const [inputValue, setInputValue] = useState("");
+
+  const generatePassword = () => {
+    const randomPassword = Math.random().toString(36).slice(-10);
+    setInputValue(randomPassword);
+    if (onGeneratePassword) {
+      onGeneratePassword(randomPassword);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -45,6 +56,8 @@ export const InputField = ({
             <TextInput
               className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 lowercase ${inputStyle} text-left`}
               secureTextEntry={isPasswordVisible}
+              value={inputValue}
+              onChangeText={setInputValue}
               {...props}
               placeholderTextColor="#4A4A4A"
               ref={ref}
@@ -58,6 +71,13 @@ export const InputField = ({
                 ) : (
                   <Eye width={18} height={18} color="#4A4A4A" />
                 )}
+              </TouchableOpacity>
+            )}
+            {generatePasswordIcon && (
+              <TouchableOpacity
+                onPress={generatePassword}
+                className="p-2.5 mr-1">
+                <RefreshCcw width={18} height={18} color="#4A4A4A" />
               </TouchableOpacity>
             )}
           </View>

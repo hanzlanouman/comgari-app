@@ -16,6 +16,7 @@ import { AuthRepository } from "@/repositories/auth/auth";
 import { TextInput } from "react-native-gesture-handler";
 import OtpField from "@/common/components/OtpField";
 import { route } from "@/common";
+import { AppContainer } from "@/common/components";
 export type TOtpProps =
   | {
       username: string;
@@ -103,52 +104,56 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     }
   };
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 p-4">
-        <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
-          Enter OTP Code!
-        </Text>
-        <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-          We have send the code to{" "}
-          <Text className="font-ManropeMedium text-blue">+92 3410566466</Text>,
-          and
-          <Text className="font-ManropeMedium text-blue"> {username}</Text>
-        </Text>
-        <View className="flex-row -mx-2">
-          {formik.values.otp.map((_, index) => (
-            <OtpField
-              key={index}
-              title=""
-              value={formik.values.otp[index]}
-              handleChangeText={(text) => handleChange(text, index)}
-              placeholder="0"
-              otherStyles="mt-8 w-3/12 px-2"
-              inputStyles="text-center"
-              type="text"
-              index={index}
-              inputRef={inputRefs}
-              error={
-                formik.touched.otp && formik.errors.otp ? formik.errors.otp : ""
-              }
-            />
-          ))}
+    <AppContainer isError={isError} message={Error?.message}>
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 p-4">
+          <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
+            Enter OTP Code!
+          </Text>
+          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
+            We have send the code to{" "}
+            <Text className="font-ManropeMedium text-blue">+92 3410566466</Text>
+            , and
+            <Text className="font-ManropeMedium text-blue"> {username}</Text>
+          </Text>
+          <View className="flex-row -mx-2">
+            {formik.values.otp.map((_, index) => (
+              <OtpField
+                key={index}
+                title=""
+                value={formik.values.otp[index]}
+                handleChangeText={(text) => handleChange(text, index)}
+                placeholder="0"
+                otherStyles="mt-8 w-3/12 px-2"
+                inputStyles="text-center"
+                type="text"
+                index={index}
+                inputRef={inputRefs}
+                error={
+                  formik.touched.otp && formik.errors.otp
+                    ? formik.errors.otp
+                    : ""
+                }
+              />
+            ))}
+          </View>
+          <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
+            Don’t receive OTP:{" "}
+            <Link href="" className="text-blue underline font-ManropeSemibold">
+              Resend code
+            </Link>
+          </Text>
         </View>
-        <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
-          Don’t receive OTP:{" "}
-          <Link href="" className="text-blue underline font-ManropeSemibold">
-            Resend code
-          </Link>
-        </Text>
-      </View>
-      <View className="px-4">
-        <CustomButton
-          title="Verify Now"
-          onPress={() => {
-            formik.handleSubmit();
-          }}
-        />
-      </View>
-    </SafeAreaView>
+        <View className="px-4">
+          <CustomButton
+            title="Verify Now"
+            onPress={() => {
+              formik.handleSubmit();
+            }}
+          />
+        </View>
+      </SafeAreaView>
+    </AppContainer>
   );
 };
 

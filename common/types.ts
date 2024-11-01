@@ -7,3 +7,11 @@ export type AuthReponse = {
   access_token: string;
   user: TUSER;
 };
+
+export type ErrorType = {
+  message: "";
+};
+export type OptionType = {
+  key: string | any | number | boolean;
+  value: string;
+};

@@ -18,4 +18,6 @@ declare interface InputFieldProps extends TextInputProps {
   errorStyle?: string;
   className?: string;
   ref?: any;
+  generatePasswordIcon?: boolean;
+  onGeneratePassword?: (password: string) => void;
 }
