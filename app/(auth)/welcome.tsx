@@ -8,10 +8,15 @@ import {
 import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { scale, vs, verticalScale } from "react-native-size-matters";
-import { router } from "expo-router";
+import { Href, Redirect, router } from "expo-router";
 import { route } from "@/common";
+import { useAppSelector } from "@/hooks/redux";
 
 const Welcome = () => {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  if (isAuthenticated) {
+    return <Redirect href={route.root.home as unknown as Href} />;
+  }
   return (
     <ImageBackground
       source={images.welcome}

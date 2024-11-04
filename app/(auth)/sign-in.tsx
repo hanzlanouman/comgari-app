@@ -30,11 +30,9 @@ const SignIn = () => {
     },
     validationSchema: LoginSchema,
     onSubmit: (value) => {
-      console.log(formik.values, "Value");
       mutate(value, {
         onSuccess: (data) => {
           dispatch(login(data));
-          console.log(data, "data");
         },
       });
     },

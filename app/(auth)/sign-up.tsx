@@ -54,7 +54,6 @@ const SignUp = () => {
 
       mutate(payload, {
         onSuccess: (data) => {
-          console.log(data, "Auth Response");
           router.push({
             pathname: route.auth.Otp,
             params: {
