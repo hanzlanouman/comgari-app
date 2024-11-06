@@ -201,11 +201,10 @@ const AddClient = () => {
         </View>
         <View className="mt-3">
           <TextInput
-            className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] flex-1 lowercase text-left"
+            className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] lowercase text-left"
             value={form.description}
             editable
             multiline
-            numberOfLines={4}
             placeholderTextColor="#1C1C1C"
             placeholder="Description"
             onChangeText={(value) => setForm({ ...form, description: value })}
