@@ -3,33 +3,66 @@ import {
   SafeAreaView,
   Platform,
   KeyboardAvoidingView,
+  ScrollView,
   View,
+  Text,
 } from "react-native";
-import QuillEditor, { QuillToolbar } from "react-native-cn-quill";
+import {
+  actions,
+  RichEditor,
+  RichToolbar,
+} from "react-native-pell-rich-editor";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
 
+const handleHead = ({ tintColor }) => (
+  <Text style={{ color: tintColor }}>H1</Text>
+);
+
 const Brief = () => {
-  const _editor = React.createRef();
+  const richText = React.useRef();
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="-ml-px border-0"
-      >
-        <QuillToolbar
-          editor={_editor}
-          options="full"
-          theme="dark"
-          className="border-0"
-        />
-      </KeyboardAvoidingView>
-      <QuillEditor
-        ref={_editor}
-        initialHtml="<h3>Tell about yourself</h3>"
-        className="flex-1"
+      <RichToolbar
+        editor={richText}
+        actions={[
+          actions.setBold,
+          actions.setItalic,
+          actions.setUnderline,
+          actions.heading1,
+          actions.insertBulletsList,
+          actions.insertOrderedList,
+          actions.insertLink,
+          actions.insertImage,
+          actions.insertVideo,
+          actions.keyboard,
+          actions.setStrikethrough,
+          actions.removeFormat,
+          actions.checkboxList,
+          actions.undo,
+          actions.redo,
+        ]}
+        iconMap={{
+          [actions.heading1]: handleHead,
+        }}
       />
+      <ScrollView>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <RichEditor
+            ref={richText}
+            editorStyle={{
+              color: "#4A4A4A",
+            }}
+            initialContentHTML="Hi, Please fill out the brief below to help us understand your project better."
+            onChange={(descriptionText) => {
+              console.log("descriptionText:", descriptionText);
+            }}
+          />
+        </KeyboardAvoidingView>
+      </ScrollView>
       <View className="p-4 bg-white">
         <CustomButton title="Update" onPress={() => router.push("/")} />
       </View>

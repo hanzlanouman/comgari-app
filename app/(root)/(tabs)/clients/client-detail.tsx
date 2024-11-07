@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { images } from "@/constants";
+import { images, icons } from "@/constants";
 import { vs } from "react-native-size-matters";
 import { router } from "expo-router";
 
@@ -68,7 +68,7 @@ const ClientDetail = () => {
             >
               <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
                 <Image
-                  source={images.brief}
+                  source={icons.brief}
                   resizeMode="contain"
                   className="w-[23px] h-5"
                 />
@@ -83,12 +83,14 @@ const ClientDetail = () => {
           </View>
           <View className="px-1.5 mt-3 w-2/4">
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() => {
+                router.push("/(root)/(tabs)/clients/tasks");
+              }}
               className="border border-light rounded-[20px] p-4"
             >
               <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
                 <Image
-                  source={images.tasks}
+                  source={icons.tasks}
                   resizeMode="contain"
                   className="w-5 h-5"
                 />
@@ -108,7 +110,7 @@ const ClientDetail = () => {
             >
               <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
                 <Image
-                  source={images.notes}
+                  source={icons.notes}
                   resizeMode="contain"
                   className="w-[23px] h-5"
                 />
@@ -128,7 +130,7 @@ const ClientDetail = () => {
             >
               <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
                 <Image
-                  source={images.media}
+                  source={icons.media}
                   resizeMode="contain"
                   className="w-[23px] h-5"
                 />
