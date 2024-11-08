@@ -164,6 +164,7 @@ const SignUp = () => {
         <CustomButton
           title="Sign Up"
           onPress={() => {
+            //router.push("/(auth)/go-pro");
             formik.handleSubmit();
           }}
         />

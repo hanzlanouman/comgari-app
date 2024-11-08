@@ -79,7 +79,8 @@ export const AppContainer = (props: Props) => {
   const hasScroll = props?.hasScroll ? true : false;
 
   return (
-    <>
+    <KeyboardAwareScrollView className="bg-white w-screen h-screen">
+      {props?.loading && <SimpleActivityIndicator />}
       <Modal
         animationType="slide"
         transparent={true}
@@ -126,7 +127,7 @@ export const AppContainer = (props: Props) => {
       ) : (
         props.children
       )}
-    </>
+    </KeyboardAwareScrollView>
   );
 };
 

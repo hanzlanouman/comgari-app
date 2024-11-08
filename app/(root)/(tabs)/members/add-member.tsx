@@ -25,8 +25,20 @@ const AddMember = () => {
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: memberPayload) => MemberRepo.createMember(payload),
   });
-  const { data: role } = useQuery(["roles"], getRole);
-  const { data: permission } = useQuery(["permission"], getPermission);
+  const { data: role } = useQuery(["roles"], getRole, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+  const { data: permission } = useQuery(["permission"], getPermission, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
   const status: OptionType[] = [
@@ -52,6 +64,7 @@ const AddMember = () => {
         }))
       );
       if (permission) {
+        console.log(permission, "Permission is this");
         const formattedData = permission?.data?.map((item: any) => ({
           key: item?.id,
           value: `${item?.name} ${item?.resource}`,

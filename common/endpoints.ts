@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { AuthUrl, UserUrl } from "@/common/enviornment";
+import { AuthUrl, PaymentUrl, UserUrl } from "@/common/enviornment";
+import { route } from "./routes";
 
 export type TRoute =
   | string
@@ -60,6 +61,23 @@ export const END_POINTS = {
     },
     GET_MEMBER: {
       route: UserUrl + "/member",
+    },
+    GET_USER_PERMISSION: {
+      route: UserUrl + "/permission",
+    },
+  },
+  PAYMENT: {
+    CREATE_BUYER: {
+      route: PaymentUrl + "/create-buyer",
+    },
+    GET_CARD: {
+      route: PaymentUrl + "/get-card",
+    },
+    GET_SUBSCRIPTION: {
+      route: PaymentUrl + "/get-subscription",
+    },
+    CREATE_SUBSCRIPTION: {
+      route: PaymentUrl + "/create-subscription",
     },
   },
 };

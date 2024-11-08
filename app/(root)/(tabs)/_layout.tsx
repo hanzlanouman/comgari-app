@@ -1,4 +1,6 @@
+import React, { useMemo } from "react";
 import { route } from "@/common";
+import { useAuthorization } from "@/context/PermissionContext";
 import { useAppSelector } from "@/hooks/redux";
 import { Redirect, Tabs } from "expo-router";
 import {
@@ -10,11 +12,81 @@ import {
 } from "lucide-react-native";
 
 const Layout = () => {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { getPermission } = useAuthorization();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
+  const tabScreens = useMemo(() => {
+    const screens = [
+      {
+        name: "home",
+        title: "Home",
+        icon: House,
+        permissionRequired: null,
+        headerShown: true,
+      },
+      {
+        name: "members",
+        title: "Members",
+        icon: Users,
+        permissionRequired: {
+          user: user,
+          permission: "Get",
+          resource: "member",
+        },
+        headerShown: false,
+      },
+      {
+        name: "clients",
+        title: "Clients",
+        icon: UsersRound,
+        permissionRequired: {
+          user: user,
+          permission: "GET",
+          resource: "clients",
+        },
+        headerShown: false,
+      },
+      {
+        name: "appointment",
+        title: "Appointment",
+        icon: CalendarDays,
+        permissionRequired: {
+          user: user,
+          permission: "GET",
+          resource: "appointments",
+        },
+        headerShown: false,
+      },
+      {
+        name: "profile",
+        title: "Profile",
+        icon: UserPen,
+
+        headerShown: false,
+      },
+    ];
+
+    return screens.map((screen) => {
+      if (screen.permissionRequired) {
+        const { user, permission, resource } = screen.permissionRequired;
+        const hasPermission = getPermission(user!, permission, resource);
+        return {
+          ...screen,
+          href: hasPermission ? screen.name : null,
+        };
+      }
+      return {
+        ...screen,
+        href: screen.name,
+      };
+    });
+  }, [getPermission, user]);
+
+  // Only render <Redirect> after all hooks are called
   if (!isAuthenticated) {
     return <Redirect href={route.auth.login} />;
   }
+
   return (
     <Tabs
       initialRouteName="home"
@@ -32,56 +104,20 @@ const Layout = () => {
         },
         headerShadowVisible: false,
       }}>
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: "Home",
-          headerShown: true,
-          tabBarIcon: ({ focused }) => (
-            <House color={focused ? "#1B78B9" : "#1C1C1C"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="members"
-        options={{
-          title: "Members",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <Users color={focused ? "#1B78B9" : "#1C1C1C"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="clients"
-        options={{
-          title: "Clients",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <UsersRound color={focused ? "#1B78B9" : "#1C1C1C"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="appointment"
-        options={{
-          title: "Appointment",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <CalendarDays color={focused ? "#1B78B9" : "#1C1C1C"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <UserPen color={focused ? "#1B78B9" : "#1C1C1C"} />
-          ),
-        }}
-      />
+      {tabScreens.map((screen) => (
+        <Tabs.Screen
+          key={screen.name}
+          name={screen.href || screen.name} // Use href if it's not null
+          options={{
+            title: screen.title,
+            headerShown: screen.headerShown,
+            href: screen.href, // Pass href here
+            tabBarIcon: ({ focused }) => (
+              <screen.icon color={focused ? "#1B78B9" : "#1C1C1C"} />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 };

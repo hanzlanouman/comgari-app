@@ -1,4 +1,5 @@
 import { CustomButton } from "@/common/components";
+import { useAuthorization } from "@/context/PermissionContext";
 import { useAppDispatch } from "@/hooks/redux";
 import { logout } from "@/store";
 import { Text, View } from "react-native";
@@ -6,6 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const dispatch = useAppDispatch();
+  const { getPermission } = useAuthorization();
+
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1 justify-end">

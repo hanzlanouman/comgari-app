@@ -3,7 +3,7 @@ import { post, put } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
 import { ApiReponse, AuthReponse } from "@/common/types";
-import { getErrorMessage } from "@/common/utils";
+import { getCustomErrorMessage, getErrorMessage } from "@/common/utils";
 import {
   forgotPasswordPayload,
   LoginPayload,
@@ -54,7 +54,7 @@ export class AuthRepository implements IAuthRepository {
       );
       return res.data;
     } catch (e: AxiosError | any) {
-      throw new Error(getErrorMessage(e));
+      throw new Error(getCustomErrorMessage(e));
     }
   }
 
@@ -94,14 +94,10 @@ export class AuthRepository implements IAuthRepository {
       throw new Error(getErrorMessage(e));
     }
   }
-  async verifyCred(
-    otpPayLoad: TVerifyCredPayload,
-    authResponse: TLoginResponse
-  ): Promise<TReponse> {
+  async verifyCred(otpPayLoad: TVerifyCredPayload): Promise<TReponse> {
     try {
       const res = await put(END_POINTS.AUTH.VERFY_CRED.route, otpPayLoad, {
         show_loader: true,
-        headers: { Authorization: `Bearer ${authResponse.access_token}` },
       });
 
       return res;

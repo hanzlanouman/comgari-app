@@ -5,6 +5,8 @@ import onboarding3 from "@/assets/images/onboarding3.jpg";
 import welcome from "@/assets/images/welcome.jpg";
 import logo from "@/assets/images/logo.png";
 import login from "@/assets/images/login.jpg";
+import masterCard from "@/assets/images/master-card.png";
+import donat from "@/assets/images/donat.png";
 
 export const images = {
   onboarding1,
@@ -13,6 +15,8 @@ export const images = {
   welcome,
   logo,
   login,
+  masterCard,
+  donat,
 };
 
 export const onboarding = [
@@ -42,3 +46,5 @@ export const onboarding = [
 export const data = {
   onboarding,
 };
+export const STRIPE_PUBLIC_KEY =
+  "pk_test_51QHkbfJ8znQx7EOtvChenybm3ZwHYKH7X2qAM8FkSKbvgiWrUDnXFH9ssayz0GvYbBFQKSxbsPd7QBuuxiYzNdcX0043g3oki9";
