@@ -50,7 +50,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     isError,
     error,
   } = useMutation({
-    mutationFn: (payload: TVerifyCredPayload) => AuthRepo.verifyCred(payload),
+    mutationFn: (payload: TVerifyCredPayload) => AuthRepo.verifyCred(payload,authResponse),
     onSuccess: () => {
       console.log(type, "Type is this");
       if (type !== OTP_TYPE.MEMBER_VERIFICATION) {
@@ -122,7 +122,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     }
   };
   return (
-    <AppContainer isError={isError} message={Error?.message}>
+    <AppContainer isError={isError} message={error?.message}>
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">

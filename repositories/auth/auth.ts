@@ -94,7 +94,10 @@ export class AuthRepository implements IAuthRepository {
       throw new Error(getErrorMessage(e));
     }
   }
-  async verifyCred(otpPayLoad: TVerifyCredPayload): Promise<TReponse> {
+  async verifyCred(
+    otpPayLoad: TVerifyCredPayload,
+    authResponse: TLoginResponse
+  ): Promise<TReponse> {
     try {
       const res = await put(END_POINTS.AUTH.VERFY_CRED.route, otpPayLoad, {
         show_loader: true,
