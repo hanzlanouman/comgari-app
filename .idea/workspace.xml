@@ -35,10 +35,9 @@
       <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/_layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/brief.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/brief.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/client-detail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/client-detail.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/brief.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/icons/brief.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/media.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/icons/media.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/notes.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/icons/notes.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/tasks.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/icons/tasks.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/clients/tasks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/clients/tasks.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/no-task.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/icons/no-task.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/CustomButton.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/CustomButton.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/constants/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/constants/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
@@ -139,7 +138,9 @@
       <workItem from="1730289813336" duration="14524000" />
       <workItem from="1730455955728" duration="528000" />
       <workItem from="1730889139196" duration="4659000" />
-      <workItem from="1730952532801" duration="8651000" />
+      <workItem from="1730952532801" duration="8720000" />
+      <workItem from="1731000893420" duration="775000" />
+      <workItem from="1731125780678" duration="23980000" />
     </task>
     <servers />
   </component>

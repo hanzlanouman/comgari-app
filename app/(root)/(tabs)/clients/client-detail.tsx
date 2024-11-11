@@ -105,7 +105,9 @@ const ClientDetail = () => {
           </View>
           <View className="px-1.5 mt-3 w-2/4">
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() => {
+                router.push("/(root)/(tabs)/clients/notes");
+              }}
               className="border border-light rounded-[20px] p-4"
             >
               <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">

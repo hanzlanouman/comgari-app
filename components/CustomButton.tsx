@@ -9,6 +9,7 @@ const CustomButton = ({
   className,
   IconLeft,
   IconRight,
+  iconSize = 16,
   ...props
 }: ButtonProps) => {
   return (
@@ -23,11 +24,23 @@ const CustomButton = ({
         {...props}
         className="w-full h-full rounded-xl pb-0.5 flex flex-row justify-center items-center"
       >
-        {IconLeft && <IconLeft />}
+        {IconLeft && (
+          <IconLeft
+            size={iconSize}
+            color="#ffffff"
+            className="mr-2 relative top-px"
+          />
+        )}
         <Text className="text-sm sm:text-base font-ManropeSemibold text-white text-center">
           {title}
         </Text>
-        {IconRight && <IconRight />}
+        {IconRight && (
+          <IconRight
+            size={iconSize}
+            color="#ffffff"
+            className="mr-2 relative top-px"
+          />
+        )}
       </TouchableOpacity>
     </LinearGradient>
   );

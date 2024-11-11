@@ -5,6 +5,7 @@ declare interface ButtonProps extends TouchableOpacityProps {
   className?: string;
   IconLeft?: string;
   IconRight?: string;
+  iconSize: number;
 }
 
 declare interface InputFieldProps extends TextInputProps {

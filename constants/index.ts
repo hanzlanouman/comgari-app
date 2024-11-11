@@ -11,12 +11,15 @@ import masterCard from "@/assets/images/master-card.png";
 import visa from "@/assets/images/visa.png";
 import member from "@/assets/images/member.png";
 import user from "@/assets/images/user.jpg";
+import pdf from "@/assets/images/pdf.png";
+import doc from "@/assets/images/doc.png";
 
 import brief from "@/assets/icons/brief.png";
 import tasks from "@/assets/icons/tasks.png";
 import notes from "@/assets/icons/notes.png";
 import media from "@/assets/icons/media.png";
 import noTask from "@/assets/icons/no-task.png";
+import noNotes from "@/assets/icons/no-notes.png";
 
 export const images = {
   onboarding1,
@@ -31,6 +34,8 @@ export const images = {
   visa,
   member,
   user,
+  pdf,
+  doc,
 };
 
 export const icons = {
@@ -39,6 +44,7 @@ export const icons = {
   notes,
   media,
   noTask,
+  noNotes,
 };
 
 export const onboarding = [
