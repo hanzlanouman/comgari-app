@@ -50,19 +50,20 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     isError,
     error,
   } = useMutation({
-    mutationFn: (payload: TVerifyCredPayload) => AuthRepo.verifyCred(payload,authResponse),
+    mutationFn: (payload: TVerifyCredPayload) =>
+      AuthRepo.verifyCred(payload, authResponse),
     onSuccess: () => {
       console.log(type, "Type is this");
-      if (type !== OTP_TYPE.MEMBER_VERIFICATION) {
-        // dispatch(login(parsedAuthResponse));
+      if (type === OTP_TYPE.MEMBER_VERIFICATION) {
+        router.push(route.auth.login);
+      } else {
+        router.push({
+          pathname: "/(auth)/go-pro",
+          params: {
+            authResponse: authResponse,
+          },
+        });
       }
-
-      router.push({
-        pathname: "/(auth)/go-pro",
-        params: {
-          authResponse: authResponse,
-        },
-      });
     },
   });
 
@@ -116,7 +117,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
           username,
           otp,
         });
-        router.push(route.auth.login);
+
       default:
         break;
     }

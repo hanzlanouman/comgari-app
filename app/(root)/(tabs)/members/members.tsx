@@ -48,12 +48,12 @@ const Members = () => {
     if (data) {
       setMembers(
         data?.data?.map((item: any) => ({
-          id: item.user.id,
-          name: item.user.full_name,
-          image: item.user.avatar,
-          phone: item.user.AuthUser?.phone || null,
-          email: item.user.AuthUser?.email || null,
-          role: item.roleName,
+          id: item?.Auth?.user[0]?.id,
+          name: item?.Auth?.user[0]?.full_name,
+          image: item?.Auth?.user[0]?.avatar,
+          phone: item?.Auth?.phone || null,
+          email: item?.Auth?.email || null,
+          role: item?.Auth?.user[0]?.user_roles[0]?.role?.name || null,
         })) || []
       );
     }

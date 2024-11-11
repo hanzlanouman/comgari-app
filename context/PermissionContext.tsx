@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState, ReactNode } from "react";
 import { MemberRepository, TUSER } from "@/repositories";
 import { store } from "@/store";
+import { useAppSelector } from "@/hooks/redux";
 
 type PermissionDetail = {
   id: number;
@@ -35,7 +36,8 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
   const [permissions, setPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const userRepo = MemberRepository.getInstance();
-  const auth = store.getState().auth.isAuthenticated;
+  const auth = useAppSelector((state) => state.auth.isAuthenticated);
+
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
