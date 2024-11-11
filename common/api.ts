@@ -108,4 +108,6 @@ export async function del(url: string, config = {}) {
     .then((response) => response.data);
 }
 
+
+
 export default axiosApi;

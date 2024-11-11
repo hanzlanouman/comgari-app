@@ -15,3 +15,12 @@ export type OptionType = {
   key: string | any | number | boolean;
   value: string;
 };
+export interface ClientFormValues {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  description: string;
+  roleId: number;
+  permissionIds: number[];
+  status: string;
+}
