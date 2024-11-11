@@ -38,7 +38,7 @@ const ResetPassword = () => {
     onSubmit: (values) => {
       mutate(values, {
         onSuccess: () => {
-          router.push(route.auth.register);
+          router.push(route.auth.login);
         },
       });
     },

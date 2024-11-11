@@ -70,4 +70,18 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
+  async getUserPermissions(): Promise<TReponse> {
+    console.log(
+      `${BaseUrl + UserUrl + END_POINTS.Member.GET_USER_PERMISSION.route}`,
+      "Permission is"
+    );
+    try {
+      const res = await get(
+        `${BaseUrl + END_POINTS.Member.GET_USER_PERMISSION.route}`
+      );
+      return res;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
 }

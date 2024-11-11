@@ -11,7 +11,7 @@ const axiosApi = axios.create();
 
 const getHeader = (headers: AxiosHeaders) => {
   const token = store.getState().auth.token;
-  console.log(token, "tOKEN US");
+
   const newheaders: Partial<AxiosHeaders> = {};
 
   if (token && !headers["Authorization"]) {

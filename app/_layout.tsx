@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { store } from "@/store";
 import { useAppSelector } from "@/hooks/redux";
 import { SimpleActivityIndicator } from "@/common/components/Loader";
+import { AuthorizationProvider } from "@/context/PermissionContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,13 +48,14 @@ function LayoutWrapper() {
   return (
     <Fragment>
       {isLoading && <SimpleActivityIndicator />}
-
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(root)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <AuthorizationProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(root)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </AuthorizationProvider>
     </Fragment>
   );
 }

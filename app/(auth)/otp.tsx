@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { SafeAreaView, View, Text } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
 import InputField from "@/common/components/InputField";
 import { useRef, useState } from "react";
 import CustomButton from "@/common/components/CustomButton";
@@ -27,6 +27,11 @@ export type TOtpProps =
       username: string;
       type: OTP_TYPE.PASSWORD_RESET;
       authResponse?: string;
+    }
+  | {
+      username: string;
+      type: OTP_TYPE.MEMBER_VERIFICATION;
+      authResponse?: string;
     };
 export type TOtpComponentProps = {
   afterVerifyRoute: string;
@@ -46,10 +51,19 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     error,
   } = useMutation({
     mutationFn: (payload: TVerifyCredPayload) =>
-      AuthRepo.verifyCred(payload, parsedAuthResponse!),
+      AuthRepo.verifyCred(payload, authResponse),
     onSuccess: () => {
-      dispatch(login(parsedAuthResponse));
-      router.replace(route.auth.login);
+      console.log(type, "Type is this");
+      if (type === OTP_TYPE.MEMBER_VERIFICATION) {
+        router.push(route.auth.login);
+      } else {
+        router.push({
+          pathname: "/(auth)/go-pro",
+          params: {
+            authResponse: authResponse,
+          },
+        });
+      }
     },
   });
 
@@ -94,17 +108,22 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
 
       case OTP_TYPE.PASSWORD_RESET:
         router.push({
-          pathname: route.auth.Otp,
+          pathname: route.auth.resetPassword,
           params: { username: username, otp: formik.values.otp.join("") },
         });
         break;
+      case OTP_TYPE.MEMBER_VERIFICATION:
+        verfifyCred({
+          username,
+          otp,
+        });
 
       default:
         break;
     }
   };
   return (
-    <AppContainer isError={isError} message={Error?.message}>
+    <AppContainer isError={isError} message={error?.message}>
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
@@ -116,7 +135,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
             , and
             <Text className="font-ManropeMedium text-blue"> {username}</Text>
           </Text>
-          <View className="flex-row -mx-2">
+          <View className="flex-row -mx-2 mt-5">
             {formik.values.otp.map((_, index) => (
               <OtpField
                 key={index}
@@ -139,9 +158,11 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
           </View>
           <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
             Don’t receive OTP:{" "}
-            <Link href="" className="text-blue underline font-ManropeSemibold">
-              Resend code
-            </Link>
+            <TouchableOpacity
+              className="text-blue underline font-ManropeSemibold"
+              onPress={resendOtp}>
+              <Text>Resend code</Text>
+            </TouchableOpacity>
           </Text>
         </View>
         <View className="px-4">

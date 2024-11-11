@@ -52,6 +52,16 @@ const Layout = () => {
           ),
         }}
       />
+      <Stack.Screen name="go-pro" options={{ headerShown: true, title: "" }} />
+
+      <Stack.Screen
+        name="payment-method"
+        options={{ headerShown: true, title: "Payment Method" }}
+      />
+      <Stack.Screen
+        name="add-card"
+        options={{ headerShown: true, title: "Add Card" }}
+      />
     </Stack>
   );
 };

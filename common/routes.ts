@@ -13,5 +13,6 @@ export const route = {
   },
   root: {
     home: `${baseRootPath}(tabs)/home`,
+    ViewMember: `${baseRootPath}(tabs)/members`,
   },
 };

@@ -1,6 +1,6 @@
 import { Platform, SafeAreaView, ScrollView, View } from "react-native";
 
-import { router } from "expo-router";
+import { Href, router } from "expo-router";
 import * as Yup from "yup";
 
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ import { OptionType } from "@/common/types";
 import { memberPayload, memberSchema } from "@/repositories/member/schemas";
 import { useMutation, useQuery } from "react-query";
 import { MemberRepository } from "@/repositories";
+import { route } from "@/common";
 
 const AddMember = () => {
   const MemberRepo = MemberRepository.getInstance();
@@ -24,8 +25,20 @@ const AddMember = () => {
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: memberPayload) => MemberRepo.createMember(payload),
   });
-  const { data: role } = useQuery(["roles"], getRole);
-  const { data: permission } = useQuery(["permission"], getPermission);
+  const { data: role } = useQuery(["roles"], getRole, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+  const { data: permission } = useQuery(["permission"], getPermission, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
   const status: OptionType[] = [
@@ -51,6 +64,7 @@ const AddMember = () => {
         }))
       );
       if (permission) {
+        console.log(permission, "Permission is this");
         const formattedData = permission?.data?.map((item: any) => ({
           key: item?.id,
           value: `${item?.name} ${item?.resource}`,
@@ -78,7 +92,7 @@ const AddMember = () => {
       console.log(values, "Value to be send");
       mutate(values, {
         onSuccess: () => {
-          console.log("member Created");
+          router.push("/(root)/(tabs)/members/members");
         },
       });
       // Handle form submission
@@ -86,7 +100,7 @@ const AddMember = () => {
   });
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AppContainer isError={isError} message={error?.message}>
+      <AppContainer isError={isError} message={error}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
           <AddMemberForm
             formik={formik}
