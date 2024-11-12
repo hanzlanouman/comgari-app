@@ -1,17 +1,15 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-explicit-any*/
+/* eslint-disable prettier/prettier */ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import axios, { AxiosHeaders } from "axios";
-
+import axios, { AxiosHeaders, AxiosRequestConfig } from "axios";
 import { BaseUrl } from "@/common";
-
 import { store, logout, setLoading, stopLoading } from "@/store";
 
 const axiosApi = axios.create();
 
+// Function to get headers with authorization token
 const getHeader = (headers: AxiosHeaders) => {
   const token = store.getState().auth.token;
-
   const newheaders: Partial<AxiosHeaders> = {};
 
   if (token && !headers["Authorization"]) {
@@ -25,6 +23,7 @@ const getHeader = (headers: AxiosHeaders) => {
   return newheaders;
 };
 
+// Request interceptor to handle adding token and loading state
 axiosApi.interceptors.request.use(
   (config: any) => {
     const headers = getHeader(config.headers);
@@ -56,13 +55,13 @@ axiosApi.interceptors.request.use(
     return config;
   },
   (error) => {
-    Promise.reject(error);
+    return Promise.reject(error);
   }
 );
 
+// Response interceptors to handle loading state and errors
 const responseSuccess = (response: any) => {
   store.dispatch(stopLoading(response.config.url));
-
   return response;
 };
 
@@ -84,30 +83,50 @@ axiosApi.interceptors.response.use(
   (error) => responseError(error)
 );
 
+// GET request
 export async function get(url: string, config = {}) {
   return await axiosApi
     .get(url, { ...config })
     .then((response) => response.data);
 }
 
+// POST request (general)
 export async function post(url: string, data: any, config = {}) {
   return axiosApi
     .post(url, { ...data }, { ...config })
     .then((response) => response.data);
 }
 
+// PUT request
 export async function put(url: string, data: any, config = {}) {
   return axiosApi
     .put(url, { ...data }, { ...config })
     .then((response) => response.data);
 }
 
+// DELETE request
 export async function del(url: string, config = {}) {
   return await axiosApi
     .delete(url, { ...config })
     .then((response) => response.data);
 }
 
-
+// POST request for FormData (file uploads)
+export async function postForm(
+  url: string,
+  data: FormData,
+  config: AxiosRequestConfig = {}
+) {
+  const formDataConfig = {
+    ...config,
+    headers: {
+      ...config.headers,
+      "Content-Type": "multipart/form-data",
+    },
+  };
+  return axiosApi
+    .post(url, data, formDataConfig)
+    .then((response) => response.data);
+}
 
 export default axiosApi;

@@ -7,93 +7,77 @@ import { ProgressBar } from "@/common/components";
 import { useRouter } from "expo-router";
 
 type ClientCardProps = {
-  id: number;
-  name: string;
-  category: string;
-  status: string;
-  progress: number;
-  getCategoryColor: (category: string) => string;
-  getStatusColor: (status: string) => string;
+  client: {
+    id: number;
+    name: string;
+    description?: string;
+    category?: string;    
+    status?: string;      
+    progress?: number;    
+    logo?: string | null;
+    getCategoryColor?: (category: string) => string;
+    getStatusColor?: (status: string) => string;
+  };
+  onPress: () => void;
 };
 
 const ClientCard: React.FC<ClientCardProps> = ({
-  id,
-  name,
-  category,
-  status,
-  progress,
-  getCategoryColor,
-  getStatusColor,
+  client,
+  onPress,
 }) => {
   const router = useRouter();
 
   return (
     <TouchableOpacity
-      onPress={() => router.push("/(root)/(tabs)/clients/client-detail")}
+      onPress={onPress}
       className="bg-white border p-5 rounded-xl mb-4"
       style={{ borderColor: "#E5E7EB" }}
     >
       <View className="flex-row items-center mb-3">
         <Image
-          source={images.user}
+          source={client.logo ? { uri: client.logo } : images.user}
           resizeMode="cover"
           className="rounded-xl"
           style={{ width: vs(45), height: vs(45) }}
         />
         <View className="flex-1 ml-3">
           <Text className="text-base font-ManropeBold text-gray-900">
-            {name}
+            {client.name}
           </Text>
-          <View className="flex-row items-center mt-1">
-            <View
-              style={{
-                backgroundColor: getCategoryColor(category) + '20',
-                padding: 2,
-                borderRadius: 4,
-              }}
-            >
+          {client.category && (
+            <View className="flex-row items-center mt-1">
               <View
                 style={{
-                  backgroundColor: getCategoryColor(category),
-                  width: 8,
-                  height: 8,
+                  backgroundColor: client.getCategoryColor?.(client.category) + '20',
+                  padding: 2,
                   borderRadius: 4,
                 }}
-              />
+              >
+                <View
+                  style={{
+                    backgroundColor: client.getCategoryColor?.(client.category),
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                  }}
+                />
+              </View>
+              <Text
+                style={{ color: client.getCategoryColor?.(client.category) }}
+                className="text-sm font-ManropeMedium ml-2"
+              >
+                {client.category}
+              </Text>
             </View>
-            <Text
-              style={{ color: getCategoryColor(category) }}
-              className="text-sm font-ManropeMedium ml-2"
-            >
-              {category}
-            </Text>
-          </View>
+          )}
         </View>
       </View>
 
       <Text className="text-sm font-ManropeMedium text-gray-500 mb-3">
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+        {client.description || "No description available"} 
       </Text>
 
-      <View className="flex-row items-center mb-3">
-        <Image
-          source={images.user}
-          resizeMode="cover"
-          className="rounded-full border-2 border-white"
-          style={{ width: vs(30), height: vs(30) }}
-        />
-        <Image
-          source={images.user}
-          resizeMode="cover"
-          className="rounded-full border-2 border-white -ml-3"
-          style={{ width: vs(30), height: vs(30) }}
-        />
-        <Text className="text-sm font-ManropeMedium text-gray-700 ml-3">
-          Members
-        </Text>
-      </View>
-
-      <ProgressBar progress={progress} color="#2196F3" height={6} style={{ marginBottom: 12 }} />
+      <ProgressBar progress={client.progress ?? 0} color="#2196F3" height={6} style={{ marginBottom: 12 }} />
 
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
@@ -107,21 +91,23 @@ const ClientCard: React.FC<ClientCardProps> = ({
             </Text>
           </View>
         </View>
-        <View
-          style={{
-            backgroundColor: getStatusColor(status) + '20',
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            borderRadius: 12,
-          }}
-        >
-          <Text
-            style={{ color: getStatusColor(status) }}
-            className="text-sm font-ManropeMedium"
+        {client.status && (
+          <View
+            style={{
+              backgroundColor: client.getStatusColor?.(client.status) + '20',
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 12,
+            }}
           >
-            {status}
-          </Text>
-        </View>
+            <Text
+              style={{ color: client.getStatusColor?.(client.status) }}
+              className="text-sm font-ManropeMedium"
+            >
+              {client.status}
+            </Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );

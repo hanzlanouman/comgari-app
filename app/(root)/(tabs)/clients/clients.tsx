@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -7,22 +7,30 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/constants";
 import { router } from "expo-router";
 import { CustomButton, AppContainer } from "@/common/components";
 import ClientCard from "./components/ClientCard";
 import { ClientRepository } from "@/repositories/client/client";
+import { ClientListingPayload } from "@/repositories/client/schemas";
+import { useAppSelector } from "@/hooks/redux";
+import {  ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } from '@/common/types';
+
 
 interface Client {
   id: number;
   name: string;
   description: string;
   logo: string | null;
-  type: "INDIVIDUAL" | "COMPANY";
+  status: ClientStatus;
+  type: ClientType;
   createdAt: string;
   updatedAt: string;
+  brief: string;
+  agencyId: number;
+  createdById: number;
   client_user: Array<{
     id: number;
     member_id: number;
@@ -33,23 +41,52 @@ interface Client {
 const Clients: React.FC = () => {
   const clientRepo = ClientRepository.getInstance();
   const [clients, setClients] = useState<Client[]>([]);
+  const [start, setStart] = useState(0);
+  const [limit] = useState(10);
+  
+  const user = useAppSelector((state) => state.auth.user);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  const { data, isError, isLoading, refetch } = useQuery<{ data: Client[] }>(
-    "clients",
+  const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
+    ["clients", start],
     async () => {
-      const response = await clientRepo.getClients();
+      if (!user || !isAuthenticated) {
+        throw new Error("User is not authenticated");
+      }
+
+      const clientListingPayload: ClientListingPayload = {
+        start,
+        limit,
+      };
+      
+      const response = await clientRepo.getClients(clientListingPayload, {
+        user,
+      });
       return response;
+    },
+    {
+      keepPreviousData: true,
+      enabled: !!user && isAuthenticated, 
     }
   );
 
   useEffect(() => {
-    if (data?.data) {
-      setClients(data.data);
+    console.log("API data:", data);
+    if (data) {
+      setClients(start === 0 ? data : (prevClients) => [...prevClients, ...data]);
     }
-  }, [data]);
+  }, [data, start]);
 
   const handleRefresh = async () => {
+    setStart(0);
+    setClients([]);
     await refetch();
+  };
+
+  const handleLoadMore = () => {
+    if (!isFetching && data?.length === limit) {
+      setStart((prevStart) => prevStart + limit);
+    }
   };
 
   const handleAddClient = () => {
@@ -81,12 +118,23 @@ const Clients: React.FC = () => {
     </View>
   );
 
+  const getCategoryColor = (category: string) => (category === "someCategory" ? "#color" : "#defaultColor");
+  const getStatusColor = (status: string) => (status === "someStatus" ? "#color" : "#defaultColor");
+
   const renderClientsList = () => (
     <View className="pb-20">
       {clients.map((client) => (
         <ClientCard 
           key={client.id} 
-          client={client}
+          client={{
+            ...client,
+            description: client.description,
+            category: "Construction",
+            status: "Active",
+            progress: 75,
+            getCategoryColor,
+            getStatusColor,
+          }}
           onPress={() => router.push(`/(root)/(tabs)/clients/${client.id}`)}
         />
       ))}
@@ -103,6 +151,8 @@ const Clients: React.FC = () => {
           className="flex-1 px-5"
           onRefresh={handleRefresh}
           refreshing={isLoading}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
         >
           {clients.length > 0 ? renderClientsList() : renderEmptyState()}
         </ScrollView>

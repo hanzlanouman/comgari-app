@@ -1,31 +1,64 @@
 import React from 'react';
 import {
   Image,
-  Platform,
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
 import { FormikProps } from 'formik';
 import { Upload } from 'lucide-react-native';
 import { vs } from 'react-native-size-matters';
 import { InputField } from '@/common/components';
-import { OptionType, ClientFormValues } from '@/common/types';
+import { OptionType, ClientType, ClientStatus } from '@/common/types';
 import DropdownSelect from '@/common/components/Select';
 import MultiSelectDropdown from '@/common/components/MultiSelect';
 import { images } from '@/constants';
 
+import * as ImagePicker from 'expo-image-picker';
+
+interface ClientFormValues {
+  name: string;
+  description?: string;
+  logo?: string;
+  type?: ClientType;
+  status: ClientStatus;
+  member_ids: number[];
+}
+
 interface AddClientFormProps {
   formik: FormikProps<ClientFormValues>;
-  roleOptions: OptionType[];
+  typeOptions: OptionType[];
   statusOptions: OptionType[];
+  memberOptions: OptionType[];
 }
 
 export default function AddClientForm({
   formik,
-  roleOptions,
+  typeOptions,
   statusOptions,
+  memberOptions,
 }: AddClientFormProps) {
+  const handleImageUpload = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Permission to access media library is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+
+    if (result.canceled) { 
+      console.log('User canceled image picker');
+    } else {
+      const imageUrl = result.assets[0].uri; 
+      formik.setFieldValue('logo', imageUrl);
+    }
+  };
+
   return (
     <View>
       <View
@@ -33,12 +66,12 @@ export default function AddClientForm({
         style={{ width: vs(80), height: vs(80) }}
       >
         <Image
-          source={images.user}
+          source={formik.values.logo ? { uri: formik.values.logo } : images.user}
           resizeMode="cover"
           className="rounded-full mx-auto w-full h-full"
         />
         <TouchableOpacity
-          onPress={() => {}}
+          onPress={handleImageUpload}
           className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px"
         >
           <Upload size={13} color="#ffffff" />
@@ -48,41 +81,12 @@ export default function AddClientForm({
       <View className="mt-5">
         <InputField
           label=""
-          value={formik.values.fullName}
-          onChangeText={formik.handleChange('fullName')}
-          placeholder="Full name"
+          value={formik.values.name}
+          onChangeText={formik.handleChange('name')}
+          placeholder="Client name"
           error={
-            typeof formik.errors.fullName === 'string'
-              ? formik.errors.fullName
-              : undefined
-          }
-        />
-      </View>
-
-      <View className="mt-3">
-        <InputField
-          label=""
-          value={formik.values.email}
-          onChangeText={formik.handleChange('email')}
-          placeholder="Email"
-          keyboardType="email-address"
-          error={
-            typeof formik.errors.email === 'string'
-              ? formik.errors.email
-              : undefined
-          }
-        />
-      </View>
-
-      <View className="mt-3">
-        <InputField
-          label=""
-          value={formik.values.phoneNumber}
-          onChangeText={formik.handleChange('phoneNumber')}
-          placeholder="Contact number"
-          error={
-            typeof formik.errors.phoneNumber === 'string'
-              ? formik.errors.phoneNumber
+            typeof formik.errors.name === 'string'
+              ? formik.errors.name
               : undefined
           }
         />
@@ -90,40 +94,44 @@ export default function AddClientForm({
 
       <View className="mt-3">
         <MultiSelectDropdown
-          placeholder="Assign member"
-          data={roleOptions}
-          selectedValues={formik.values.permissionIds}
+          placeholder="Select Members"
+          data={memberOptions} 
+          selectedValues={formik.values.member_ids.map(String)}
           setFieldValue={formik.setFieldValue}
           error={
-            typeof formik.errors.permissionIds === 'string'
-              ? formik.errors.permissionIds
+            typeof formik.errors.member_ids === 'string'
+              ? formik.errors.member_ids
               : undefined
           }
-          fieldName="permissionIds"
+          fieldName="member_ids"
         />
       </View>
 
       <View className="mt-3">
         <DropdownSelect
-          placeholder="Select Type"
-          data={roleOptions}
-          selectedValue={formik.values.roleId}
-          setFieldValue={formik.setFieldValue}
+          placeholder="Select Client Type"
+          data={typeOptions}
+          selectedValue={formik.values.type || ''}
+          setFieldValue={(field, value) => {
+            formik.setFieldValue(field, value as ClientType);
+          }}
           error={
-            typeof formik.errors.roleId === 'string'
-              ? formik.errors.roleId
+            typeof formik.errors.type === 'string'
+              ? formik.errors.type
               : undefined
           }
-          fieldName="roleId"
+          fieldName="type"
         />
       </View>
 
-      <View className="mt-2.5">
+      <View className="mt-3">
         <DropdownSelect
-          placeholder="Status"
+          placeholder="Select Client Status"
           data={statusOptions}
-          selectedValue={formik.values.status}
-          setFieldValue={formik.setFieldValue}
+          selectedValue={formik.values.status || ''}
+          setFieldValue={(field, value) => {
+            formik.setFieldValue(field, value as ClientStatus);
+          }}
           error={
             typeof formik.errors.status === 'string'
               ? formik.errors.status
