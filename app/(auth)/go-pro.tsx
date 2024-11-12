@@ -111,19 +111,17 @@ const GoPro = () => {
           </View>
           <View className="mt-4">
             {plans?.map((plan, index) => {
-              // Modify this as needed based on your specific pricing rules
-
               return (
                 <PlanCard
-                  key={plan.id}
-                  plan={plan.name}
-                  price={plan.pricing[0].price}
-                  members={plan.maxMembers}
-                  clients={plan.maxClients}
-                  freetrial={plan.freeTrialDays}
-                  isSelected={selectedPlan === plan.name}
+                  key={plan?.id}
+                  plan={plan?.name}
+                  price={plan?.pricing[0]?.price}
+                  members={plan?.maxMembers}
+                  clients={plan?.maxClients}
+                  freetrial={plan?.freeTrialDays}
+                  isSelected={selectedPlan === plan?.name}
                   onPress={() =>
-                    handlePress(plan.name, plan.pricing[0].price_id)
+                    handlePress(plan?.name, plan?.pricing[0]?.price_id)
                   }
                 />
               );

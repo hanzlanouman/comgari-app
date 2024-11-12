@@ -65,7 +65,7 @@ const Members = () => {
       <AppContainer isError={isError} message={error}>
         <FlatList
           data={member}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item?.id?.toString()}
           renderItem={({ item }) => <MemberCard member={item} />}
           contentContainerStyle={{
             paddingBottom: vs(10),
