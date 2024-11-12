@@ -54,6 +54,7 @@ const Members = () => {
           phone: item?.Auth?.phone || null,
           email: item?.Auth?.email || null,
           role: item?.Auth?.user[0]?.user_roles[0]?.role?.name || null,
+          status: item?.Auth?.status,
         })) || []
       );
     }

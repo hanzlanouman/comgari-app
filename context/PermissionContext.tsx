@@ -37,14 +37,17 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const userRepo = MemberRepository.getInstance();
   const auth = useAppSelector((state) => state.auth.isAuthenticated);
-
+  const [authenticated, setAuth] = useState(auth);
+  useEffect(() => {
+    setAuth(auth);
+  }, [auth]);
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
         const response = await userRepo.getUserPermissions();
-        console.log(response, "Response is this");
+
         const permissionsData: UserPermission[] = response.data;
-        console.log(permissionsData, "Permission Data is");
+
         setPermissions(permissionsData);
       } catch (error) {
         console.error("Error fetching permissions:", error);
@@ -52,9 +55,9 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
         setLoading(false);
       }
     };
-    if (!auth) return;
+    if (!authenticated) return;
     fetchPermissions();
-  }, [auth, userRepo]);
+  }, [authenticated, userRepo]);
 
   const getPermission = (user: TUSER, permission: string, resource: string) => {
     const isAdmin = user?.user_roles?.some(
