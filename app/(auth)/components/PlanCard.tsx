@@ -75,7 +75,7 @@ const renderCardContent = (
         </View>
         <Text
           className={`text-sm sm:text-base font-ManropeMedium ml-1.5 ${isSelected ? "text-white" : "text-dark"}`}>
-          {members} Members
+          {members === -1 ? "UnLimited" : members} Members
         </Text>
       </View>
       <View className="flex-row items-center w-2/4">
@@ -85,7 +85,7 @@ const renderCardContent = (
         </View>
         <Text
           className={`text-sm sm:text-base font-ManropeMedium ml-1.5 ${isSelected ? "text-white" : "text-dark"}`}>
-          {clients} Clients
+          {clients === -1 ? "UnLimited" : clients} Clients
         </Text>
       </View>
     </View>

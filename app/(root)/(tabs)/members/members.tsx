@@ -46,6 +46,7 @@ const Members = () => {
 
   useEffect(() => {
     if (data) {
+      console.log(data, "Data of member is");
       setMembers(
         data?.data?.map((item: any) => ({
           id: item?.Auth?.user[0]?.id,
