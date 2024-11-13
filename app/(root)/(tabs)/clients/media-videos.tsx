@@ -10,7 +10,7 @@ import {
   Modal,
 } from "react-native";
 import { images } from "@/constants";
-import { Trash2, X } from "lucide-react-native";
+import { Play, Trash2, X } from "lucide-react-native";
 
 const MediaImages = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,7 +40,7 @@ const MediaImages = () => {
             </Text>
             <View className="flex flex-row flex-wrap mt-4">
               {imageArray.map((image, index) => (
-                <TouchableOpacity
+                <View
                   key={index}
                   style={{
                     width: imageWidth,
@@ -48,15 +48,24 @@ const MediaImages = () => {
                     marginRight: index % 3 === 2 ? 0 : spacingBetweenImages,
                     marginBottom: spacingBetweenImages,
                   }}
-                  onPress={() => setModalVisible(true)}
+                  className="relative"
                 >
+                  <TouchableOpacity
+                    className="bg-blue w-6 h-6 rounded-full absolute top-1/2 left-1/2 -transform-1/2 z-[1px] flex-row items-center justify-center"
+                    onPress={() => setModalVisible(true)}
+                  >
+                    <Play size={14} color="#ffffff" />
+                  </TouchableOpacity>
+                  <Text className="absolute bottom-1 right-2 text-white text-sm font-ManropeSemibold z-[1px]">
+                    0.12
+                  </Text>
                   <Image
                     source={image}
                     style={{ width: "100%", height: "100%" }}
                     className="rounded-[20px]"
                     resizeMode="cover"
                   />
-                </TouchableOpacity>
+                </View>
               ))}
             </View>
           </View>
@@ -106,11 +115,7 @@ const MediaImages = () => {
                 </TouchableOpacity>
               </View>
               <View className="flex-1">
-                <Image
-                  source={images.welcome}
-                  style={{ width: "100%", height: "100%" }}
-                  resizeMode="contain"
-                />
+                <Text>dsfsfdf</Text>
               </View>
             </SafeAreaView>
           </View>

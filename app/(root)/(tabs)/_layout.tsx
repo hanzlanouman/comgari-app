@@ -31,7 +31,7 @@ const Layout = () => (
         title: "Home",
         headerShown: true,
         tabBarIcon: ({ focused }) => (
-          <House color={focused ? "#1B78B9" : "#1C1C1C"} />
+          <House strokeWidth={1.5} color={focused ? "#1B78B9" : "#1C1C1C"} />
         ),
       }}
     />
@@ -41,7 +41,7 @@ const Layout = () => (
         title: "Members",
         headerShown: false,
         tabBarIcon: ({ focused }) => (
-          <Users color={focused ? "#1B78B9" : "#1C1C1C"} />
+          <Users strokeWidth={1.5} color={focused ? "#1B78B9" : "#1C1C1C"} />
         ),
       }}
     />
@@ -51,7 +51,10 @@ const Layout = () => (
         title: "Clients",
         headerShown: false,
         tabBarIcon: ({ focused }) => (
-          <UsersRound color={focused ? "#1B78B9" : "#1C1C1C"} />
+          <UsersRound
+            strokeWidth={1.5}
+            color={focused ? "#1B78B9" : "#1C1C1C"}
+          />
         ),
       }}
     />
@@ -61,7 +64,10 @@ const Layout = () => (
         title: "Appointment",
         headerShown: false,
         tabBarIcon: ({ focused }) => (
-          <CalendarDays color={focused ? "#1B78B9" : "#1C1C1C"} />
+          <CalendarDays
+            strokeWidth={1.5}
+            color={focused ? "#1B78B9" : "#1C1C1C"}
+          />
         ),
       }}
     />
@@ -71,7 +77,7 @@ const Layout = () => (
         title: "Profile",
         headerShown: false,
         tabBarIcon: ({ focused }) => (
-          <UserPen color={focused ? "#1B78B9" : "#1C1C1C"} />
+          <UserPen strokeWidth={1.5} color={focused ? "#1B78B9" : "#1C1C1C"} />
         ),
       }}
     />

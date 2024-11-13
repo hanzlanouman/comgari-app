@@ -135,6 +135,13 @@ const Layout = () => {
           title: "Images",
         }}
       />
+      <Stack.Screen
+        name="media-videos"
+        options={{
+          headerShown: true,
+          title: "Videos",
+        }}
+      />
     </Stack>
   );
 };
