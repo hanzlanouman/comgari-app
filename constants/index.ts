@@ -20,6 +20,8 @@ import notes from "@/assets/icons/notes.png";
 import media from "@/assets/icons/media.png";
 import noTask from "@/assets/icons/no-task.png";
 import noNotes from "@/assets/icons/no-notes.png";
+import pdfIcon from "@/assets/icons/pdf-icon.png";
+import docIcon from "@/assets/icons/doc-icon.png";
 
 export const images = {
   onboarding1,
@@ -45,6 +47,8 @@ export const icons = {
   media,
   noTask,
   noNotes,
+  pdfIcon,
+  docIcon,
 };
 
 export const onboarding = [

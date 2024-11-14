@@ -227,7 +227,12 @@ const ClientDetail = () => {
                         5 items
                       </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className="w-2/6 px-1.5">
+                    <TouchableOpacity
+                      className="w-2/6 px-1.5"
+                      onPress={() =>
+                        router.push("/(root)/(tabs)/clients/documents")
+                      }
+                    >
                       <View
                         className="bg-green-50 rounded-2xl flex-row items-center justify-center mx-auto"
                         style={{ width: vs(78), height: vs(78) }}

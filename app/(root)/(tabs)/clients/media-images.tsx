@@ -91,7 +91,7 @@ const MediaImages = () => {
         <Modal animationType="slide" transparent={true} visible={modalVisible}>
           <View className="bg-white flex-1">
             <SafeAreaView className="flex-1">
-              <View className="flex-row items-center justify-between px-4">
+              <View className="flex-row items-center justify-between px-4 pb-4">
                 <TouchableOpacity
                   onPress={() => {}}
                   className="bg-red w-8 h-8 rounded-full flex flex-row justify-center items-center pb-px"
