@@ -13,7 +13,6 @@ import {
   CalendarDays,
   ChevronRight,
   Share2,
-  Upload,
 } from "lucide-react-native";
 import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";

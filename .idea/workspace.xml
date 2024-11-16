@@ -32,8 +32,11 @@
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-business/index.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-reviewer/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/proposal/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/proposal/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/appointment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/appointment/appointment.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/proposal/proposal-detail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/proposal/proposal-detail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/components/business-card/business-card.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/components/business-card/business-card.js" afterDir="false" />
@@ -66,7 +69,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "js.linters.configure.manually.selectedeslint": "true",
-    "last_opened_file_path": "/Users/macbookpro/Projects/comgari/app/(root)/(tabs)/proposal",
+    "last_opened_file_path": "/Users/macbookpro/Projects/comgari/app/(root)/(tabs)/appointment",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -82,18 +85,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/appointment" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/proposal" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/clients" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/clients/[id]" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)" />
-      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(root)/(tabs)/appointment" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/proposal" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/proposal/components" />
       <recent name="$PROJECT_DIR$/assets/icons" />
       <recent name="$PROJECT_DIR$/app/(root)/(tabs)/member" />
-      <recent name="$PROJECT_DIR$/app/(root)" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -135,7 +138,7 @@
       <workItem from="1731125780678" duration="24138000" />
       <workItem from="1731376642659" duration="11471000" />
       <workItem from="1731518268573" duration="6693000" />
-      <workItem from="1731688945081" duration="12616000" />
+      <workItem from="1731688945081" duration="17032000" />
     </task>
     <servers />
   </component>
