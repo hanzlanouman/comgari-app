@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import {
   CalendarDays,
   House,
+  NotepadText,
   UserPen,
   Users,
   UsersRound,
@@ -65,6 +66,19 @@ const Layout = () => (
         headerShown: false,
         tabBarIcon: ({ focused }) => (
           <CalendarDays
+            strokeWidth={1.5}
+            color={focused ? "#1B78B9" : "#1C1C1C"}
+          />
+        ),
+      }}
+    />
+    <Tabs.Screen
+      name="proposal"
+      options={{
+        title: "Proposal",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => (
+          <NotepadText
             strokeWidth={1.5}
             color={focused ? "#1B78B9" : "#1C1C1C"}
           />
