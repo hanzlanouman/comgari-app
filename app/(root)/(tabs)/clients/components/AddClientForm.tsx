@@ -19,6 +19,8 @@ import * as ImagePicker from 'expo-image-picker';
 
 interface ClientFormValues {
   name: string;
+  email: string;
+  phone: string;
   description?: string;
   logo?: string;
   type?: ClientType;
@@ -87,6 +89,34 @@ export default function AddClientForm({
           error={
             typeof formik.errors.name === 'string'
               ? formik.errors.name
+              : undefined
+          }
+        />
+      </View>
+
+      <View className="mt-3">
+        <InputField
+          label=""
+          value={formik.values.email}
+          onChangeText={formik.handleChange('email')}
+          placeholder="Client email"
+          error={
+            typeof formik.errors.email === 'string'
+              ? formik.errors.email
+              : undefined
+          }
+        />
+      </View>
+
+      <View className="mt-3">
+        <InputField
+          label=""
+          value={formik.values.phone}
+          onChangeText={formik.handleChange('phone')}
+          placeholder="Client phone"
+          error={
+            typeof formik.errors.phone === 'string'
+              ? formik.errors.phone
               : undefined
           }
         />

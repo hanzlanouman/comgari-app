@@ -93,6 +93,11 @@ const Clients: React.FC = () => {
     router.push("/(root)/(tabs)/clients/add-client");
   };
 
+  const handleClientPress = (clientId: number) => {
+    console.log(`Navigating to: /(root)/(tabs)/clients/${clientId}`);
+    router.push(`/(root)/(tabs)/clients/${clientId}`);
+  };
+
   const renderEmptyState = () => (
     <View className="flex-grow flex-col items-center justify-center px-4">
       <Image
@@ -129,13 +134,13 @@ const Clients: React.FC = () => {
           client={{
             ...client,
             description: client.description,
-            category: "Construction",
-            status: "Active",
+            category: client.type,
+            status: client.status,
             progress: 75,
             getCategoryColor,
             getStatusColor,
           }}
-          onPress={() => router.push(`/(root)/(tabs)/clients/${client.id}`)}
+          onPress={() => handleClientPress(client.id)}
         />
       ))}
     </View>

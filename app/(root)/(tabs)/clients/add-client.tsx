@@ -8,7 +8,7 @@ import AddClientForm from './components/AddClientForm';
 import { createClientSchema } from '@/repositories/client/schemas';
 import { OptionType, ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } from '@/common/types';
 import { ClientRepository } from '@/repositories/client/client';
-import { MemberRepository } from '@/repositories/member/member'; 
+import { MemberRepository } from '@/repositories/member/member';
 
 interface ClientFormValues {
   name: string;
@@ -19,45 +19,51 @@ interface ClientFormValues {
   member_ids: number[];
 }
 
+type TMember = {
+  id: number;
+  name: string;
+  image: string;
+  role: string;
+  email: string;
+  phone: string;
+  status: string;
+};
+
 const AddClient = () => {
   const clientRepo = ClientRepository.getInstance();
-  const memberRepo = MemberRepository.getInstance(); 
+  const memberRepo = MemberRepository.getInstance();
 
-  const [memberOptions, setMemberOptions] = useState<OptionType[]>([]);
+  const [memberOptions, setMemberOptions] = useState<OptionType[]>([
+    { key: 1, value: 'joe bro' },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     const fetchMembers = async () => {
+      setIsLoading(true);
       try {
-        const response = await memberRepo.getMember();
-        const members = response.data?.data || []; 
-    
-        const options = members.map((item: any) => ({
-          key: item?.Auth?.user?.[0]?.id ?? null,
-          value: item?.Auth?.user?.[0]?.full_name ?? 'Unknown',
-        }));
-    
+        const { data } = await memberRepo.getMember();
+        const members: TMember[] = data?.data || [];
+        const options: OptionType[] = [
+          { key: 1, value: 'joe bro' },
+          ...members.map((member) => ({
+            key: member.id,
+            value: member.name || 'Unknown',
+          })),
+        ];
         setMemberOptions(options);
-    
       } catch (error: any) {
-        if (error.response) {
-          // Server responded with a status other than 2xx
-          console.warn('Response error:', error.response.status, error.response.data);
-        } else if (error.request) {
-          // Request was made but no response was received
-          console.warn('No response received:', error.request);
-        } else {
-          // Something else happened
-          console.warn('Network error:', error.message);
-        }
+        console.warn('Error fetching members:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    
 
     fetchMembers();
-  }, []);
+  }, [memberRepo]);
 
   if (!isAuthenticated) {
     router.push('/(auth)/sign-in');
@@ -66,12 +72,12 @@ const AddClient = () => {
 
   const clientTypeOptions: OptionType[] = CLIENT_TYPES.map(type => ({
     key: type,
-    value: type.charAt(0) + type.slice(1).toLowerCase().replace('_', ' ')
+    value: type.charAt(0) + type.slice(1).replace('_', ' ')
   }));
 
   const statusOptions: OptionType[] = CLIENT_STATUS.map(status => ({
     key: status,
-    value: status.charAt(0) + status.slice(1).toLowerCase().replace('_', ' ')
+    value: status.charAt(0) + status.slice(1).replace('_', ' ')
   }));
 
   const initialValues: ClientFormValues = {
@@ -88,7 +94,6 @@ const AddClient = () => {
     validationSchema: createClientSchema,
     onSubmit: async (values) => {
       try {
-        console.log('Form values:', values);
         const req = { user: { id: user?.id } };
         const payload = values;
 
@@ -105,18 +110,17 @@ const AddClient = () => {
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-          <AddClientForm
-            formik={formik}
-            typeOptions={clientTypeOptions}
-            statusOptions={statusOptions}
-            memberOptions={memberOptions} 
-          />
+            <AddClientForm
+              formik={formik}
+              typeOptions={clientTypeOptions}
+              statusOptions={statusOptions}
+              memberOptions={memberOptions} 
+            />
         </ScrollView>
         <View className="p-4 bg-white">
           <CustomButton
             title="Add Client"
             onPress={() => {
-              console.log('Errors:', formik.errors);
               formik.handleSubmit();
             }}
           />
