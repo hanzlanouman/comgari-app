@@ -2,7 +2,7 @@
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
 import { getErrorMessage } from "@/common/utils";
-import { get, post, put, del as httpDelete } from "@/common/api";
+import { get, post, put, del as httpDelete, postForm } from "@/common/api";
 import { BaseUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
 import {
@@ -24,6 +24,7 @@ type TClientReponse = {
 };
 
 interface IClientRepository {
+  uploadMedia(file: any): Promise<TReponse>;
   createClient(req: Request, payload: CreateClientPayload): Promise<TReponse>;
   deleteClient(req: Request, clientId: number): Promise<TReponse>;
   updateClient(req: Request, clientId: number, payload: UpdateClientPayload): Promise<TReponse>;
@@ -55,7 +56,34 @@ export class ClientRepository implements IClientRepository {
     }
     return ClientRepository.instance;
   }
-
+  async uploadMedia(formData: FormData): Promise<any> {
+    try {
+      const res = await postForm(
+        `${BaseUrl + END_POINTS.Client.UPLOAD.route}`,
+        formData,
+        {
+          headers: {
+            'Accept': 'application/json',
+            // Content-Type is already set in postForm function
+          },
+          transformRequest: (data) => {
+            return data; // Prevent axios from trying to transform FormData
+          },
+        }
+      );
+      
+      // Handle both response formats
+      if (res?.data?.data) {
+        return res.data;
+      } else if (Array.isArray(res?.data)) {
+        return { data: res.data };
+      }
+      throw new Error('Invalid response format');
+    } catch (e) {
+      console.error('Upload error details:', e);
+      throw getErrorMessage(e);
+    }
+  }
   async createClient(req: Request, payload: CreateClientPayload): Promise<TReponse> {
     try {
       const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_CLIENT.route}`, payload);
