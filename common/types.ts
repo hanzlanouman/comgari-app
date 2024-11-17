@@ -16,17 +16,12 @@ export type OptionType = {
   value: string;
 };
 
-export type ClientType = "INDIVIDUAL" | "BUSINESS" | "RETAIL" | "WHOLESALE" | "VIP" | "CORPORATE" | "RESELLER" | "DISTRIBUTOR";
+export type ClientType = "Construction" | "Building" | "LandMark" ;
 
 export const CLIENT_TYPES: ClientType[] = [
-  "INDIVIDUAL",
-  "BUSINESS",
-  "RETAIL",
-  "WHOLESALE",
-  "VIP",
-  "CORPORATE",
-  "RESELLER",
-  "DISTRIBUTOR"
+  "Construction",
+  "Building",
+  "LandMark",
 ];
 
 export enum ClientStatus {

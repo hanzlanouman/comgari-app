@@ -1,33 +1,36 @@
+// repository.ts
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
 import { getErrorMessage } from "@/common/utils";
 import { get, post, put, del as httpDelete } from "@/common/api";
 import { BaseUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
-import { 
-  CreateClientPayload, 
-  BriefPayload, 
-  ClientMediaPayload, 
+import {
+  Request,
+  CreateClientPayload,
+  BriefPayload,
+  ClientMediaPayload,
   TaskPayload,
   CreateNotePayload,
   CreateProjectPayload,
-  ClientListingPayload 
+  UpdateClientPayload,
+  ClientListingPayload
 } from "./schemas";
 
-interface RequestUser {
-  id: number;
-}
-
-interface Request {
-  user: RequestUser;
-}
+type TClientReponse = {
+  statusCode: boolean;
+  data?: any;
+  message?: any;
+};
 
 interface IClientRepository {
   createClient(req: Request, payload: CreateClientPayload): Promise<TReponse>;
   deleteClient(req: Request, clientId: number): Promise<TReponse>;
-  updateClient(req: Request, clientId: number, payload: CreateClientPayload): Promise<TReponse>;
+  updateClient(req: Request, clientId: number, payload: UpdateClientPayload): Promise<TReponse>;
   createBrief(payload: BriefPayload): Promise<TReponse>;
   getBrief(clientId: number): Promise<TReponse>;
+  updateBrief(payload: BriefPayload): Promise<TReponse>;
+  getSingleClient(clientId: number): Promise<TClientReponse>;
   getClients(payload: ClientListingPayload, req: Request): Promise<TReponse>;
   saveClientMedia(payload: ClientMediaPayload): Promise<TReponse>;
   createTask(req: Request, payload: TaskPayload): Promise<TReponse>;
@@ -44,9 +47,7 @@ interface IClientRepository {
 export class ClientRepository implements IClientRepository {
   private static instance: ClientRepository;
 
-  private constructor() {
-    // Private constructor to prevent direct instantiation
-  }
+  private constructor() {}
 
   static getInstance(): ClientRepository {
     if (!ClientRepository.instance) {
@@ -57,10 +58,7 @@ export class ClientRepository implements IClientRepository {
 
   async createClient(req: Request, payload: CreateClientPayload): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.CREATE_CLIENT.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_CLIENT.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -69,21 +67,16 @@ export class ClientRepository implements IClientRepository {
 
   async deleteClient(req: Request, clientId: number): Promise<TReponse> {
     try {
-      const res = await httpDelete(
-        `${BaseUrl}${END_POINTS.Client.DELETE_CLIENT.route}/${clientId}`
-      );
+      const res = await httpDelete(`${BaseUrl}${END_POINTS.Client.DELETE_CLIENT.route}/${clientId}`);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
     }
   }
 
-  async updateClient(req: Request, clientId: number, payload: CreateClientPayload): Promise<TReponse> {
+  async updateClient(req: Request, clientId: number, payload: UpdateClientPayload): Promise<TReponse> {
     try {
-      const res = await put(
-        `${BaseUrl}${END_POINTS.Client.UPDATE_CLIENT.route}/${clientId}`,
-        payload
-      );
+      const res = await put(`${BaseUrl}${END_POINTS.Client.UPDATE_CLIENT.route}/${clientId}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -92,10 +85,7 @@ export class ClientRepository implements IClientRepository {
 
   async createBrief(payload: BriefPayload): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.CREATE_BRIEF.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_BRIEF.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -104,22 +94,34 @@ export class ClientRepository implements IClientRepository {
 
   async getBrief(clientId: number): Promise<TReponse> {
     try {
-      const res = await get(
-        `${BaseUrl}${END_POINTS.Client.GET_BRIEF.route}/${clientId}`
-      );
+      const res = await get(`${BaseUrl}${END_POINTS.Client.GET_BRIEF.route}/${clientId}`);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
     }
   }
 
+  async updateBrief(payload: BriefPayload): Promise<TReponse> {
+    try {
+      const res = await put(`${BaseUrl}${END_POINTS.Client.UPDATE_BRIEF.route}`, payload);
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+
+  async getSingleClient(clientId: number): Promise<TClientReponse> {
+    try {
+      const res = await get(`${BaseUrl}${END_POINTS.Client.GET_SINGLE_CLIENT.route}/${clientId}`);
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
 
   async getClients(payload: ClientListingPayload, req: Request): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.GET_CLIENTS.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.GET_CLIENTS.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -128,10 +130,7 @@ export class ClientRepository implements IClientRepository {
 
   async saveClientMedia(payload: ClientMediaPayload): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.SAVE_MEDIA.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.SAVE_MEDIA.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -140,10 +139,7 @@ export class ClientRepository implements IClientRepository {
 
   async createTask(req: Request, payload: TaskPayload): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.CREATE_TASK.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_TASK.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -152,10 +148,7 @@ export class ClientRepository implements IClientRepository {
 
   async updateTask(taskId: number, payload: TaskPayload): Promise<TReponse> {
     try {
-      const res = await put(
-        `${BaseUrl}${END_POINTS.Client.UPDATE_TASK.route}/${taskId}`,
-        payload
-      );
+      const res = await put(`${BaseUrl}${END_POINTS.Client.UPDATE_TASK.route}/${taskId}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -164,9 +157,7 @@ export class ClientRepository implements IClientRepository {
 
   async deleteTask(taskId: number): Promise<TReponse> {
     try {
-      const res = await httpDelete(
-        `${BaseUrl}${END_POINTS.Client.DELETE_TASK.route}/${taskId}`
-      );
+      const res = await httpDelete(`${BaseUrl}${END_POINTS.Client.DELETE_TASK.route}/${taskId}`);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -175,9 +166,7 @@ export class ClientRepository implements IClientRepository {
 
   async getTask(projectId: number): Promise<TReponse> {
     try {
-      const res = await get(
-        `${BaseUrl}${END_POINTS.Client.GET_TASK.route}/${projectId}`
-      );
+      const res = await get(`${BaseUrl}${END_POINTS.Client.GET_TASK.route}/${projectId}`);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -186,10 +175,7 @@ export class ClientRepository implements IClientRepository {
 
   async createNote(payload: CreateNotePayload): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.CREATE_NOTE.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_NOTE.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -198,9 +184,7 @@ export class ClientRepository implements IClientRepository {
 
   async getNotes(projectId: number): Promise<TReponse> {
     try {
-      const res = await get(
-        `${BaseUrl}${END_POINTS.Client.GET_NOTES.route}/${projectId}`
-      );
+      const res = await get(`${BaseUrl}${END_POINTS.Client.GET_NOTES.route}/${projectId}`);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -209,9 +193,7 @@ export class ClientRepository implements IClientRepository {
 
   async deleteNote(noteId: number): Promise<TReponse> {
     try {
-      const res = await httpDelete(
-        `${BaseUrl}${END_POINTS.Client.DELETE_NOTE.route}/${noteId}`
-      );
+      const res = await httpDelete(`${BaseUrl}${END_POINTS.Client.DELETE_NOTE.route}/${noteId}`);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -220,10 +202,7 @@ export class ClientRepository implements IClientRepository {
 
   async updateNote(noteId: number, payload: CreateNotePayload): Promise<TReponse> {
     try {
-      const res = await put(
-        `${BaseUrl}${END_POINTS.Client.UPDATE_NOTE.route}/${noteId}`,
-        payload
-      );
+      const res = await put(`${BaseUrl}${END_POINTS.Client.UPDATE_NOTE.route}/${noteId}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
@@ -232,10 +211,7 @@ export class ClientRepository implements IClientRepository {
 
   async createProject(req: Request, payload: CreateProjectPayload): Promise<TReponse> {
     try {
-      const res = await post(
-        `${BaseUrl}${END_POINTS.Client.CREATE_PROJECT.route}`,
-        payload
-      );
+      const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_PROJECT.route}`, payload);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);

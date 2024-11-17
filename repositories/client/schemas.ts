@@ -1,19 +1,16 @@
 import * as Yup from "yup";
 import { ClientType, CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
 
-
 export enum TaskPriority {
   LOW = "LOW",
   MEDIUM = "MEDIUM",
   HIGH = "HIGH",
 }
 
-
-
 export const createClientSchema = Yup.object().shape({
   name: Yup.string().required("Client name is required."),
-  description: Yup.string(),  // Optional
-  logo: Yup.string().nullable(),
+  description: Yup.string().optional(),
+  logo: Yup.string().nullable().optional(),
   type: Yup.string()
     .oneOf(CLIENT_TYPES, "Invalid client type")
     .optional(),
@@ -24,62 +21,80 @@ export const createClientSchema = Yup.object().shape({
     .of(Yup.number())
     .required("Member IDs are required.")
     .min(1, "At least one member ID is required."),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required."),
+  phone: Yup.string()
+    .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
+    .required("Phone number is required."),
 });
-
 
 export const briefSchema = Yup.object().shape({
-  client_id: Yup.number()
-    .required("Client ID is required.")
-    .typeError("Client ID must be a number."),
-  brief: Yup.string().required("Brief content is required."),
-});
-
-export const clientListingSchema = Yup.object().shape({
-  start: Yup.number().required("Start index is required."),
-  limit: Yup.number().required("Limit is required."),
+  client_id: Yup.number().required("Client ID is required"),
+  brief: Yup.string().required("Brief is required"),
 });
 
 export const clientMediaSchema = Yup.object().shape({
   files: Yup.array().of(
     Yup.object().shape({
-      clientId: Yup.number().required("Client ID is required."),
-      mimeType: Yup.string().required("MIME type is required."),
-      url: Yup.string().required("URL is required."),
-      ownerId: Yup.string().required("Owner ID is required."),
-      ownerType: Yup.string().required("Owner type is required."),
+      url: Yup.string().required("URL is required"),
+      mimeType: Yup.string().required("MIME type is required"),
+      clientId: Yup.number().required("Client ID is required"),
+      ownerId: Yup.number().required("Owner ID is required"),
+      ownerType: Yup.string().required("Owner type is required"),
     })
   ),
 });
 
 export const taskSchema = Yup.object().shape({
-  title: Yup.string().required("Task title is required."),
-  description: Yup.string().required("Task description is required."),
-  dueDate: Yup.date().required("Due date is required."),
-  priority: Yup.string()
-    .oneOf(Object.values(TaskPriority))
-    .required("Priority is required."),
-  assignedTo: Yup.string().required("Assignee is required."),
-  clientId: Yup.number()
-    .required("Client ID is required.")
-    .typeError("Client ID must be a number."),
+  title: Yup.string().required("Title is required"),
+  description: Yup.string().required("Description is required"),
+  assignedTo: Yup.number().optional(),
+  projectId: Yup.number().required("Project ID is required"),
+  dueDate: Yup.date().required("Due date is required"),
+  priority: Yup.string().oneOf(Object.values(TaskPriority)).required("Priority is required"),
 });
 
 export const createNoteSchema = Yup.object().shape({
-  content: Yup.string().required("Note content is required."),
-  projectId: Yup.number().required("Project ID is required."),
+  notes: Yup.string().required("Notes are required"),
+  project_id: Yup.number().required("Project ID is required"),
 });
 
 export const createProjectSchema = Yup.object().shape({
-  name: Yup.string().required("Project name is required."),
-  description: Yup.string().required("Project description is required."),
-  clientId: Yup.number().required("Client ID is required."),
+  name: Yup.string().required("Project name is required"),
+  location: Yup.string().required("Location is required"),
+  metadata: Yup.mixed().optional(),
+  description: Yup.string().required("Description is required"),
+  client_id: Yup.number().required("Client ID is required"),
 });
 
-// Export types
+export const updateClientStaffSchema = Yup.object().shape({
+  prev_client_staff_id: Yup.number().optional(),
+  new_staff_id: Yup.number().optional(),
+});
+
+export const updateClientSchema = createClientSchema.omit(['member_ids']).shape({
+  client_Staff: Yup.array().of(updateClientStaffSchema).optional(),
+});
+
+// Type definitions
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type BriefPayload = Yup.InferType<typeof briefSchema>;
-export type ClientListingPayload = Yup.InferType<typeof clientListingSchema>;
 export type ClientMediaPayload = Yup.InferType<typeof clientMediaSchema>;
 export type TaskPayload = Yup.InferType<typeof taskSchema>;
 export type CreateNotePayload = Yup.InferType<typeof createNoteSchema>;
 export type CreateProjectPayload = Yup.InferType<typeof createProjectSchema>;
+export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>;
+export type ClientListingPayload = {
+  start: number;
+  limit: number;
+};
+
+export interface RequestUser {
+  id: number;
+  auth_id: string;
+}
+
+export interface Request {
+  user: RequestUser;
+}

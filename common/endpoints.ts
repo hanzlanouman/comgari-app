@@ -116,6 +116,11 @@ export const END_POINTS = {
       method: "POST",
       description: "Get all clients with pagination"
     },
+    GET_SINGLE_CLIENT: {
+      route: UserUrl + "/client",  
+      method: "GET",
+      description: "Get details of a single client by ID"
+    },
     UPDATE_CLIENT: {
       route: UserUrl + "/client",
       method: "PUT",
@@ -166,7 +171,6 @@ export const END_POINTS = {
       method: "GET",
       description: "Get client tasks"
     },
-    // New endpoints for Notes
     CREATE_NOTE: {
       route: UserUrl + "/client/note",
       method: "POST",
@@ -187,7 +191,6 @@ export const END_POINTS = {
       method: "DELETE",
       description: "Delete client note"
     },
-    // Project endpoint
     CREATE_PROJECT: {
       route: UserUrl + "/client/project",
       method: "POST",
