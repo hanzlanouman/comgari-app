@@ -1,3 +1,4 @@
+// app\(root)\(tabs)\clients\clients.tsx
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
@@ -16,7 +17,7 @@ import ClientCard from "./components/ClientCard";
 import { ClientRepository } from "@/repositories/client/client";
 import { ClientListingPayload } from "@/repositories/client/schemas";
 import { useAppSelector } from "@/hooks/redux";
-import {  ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } from '@/common/types';
+import {  ClientType, ClientStatus } from '@/common/types';
 
 
 interface Client {
@@ -123,8 +124,7 @@ const Clients: React.FC = () => {
     </View>
   );
 
-  const getCategoryColor = (category: string) => (category === "someCategory" ? "#color" : "#defaultColor");
-  const getStatusColor = (status: string) => (status === "someStatus" ? "#color" : "#defaultColor");
+
 
   const renderClientsList = () => (
     <View className="pb-20">
@@ -137,8 +137,6 @@ const Clients: React.FC = () => {
             category: client.type,
             status: client.status,
             progress: 75,
-            getCategoryColor,
-            getStatusColor,
           }}
           onPress={() => handleClientPress(client.id)}
         />

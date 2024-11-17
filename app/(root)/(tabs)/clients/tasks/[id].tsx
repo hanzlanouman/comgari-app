@@ -25,8 +25,17 @@ interface Task {
   title: string;
   description: string;
   assignedTo: string;
-  dueDate: string;
+  dueDate: Date;
   priority: string;
+}
+
+interface TaskPayload {
+  title: string;
+  description: string;
+  assignedTo: number;
+  dueDate: Date;
+  priority: string;
+  projectId: number;
 }
 
 const emptyFormValues = {
@@ -38,7 +47,7 @@ const emptyFormValues = {
 };
 
 const Tasks = () => {
-  const { id } = useLocalSearchParams();
+  const { id: projectId } = useLocalSearchParams();
   const clientRepo = ClientRepository.getInstance();
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
@@ -47,8 +56,6 @@ const Tasks = () => {
     router.push("/(auth)/sign-in");
     return null;
   }
-
-  const req = { user: { id: user?.id } };
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +72,7 @@ const Tasks = () => {
       try {
         setIsFetching(true);
         setError(null);
-        const response = await clientRepo.getTask(Number(id));
+        const response = await clientRepo.getTask(Number(projectId));
         setTasks(response);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -76,18 +83,21 @@ const Tasks = () => {
     };
 
     fetchTasks();
-  }, [id]);
+  }, [projectId]);
 
   const handleAddTask = async (values: Omit<Task, 'id'>) => {
     try {
       setIsLoading(true);
-      const payload = {
-        ...values,
-        projectId: Number(id),
+      const payload: TaskPayload = {
+        title: values.title,
+        description: values.description,
         assignedTo: Number(values.assignedTo),
+        dueDate: values.dueDate,
+        priority: values.priority,
+        projectId: Number(projectId),
       };
-
-      const response = await clientRepo.createTask(req, payload);
+      console.log(payload);
+      const response = await clientRepo.createTask(payload);
       setTasks((prevTasks) => [response, ...prevTasks]);
       addModalRef.current?.dismiss();
     } catch (error) {
@@ -103,17 +113,19 @@ const Tasks = () => {
 
     try {
       setIsLoading(true);
-      const payload = {
-        ...values,
-        id: selectedTask.id,
-        projectId: Number(id),
+      const payload: TaskPayload = {
+        title: values.title,
+        description: values.description,
         assignedTo: Number(values.assignedTo),
+        dueDate: values.dueDate,
+        priority: values.priority,
+        projectId: Number(projectId),
       };
 
-      const response = await clientRepo.updateTask(req, payload);
+      const response = await clientRepo.updateTask(selectedTask.id, payload);
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task.id === selectedTask.id ? response : task
+          task.id === selectedTask.id ? { ...task, ...response } : task
         )
       );
       editModalRef.current?.dismiss();
@@ -130,7 +142,7 @@ const Tasks = () => {
 
     try {
       setIsLoading(true);
-      await clientRepo.deleteTask(Number(selectedTask.id));
+      await clientRepo.deleteTask(selectedTask.id);
       setTasks((prevTasks) => prevTasks.filter(task => task.id !== selectedTask.id));
       editModalRef.current?.dismiss();
     } catch (error) {
@@ -161,7 +173,10 @@ const Tasks = () => {
                 <Text className="text-red-500 text-center">{error}</Text>
                 <CustomButton
                   title="Retry"
-                  onPress={() => setTasks([])}
+                  onPress={() => {
+                    setError(null);
+                    setTasks([]);
+                  }}
                   className="mt-4"
                 />
               </View>

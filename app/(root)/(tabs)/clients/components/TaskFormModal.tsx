@@ -1,4 +1,4 @@
-// TaskFormModal.tsx
+// app\(root)\(tabs)\clients\components\TaskFormModal.tsx
 import React, { useRef, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Formik } from 'formik';
@@ -13,7 +13,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 interface TaskFormValues {
   title: string;
   description: string;
-  assignedTo: string;
+  assignedTo: number;
   dueDate: string;
   priority: string;
 }
@@ -145,7 +145,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
             <View className="flex-row mt-4">
               <View className={`flex-1 ${mode === 'edit' ? 'mr-2' : ''}`}>
                 <CustomButton
-                  title={isLoading ? `${mode === 'add' ? 'Adding...' : 'Updating...'}` : `${mode === 'add' ? 'Add Task' : 'Update Task'}`}
+                  title={isLoading ? `${mode === 'add' ? 'Adding' : 'Updating'}` : `${mode === 'add' ? 'Add Task' : 'Update Task'}`}
                   onPress={handleSubmit}
                   disabled={isLoading}
                 />
@@ -154,7 +154,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
               {mode === 'edit' && onDelete && (
                 <View className="flex-1 ml-2">
                   <CustomButton
-                    title={isLoading ? "Deleting..." : "Delete Task"}
+                    title={isLoading ? "Deleting" : "Delete Task"}
                     onPress={onDelete}
                     disabled={isLoading}
                     variant="destructive"

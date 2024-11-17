@@ -14,7 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { AppContainer } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
-import { images, icons } from "@/constants";
+import { images, icons, getImageUrl } from "@/constants";
 import { ClientStatus, ClientType } from "@/common/types";
 
 interface ClientUser {
@@ -75,7 +75,7 @@ const navigationItems = [
     id: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
-    route: "/(root)/(tabs)/clients/tasks/{projectId}", // Dynamic placeholder
+    route: "/(root)/(tabs)/clients/tasks/{projectId}", 
   },
   {
     id: "notes",
@@ -162,17 +162,17 @@ const ClientDetailPage: React.FC = () => {
   
 
   const renderNavigationItem = (item: typeof navigationItems[number]) => (
-    <View key={item.id} className="px-1.5 mt-3 w-2/5">
+    <View key={item.id} className="px-1.5 mt-3 w-1/2"> 
       <TouchableOpacity
         onPress={() => handleNavigationPress(item.route)}
         className="border border-light rounded-[20px] p-4"
       >
         <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
-          {/* <Image
-            source={icons[item.id] || icons.default}
+          <Image
+            source={icons[item.id]}
             resizeMode="contain"
             className="w-[23px] h-5"
-          /> */}
+          />
         </View>
         <Text className="text-lg sm:text-xl font-ManropeSemibold text-dark mt-3">
           {item.title}
@@ -183,6 +183,8 @@ const ClientDetailPage: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
+  
+  
 
   const renderClientInfo = () => {
     if (!client) return null;
@@ -191,7 +193,7 @@ const ClientDetailPage: React.FC = () => {
       <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
         <View className="flex-row items-center border-b border-light pb-3.5">
           <Image
-            source={client?.logo ? { uri: client.logo } : images.user}
+            source={client?.logo ? { uri: getImageUrl(client.logo) } : images.user}
             resizeMode="cover"
             className="rounded-full"
             style={{ width: vs(45), height: vs(45) }}
@@ -243,7 +245,7 @@ const ClientDetailPage: React.FC = () => {
       <AppContainer isError={isError} isLoading={isLoading}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4 pt-2.5">
           {renderClientInfo()}
-          <View className="flex-row flex-wrap -mx-1.5">
+          <View className="flex-row flex-wrap -mx-1.5 justify-start">
             {navigationItems.map(renderNavigationItem)}
           </View>
         </ScrollView>

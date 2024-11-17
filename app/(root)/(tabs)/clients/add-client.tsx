@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\clients\add-client.tsx
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
@@ -21,12 +22,20 @@ interface ClientFormValues {
 
 type TMember = {
   id: number;
-  name: string;
-  image: string;
-  role: string;
-  email: string;
-  phone: string;
-  status: string;
+  auth_id: number;
+  agency_id: number;
+  created_at: string;
+  updated_at: string;
+  Auth: {
+    id: number;
+    username: string;
+    email: string;
+    phone: string;
+    status: string;
+    is_verified: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
 };
 
 const AddClient = () => {
@@ -46,22 +55,23 @@ const AddClient = () => {
       setIsLoading(true);
       try {
         const { data } = await memberRepo.getMember();
-        const members: TMember[] = data?.data || [];
-        const options: OptionType[] = [
-          { key: 1, value: 'joe bro' },
-          ...members.map((member) => ({
-            key: member.id,
-            value: member.name || 'Unknown',
-          })),
-        ];
+        console.log('Raw API response:', data);
+        
+        const members = data || [];
+        const options: OptionType[] = members.map((member) => ({
+          key: member.id,
+          value: member.Auth.username || 'Unknown',
+        }));
+        
+        console.log('Processed member options:', options);
         setMemberOptions(options);
       } catch (error: any) {
-        console.warn('Error fetching members:', error);
+        console.error('Error fetching members:', error);
+        Alert.alert('Error', 'Failed to load members. Please try again.');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchMembers();
   }, [memberRepo]);
 

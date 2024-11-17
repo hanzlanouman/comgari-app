@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\clients\components\AddClientForm.tsx
 import React from 'react';
 import {
   Image,
@@ -13,7 +14,8 @@ import { InputField } from '@/common/components';
 import { OptionType, ClientType, ClientStatus } from '@/common/types';
 import DropdownSelect from '@/common/components/Select';
 import MultiSelectDropdown from '@/common/components/MultiSelect';
-import { images } from '@/constants';
+import { ClientRepository } from '@/repositories/client/client';
+import { images, getImageUrl } from '@/constants';
 
 import * as ImagePicker from 'expo-image-picker';
 
@@ -41,23 +43,74 @@ export default function AddClientForm({
   statusOptions,
   memberOptions,
 }: AddClientFormProps) {
-  const handleImageUpload = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Permission to access media library is required!');
-      return;
+  const clientRepo = ClientRepository.getInstance();
+
+  // Function to upload the selected image
+  const uploadMedia = async (file: ImagePicker.ImagePickerAsset): Promise<string> => {
+    try {
+      const formData = new FormData();
+      const fileToUpload = {
+        uri: file.uri,
+        type: file.mimeType || 'image/jpeg',
+        name: file.uri.split('/').pop() || 'image.jpg',
+      } as any;
+      formData.append('files', fileToUpload);
+  
+      const response = await clientRepo.uploadMedia(formData);
+      
+      // Handle both array and object responses
+      if (response?.data?.length > 0) {
+        return response.data[0].filename;
+      } else if (Array.isArray(response) && response.length > 0) {
+        return response[0].filename;
+      }
+      
+      throw new Error('No file data received from server');
+    } catch (error) {
+      console.error('Upload error:', error); 
+      throw new Error('Failed to upload image');
     }
+  };
+  // console.log(getImageUrl(formik.values.logo))
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.7,
-    });
-
-    if (result.canceled) { 
-      console.log('User canceled image picker');
-    } else {
-      const imageUrl = result.assets[0].uri; 
-      formik.setFieldValue('logo', imageUrl);
+  // Handle image selection and uploading
+  const handleImageUpload = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Permission to access media library is required!');
+        return;
+      }
+  
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        allowsEditing: true,
+        aspect: [1, 1],
+        base64: false,
+      });
+  
+      if (!result.canceled && result.assets?.[0]) {
+        try {
+          const imageUrl = await uploadMedia(result.assets[0]);
+          if (!imageUrl) {
+            throw new Error('No image URL returned');
+          }
+          formik.setFieldValue('logo', imageUrl);
+        } catch (uploadError) {
+          console.error('Upload error:', uploadError);
+          Alert.alert(
+            'Upload failed',
+            'Failed to upload image. Please check your connection and try again.'
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert(
+        'Error',
+        'Failed to access image picker. Please check app permissions.'
+      );
     }
   };
 
@@ -68,7 +121,7 @@ export default function AddClientForm({
         style={{ width: vs(80), height: vs(80) }}
       >
         <Image
-          source={formik.values.logo ? { uri: formik.values.logo } : images.user}
+          source={formik.values.logo ? { uri: getImageUrl(formik.values.logo) } : images.user}
           resizeMode="cover"
           className="rounded-full mx-auto w-full h-full"
         />
@@ -86,11 +139,7 @@ export default function AddClientForm({
           value={formik.values.name}
           onChangeText={formik.handleChange('name')}
           placeholder="Client name"
-          error={
-            typeof formik.errors.name === 'string'
-              ? formik.errors.name
-              : undefined
-          }
+          error={typeof formik.errors.name === 'string' ? formik.errors.name : undefined}
         />
       </View>
 
@@ -100,11 +149,7 @@ export default function AddClientForm({
           value={formik.values.email}
           onChangeText={formik.handleChange('email')}
           placeholder="Client email"
-          error={
-            typeof formik.errors.email === 'string'
-              ? formik.errors.email
-              : undefined
-          }
+          error={typeof formik.errors.email === 'string' ? formik.errors.email : undefined}
         />
       </View>
 
@@ -114,25 +159,17 @@ export default function AddClientForm({
           value={formik.values.phone}
           onChangeText={formik.handleChange('phone')}
           placeholder="Client phone"
-          error={
-            typeof formik.errors.phone === 'string'
-              ? formik.errors.phone
-              : undefined
-          }
+          error={typeof formik.errors.phone === 'string' ? formik.errors.phone : undefined}
         />
       </View>
 
       <View className="mt-3">
         <MultiSelectDropdown
           placeholder="Select Members"
-          data={memberOptions} 
+          data={memberOptions}
           selectedValues={formik.values.member_ids.map(String)}
           setFieldValue={formik.setFieldValue}
-          error={
-            typeof formik.errors.member_ids === 'string'
-              ? formik.errors.member_ids
-              : undefined
-          }
+          error={typeof formik.errors.member_ids === 'string' ? formik.errors.member_ids : undefined}
           fieldName="member_ids"
         />
       </View>
@@ -145,11 +182,7 @@ export default function AddClientForm({
           setFieldValue={(field, value) => {
             formik.setFieldValue(field, value as ClientType);
           }}
-          error={
-            typeof formik.errors.type === 'string'
-              ? formik.errors.type
-              : undefined
-          }
+          error={typeof formik.errors.type === 'string' ? formik.errors.type : undefined}
           fieldName="type"
         />
       </View>
@@ -162,11 +195,7 @@ export default function AddClientForm({
           setFieldValue={(field, value) => {
             formik.setFieldValue(field, value as ClientStatus);
           }}
-          error={
-            typeof formik.errors.status === 'string'
-              ? formik.errors.status
-              : undefined
-          }
+          error={typeof formik.errors.status === 'string' ? formik.errors.status : undefined}
           fieldName="status"
         />
       </View>
