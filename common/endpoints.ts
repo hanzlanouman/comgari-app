@@ -195,6 +195,9 @@ export const END_POINTS = {
       route: UserUrl + "/client/project",
       method: "POST",
       description: "Create client project"
-    }
+    },
+    UPLOAD: {
+      route: UserUrl + "/upload"
+    },
   },
 };

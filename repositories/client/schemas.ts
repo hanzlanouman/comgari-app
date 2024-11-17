@@ -98,3 +98,4 @@ export interface RequestUser {
 export interface Request {
   user: RequestUser;
 }
+
