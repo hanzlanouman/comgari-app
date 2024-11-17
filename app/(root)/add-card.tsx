@@ -4,7 +4,7 @@ import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
 
-const SignUp = () => {
+const AddCard = () => {
   const [form, setForm] = useState({
     cardHolderName: "",
     cardNumber: "",
@@ -67,4 +67,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default AddCard;

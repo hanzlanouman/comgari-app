@@ -1,5 +1,8 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+import { TouchableOpacity } from "react-native";
+import { Plus } from "lucide-react-native";
 
 const Layout = () => {
   return (
@@ -25,6 +28,28 @@ const Layout = () => {
       <Stack.Screen
         name="add-card"
         options={{ headerShown: true, title: "Add Card" }}
+      />
+      <Stack.Screen
+        name="invoices"
+        options={{
+          headerShown: true,
+          title: "Invoices",
+          headerRight: () => (
+            <LinearGradient
+              colors={["#1B78B9", "#63348F"]}
+              className="rounded-full w-8 h-8"
+              start={[0, 0]}
+              end={[1, 1]}
+            >
+              <TouchableOpacity
+                onPress={() => router.push("/(root)/add-invoice")}
+                className="w-full h-full rounded-full flex flex-row justify-center items-center"
+              >
+                <Plus size={18} className="text-white" />
+              </TouchableOpacity>
+            </LinearGradient>
+          ),
+        }}
       />
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "" }} />
     </Stack>

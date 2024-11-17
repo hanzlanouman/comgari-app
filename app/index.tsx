@@ -1,7 +1,7 @@
 import { Redirect } from "expo-router";
 
 const Home = () => {
-  return <Redirect href="/(root)/(tabs)/appointment" />;
+  return <Redirect href="/(root)/invoices" />;
 };
 
 export default Home;

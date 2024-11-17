@@ -13,6 +13,7 @@ import member from "@/assets/images/member.png";
 import user from "@/assets/images/user.jpg";
 import pdf from "@/assets/images/pdf.png";
 import doc from "@/assets/images/doc.png";
+import invoice from "@/assets/images/invoice.png";
 
 import brief from "@/assets/icons/brief.png";
 import tasks from "@/assets/icons/tasks.png";
@@ -38,6 +39,7 @@ export const images = {
   user,
   pdf,
   doc,
+  invoice,
 };
 
 export const icons = {
