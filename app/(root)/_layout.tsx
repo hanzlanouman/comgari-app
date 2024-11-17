@@ -51,6 +51,10 @@ const Layout = () => {
           ),
         }}
       />
+      <Stack.Screen
+        name="add-invoice"
+        options={{ headerShown: true, title: "Add Invoice" }}
+      />
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "" }} />
     </Stack>
   );

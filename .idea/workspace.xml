@@ -32,14 +32,9 @@
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-business/index.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../reward-reviews/src/pages/signup-reviewer/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/(tabs)/appointment/add-appointment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/(tabs)/appointment/add-appointment.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(root)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/add-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/add-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/invoices.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/invoices.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/constants/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/assets/icons/Icons.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../reward-reviews/src/components/business-card/business-card.js" beforeDir="false" afterPath="$PROJECT_DIR$/../reward-reviews/src/components/business-card/business-card.js" afterDir="false" />
@@ -141,7 +136,7 @@
       <workItem from="1731125780678" duration="24138000" />
       <workItem from="1731376642659" duration="11471000" />
       <workItem from="1731518268573" duration="6693000" />
-      <workItem from="1731688945081" duration="21812000" />
+      <workItem from="1731688945081" duration="26323000" />
     </task>
     <servers />
   </component>
