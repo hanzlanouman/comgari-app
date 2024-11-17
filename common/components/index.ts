@@ -3,4 +3,7 @@ export * from "./CustomButton";
 export * from "./InputField";
 export * from "./Loader";
 export * from "./ProgressBar";
+export * from "./Backdrop";
 export * from "./OtpField";
+export * from "./Select";
+export * from "./MultiSelect";

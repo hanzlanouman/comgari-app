@@ -14,7 +14,7 @@ interface MultiSelectDropdownProps {
   fieldName: string;
 }
 
-const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
+export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   label,
   placeholder,
   data,

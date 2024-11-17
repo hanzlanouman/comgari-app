@@ -2,9 +2,9 @@ import * as Yup from "yup";
 import { ClientType, CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
 
 export enum TaskPriority {
-  LOW = "LOW",
-  MEDIUM = "MEDIUM",
-  HIGH = "HIGH",
+  low = "low",
+  medium = "medium",
+  high = "high",
 }
 
 export const createClientSchema = Yup.object().shape({
