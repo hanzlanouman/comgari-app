@@ -110,19 +110,24 @@ const GoPro = () => {
             </TouchableOpacity>
           </View>
           <View className="mt-4">
-            {plans?.map((plan) => (
-              <PlanCard
-                key={plan.id}
-                plan={plan.name}
-                price={parseFloat(plan.pricing[0].price) / 100} // Assuming price is in cents
-                members={plan.maxMembers}
-                clients={plan.maxClients}
-                freetrial={plan.freeTrialDays}
-                isSelected={selectedPlan === plan.name}
-                onPress={() => handlePress(plan.name, plan.pricing[0].price_id)}
-              />
-            ))}
+            {plans?.map((plan, index) => {
+              return (
+                <PlanCard
+                  key={plan?.id}
+                  plan={plan?.name}
+                  price={plan?.pricing[0]?.price}
+                  members={plan?.maxMembers}
+                  clients={plan?.maxClients}
+                  freetrial={plan?.freeTrialDays}
+                  isSelected={selectedPlan === plan?.name}
+                  onPress={() =>
+                    handlePress(plan?.name, plan?.pricing[0]?.price_id)
+                  }
+                />
+              );
+            })}
           </View>
+
           <View className="mt-4">
             <CustomButton
               title="Buy Now"

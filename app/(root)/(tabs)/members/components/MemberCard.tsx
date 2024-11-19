@@ -36,7 +36,7 @@ export default function MemberCard({ member }: { member: TMember }) {
             </Text>
             <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
               <Text className="text-sm font-ManropeMedium text-green text-center">
-                Active
+                {member?.status}
               </Text>
             </View>
           </View>

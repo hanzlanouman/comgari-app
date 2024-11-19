@@ -14,7 +14,7 @@ import {
 const Layout = () => {
   const { getPermission } = useAuthorization();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-console.log(user,'User in Selector')
+
   const tabScreens = useMemo(() => {
     const screens = [
       {
@@ -41,8 +41,8 @@ console.log(user,'User in Selector')
         icon: UsersRound,
         permissionRequired: {
           user: user,
-          permission: "GET",
-          resource: "clients",
+          permission: "Get",
+          resource: "client",
         },
         headerShown: false,
       },
@@ -52,8 +52,8 @@ console.log(user,'User in Selector')
         icon: CalendarDays,
         permissionRequired: {
           user: user,
-          permission: "GET",
-          resource: "appointments",
+          permission: "Get",
+          resource: "appointment",
         },
         headerShown: false,
       },
@@ -69,7 +69,7 @@ console.log(user,'User in Selector')
     return screens.map((screen) => {
       if (screen.permissionRequired) {
         const { user, permission, resource } = screen.permissionRequired;
-        console.log(user,'USer in screen')
+        console.log(user, "USer in screen");
         const hasPermission = getPermission(user!, permission, resource);
         return {
           ...screen,

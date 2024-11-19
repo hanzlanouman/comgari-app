@@ -46,6 +46,7 @@ const Members = () => {
 
   useEffect(() => {
     if (data) {
+      console.log(data, "Data of member is");
       setMembers(
         data?.data?.map((item: any) => ({
           id: item?.Auth?.user[0]?.id,
@@ -54,6 +55,7 @@ const Members = () => {
           phone: item?.Auth?.phone || null,
           email: item?.Auth?.email || null,
           role: item?.Auth?.user[0]?.user_roles[0]?.role?.name || null,
+          status: item?.Auth?.status,
         })) || []
       );
     }
@@ -64,7 +66,7 @@ const Members = () => {
       <AppContainer isError={isError} message={error}>
         <FlatList
           data={member}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item?.id?.toString()}
           renderItem={({ item }) => <MemberCard member={item} />}
           contentContainerStyle={{
             paddingBottom: vs(10),
