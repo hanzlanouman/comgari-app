@@ -1,4 +1,6 @@
+//app\(root)\(tabs)\clients\[id].tsx
 import React from "react";
+import { useRouter, useNavigation } from "expo-router";
 import {
   Image,
   SafeAreaView,
@@ -8,9 +10,14 @@ import {
   View,
 } from "react-native";
 import { useQuery } from "react-query";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { vs } from "react-native-size-matters";
-import { router, useLocalSearchParams } from "expo-router";
-
+import { useLocalSearchParams } from "expo-router";
+import { useRef, useEffect } from "react";
+import { LinearGradient } from 'expo-linear-gradient';
+import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { Pencil } from 'lucide-react-native';
+import { ClientEditModal } from './components/ClientEditModal';
 import { AppContainer } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
@@ -75,7 +82,7 @@ const navigationItems = [
     id: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
-    route: "/(root)/(tabs)/clients/tasks/{projectId}", 
+    route: "/(root)/(tabs)/clients/tasks/{projectId}",
   },
   {
     id: "notes",
@@ -90,16 +97,66 @@ const navigationItems = [
     route: "/(root)/(tabs)/clients/media",
   },
 ] as const;
+export const options = {
 
+};
 
 const ClientDetailPage: React.FC = () => {
+
   const { id } = useLocalSearchParams();
   const clientIdNum = typeof id === "string" ? parseInt(id, 10) : id;
-
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const navigation = useNavigation();
   const clientRepo = ClientRepository.getInstance();
+  const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const request: Request = {
+    user: {
+      id: user.id, 
+      auth_id: user.auth_id 
+    }
+  };
+  useEffect(() => {
+    console.log('BottomSheetModal initialized:', bottomSheetRef.current);
+  }, []);
 
+  const EditButton = () => (
+    <LinearGradient
+      colors={["#1B78B9", "#63348F"]}
+      style={{
+        borderRadius: 999,
+        width: 32,
+        height: 32,
+      }}
+      start={[0, 0]}
+      end={[1, 1]}
+    >
+      <TouchableOpacity
+        onPress={() => {
+          console.log('Edit button pressed');
+          console.log('bottomSheetRef current:', bottomSheetRef.current);
+          bottomSheetRef.current?.present();
+        }}
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Pencil size={18} color="#ffffff" />
+      </TouchableOpacity>
+    </LinearGradient>
+  );
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: "Client Detail",
+      headerRight: () => <EditButton />,
+    });
+  }, [navigation]);
   const { data: client, isError, isLoading } = useQuery<Client>(
     ["client", clientIdNum],
     async () => {
@@ -144,7 +201,7 @@ const ClientDetailPage: React.FC = () => {
 
   const handleNavigationPress = (route: string) => {
     if (route.includes("{projectId}")) {
-      const projectId = client?.project?.[0]?.id; 
+      const projectId = client?.project?.[0]?.id;
       const resolvedRoute = route.replace("{projectId}", String(projectId || ""));
       console.log("projec id :", resolvedRoute)
       router.push({
@@ -158,11 +215,9 @@ const ClientDetailPage: React.FC = () => {
       });
     }
   };
-  
-  
 
   const renderNavigationItem = (item: typeof navigationItems[number]) => (
-    <View key={item.id} className="px-1.5 mt-3 w-1/2"> 
+    <View key={item.id} className="px-1.5 mt-3 w-1/2">
       <TouchableOpacity
         onPress={() => handleNavigationPress(item.route)}
         className="border border-light rounded-[20px] p-4"
@@ -183,8 +238,8 @@ const ClientDetailPage: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
-  
-  
+
+
 
   const renderClientInfo = () => {
     if (!client) return null;
@@ -241,16 +296,27 @@ const ClientDetailPage: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <AppContainer isError={isError} isLoading={isLoading}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4 pt-2.5">
-          {renderClientInfo()}
-          <View className="flex-row flex-wrap -mx-1.5 justify-start">
-            {navigationItems.map(renderNavigationItem)}
-          </View>
-        </ScrollView>
-      </AppContainer>
-    </SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <SafeAreaView className="flex-1 bg-white">
+          <AppContainer isError={isError} isLoading={isLoading}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4 pt-2.5">
+              {renderClientInfo()}
+              <View className="flex-row flex-wrap -mx-1.5 justify-start">
+                {navigationItems.map(renderNavigationItem)}
+              </View>
+            </ScrollView>
+
+            <ClientEditModal
+              bottomSheetRef={bottomSheetRef}
+              clientId={clientIdNum}
+              clientData={client}
+              request={request}
+            />
+          </AppContainer>
+        </SafeAreaView>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 };
 

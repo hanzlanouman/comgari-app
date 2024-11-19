@@ -1,7 +1,7 @@
 //app\(root)\(tabs)\clients\add-client.tsx
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
-import { router } from 'expo-router';
+import { SafeAreaView, ScrollView, View, Alert } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useFormik } from 'formik';
 import { useAppSelector } from '@/hooks/redux'; 
 import { CustomButton, AppContainer } from '@/common/components';
@@ -18,54 +18,44 @@ interface ClientFormValues {
   type?: ClientType;
   status: ClientStatus;
   member_ids: number[];
+  email?: string;
+  phone?: string;
+  brief?: string;
 }
-
-type TMember = {
-  id: number;
-  auth_id: number;
-  agency_id: number;
-  created_at: string;
-  updated_at: string;
-  Auth: {
-    id: number;
-    username: string;
-    email: string;
-    phone: string;
-    status: string;
-    is_verified: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
-};
 
 const AddClient = () => {
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
 
-  const [memberOptions, setMemberOptions] = useState<OptionType[]>([
-    { key: 1, value: 'joe bro' },
-  ]);
+  const [memberOptions, setMemberOptions] = useState<OptionType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  const params = useLocalSearchParams();
+  
+  // Safely parse the client ID
+  const clientId = params.isEditing === 'true' 
+    ? params.clientId 
+      ? Number(params.clientId) 
+      : undefined 
+    : undefined;
 
   useEffect(() => {
     const fetchMembers = async () => {
       setIsLoading(true);
       try {
         const { data } = await memberRepo.getMember();
-        console.log('Raw API response:', data);
-        
         const members = data || [];
         const options: OptionType[] = members.map((member) => ({
           key: member.id,
           value: member.Auth.username || 'Unknown',
         }));
         
-        console.log('Processed member options:', options);
         setMemberOptions(options);
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error fetching members:', error);
         Alert.alert('Error', 'Failed to load members. Please try again.');
       } finally {
@@ -73,7 +63,12 @@ const AddClient = () => {
       }
     };
     fetchMembers();
-  }, [memberRepo]);
+
+    // Set editing mode if client ID is present and valid
+    if (params.isEditing === 'true' && clientId) {
+      setIsEditing(true);
+    }
+  }, []);
 
   if (!isAuthenticated) {
     router.push('/(auth)/sign-in');
@@ -91,27 +86,48 @@ const AddClient = () => {
   }));
 
   const initialValues: ClientFormValues = {
-    name: '',
-    description: '',
-    logo: undefined,
-    type: undefined,
-    status: ClientStatus.Active,
-    member_ids: [],
+    name: String(params.name || ''),
+    description: String(params.description || ''),
+    logo: String(params.logo || undefined),
+    type: params.type as ClientType,
+    status: (params.status as ClientStatus) || ClientStatus.Active,
+    member_ids: params.member_ids ? 
+      Array.isArray(params.member_ids) 
+        ? params.member_ids.map(Number) 
+        : [Number(params.member_ids)] 
+      : [],
+    email: String(params.email || ''),
+    phone: String(params.phone || ''),
+    brief: String(params.brief || ''),
   };
 
   const formik = useFormik({
     initialValues,
+    enableReinitialize: true, 
     validationSchema: createClientSchema,
     onSubmit: async (values) => {
       try {
-        const req = { user: { id: user?.id } };
-        const payload = values;
+        // Ensure user ID is available
+        if (!user?.id) {
+          throw new Error('User not authenticated');
+        }
 
-        await clientRepo.createClient(req, payload);
+        const req = { user: { id: user.id } };
         
-        router.push('/(tabs)/clients/clients');
+        if (isEditing && clientId) {
+          // Update existing client
+          await clientRepo.updateClient(req, clientId, values);
+          Alert.alert('Success', 'Client updated successfully');
+        } else {
+          // Create new client
+          await clientRepo.createClient(req, values);
+          Alert.alert('Success', 'Client created successfully');
+        }
+        
+        router.push('/(root)/(tabs)/clients');
       } catch (error) {
-        console.error('Error creating client:', error);
+        console.error('Error saving client:', error);
+        Alert.alert('Error', 'Failed to save client');
       }
     },
   });
@@ -129,7 +145,7 @@ const AddClient = () => {
         </ScrollView>
         <View className="p-4 bg-white">
           <CustomButton
-            title="Add Client"
+            title={isEditing ? "Update Client" : "Add Client"}
             onPress={() => {
               formik.handleSubmit();
             }}
