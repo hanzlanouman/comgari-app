@@ -72,7 +72,7 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
               if (bottomSheetRef.current) {
                 await bottomSheetRef.current.dismiss();
               }
-              router.replace('/(root)/(tabs)/clients'); 
+              router.replace('/(root)/(tabs)/clients/clients'); 
             } catch (error) {
               console.error('Delete client error:', error);
               Alert.alert('Error', 'Failed to delete client. Please try again.');
