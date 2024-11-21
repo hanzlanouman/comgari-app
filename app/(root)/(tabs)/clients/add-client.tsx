@@ -1,4 +1,3 @@
-//app\(root)\(tabs)\clients\add-client.tsx
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, View, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -10,6 +9,8 @@ import { createClientSchema } from '@/repositories/client/schemas';
 import { OptionType, ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } from '@/common/types';
 import { ClientRepository } from '@/repositories/client/client';
 import { MemberRepository } from '@/repositories/member/member';
+import { useQueryClient } from 'react-query';
+
 
 interface ClientFormValues {
   name: string;
@@ -26,7 +27,7 @@ interface ClientFormValues {
 const AddClient = () => {
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
-
+  const queryClient = useQueryClient();
   const [memberOptions, setMemberOptions] = useState<OptionType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +37,6 @@ const AddClient = () => {
 
   const params = useLocalSearchParams();
   
-  // Safely parse the client ID
   const clientId = params.isEditing === 'true' 
     ? params.clientId 
       ? Number(params.clientId) 
@@ -64,7 +64,6 @@ const AddClient = () => {
     };
     fetchMembers();
 
-    // Set editing mode if client ID is present and valid
     if (params.isEditing === 'true' && clientId) {
       setIsEditing(true);
     }
@@ -107,7 +106,6 @@ const AddClient = () => {
     validationSchema: createClientSchema,
     onSubmit: async (values) => {
       try {
-        // Ensure user ID is available
         if (!user?.id) {
           throw new Error('User not authenticated');
         }
@@ -115,16 +113,12 @@ const AddClient = () => {
         const req = { user: { id: user.id } };
         
         if (isEditing && clientId) {
-          // Update existing client
           await clientRepo.updateClient(req, clientId, values);
-          Alert.alert('Success', 'Client updated successfully');
         } else {
-          // Create new client
           await clientRepo.createClient(req, values);
-          Alert.alert('Success', 'Client created successfully');
         }
-        
-        router.push('/(root)/(tabs)/clients');
+        await queryClient.invalidateQueries("clients");
+        router.replace('/(root)/(tabs)/clients/clients');
       } catch (error) {
         console.error('Error saving client:', error);
         Alert.alert('Error', 'Failed to save client');

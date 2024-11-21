@@ -1,7 +1,6 @@
-//app\(root)\(tabs)\clients\components\ClientEditModal.tsx
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { Pencil, Trash2 } from 'lucide-react-native';
+import { Pencil, Trash2, ChevronRight  } from 'lucide-react-native';
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { ClientRepository } from '@/repositories/client/client';
 import { router } from 'expo-router';
@@ -9,35 +8,44 @@ import { useQueryClient } from 'react-query';
 import { useAppSelector } from '@/hooks/redux';
 import { ClientStatus, ClientType } from "@/common/types";
 
+interface Client {
+  id: number;
+  name: string;
+  description?: string | null;
+  email?: string;
+  phone?: string;
+  type?: ClientType;
+  status: ClientStatus;
+  logo?: string | null;
+  brief?: string | null;
+  member_ids?: number[];
+}
+
 interface ClientEditModalProps {
   bottomSheetRef: React.RefObject<BottomSheetModal>;
   clientId: number;
-  client: {
-    name: string;
-    description?: string;
-    email?: string;
-    phone?: string;
-    type?: ClientType;
-    status: ClientStatus;
-    logo?: string | null;
-    brief?: string | null;
+  clientData: Client;
+  request: {
+    user: {
+      id: number;
+      auth_id?: string;
+    }
   };
 }
 
 export const ClientEditModal: React.FC<ClientEditModalProps> = ({
   bottomSheetRef,
   clientId,
-  client
+  clientData
 }) => {
   const clientRepo = ClientRepository.getInstance();
   const queryClient = useQueryClient();
-  const snapPoints = useMemo(() => ["49%", "80%"], []); 
+  const snapPoints = useMemo(() => ["25%"], []); 
 
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  
+
   const handleDeleteClient = async () => {
-    // Ensure user is authenticated
     if (!isAuthenticated || !user?.id) {
       Alert.alert('Error', 'You must be logged in to delete a client');
       return;
@@ -54,17 +62,16 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
           onPress: async () => {
             try {
               const req = {
-                user,
+                user: {
+                  id: user.id,
+                  auth_id: user.authId
+                }
               }; 
-              console.log('Request Payload:', req);
-
               await clientRepo.deleteClient(req, clientId);
-              
               await queryClient.invalidateQueries("clients");
               if (bottomSheetRef.current) {
                 await bottomSheetRef.current.dismiss();
               }
-  
               router.replace('/(root)/(tabs)/clients'); 
             } catch (error) {
               console.error('Delete client error:', error);
@@ -77,26 +84,24 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
   };
 
   const handleEditClient = () => {
-    // Ensure client ID is valid
     if (!clientId) {
       Alert.alert('Error', 'Invalid client ID');
       return;
     }
-  
-    // Add null checks for client object properties
     router.push({
       pathname: '/(root)/(tabs)/clients/add-client',
       params: {
         isEditing: 'true',
         clientId: clientId,
-        name: client?.name || '',
-        description: client?.description || '',
-        email: client?.email || '',
-        phone: client?.phone || '',
-        type: client?.type || undefined,
-        status: client?.status || undefined,
-        logo: client?.logo || '',
-        brief: client?.brief || '',
+        name: clientData.name || '',
+        description: clientData.description || '',
+        email: clientData.email || '',
+        phone: clientData.phone || '',
+        type: clientData.type || undefined,
+        status: clientData.status || undefined,
+        logo: clientData.logo || '',
+        brief: clientData.brief || '',
+        member_ids: clientData.client_user?.map(cu => cu.member_id) || [],
       },
     });
     bottomSheetRef.current?.dismiss();
@@ -116,36 +121,69 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
 
   return (
     <BottomSheetModal
-      ref={bottomSheetRef}
-      snapPoints={snapPoints}
-      index={1}
-      enablePanDownToClose
-      backdropComponent={renderBackdrop}
-      backgroundStyle={{
-        borderRadius: 24,
-      }}
-    >
-      <BottomSheetView className="relative flex-grow p-4">
-        <Text className="text-xl font-ManropeBold text-dark mb-4">
-          Client Actions
-        </Text>
-
-        <TouchableOpacity 
-          className="flex-row items-center p-4 border-b border-light"
-          onPress={handleEditClient}
-        >
+    ref={bottomSheetRef}
+    snapPoints={snapPoints}
+    index={0}
+    enablePanDownToClose
+    backdropComponent={renderBackdrop}
+    backgroundStyle={{ borderRadius: 12 }}
+  >
+    <BottomSheetView style={{ padding: 16 }}>
+      {/* Edit Button */}
+      <TouchableOpacity
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: '#FFFFFF',
+          padding: 16,
+          borderRadius: 8,
+          marginBottom: 12,
+          borderWidth: 1,
+          borderColor: '#E8E8E8',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        }}
+        onPress={handleEditClient}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Pencil size={20} color="#1B78B9" />
-          <Text className="ml-3 text-base font-ManropeMedium text-dark">Edit Client</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          className="flex-row items-center p-4"
-          onPress={handleDeleteClient}
-        >
+          <Text style={{ marginLeft: 12, fontSize: 16, color: '#333333', fontFamily: 'Manrope-Medium' }}>
+            Edit
+          </Text>
+        </View>
+        <ChevronRight size={20} color="#1B78B9" />
+      </TouchableOpacity>
+
+      {/* Delete Button */}
+      <TouchableOpacity
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: '#FFFFFF',
+          padding: 16,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#E8E8E8',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        }}
+        onPress={handleDeleteClient}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Trash2 size={20} color="#FF4D4D" />
-          <Text className="ml-3 text-base font-ManropeMedium text-red-500">Delete Client</Text>
-        </TouchableOpacity>
-      </BottomSheetView>
-    </BottomSheetModal>
+          <Text style={{ marginLeft: 12, fontSize: 16, color: '#FF4D4D', fontFamily: 'Manrope-Medium' }}>
+            Delete
+          </Text>
+        </View>
+        <ChevronRight size={20} color="#FF4D4D" />
+      </TouchableOpacity>
+    </BottomSheetView>
+  </BottomSheetModal>
   );
 };

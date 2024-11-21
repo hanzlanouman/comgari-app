@@ -66,7 +66,6 @@ const Tasks = () => {
   const addModalRef = useRef<BottomSheetModal>(null);
   const editModalRef = useRef<BottomSheetModal>(null);
 
-  // Fetch tasks when component mounts
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -219,7 +218,6 @@ const Tasks = () => {
           </ScrollView>
         </SafeAreaView>
 
-        {/* Add Task Modal */}
         <TaskFormModal
           bottomSheetRef={addModalRef}
           initialValues={emptyFormValues}
@@ -228,7 +226,6 @@ const Tasks = () => {
           mode="add"
         />
 
-        {/* Edit Task Modal */}
         <TaskFormModal
           bottomSheetRef={editModalRef}
           initialValues={selectedTask || emptyFormValues}

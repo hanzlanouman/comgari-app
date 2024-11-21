@@ -113,8 +113,8 @@ const ClientDetailPage: React.FC = () => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const request: Request = {
     user: {
-      id: user.id, 
-      auth_id: user.auth_id 
+      id: user.id,
+      auth_id: user.auth_id
     }
   };
   useEffect(() => {
@@ -177,7 +177,6 @@ const ClientDetailPage: React.FC = () => {
     }
   );
 
-  // Early return with loading state
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
@@ -188,7 +187,6 @@ const ClientDetailPage: React.FC = () => {
     );
   }
 
-  // Early return with error state
   if (isError || !client) {
     return (
       <SafeAreaView className="flex-1 bg-white">
