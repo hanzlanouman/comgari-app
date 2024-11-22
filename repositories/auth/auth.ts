@@ -99,7 +99,7 @@ export class AuthRepository implements IAuthRepository {
     authResponse: TLoginResponse
   ): Promise<TReponse> {
     try {
-      const res = await put(END_POINTS.AUTH.VERFY_CRED.route, otpPayLoad, {
+      const res = await put(END_POINTS.AUTH.VERIFY_CRED.route, otpPayLoad, {
         show_loader: true,
       });
 
