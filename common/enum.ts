@@ -9,3 +9,8 @@ export enum OTP_TYPE {
   PASSWORD_RESET = "password-reset",
   MEMBER_VERIFICATION = "member_verification",
 }
+
+export enum Action {
+  ADD = 'Add',
+  REMOVE = 'Remove',
+}

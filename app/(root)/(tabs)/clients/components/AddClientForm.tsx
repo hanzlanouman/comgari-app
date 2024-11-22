@@ -1,5 +1,4 @@
-//app\(root)\(tabs)\clients\components\AddClientForm.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   TextInput,
@@ -12,12 +11,17 @@ import { Upload } from 'lucide-react-native';
 import { vs } from 'react-native-size-matters';
 import { InputField } from '@/common/components';
 import { OptionType, ClientType, ClientStatus } from '@/common/types';
+import { Action } from '@/common/enum';
 import DropdownSelect from '@/common/components/Select';
 import MultiSelectDropdown from '@/common/components/MultiSelect';
 import { ClientRepository } from '@/repositories/client/client';
 import { images, getImageUrl } from '@/constants';
-
 import * as ImagePicker from 'expo-image-picker';
+
+interface MemberAction {
+  staff_id: number;
+  action: Action;
+}
 
 interface ClientFormValues {
   name: string;
@@ -28,6 +32,7 @@ interface ClientFormValues {
   type?: ClientType;
   status: ClientStatus;
   member_ids: number[];
+  client_Staff: MemberAction[];
 }
 
 interface AddClientFormProps {
@@ -35,6 +40,7 @@ interface AddClientFormProps {
   typeOptions: OptionType[];
   statusOptions: OptionType[];
   memberOptions: OptionType[];
+  isEditing?: boolean;
 }
 
 export default function AddClientForm({
@@ -42,8 +48,51 @@ export default function AddClientForm({
   typeOptions,
   statusOptions,
   memberOptions,
+  isEditing,
 }: AddClientFormProps) {
   const clientRepo = ClientRepository.getInstance();
+  // Initialize state directly with formik values
+  const [selectedMembers, setSelectedMembers] = useState<number[]>(formik.values.member_ids || []);
+  const [memberActions, setMemberActions] = useState<MemberAction[]>(formik.values.client_Staff || []);
+
+  const handleMemberSelection = (field: string, value: string[]) => {
+    const newSelected = value.map(Number);
+    
+    // Find added and removed members
+    const addedMembers = newSelected.filter(id => !selectedMembers.includes(id));
+    const removedMembers = selectedMembers.filter(id => !newSelected.includes(id));
+    
+    // Create new member actions array
+    const newMemberActions = [...memberActions];
+
+    // Add new members
+    addedMembers.forEach(id => {
+      const existingIndex = newMemberActions.findIndex(item => item.staff_id === id);
+      
+      if (existingIndex !== -1) {
+        newMemberActions[existingIndex] = { staff_id: id, action: Action.ADD };
+      } else {
+        newMemberActions.push({ staff_id: id, action: Action.ADD });
+      }
+    });
+
+    // Add removed members
+    removedMembers.forEach(id => {
+      const existingIndex = newMemberActions.findIndex(item => item.staff_id === id);
+      
+      if (existingIndex !== -1) {
+        newMemberActions[existingIndex] = { staff_id: id, action: Action.REMOVE };
+      } else {
+        newMemberActions.push({ staff_id: id, action: Action.REMOVE });
+      }
+    });
+
+    // Update all states at once
+    setMemberActions(newMemberActions);
+    setSelectedMembers(newSelected);
+    formik.setFieldValue(field, newSelected);
+    formik.setFieldValue('client_Staff', newMemberActions);
+  };
 
   // Function to upload the selected image
   const uploadMedia = async (file: ImagePicker.ImagePickerAsset): Promise<string> => {
@@ -55,25 +104,22 @@ export default function AddClientForm({
         name: file.uri.split('/').pop() || 'image.jpg',
       } as any;
       formData.append('files', fileToUpload);
-  
+
       const response = await clientRepo.uploadMedia(formData);
-      
-      // Handle both array and object responses
+
       if (response?.data?.length > 0) {
         return response.data[0].filename;
       } else if (Array.isArray(response) && response.length > 0) {
         return response[0].filename;
       }
-      
+
       throw new Error('No file data received from server');
     } catch (error) {
-      console.error('Upload error:', error); 
+      console.error('Upload error:', error);
       throw new Error('Failed to upload image');
     }
   };
-  // console.log(getImageUrl(formik.values.logo))
 
-  // Handle image selection and uploading
   const handleImageUpload = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -81,7 +127,7 @@ export default function AddClientForm({
         Alert.alert('Permission required', 'Permission to access media library is required!');
         return;
       }
-  
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.7,
@@ -89,7 +135,7 @@ export default function AddClientForm({
         aspect: [1, 1],
         base64: false,
       });
-  
+
       if (!result.canceled && result.assets?.[0]) {
         try {
           const imageUrl = await uploadMedia(result.assets[0]);
@@ -167,8 +213,8 @@ export default function AddClientForm({
         <MultiSelectDropdown
           placeholder="Select Members"
           data={memberOptions}
-          selectedValues={formik.values.member_ids.map(String)}
-          setFieldValue={formik.setFieldValue}
+          selectedValues={formik.values.member_ids?.map(String) || []} 
+          setFieldValue={handleMemberSelection}
           error={typeof formik.errors.member_ids === 'string' ? formik.errors.member_ids : undefined}
           fieldName="member_ids"
         />
@@ -178,9 +224,9 @@ export default function AddClientForm({
         <DropdownSelect
           placeholder="Select Client Type"
           data={typeOptions}
-          selectedValue={formik.values.type || ''}
+          selectedValue={String(formik.values.type || '')}  
           setFieldValue={(field, value) => {
-            formik.setFieldValue(field, value as ClientType);
+            formik.setFieldValue(field, value);
           }}
           error={typeof formik.errors.type === 'string' ? formik.errors.type : undefined}
           fieldName="type"
@@ -191,9 +237,9 @@ export default function AddClientForm({
         <DropdownSelect
           placeholder="Select Client Status"
           data={statusOptions}
-          selectedValue={formik.values.status || ''}
+          selectedValue={String(formik.values.status || '')} 
           setFieldValue={(field, value) => {
-            formik.setFieldValue(field, value as ClientStatus);
+            formik.setFieldValue(field, value);
           }}
           error={typeof formik.errors.status === 'string' ? formik.errors.status : undefined}
           fieldName="status"

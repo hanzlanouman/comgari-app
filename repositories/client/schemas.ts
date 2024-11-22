@@ -1,5 +1,7 @@
+//repositories\client\schemas.ts
 import * as Yup from "yup";
-import { ClientType, CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
+import {  CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
+import {  Action } from '@/common/enum';
 
 export enum TaskPriority {
   low = "low",
@@ -7,27 +9,7 @@ export enum TaskPriority {
   high = "high",
 }
 
-export const createClientSchema = Yup.object().shape({
-  name: Yup.string().required("Client name is required."),
-  description: Yup.string().optional(),
-  logo: Yup.string().nullable().optional(),
-  type: Yup.string()
-    .oneOf(CLIENT_TYPES, "Invalid client type")
-    .optional(),
-  status: Yup.string()
-    .oneOf(CLIENT_STATUS, "Invalid client status")
-    .required("Client status is required."),
-  member_ids: Yup.array()
-    .of(Yup.number())
-    .required("Member IDs are required.")
-    .min(1, "At least one member ID is required."),
-  email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required."),
-  phone: Yup.string()
-    .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
-    .required("Phone number is required."),
-});
+
 
 export const briefSchema = Yup.object().shape({
   client_id: Yup.number().required("Client ID is required"),
@@ -68,23 +50,52 @@ export const createProjectSchema = Yup.object().shape({
   client_id: Yup.number().required("Client ID is required"),
 });
 
-export const updateClientStaffSchema = Yup.object().shape({
-  prev_client_staff_id: Yup.number().optional(),
-  new_staff_id: Yup.number().optional(),
+export const createClientSchema = Yup.object().shape({
+  name: Yup.string().required("Client name is required."),
+  description: Yup.string().optional(),
+  logo: Yup.string().nullable().optional(),
+  type: Yup.string()
+    .oneOf(CLIENT_TYPES, "Invalid client type")
+    .optional(),
+  status: Yup.string()
+    .oneOf(CLIENT_STATUS, "Invalid client status")
+    .required("Client status is required."),
+  member_ids: Yup.array()
+    .of(Yup.number())
+    .required("Member IDs are required.")
+    .min(1, "At least one member ID is required."),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required."),
+  phone: Yup.string()
+    .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
+    .required("Phone number is required."),
 });
 
-export const updateClientSchema = createClientSchema.omit(['member_ids']).shape({
-  client_Staff: Yup.array().of(updateClientStaffSchema).optional(),
-});
-
+export const updateClientSchema = Yup.object().shape({
+  id: Yup.string(),
+  name: Yup.string(),
+  description: Yup.string(),
+  logo: Yup.string(),
+  type: Yup.mixed().oneOf(Object.values(CLIENT_TYPES)),
+  email: Yup.string().email('Email is invalid'),
+  phone: Yup.string(),
+  status: Yup.string().required('Status is required'),
+  client_Staff: Yup.array().of(Yup.object().shape({
+      staff_id: Yup.number(),
+      action: Yup.mixed().oneOf(Object.values(Action))
+    })
+  )
+})
 // Type definitions
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
+export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
+
 export type BriefPayload = Yup.InferType<typeof briefSchema>;
 export type ClientMediaPayload = Yup.InferType<typeof clientMediaSchema>;
 export type TaskPayload = Yup.InferType<typeof taskSchema>;
 export type CreateNotePayload = Yup.InferType<typeof createNoteSchema>;
 export type CreateProjectPayload = Yup.InferType<typeof createProjectSchema>;
-export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>;
 export type ClientListingPayload = {
   start: number;
   limit: number;
