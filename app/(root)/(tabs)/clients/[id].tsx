@@ -1,4 +1,3 @@
-//app\(root)\(tabs)\clients\[id].tsx
 import React from "react";
 import { useRouter, useNavigation } from "expo-router";
 import {

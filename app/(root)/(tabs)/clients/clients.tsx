@@ -1,4 +1,3 @@
-// app\(root)\(tabs)\clients\clients.tsx
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,

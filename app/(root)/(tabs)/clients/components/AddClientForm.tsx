@@ -51,7 +51,6 @@ export default function AddClientForm({
   isEditing,
 }: AddClientFormProps) {
   const clientRepo = ClientRepository.getInstance();
-  // Initialize state directly with formik values
   const [selectedMembers, setSelectedMembers] = useState<number[]>(formik.values.member_ids || []);
   const [memberActions, setMemberActions] = useState<MemberAction[]>(formik.values.client_Staff || []);
 
@@ -94,7 +93,6 @@ export default function AddClientForm({
     formik.setFieldValue('client_Staff', newMemberActions);
   };
 
-  // Function to upload the selected image
   const uploadMedia = async (file: ImagePicker.ImagePickerAsset): Promise<string> => {
     try {
       const formData = new FormData();

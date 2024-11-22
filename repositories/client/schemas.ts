@@ -1,4 +1,3 @@
-//repositories\client\schemas.ts
 import * as Yup from "yup";
 import {  CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
 import {  Action } from '@/common/enum';
@@ -87,7 +86,6 @@ export const updateClientSchema = Yup.object().shape({
     })
   )
 })
-// Type definitions
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
 

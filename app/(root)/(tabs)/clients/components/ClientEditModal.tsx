@@ -1,4 +1,3 @@
-//app\(root)\(tabs)\clients\components\ClientEditModal.tsx
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Pencil, Trash2, ChevronRight  } from 'lucide-react-native';
