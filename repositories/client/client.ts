@@ -103,7 +103,7 @@ export class ClientRepository implements IClientRepository {
     console.log("Updating client payload",payload)
     try {
       const res: any = await put(
-        `${BaseUrl + END_POINTS.Client.UPDATE_CLIENT.route}`,
+        `${BaseUrl + END_POINTS.Client.UPDATE_CLIENT.route}/${clientId}`,
         payload
       );
 

@@ -53,21 +53,19 @@ export default function AddClientForm({
   const clientRepo = ClientRepository.getInstance();
   const [selectedMembers, setSelectedMembers] = useState<number[]>(formik.values.member_ids || []);
   const [memberActions, setMemberActions] = useState<MemberAction[]>(formik.values.client_Staff || []);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    formik.values.logo ? getImageUrl(formik.values.logo) : null
+  );
 
   const handleMemberSelection = (field: string, value: string[]) => {
     const newSelected = value.map(Number);
     
-    // Find added and removed members
     const addedMembers = newSelected.filter(id => !selectedMembers.includes(id));
     const removedMembers = selectedMembers.filter(id => !newSelected.includes(id));
-    
-    // Create new member actions array
     const newMemberActions = [...memberActions];
 
-    // Add new members
     addedMembers.forEach(id => {
       const existingIndex = newMemberActions.findIndex(item => item.staff_id === id);
-      
       if (existingIndex !== -1) {
         newMemberActions[existingIndex] = { staff_id: id, action: Action.ADD };
       } else {
@@ -75,10 +73,8 @@ export default function AddClientForm({
       }
     });
 
-    // Add removed members
     removedMembers.forEach(id => {
       const existingIndex = newMemberActions.findIndex(item => item.staff_id === id);
-      
       if (existingIndex !== -1) {
         newMemberActions[existingIndex] = { staff_id: id, action: Action.REMOVE };
       } else {
@@ -86,15 +82,43 @@ export default function AddClientForm({
       }
     });
 
-    // Update all states at once
     setMemberActions(newMemberActions);
     setSelectedMembers(newSelected);
     formik.setFieldValue(field, newSelected);
     formik.setFieldValue('client_Staff', newMemberActions);
   };
 
+  const validateFile = (fileInfo: ImagePicker.ImagePickerAsset): boolean => {
+    // Check file size (limit to 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (fileInfo.fileSize && fileInfo.fileSize > maxSize) {
+      Alert.alert(
+        'File too large',
+        'Please select an image under 5MB'
+      );
+      return false;
+    }
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const fileType = fileInfo.mimeType || 'image/jpeg';
+    if (!allowedTypes.includes(fileType)) {
+      Alert.alert(
+        'Invalid file type',
+        'Please select a JPEG or PNG image'
+      );
+      return false;
+    }
+
+    return true;
+  };
+
   const uploadMedia = async (file: ImagePicker.ImagePickerAsset): Promise<string> => {
     try {
+      if (!validateFile(file)) {
+        throw new Error('File validation failed');
+      }
+
       const formData = new FormData();
       const fileToUpload = {
         uri: file.uri,
@@ -114,7 +138,7 @@ export default function AddClientForm({
       throw new Error('No file data received from server');
     } catch (error) {
       console.error('Upload error:', error);
-      throw new Error('Failed to upload image');
+      throw error;
     }
   };
 
@@ -136,16 +160,22 @@ export default function AddClientForm({
 
       if (!result.canceled && result.assets?.[0]) {
         try {
+          // Set preview immediately for better UX
+          setImagePreview(result.assets[0].uri);
+          
           const imageUrl = await uploadMedia(result.assets[0]);
           if (!imageUrl) {
             throw new Error('No image URL returned');
           }
+          
           formik.setFieldValue('logo', imageUrl);
-        } catch (uploadError) {
-          console.error('Upload error:', uploadError);
+        } catch (uploadError: any) {
+          // Reset preview if upload fails
+          setImagePreview(formik.values.logo ? getImageUrl(formik.values.logo) : null);
+          
           Alert.alert(
             'Upload failed',
-            'Failed to upload image. Please check your connection and try again.'
+            uploadError.message || 'Failed to upload image. Please check your connection and try again.'
           );
         }
       }
@@ -165,7 +195,7 @@ export default function AddClientForm({
         style={{ width: vs(80), height: vs(80) }}
       >
         <Image
-          source={formik.values.logo ? { uri: getImageUrl(formik.values.logo) } : images.user}
+          source={imagePreview ? { uri: imagePreview } : images.user}
           resizeMode="cover"
           className="rounded-full mx-auto w-full h-full"
         />
@@ -177,6 +207,7 @@ export default function AddClientForm({
         </TouchableOpacity>
       </View>
 
+      {/* Rest of the form components remain the same */}
       <View className="mt-5">
         <InputField
           label=""

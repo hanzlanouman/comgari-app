@@ -55,7 +55,6 @@ const AddClient = () => {
         }));
         setMemberOptions(options);
 
-        // If editing, fetch existing client data
         if (params.isEditing === 'true' && clientId) {
           setIsEditing(true);
           if (params?.clientUserIds) {
@@ -107,7 +106,6 @@ const AddClient = () => {
     phone: String(params.phone || ''),
     client_Staff: [] as MemberAction[],
   };
-  console.log("initial values of the form are ",initialValues)
   const handleSubmit = async (values: typeof initialValues) => {
     try {
       setIsLoading(true);
