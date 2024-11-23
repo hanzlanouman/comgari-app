@@ -18,7 +18,10 @@ interface Client {
   status: ClientStatus;
   logo?: string | null;
   brief?: string | null;
-  member_ids?: number[];
+  client_user?: Array<{
+    id: number;
+    member_id: number;
+  }>;
 }
 
 interface ClientEditModalProps {
@@ -38,6 +41,7 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
   clientId,
   clientData
 }) => {
+  console.log("CLient data is modal:",clientData)
   const clientRepo = ClientRepository.getInstance();
   const queryClient = useQueryClient();
   const snapPoints = useMemo(() => ["25%"], []); 
@@ -88,24 +92,34 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
       Alert.alert('Error', 'Invalid client ID');
       return;
     }
+  
+  // Extracting the client_user data from clientData and ensuring it's an array of numbers
+  const clientUserIds = clientData.client_user?.map(user => user.member_id) || [];
+
+  // Ensure that clientUserIds is an array of numbers
+  if (!Array.isArray(clientUserIds)) {
+    console.error('client_user_ids is not an array');
+    return;
+  }
+  
     router.push({
       pathname: '/(root)/(tabs)/clients/add-client',
       params: {
         isEditing: 'true',
         clientId: clientId,
-        name: clientData.name || '',
-        description: clientData.description || '',
+        name: clientData.name || '', 
+        description: clientData.description || '', 
         email: clientData.email || '',
         phone: clientData.phone || '',
-        type: clientData.type || undefined,
-        status: clientData.status || undefined,
-        logo: clientData.logo || '',
-        brief: clientData.brief || '',
-        member_ids: clientData.client_user?.map(cu => cu.member_id) || [],
+        type: clientData.type || '', 
+        status: clientData.status || '',
+        logo: clientData.logo || '', 
+        clientUserIds: clientUserIds, 
       },
     });
     bottomSheetRef.current?.dismiss();
   };
+  
 
   const renderBackdrop = useMemo(
     () => (props) => (

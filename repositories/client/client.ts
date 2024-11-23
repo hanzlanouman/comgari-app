@@ -1,4 +1,3 @@
-// repository.ts
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
 import { getErrorMessage } from "@/common/utils";
@@ -27,7 +26,7 @@ interface IClientRepository {
   uploadMedia(file: any): Promise<TReponse>;
   createClient(req: Request, payload: CreateClientPayload): Promise<TReponse>;
   deleteClient(req: Request, clientId: number): Promise<TReponse>;
-  updateClient(req: Request, clientId: number, payload: UpdateClientPayload): Promise<TReponse>;
+  updateClient(clientId:string , payload: UpdateClientPayload): Promise<TReponse>;
   createBrief(payload: BriefPayload): Promise<TReponse>;
   getBrief(clientId: number): Promise<TReponse>;
   updateBrief(payload: BriefPayload): Promise<TReponse>;
@@ -64,15 +63,13 @@ export class ClientRepository implements IClientRepository {
         {
           headers: {
             'Accept': 'application/json',
-            // Content-Type is already set in postForm function
           },
           transformRequest: (data) => {
-            return data; // Prevent axios from trying to transform FormData
+            return data; 
           },
         }
       );
       
-      // Handle both response formats
       if (res?.data?.data) {
         return res.data;
       } else if (Array.isArray(res?.data)) {
@@ -102,11 +99,16 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
-  async updateClient(req: Request, clientId: number, payload: UpdateClientPayload): Promise<TReponse> {
+  async updateClient(clientId:string , payload: UpdateClientPayload): Promise<TReponse> {
+    console.log("Updating client payload",payload)
     try {
-      const res = await put(`${BaseUrl}${END_POINTS.Client.UPDATE_CLIENT.route}/${clientId}`, payload);
-      return res.data;
-    } catch (e: AxiosError | any) {
+      const res: any = await put(
+        `${BaseUrl + END_POINTS.Client.UPDATE_CLIENT.route}/${clientId}`,
+        payload
+      );
+
+      return res;
+    } catch (e) {
       throw getErrorMessage(e);
     }
   }

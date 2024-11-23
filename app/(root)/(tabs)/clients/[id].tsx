@@ -1,4 +1,3 @@
-//app\(root)\(tabs)\clients\[id].tsx
 import React from "react";
 import { useRouter, useNavigation } from "expo-router";
 import {
@@ -114,13 +113,9 @@ const ClientDetailPage: React.FC = () => {
   const request: Request = {
     user: {
       id: user.id,
-      auth_id: user.auth_id
+      auth_id: user.authId
     }
   };
-  useEffect(() => {
-    console.log('BottomSheetModal initialized:', bottomSheetRef.current);
-  }, []);
-
   const EditButton = () => (
     <LinearGradient
       colors={["#1B78B9", "#63348F"]}
@@ -170,7 +165,6 @@ const ClientDetailPage: React.FC = () => {
     },
     {
       enabled: !!clientIdNum && !!user && isAuthenticated,
-      retry: 1,
       onError: (error) => {
         console.error("Error fetching client:", error);
       },
@@ -201,7 +195,6 @@ const ClientDetailPage: React.FC = () => {
     if (route.includes("{projectId}")) {
       const projectId = client?.project?.[0]?.id;
       const resolvedRoute = route.replace("{projectId}", String(projectId || ""));
-      console.log("projec id :", resolvedRoute)
       router.push({
         pathname: resolvedRoute,
         params: { clientId: clientIdNum },
