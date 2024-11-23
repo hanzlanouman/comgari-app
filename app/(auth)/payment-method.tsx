@@ -61,13 +61,11 @@ export default function Paymentmethod() {
         dispatch(login(parsedAuthResponse));
       },
       onError: (error) => {
-        // Optionally handle errors
         console.error("Payment failed:", error);
       },
     }
   );
 
-  // Call this function to trigger the payment mutation
   const handlePaymentConfirmation = () => {
     mutate();
   };
