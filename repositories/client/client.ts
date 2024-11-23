@@ -8,6 +8,7 @@ import {
   Request,
   CreateClientPayload,
   BriefPayload,
+  UpdateTaskPayload,
   ClientMediaPayload,
   TaskPayload,
   CreateNotePayload,
@@ -34,7 +35,7 @@ interface IClientRepository {
   getClients(payload: ClientListingPayload, req: Request): Promise<TReponse>;
   saveClientMedia(payload: ClientMediaPayload): Promise<TReponse>;
   createTask(req: Request, payload: TaskPayload): Promise<TReponse>;
-  updateTask(taskId: number, payload: TaskPayload): Promise<TReponse>;
+  updateTask(taskId: number, payload: UpdateTaskPayload): Promise<TReponse>;
   deleteTask(taskId: number): Promise<TReponse>;
   getTask(projectId: number): Promise<TReponse>;
   createNote(payload: CreateNotePayload): Promise<TReponse>;
@@ -176,7 +177,7 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
-  async updateTask(taskId: number, payload: TaskPayload): Promise<TReponse> {
+  async updateTask(taskId: number, payload: UpdateTaskPayload): Promise<TReponse> {
     try {
       const res = await put(`${BaseUrl}${END_POINTS.Client.UPDATE_TASK.route}/${taskId}`, payload);
       return res.data;
@@ -202,7 +203,6 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
-
   async createNote(payload: CreateNotePayload): Promise<TReponse> {
     try {
       const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_NOTE.route}`, payload);

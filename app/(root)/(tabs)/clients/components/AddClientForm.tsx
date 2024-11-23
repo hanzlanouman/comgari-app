@@ -160,7 +160,6 @@ export default function AddClientForm({
 
       if (!result.canceled && result.assets?.[0]) {
         try {
-          // Set preview immediately for better UX
           setImagePreview(result.assets[0].uri);
           
           const imageUrl = await uploadMedia(result.assets[0]);
@@ -170,7 +169,6 @@ export default function AddClientForm({
           
           formik.setFieldValue('logo', imageUrl);
         } catch (uploadError: any) {
-          // Reset preview if upload fails
           setImagePreview(formik.values.logo ? getImageUrl(formik.values.logo) : null);
           
           Alert.alert(
@@ -207,7 +205,6 @@ export default function AddClientForm({
         </TouchableOpacity>
       </View>
 
-      {/* Rest of the form components remain the same */}
       <View className="mt-5">
         <InputField
           label=""

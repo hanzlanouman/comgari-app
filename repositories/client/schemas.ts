@@ -1,13 +1,7 @@
 import * as Yup from "yup";
 import {  CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
 import {  Action } from '@/common/enum';
-
-export enum TaskPriority {
-  low = "low",
-  medium = "medium",
-  high = "high",
-}
-
+import { TaskPriority } from './types';
 
 
 export const briefSchema = Yup.object().shape({
@@ -27,14 +21,6 @@ export const clientMediaSchema = Yup.object().shape({
   ),
 });
 
-export const taskSchema = Yup.object().shape({
-  title: Yup.string().required("Title is required"),
-  description: Yup.string().required("Description is required"),
-  assignedTo: Yup.number().optional(),
-  projectId: Yup.number().required("Project ID is required"),
-  dueDate: Yup.date().required("Due date is required"),
-  priority: Yup.string().oneOf(Object.values(TaskPriority)).required("Priority is required"),
-});
 
 export const createNoteSchema = Yup.object().shape({
   notes: Yup.string().required("Notes are required"),
@@ -48,6 +34,7 @@ export const createProjectSchema = Yup.object().shape({
   description: Yup.string().required("Description is required"),
   client_id: Yup.number().required("Client ID is required"),
 });
+
 
 export const createClientSchema = Yup.object().shape({
   name: Yup.string().required("Client name is required."),
@@ -86,12 +73,48 @@ export const updateClientSchema = Yup.object().shape({
     })
   )
 })
+
+
+
+export const taskSchema = Yup.object().shape({
+  title: Yup.string().required("Title is required"),
+  description: Yup.string().required("Description is required"),
+  assignedTo: Yup.array()
+    .of(Yup.number())
+    .optional(),
+  projectId: Yup.number().required("Project ID is required"),
+  dueDate: Yup.date().required("Due date is required"),
+  priority: Yup.string()
+    .oneOf(Object.values(TaskPriority), "Invalid priority")
+    .required("Priority is required"),
+});
+
+export const updateTaskSchema = Yup.object().shape({
+  title: Yup.string().required("Title is required"),
+  description: Yup.string().required("Description is required"),
+  assingedTo: Yup.array()
+    .of(
+      Yup.object().shape({
+        member_id: Yup.number().required("Member ID is required"),
+        action: Yup.string()
+          .oneOf(Object.values(Action))
+          .required("Action is required"),
+      })
+    )
+    .optional(),
+  projectId: Yup.number().required("Project ID is required"),
+  dueDate: Yup.date().required("Due date is required"),
+  priority: Yup.string()
+    .oneOf(Object.values(TaskPriority), "Invalid priority")
+    .required("Priority is required"),
+});
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
 
 export type BriefPayload = Yup.InferType<typeof briefSchema>;
 export type ClientMediaPayload = Yup.InferType<typeof clientMediaSchema>;
 export type TaskPayload = Yup.InferType<typeof taskSchema>;
+export type UpdateTaskPayload = Yup.InferType<typeof updateTaskSchema>;
 export type CreateNotePayload = Yup.InferType<typeof createNoteSchema>;
 export type CreateProjectPayload = Yup.InferType<typeof createProjectSchema>;
 export type ClientListingPayload = {

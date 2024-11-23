@@ -14,3 +14,9 @@ export enum Action {
   ADD = 'Add',
   REMOVE = 'Remove',
 }
+
+export enum TaskPriority {
+  low = "low",
+  medium = "medium",
+  high = "high",
+}

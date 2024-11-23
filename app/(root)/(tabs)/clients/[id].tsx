@@ -81,7 +81,7 @@ const navigationItems = [
     id: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
-    route: "/(root)/(tabs)/clients/tasks/{projectId}",
+    route: "/(root)/(tabs)/clients/task/{projectId}",
   },
   {
     id: "notes",
@@ -129,8 +129,6 @@ const ClientDetailPage: React.FC = () => {
     >
       <TouchableOpacity
         onPress={() => {
-          console.log('Edit button pressed');
-          console.log('bottomSheetRef current:', bottomSheetRef.current);
           bottomSheetRef.current?.present();
         }}
         style={{
