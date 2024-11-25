@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\clients\[id]\notes\add-note.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
     SafeAreaView,
@@ -19,33 +20,21 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { CustomButton } from "@/common/components";
+import { images, getImageUrl } from "@/constants";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Upload, Trash2 } from "lucide-react-native";
 import { useFormik } from 'formik';
 import { useMutation } from 'react-query';
 import { ClientRepository } from "@/repositories/client/client";
-import { createNoteSchema, mediaSchema } from '@/repositories/client/schemas';
 
-// Types based on the schema definitions
-type MediaDTO = {
+// Types for media handling
+type UploadedMedia = {
     url: string;
     mimeType: string;
+    localUri: string; // Keep local URI for display
     clientId: number;
     ownerId: number;
     ownerType: string;
-};
-
-type CreateNoteDTO = {
-    notes: string;
-    project_id: number;
-    client_note_media: MediaDTO[];
-};
-
-type MediaFile = {
-    uri: string;
-    type: string;
-    fileName?: string;
-    mimeType?: string;
 };
 
 const handleHead = ({ tintColor }) => (
@@ -54,21 +43,37 @@ const handleHead = ({ tintColor }) => (
 
 const AddNote = () => {
     const richText = useRef();
-    const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
-    const { id, clientId } = useLocalSearchParams();
+    const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const { id, noteId, noteDetails } = useLocalSearchParams();
     const projectId = parseInt(id);
-    const parsedClientId = parseInt(clientId as string);
     const clientRepo = ClientRepository.getInstance();
     const navigation = useNavigation();
-
+    // Parse noteDetails if provided
+    const parsedNoteDetails = noteDetails ? JSON.parse(noteDetails as string) : null;
+    // console.log("parsedNoteDetails", parsedNoteDetails)
+    const isEditMode = !!parsedNoteDetails;
     const windowWidth = Dimensions.get("window").width;
     const spacingBetweenImages = 16;
     const sidePadding = 16;
     const imageWidth = (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
-    // React Query mutations
+    useEffect(() => {
+        if (isEditMode && parsedNoteDetails.media && uploadedMedia.length === 0) {
+            setUploadedMedia(parsedNoteDetails.media.map(media => ({
+                url: media.url,
+                mimeType: media.mimeType,
+                localUri: getImageUrl(media.url),
+                clientId: projectId,
+                ownerId: media.ownerId,
+                ownerType: media.ownerType,
+            })));
+        }
+    }, [isEditMode, parsedNoteDetails, projectId, uploadedMedia.length]);
+    
+
     const uploadMediaMutation = useMutation({
-        mutationFn: async (file: MediaFile) => {
+        mutationFn: async (file: { uri: string; type: string; fileName?: string }) => {
             const formData = new FormData();
             const fileToUpload = {
                 uri: file.uri,
@@ -80,69 +85,53 @@ const AddNote = () => {
             const response = await clientRepo.uploadMedia(formData);
             return {
                 url: response.data[0].filename,
-                mimeType: file.type || 'image/jpeg'
+                mimeType: file.type || 'image/jpeg',
+                localUri: file.uri
             };
         }
     });
 
-    const createNoteMutation = useMutation({
-        mutationFn: async (payload: CreateNoteDTO) => {
-            return await clientRepo.createNote(payload);
+    const noteMutation = useMutation({
+        mutationFn: async (payload: {
+            notes: string;
+            project_id: number;
+            client_note_media: Omit<UploadedMedia, 'localUri'>[];
+        }) => {
+            return isEditMode
+                ? await clientRepo.updateNote(parsedNoteDetails.id, payload)
+                : await clientRepo.createNote(payload);
         }
     });
 
     const formik = useFormik({
         initialValues: {
-            notes: '',
+            notes: isEditMode ? 
+        parsedNoteDetails.notes.replace(/<[^>]*>/g, '') : 
+        '',
             project_id: projectId,
-            client_note_media: [] as MediaDTO[],
         },
-        validationSchema: createNoteSchema,
         onSubmit: async (values) => {
             try {
-                // First upload all media files if any
-                if (mediaFiles.length > 0) {
-                    const uploadPromises = mediaFiles.map(file => 
-                        uploadMediaMutation.mutateAsync(file)
-                    );
-                    
-                    const uploadedFiles = await Promise.all(uploadPromises);
-                    
-                    // Create note with the uploaded media
-                    const noteResponse = await createNoteMutation.mutateAsync({
-                        notes: values.notes,
-                        project_id: values.project_id,
-                        client_note_media: uploadedFiles.map(file => ({
-                            url: file.url,
-                            mimeType: file.mimeType,
-                            clientId: parsedClientId,
-                            ownerId: projectId,
-                            ownerType: 'note'
-                        }))
-                    });
+                const notePayload = {
+                    notes: values.notes,
+                    project_id: values.project_id,
+                    client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest)
+                };
 
-                    Alert.alert('Success', 'Note created successfully');
-                    router.push('/');
-                } else {
-                    // Create note without media
-                    await createNoteMutation.mutateAsync({
-                        notes: values.notes,
-                        project_id: values.project_id,
-                        client_note_media: [] // Empty array for no media
-                    });
+                await noteMutation.mutateAsync(notePayload);
 
-                    Alert.alert('Success', 'Note created successfully');
-                    router.push('/');
-                }
+                Alert.alert(
+                    'Success',
+                    isEditMode ? 'Note updated successfully' : 'Note created successfully'
+                );
+                router.push('/');
             } catch (error) {
-                Alert.alert('Error', error.message || 'Failed to create note');
+                Alert.alert('Error', error.message || 'Failed to save note');
             }
         },
     });
 
-    const isLoading =
-        createNoteMutation.isPending ||
-        uploadMediaMutation.isPending;
+    const isLoading = noteMutation.isPending || isUploading;
 
     const pickMedia = async () => {
         try {
@@ -153,22 +142,37 @@ const AddNote = () => {
             });
 
             if (!result.canceled && result.assets) {
-                const newMediaFiles = result.assets.map(asset => ({
-                    uri: asset.uri,
-                    type: asset.type === 'image' ? 'image/jpeg' : 'video/mp4',
-                    fileName: asset.uri.split('/').pop(),
-                    mimeType: asset.mimeType
-                }));
+                setIsUploading(true);
 
-                setMediaFiles(prev => [...prev, ...newMediaFiles]);
+                // Upload each media file as it's picked
+                for (const asset of result.assets) {
+                    try {
+                        const uploadResult = await uploadMediaMutation.mutateAsync({
+                            uri: asset.uri,
+                            type: asset.type === 'image' ? 'image/jpeg' : 'video/mp4',
+                            fileName: asset.uri.split('/').pop(),
+                        });
+
+                        setUploadedMedia(prev => [...prev, {
+                            ...uploadResult,
+                            clientId: projectId,
+                            ownerId: 1,
+                            ownerType: 'user'
+                        }]);
+                    } catch (error) {
+                        Alert.alert('Error', `Failed to upload media: ${error.message}`);
+                    }
+                }
             }
         } catch (error) {
             Alert.alert('Error', 'Failed to pick media');
+        } finally {
+            setIsUploading(false);
         }
     };
 
     const removeMedia = (index: number) => {
-        setMediaFiles(prev => prev.filter((_, i) => i !== index));
+        setUploadedMedia(prev => prev.filter((_, i) => i !== index));
     };
 
     const UploadButton = () => (
@@ -200,7 +204,7 @@ const AddNote = () => {
     useEffect(() => {
         navigation.setOptions({
             headerShown: true,
-            title: "Add Note",
+            title: isEditMode ? "Edit Note" : "Add Note",
             headerRight: () => <UploadButton />,
         });
     }, [navigation, isLoading]);
@@ -247,6 +251,7 @@ const AddNote = () => {
                     <RichEditor
                         ref={richText}
                         initialHeight={45}
+                        initialContents={isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ''}
                         editorStyle={{
                             color: "#4A4A4A",
                             placeholderColor: "#1C1C1C",
@@ -268,7 +273,7 @@ const AddNote = () => {
 
                 <View className="p-4">
                     <View className="flex flex-row flex-wrap">
-                        {mediaFiles.map((file, index) => (
+                        {uploadedMedia.map((media, index) => (
                             <View
                                 key={index}
                                 style={{
@@ -287,7 +292,7 @@ const AddNote = () => {
                                     <Trash2 size={12} color="#ffffff" />
                                 </TouchableOpacity>
                                 <Image
-                                    source={{ uri: file.uri }}
+                                    source={{ uri: media.localUri }}
                                     style={{ width: "100%", height: "100%" }}
                                     className="rounded-[20px]"
                                     resizeMode="cover"
@@ -299,7 +304,7 @@ const AddNote = () => {
             </ScrollView>
             <View className="p-4 bg-white">
                 <CustomButton
-                    title={isLoading ? "Creating" : "Add Note"}
+                    title={isLoading ? "Saving" : (isEditMode ? "Update Note" : "Add Note")}
                     onPress={formik.handleSubmit}
                     disabled={isLoading}
                 />

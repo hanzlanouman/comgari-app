@@ -4,8 +4,6 @@ import { Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pencil, Plus, Upload } from "lucide-react-native";
-const { id } = useLocalSearchParams();
-const clientId = parseInt(id);
 
 const Layout = () => {
   return (
