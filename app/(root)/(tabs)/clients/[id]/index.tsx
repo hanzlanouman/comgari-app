@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\clients\[id]\index.tsx
 import React from "react";
 import { useRouter, useNavigation } from "expo-router";
 import {
@@ -16,7 +17,7 @@ import { useRef, useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Pencil } from 'lucide-react-native';
-import { ClientEditModal } from './components/ClientEditModal';
+import { ClientEditModal } from '../components/ClientEditModal';
 import { AppContainer } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
@@ -75,25 +76,25 @@ const navigationItems = [
     id: "brief",
     title: "Brief",
     description: "Brief yourself in detail",
-    route: "/(root)/(tabs)/clients/brief",
+    route: "/(root)/(tabs)/clients/{projectId}/brief",
   },
   {
     id: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
-    route: "/(root)/(tabs)/clients/task/{projectId}",
+    route: "/(root)/(tabs)/clients/{projectId}/task",
   },
   {
     id: "notes",
     title: "Notes",
     description: "Add important notes",
-    route: "/(root)/(tabs)/clients/notes",
+    route: "/(root)/(tabs)/clients/{projectId}/notes",
   },
   {
     id: "media",
     title: "Media",
     description: "Find all media files here",
-    route: "/(root)/(tabs)/clients/media",
+    route: "/(root)/(tabs)/clients/{projectId}/media",
   },
 ] as const;
 export const options = {
@@ -153,12 +154,8 @@ const ClientDetailPage: React.FC = () => {
   const { data: client, isError, isLoading } = useQuery<Client>(
     ["client", clientIdNum],
     async () => {
-      if (!user || !isAuthenticated) {
-        throw new Error("User is not authenticated");
-      }
 
       const clientData = await clientRepo.getSingleClient(clientIdNum);
-      console.log("Fetched Client Data:", clientData);
       return clientData;
     },
     {

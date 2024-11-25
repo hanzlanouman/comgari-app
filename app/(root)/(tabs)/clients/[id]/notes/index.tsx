@@ -1,0 +1,125 @@
+import React from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { scale, vs } from "react-native-size-matters";
+import { images, icons, getImageUrl } from "@/constants";
+import { CustomButton } from "@/common/components";
+import { router, useLocalSearchParams } from "expo-router";
+import { Plus } from "lucide-react-native";
+import { useQuery } from "react-query";
+import { ClientRepository } from "@/repositories/client/client";
+
+const Notes = () => {
+  const { id } = useLocalSearchParams();
+  const clientId = parseInt(id);
+  const clientRepo = ClientRepository.getInstance();
+
+  const {
+    data: clientNotes,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["clientBrief", clientId],
+    queryFn: () => clientRepo.getNotes(clientId),
+    enabled: !!clientId,
+  });
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#000" />
+      </SafeAreaView>
+    );
+  }
+
+  // Check if we have valid data
+  const hasData = clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
+
+  // Helper function to strip HTML tags
+  const stripHtmlTags = (html) => {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, '');
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+        {hasData ? (
+          <View className="pb-4">
+            {clientNotes.map((note) => (
+              <TouchableOpacity
+                key={note.id}
+                onPress={() => router.push({
+                  pathname: "/(root)/(tabs)/clients/notes-detail",
+                  params: { noteId: note.id }
+                })}
+                className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
+              >
+                <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
+                  {stripHtmlTags(note.notes)}
+                </Text>
+                <View className="flex-row items-center justify-between mt-2.5">
+                  <View className="flex-row items-center">
+                    <Image
+                      source={note.project?.created_by?.user[0]?.avatar 
+                        ? getImageUrl(note.project.created_by.user[0].avatar) 
+                        : images.user}
+                      resizeMode="cover"
+                      className="rounded-full border-2 border-white"
+                      style={{ width: vs(30), height: vs(30) }}
+                    />
+                    <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
+                      {note.project?.created_by?.user[0]?.full_name || "Unknown User"}
+                    </Text>
+                  </View>
+                  <Text className="text-sm text-dark-100 font-ManropeMedium">
+                    {new Date(note.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+     
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <View className="flex-grow flex-col items-center justify-center px-4">
+            <Image
+              source={icons.noNotes}
+              resizeMode="contain"
+              style={{ width: scale(80), height: vs(80) }}
+              className="mx-auto"
+            />
+            <View className="mt-8">
+              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+                No Notes found, please
+              </Text>
+              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+                create notes
+              </Text>
+              <View className="w-[180px] mx-auto mt-5">
+                <CustomButton
+                  title="Create Note"
+                  onPress={() => router.push({
+                    pathname: "/clients/[id]/notes/add-note",
+                    params: { id: clientId }
+                  })}
+                  IconLeft={Plus}
+                  iconSize={20}
+                />
+              </View>
+            </View>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default Notes;

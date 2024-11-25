@@ -9,22 +9,25 @@ export const briefSchema = Yup.object().shape({
   brief: Yup.string().required("Brief is required"),
 });
 
-export const clientMediaSchema = Yup.object().shape({
-  files: Yup.array().of(
-    Yup.object().shape({
-      url: Yup.string().required("URL is required"),
-      mimeType: Yup.string().required("MIME type is required"),
-      clientId: Yup.number().required("Client ID is required"),
-      ownerId: Yup.number().required("Owner ID is required"),
-      ownerType: Yup.string().required("Owner type is required"),
-    })
-  ),
+// MediaDTO schema matches the backend's MediaDTO
+export const mediaSchema = Yup.object().shape({
+  url: Yup.string().required("URL is required"), // Matches IsString()
+  mimeType: Yup.string().required("MIME type is required"), // Matches IsString()
+  clientId: Yup.number().required("Client ID is required"), // Matches IsNumber()
+  ownerId: Yup.number().required("Owner ID is required"), // Matches IsNumber()
+  ownerType: Yup.string().required("Owner type is required"), // Matches IsString()
 });
 
+// ClientMediaDTO schema matches the backend's ClientMediaDTO
+export const clientMediaSchema = Yup.object().shape({
+  files: Yup.array().of(mediaSchema).required("Files are required"), // Matches @ValidateNested()
+});
 
+// CreateNoteDto schema matches the backend's CreateNoteDto
 export const createNoteSchema = Yup.object().shape({
-  notes: Yup.string().required("Notes are required"),
-  project_id: Yup.number().required("Project ID is required"),
+  notes: Yup.string().required("Notes are required"), // Matches IsString()
+  project_id: Yup.number().required("Project ID is required"), // Matches IsNumber()
+  client_note_media: Yup.array().of(mediaSchema).required("Client note media is required"), // Matches IsArray()
 });
 
 export const createProjectSchema = Yup.object().shape({

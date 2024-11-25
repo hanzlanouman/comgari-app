@@ -114,6 +114,24 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
+  async getSingleClient(clientId: number): Promise<TClientReponse> {
+    try {
+      const res = await get(`${BaseUrl}${END_POINTS.Client.GET_SINGLE_CLIENT.route}/${clientId}`);
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+  async getClients(payload: ClientListingPayload, req: Request): Promise<TReponse> {
+    try {
+      const res = await post(`${BaseUrl}${END_POINTS.Client.GET_CLIENTS.route}`, payload);
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+
+
   async createBrief(payload: BriefPayload): Promise<TReponse> {
     try {
       const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_BRIEF.route}`, payload);
@@ -122,6 +140,7 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
+
 
   async getBrief(clientId: number): Promise<TReponse> {
     try {
@@ -141,23 +160,6 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
-  async getSingleClient(clientId: number): Promise<TClientReponse> {
-    try {
-      const res = await get(`${BaseUrl}${END_POINTS.Client.GET_SINGLE_CLIENT.route}/${clientId}`);
-      return res.data;
-    } catch (e: AxiosError | any) {
-      throw getErrorMessage(e);
-    }
-  }
-
-  async getClients(payload: ClientListingPayload, req: Request): Promise<TReponse> {
-    try {
-      const res = await post(`${BaseUrl}${END_POINTS.Client.GET_CLIENTS.route}`, payload);
-      return res.data;
-    } catch (e: AxiosError | any) {
-      throw getErrorMessage(e);
-    }
-  }
 
   async saveClientMedia(payload: ClientMediaPayload): Promise<TReponse> {
     try {
@@ -215,6 +217,7 @@ export class ClientRepository implements IClientRepository {
   async getNotes(projectId: number): Promise<TReponse> {
     try {
       const res = await get(`${BaseUrl}${END_POINTS.Client.GET_NOTES.route}/${projectId}`);
+      console.log("notes fetched", res.data)
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/constants";
-import TaskCard from "../components/TaskCard";
+import TaskCard from "../../components/TaskCard";
 import { CustomButton } from "@/common/components";
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
@@ -20,8 +20,8 @@ import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
-import TaskFormModal from "../components/TaskFormModal";
-import ActionModal from "../components/ActionModal";
+import TaskFormModal from "../../components/TaskFormModal";
+import ActionModal from "../../components/ActionModal";
 import { UpdateTaskPayload } from "@/repositories/client/schemas";
 import { Task, TaskPayload } from "@/repositories/client/types";
 import { INITIAL_FORM_VALUES } from "@/repositories/client/constants";
@@ -39,10 +39,6 @@ const Tasks = () => {
     }
   };
 
-  if (!isAuthenticated) {
-    router.push("/(auth)/sign-in");
-    return null;
-  }
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const addModalRef = useRef<BottomSheetModal>(null);
