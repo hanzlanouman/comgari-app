@@ -10,10 +10,50 @@ import {
   Users,
   UsersRound,
 } from "lucide-react-native";
+import { NavigationState, useNavigationState } from "@react-navigation/native";
+import { StyleSheet } from "react-native";
+
+const hide = ["job-details", "specifications", "review"];
+
+const getFocusedRouteName = (
+  state: Partial<NavigationState> | undefined
+): string | undefined => {
+  if (!state || !state.routes || state.index === undefined) {
+    return undefined;
+  }
+
+  const route = state.routes[state.index];
+
+  // Check if the route has nested state or params with screen
+  if (route.state) {
+    return getFocusedRouteName(route.state as Partial<NavigationState>);
+  }
+  console.log(route.params, "Route params");
+  if (
+    route.params &&
+    typeof route.params === "object" &&
+    route.params?.screen
+  ) {
+    return route.params?.params?.screen; // Get the nested screen name from params
+  }
+
+  // Return the name of the current route
+  return route.name;
+};
 
 const Layout = () => {
   const { getPermission } = useAuthorization();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+  const focusedRouteName = useNavigationState(getFocusedRouteName);
+
+  console.log(focusedRouteName, "Focused Route Name");
+
+  const tabBarStyle = hide.includes(focusedRouteName || "")
+    ? style.hide
+    : {
+        backgroundColor: "#ffffff",
+      };
 
   const tabScreens = useMemo(() => {
     const screens = [
@@ -64,9 +104,18 @@ const Layout = () => {
 
         headerShown: false,
       },
+      {
+        name: "proposal",
+        title: "proposal",
+        icon: UserPen,
+        headerShown: false,
+      },
     ];
 
     return screens.map((screen) => {
+      if (screen.name === "proposal") {
+        return { ...screen, href: null };
+      }
       if (screen.permissionRequired) {
         const { user, permission, resource } = screen.permissionRequired;
         console.log(user, "USer in screen");
@@ -95,9 +144,8 @@ const Layout = () => {
         tabBarInactiveTintColor: "#1C1C1C",
         tabBarActiveTintColor: "#1B78B9",
         tabBarShowLabel: true,
-        tabBarStyle: {
-          backgroundColor: "#ffffff",
-        },
+
+        tabBarStyle: tabBarStyle,
         headerStyle: {
           borderBottomWidth: 0,
           elevation: 0,
@@ -124,3 +172,8 @@ const Layout = () => {
 };
 
 export default Layout;
+const style = StyleSheet.create({
+  hide: {
+    display: "none",
+  },
+});

@@ -41,12 +41,13 @@ const Notes = () => {
   }
 
   // Check if we have valid data
-  const hasData = clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
+  const hasData =
+    clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
 
   // Helper function to strip HTML tags
   const stripHtmlTags = (html) => {
     if (!html) return "";
-    return html.replace(/<[^>]*>/g, '');
+    return html.replace(/<[^>]*>/g, "");
   };
 
   return (
@@ -54,44 +55,47 @@ const Notes = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
         {hasData ? (
           <View className="pb-4">
-            {clientNotes.map((note) => (
+            {clientNotes?.map((note) => (
               <TouchableOpacity
-                key={note.id}
-                onPress={() => router.push({
-                  pathname: "/(root)/(tabs)/clients/notes-detail",
-                  params: { noteId: note.id }
-                })}
-                className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
-              >
+                key={note?.id}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(root)/(tabs)/clients/notes-detail",
+                    params: { noteId: note?.id },
+                  })
+                }
+                className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5">
                 <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
-                  {stripHtmlTags(note.notes)}
+                  {stripHtmlTags(note?.notes)}
                 </Text>
                 <View className="flex-row items-center justify-between mt-2.5">
                   <View className="flex-row items-center">
                     <Image
-                      source={note.project?.created_by?.user[0]?.avatar 
-                        ? getImageUrl(note.project.created_by.user[0].avatar) 
-                        : images.user}
+                      source={
+                        note?.project?.created_by?.user[0]?.avatar
+                          ? getImageUrl(note?.project.created_by.user[0].avatar)
+                          : images.user
+                      }
                       resizeMode="cover"
                       className="rounded-full border-2 border-white"
                       style={{ width: vs(30), height: vs(30) }}
                     />
                     <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
-                      {note.project?.created_by?.user[0]?.full_name || "Unknown User"}
+                      {note.project?.created_by?.user[0]?.full_name ||
+                        "Unknown User"}
                     </Text>
                   </View>
                   <Text className="text-sm text-dark-100 font-ManropeMedium">
-                    {new Date(note.created_at).toLocaleDateString()}
+                    {new Date(note.created_at)?.toLocaleDateString()}
                   </Text>
                 </View>
-     
               </TouchableOpacity>
             ))}
           </View>
         ) : (
           <View className="flex-grow flex-col items-center justify-center px-4">
             <Image
-              source={icons.noNotes}
+              source={icons?.noNotes}
               resizeMode="contain"
               style={{ width: scale(80), height: vs(80) }}
               className="mx-auto"
@@ -106,10 +110,12 @@ const Notes = () => {
               <View className="w-[180px] mx-auto mt-5">
                 <CustomButton
                   title="Create Note"
-                  onPress={() => router.push({
-                    pathname: "/clients/[id]/notes/add-note",
-                    params: { id: clientId }
-                  })}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/clients/[id]/notes/add-note",
+                      params: { id: clientId },
+                    })
+                  }
                   IconLeft={Plus}
                   iconSize={20}
                 />

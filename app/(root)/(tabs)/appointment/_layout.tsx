@@ -1,11 +1,7 @@
-//app\(root)\(tabs)\clients\_layout.tsx
-import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
-import React from "react";
+import { router, Stack } from "expo-router";
+import { TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pencil, Plus, Upload } from "lucide-react-native";
-const { id } = useLocalSearchParams();
-const clientId = parseInt(id);
+import { Plus } from "lucide-react-native";
 
 const Layout = () => {
   return (
@@ -23,10 +19,10 @@ const Layout = () => {
         headerShadowVisible: false,
       }}>
       <Stack.Screen
-        name="clients"
+        name="appointment"
         options={{
           headerShown: true,
-          title: "Clients",
+          title: "Appointments",
           headerRight: () => (
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
@@ -34,7 +30,9 @@ const Layout = () => {
               start={[0, 0]}
               end={[1, 1]}>
               <TouchableOpacity
-                onPress={() => router.push("/(root)/(tabs)/clients/add-client")}
+                onPress={() =>
+                  router.push("/(root)/(tabs)/appointment/add-appointment")
+                }
                 className="w-full h-full rounded-full flex flex-row justify-center items-center">
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
@@ -43,13 +41,10 @@ const Layout = () => {
         }}
       />
       <Stack.Screen
-        name="add-client"
-        options={{ headerShown: true, title: "Add Client" }}
-      />
-      <Stack.Screen
-        name="[id]"
+        name="add-appointment"
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: "Add Appointment",
         }}
       />
     </Stack>
