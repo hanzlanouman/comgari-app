@@ -4,8 +4,6 @@ import { Text, TouchableOpacity } from "react-native";
 import React from 'react';
 import { LinearGradient } from "expo-linear-gradient";
 import { Pencil, Plus, Upload } from "lucide-react-native";
-const { id } = useLocalSearchParams();
-const clientId = parseInt(id);
 
 const Layout = () => {
 
@@ -50,7 +48,7 @@ const Layout = () => {
         name="add-client"
         options={{ headerShown: true, title: "Add Client" }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="[id]/notes/index"
         options={{ headerShown: true, title: "Notes"   ,headerRight: () => (
           <LinearGradient
@@ -62,7 +60,7 @@ const Layout = () => {
             <TouchableOpacity
               onPress={() => router.push({
                 pathname: "/clients/[id]/notes/add-note",
-                params: { id: clientId }
+                params: { id }
               })} 
               className="w-full h-full rounded-full flex flex-row justify-center items-center"
             >
@@ -70,11 +68,11 @@ const Layout = () => {
             </TouchableOpacity>
           </LinearGradient>
         ),}}
-      />
-      <Stack.Screen
+      /> */}
+      {/* <Stack.Screen
         name="[id]/notes/add-note"
         options={{ headerShown: true, title: "Add Note" }}
-      />
+      /> */}
     </Stack>
 
   );

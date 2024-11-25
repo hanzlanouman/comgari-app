@@ -92,6 +92,7 @@ const Tasks = () => {
       };
       return clientRepo.updateTask(selectedTask.id, payload);
     },
+
     onSuccess: async (updatedTask) => {
       queryClient.setQueryData(['tasks', projectId], (oldTasks: Task[] = []) =>
         oldTasks.map((task) =>

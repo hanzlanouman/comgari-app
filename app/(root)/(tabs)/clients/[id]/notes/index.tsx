@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\clients\[id]\notes\index.tsx
 import React from "react";
 import {
   SafeAreaView,
@@ -10,24 +11,60 @@ import {
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { images, icons, getImageUrl } from "@/constants";
+import { useEffect } from "react";
+import { LinearGradient } from 'expo-linear-gradient';
 import { CustomButton } from "@/common/components";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { useQuery } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
 
 const Notes = () => {
   const { id } = useLocalSearchParams();
-  const clientId = parseInt(id);
+  const clientId = typeof id === "string" ? parseInt(id, 10) : id;
   const clientRepo = ClientRepository.getInstance();
+  const navigation = useNavigation();
+  const AddButton = () => (
+    <LinearGradient
+      colors={["#1B78B9", "#63348F"]}
+      style={{
+        borderRadius: 999,
+        width: 32,
+        height: 32,
+      }}
+      start={[0, 0]}
+      end={[1, 1]}
+    >
+      <TouchableOpacity
+        onPress={() => router.push(
+          `/clients/${clientId}/notes/add-note`,
+        )}
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Plus size={18} color="#ffffff" />
+      </TouchableOpacity>
+    </LinearGradient>
+  );
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: "Notes",
+      headerRight: () => <AddButton />,
+    });
+  }, [navigation]);
   const {
     data: clientNotes,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["clientBrief", clientId],
+    queryKey: ["clientNotes", clientId],
     queryFn: () => clientRepo.getNotes(clientId),
     enabled: !!clientId,
   });
@@ -39,7 +76,7 @@ const Notes = () => {
       </SafeAreaView>
     );
   }
-
+  // console.log(clientNotes)
   // Check if we have valid data
   const hasData = clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
 
@@ -58,8 +95,12 @@ const Notes = () => {
               <TouchableOpacity
                 key={note.id}
                 onPress={() => router.push({
-                  pathname: "/(root)/(tabs)/clients/notes-detail",
-                  params: { noteId: note.id }
+                  pathname: "/(root)/(tabs)/clients/[id]/notes/[noteId]",
+                  params: {
+                    id: clientId,
+                    noteId: note.id,
+                    noteDetails: JSON.stringify(note)
+                  }
                 })}
                 className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
               >
@@ -69,8 +110,8 @@ const Notes = () => {
                 <View className="flex-row items-center justify-between mt-2.5">
                   <View className="flex-row items-center">
                     <Image
-                      source={note.project?.created_by?.user[0]?.avatar 
-                        ? getImageUrl(note.project.created_by.user[0].avatar) 
+                      source={note.project?.created_by?.user[0]?.avatar
+                        ? getImageUrl(note.project.created_by.user[0].avatar)
                         : images.user}
                       resizeMode="cover"
                       className="rounded-full border-2 border-white"
@@ -84,7 +125,7 @@ const Notes = () => {
                     {new Date(note.created_at).toLocaleDateString()}
                   </Text>
                 </View>
-     
+
               </TouchableOpacity>
             ))}
           </View>
@@ -106,10 +147,9 @@ const Notes = () => {
               <View className="w-[180px] mx-auto mt-5">
                 <CustomButton
                   title="Create Note"
-                  onPress={() => router.push({
-                    pathname: "/clients/[id]/notes/add-note",
-                    params: { id: clientId }
-                  })}
+                  onPress={() => router.push(
+                    `/clients/${clientId}/notes/add-note`,
+                  )}
                   IconLeft={Plus}
                   iconSize={20}
                 />
