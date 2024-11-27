@@ -5,16 +5,16 @@ import { route } from "./routes";
 export type TRoute =
   | string
   | {
-      route: string;
-      description?: string;
-      method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    }
+    route: string;
+    description?: string;
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  }
   | {
-      prefix: string;
-      postfix: string;
-      description?: string;
-      method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    };
+    prefix: string;
+    postfix: string;
+    description?: string;
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  };
 
 export type TEndpoint = { [controller: string]: { [route: string]: TRoute } };
 
@@ -117,7 +117,7 @@ export const END_POINTS = {
       description: "Get all clients with pagination"
     },
     GET_SINGLE_CLIENT: {
-      route: UserUrl + "/client",  
+      route: UserUrl + "/client",
       method: "GET",
       description: "Get details of a single client by ID"
     },
@@ -199,5 +199,7 @@ export const END_POINTS = {
     UPLOAD: {
       route: UserUrl + "/upload"
     },
+    UPDATE_CLIENT_MEDIA:
+      { route: UserUrl + "/client-media" },
   },
 };

@@ -1,4 +1,3 @@
-//app\(root)\(tabs)\clients\[id]\notes\add-note.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
     SafeAreaView,
@@ -29,12 +28,23 @@ import { ClientRepository } from "@/repositories/client/client";
 
 // Types for media handling
 type UploadedMedia = {
+    id?: number; 
     url: string;
     mimeType: string;
-    localUri: string; // Keep local URI for display
+    localUri: string;
     clientId: number;
     ownerId: number;
     ownerType: string;
+};
+
+type MediaUpdatePayload = {
+    prev_media_id?: number;
+    new_url?: string;
+    client_id?: number;
+    owner_type?: string;
+    mimeType?: string;
+    owner_id?: number;
+    action: 'Add' | 'Remove';
 };
 
 const handleHead = ({ tintColor }) => (
@@ -44,14 +54,15 @@ const handleHead = ({ tintColor }) => (
 const AddNote = () => {
     const richText = useRef();
     const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia[]>([]);
+    const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const { id, noteId, noteDetails } = useLocalSearchParams();
     const projectId = parseInt(id);
     const clientRepo = ClientRepository.getInstance();
     const navigation = useNavigation();
+    
     // Parse noteDetails if provided
     const parsedNoteDetails = noteDetails ? JSON.parse(noteDetails as string) : null;
-    // console.log("parsedNoteDetails", parsedNoteDetails)
     const isEditMode = !!parsedNoteDetails;
     const windowWidth = Dimensions.get("window").width;
     const spacingBetweenImages = 16;
@@ -61,6 +72,7 @@ const AddNote = () => {
     useEffect(() => {
         if (isEditMode && parsedNoteDetails.media && uploadedMedia.length === 0) {
             setUploadedMedia(parsedNoteDetails.media.map(media => ({
+                id: media.id, 
                 url: media.url,
                 mimeType: media.mimeType,
                 localUri: getImageUrl(media.url),
@@ -71,7 +83,6 @@ const AddNote = () => {
         }
     }, [isEditMode, parsedNoteDetails, projectId, uploadedMedia.length]);
     
-
     const uploadMediaMutation = useMutation({
         mutationFn: async (file: { uri: string; type: string; fileName?: string }) => {
             const formData = new FormData();
@@ -93,32 +104,86 @@ const AddNote = () => {
 
     const noteMutation = useMutation({
         mutationFn: async (payload: {
-            notes: string;
-            project_id: number;
-            client_note_media: Omit<UploadedMedia, 'localUri'>[];
+            notes?: string;
+            project_id?: number;
+            client_note_media?: Omit<UploadedMedia, 'localUri'>[];
+            media?: MediaUpdatePayload[];
         }) => {
-            return isEditMode
-                ? await clientRepo.updateNote(parsedNoteDetails.id, payload)
-                : await clientRepo.createNote(payload);
+            if (isEditMode) {
+                // Update notes separately
+                if (payload.notes || payload.project_id) {
+                    await clientRepo.updateNote(parsedNoteDetails.id, {
+                        notes: payload.notes,
+                        project_id: payload.project_id
+                    });
+                }
+
+                // Update media separately if media payload exists
+                if (payload.media && payload.media.length > 0) {
+                    await clientRepo.updateClientMedia(parsedNoteDetails.id, {
+                        media: payload.media
+                    });
+                }
+            } else {
+                // Create new note with media
+                return await clientRepo.createNote({
+                    notes: payload.notes,
+                    project_id: payload.project_id,
+                    client_note_media: payload.client_note_media
+                });
+            }
         }
     });
 
     const formik = useFormik({
         initialValues: {
             notes: isEditMode ? 
-        parsedNoteDetails.notes.replace(/<[^>]*>/g, '') : 
-        '',
+                parsedNoteDetails.notes.replace(/<[^>]*>/g, '') : 
+                '',
             project_id: projectId,
         },
         onSubmit: async (values) => {
             try {
-                const notePayload = {
-                    notes: values.notes,
-                    project_id: values.project_id,
-                    client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest)
-                };
+                // Prepare payload for creation or update
+                if (isEditMode) {
+                    // Separate notes update payload
+                    await noteMutation.mutateAsync({ 
+                        notes: values.notes, 
+                        project_id: values.project_id 
+                    });
 
-                await noteMutation.mutateAsync(notePayload);
+                    // Separate media update payload
+                    if (uploadedMedia.length > 0 || removedMediaIds.length > 0) {
+                        // Prepare media updates
+                        const mediaUpdates: MediaUpdatePayload[] = [
+                            // Removed media
+                            ...removedMediaIds.map(mediaId => ({
+                                prev_media_id: mediaId,
+                                action: 'Remove' as const
+                            })),
+
+                            // New or updated media
+                            ...uploadedMedia.map((media) => ({
+                                prev_media_id: media.id,
+                                new_url: media.url,
+                                client_id: projectId,
+                                owner_type: media.ownerType || 'user',
+                                mimeType: media.mimeType,
+                                owner_id: media.ownerId || 1,
+                                action: 'Add' as const
+                            }))
+                        ];
+
+                        await noteMutation.mutateAsync({ media: mediaUpdates });
+                    }
+                } else {
+                    // Create new note payload
+                    await noteMutation.mutateAsync({
+                        notes: values.notes,
+                        project_id: values.project_id,
+                        client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest)
+                    });
+                }
 
                 Alert.alert(
                     'Success',
@@ -172,6 +237,14 @@ const AddNote = () => {
     };
 
     const removeMedia = (index: number) => {
+        const mediaToRemove = uploadedMedia[index];
+        
+        // If the media has an existing ID, track it for removal
+        if (mediaToRemove.id) {
+            setRemovedMediaIds(prev => [...prev, mediaToRemove.id]);
+        }
+
+        // Remove the media from the uploaded media list
         setUploadedMedia(prev => prev.filter((_, i) => i !== index));
     };
 

@@ -38,7 +38,7 @@ const Layout = () => {
                 onPress={() =>
                   router.push({
                     pathname: "/clients/[id]/notes/add-note",
-                    params: { id: clientId }, // Pass the correct clientId as a parameter
+                    params: { id: clientId }, 
                   })
                 }
                 className="w-full h-full rounded-full flex flex-row justify-center items-center">
@@ -48,7 +48,8 @@ const Layout = () => {
           ),
         }}
       />
-
+      <Stack.Screen name="brief" options={{           headerShown: true,
+          title: "Brief",}} />
       <Stack.Screen name="notes/add-note" options={{ headerShown: false }} />
       <Stack.Screen name="proposal" options={{ headerShown: false }} />
     </Stack>
