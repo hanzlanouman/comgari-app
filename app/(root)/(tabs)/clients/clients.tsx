@@ -50,9 +50,6 @@ const Clients: React.FC = () => {
   const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
     ["clients", start],
     async () => {
-      if (!user || !isAuthenticated) {
-        throw new Error("User is not authenticated");
-      }
 
       const clientListingPayload: ClientListingPayload = {
         start,

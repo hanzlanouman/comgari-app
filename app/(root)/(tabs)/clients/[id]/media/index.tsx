@@ -1,0 +1,299 @@
+import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { useNavigation, router, useLocalSearchParams } from "expo-router";
+import { SafeAreaView, ScrollView } from "react-native";
+import { vs } from "react-native-size-matters";
+import { icons } from "@/constants"; 
+import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import { Upload } from "lucide-react-native";
+import { useMutation } from 'react-query';
+import { getImageUrl } from "@/constants";
+import { ClientRepository } from "@/repositories/client/client";
+import * as Yup from 'yup';
+
+// Types for media handling
+type MediaItem = {
+    id?: number;
+    url: string;
+    mimeType: string;
+    clientId: number;
+    ownerId: number;
+    ownerType: string;
+};
+
+
+const Media: React.FC = () => {
+    const clientRepo = ClientRepository.getInstance();
+    const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+    const { clientId } = useLocalSearchParams();
+    const navigation = useNavigation();
+    const id = Number(clientId) 
+    // Fetch client media dynamically
+    const fetchClientMedia = async () => {
+        try {
+            const response = await clientRepo.getClientMedia({
+                client_id: id,
+                owner_id: id, 
+                owner_type: "client",
+            });
+            setMediaItems(response || []); 
+        } catch (error: any) {
+            Alert.alert("Error", `Failed to fetch media: ${error.message}`);
+        }
+    };
+
+    useEffect(() => {
+        fetchClientMedia();
+        navigation.setOptions({
+            headerShown: true,
+            title: "Media",
+            headerRight: () => <UploadButton />,
+        });
+    }, [navigation]);
+// Group media items by type
+const groupedMediaItems = mediaItems.reduce(
+    (acc, item) => {
+        if (item.mimeType.startsWith('image/')) {
+            acc.images.push(item);
+        } else if (item.mimeType.startsWith('video/')) {
+            acc.videos.push(item);
+        } else {
+            acc.documents.push(item);
+        }
+        return acc;
+    },
+    { images: [], videos: [], documents: [] }
+);
+    const uploadMediaMutation = useMutation({
+        mutationFn: async (file: { uri: string; type: string; fileName?: string }) => {
+            const formData = new FormData();
+            const fileToUpload = {
+                uri: file.uri,
+                type: file.type || 'image/jpeg',
+                name: file.fileName || 'file.jpg',
+            } as any;
+            formData.append('files', fileToUpload);
+            console.log("Uploading", formData)
+            const response = await clientRepo.uploadMedia(formData);
+            return {
+                url: response.data[0].filename,
+                mimeType: file.type || 'image/jpeg',
+                localUri: file.uri
+            };
+        }
+    });
+
+    const saveMediaMutation = useMutation({
+        mutationFn: async (mediaItems: MediaItem[]) => {
+            try {
+            
+                // Save media using the new saveClientMedia method
+                const payload = {
+                    files: mediaItems.map(item => ({
+                        url: item.url,
+                        mimeType: item.mimeType,
+                        clientId: item.clientId,
+                        ownerId: item.ownerId,
+                        ownerType: item.ownerType
+                    }))
+                };
+
+                return await clientRepo.saveClientMedia(payload);
+            } catch (error: any) {
+                throw new Error(`Validation or saving failed: ${error.message}`);
+            }
+        }
+    });
+
+    const pickMedia = async () => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsMultipleSelection: true,
+                quality: 1,
+            });
+
+            if (!result.canceled && result.assets) {
+                setIsUploading(true);
+
+                const uploadedMediaItems: MediaItem[] = [];
+
+                for (const asset of result.assets) {
+                    try {
+                        const uploadResult = await uploadMediaMutation.mutateAsync({
+                            uri: asset.uri,
+                            type: asset.type === 'image' ? 'image/jpeg' : 'video/mp4',
+                            fileName: asset.uri.split('/').pop(),
+                        });
+
+                        const mediaItem: MediaItem = {
+                            url: uploadResult.url,
+                            mimeType: uploadResult.mimeType,
+                            clientId: Number(id),
+                            ownerId: Number(id),
+                            ownerType: 'client'
+                        };
+
+                        uploadedMediaItems.push(mediaItem);
+                        setUploadedMedia(prev => [...prev, mediaItem]);
+                    } catch (error: any) {
+                        Alert.alert('Error', `Failed to upload media: ${error.message}`);
+                    }
+                }
+
+                // Save uploaded media
+                try {
+                    await saveMediaMutation.mutateAsync(uploadedMediaItems);
+                    await fetchClientMedia(); // Refresh media list
+                } catch (error: any) {
+                    Alert.alert('Error', `Failed to save media: ${error.message}`);
+                }
+            }
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to pick media');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const UploadButton = () => (
+        <LinearGradient
+            colors={["#1B78B9", "#63348F"]}
+            style={{
+                borderRadius: 999,
+                width: 32,
+                height: 32,
+            }}
+            start={[0, 0]}
+            end={[1, 1]}
+        >
+            <TouchableOpacity
+                onPress={pickMedia}
+                style={{
+                    width: "100%",
+                    height: "100%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+                disabled={isUploading}
+            >
+                <Upload size={18} color="#ffffff" />
+            </TouchableOpacity>
+        </LinearGradient>
+    );
+
+    const navigateToCategory = (id:number, type: string, items: MediaItem[]) => {
+        console.log(`Navigating to: /clients/[id]/media/${type}`)
+        router.push({
+            pathname: `/clients/${id}/media/${type}`,
+            params: { type, items: JSON.stringify(items) },
+        });
+    };
+
+    return (
+        <SafeAreaView className="flex-1 bg-white">
+            <ScrollView
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    paddingHorizontal: 20,
+                    paddingVertical: vs(10),
+                }}
+            >
+                <View className="mb-5">
+                    <Text className="text-base font-ManropeRegular text-gray-500 mt-1">
+                        You can find all the media files you uploaded ever in the Comgarli.
+                    </Text>
+                </View>
+
+                <TouchableOpacity
+                    onPress={() => navigateToCategory(id, "images", groupedMediaItems.images)}
+                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border`}
+                >
+                    <View className="flex-row items-center">
+                        <View className="w-12 h-12 rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow">
+                            <Image
+                                source={icons.video} 
+                                resizeMode="contain"
+                                className="w-6 h-6"
+                            />
+                        </View>
+                        <View className="ml-4">
+                            <Text className="text-lg font-ManropeMedium text-dark">
+                                Images
+                            </Text>
+                            <Text className="text-sm font-ManropeRegular text-gray-500">
+                                {groupedMediaItems.images.length} items
+                            </Text>
+                        </View>
+                    </View>
+                    <Image
+                        source={icons.arrowRight} 
+                        resizeMode="contain"
+                        className="w-5 h-5 text-gray-500"
+                    />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => navigateToCategory(id, "videos", groupedMediaItems.videos)}
+                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border`}
+                >
+                    <View className="flex-row items-center">
+                        <View className="w-12 h-12 rounded-lg bg-[#FEE2E2] flex items-center justify-center shadow">
+                            <Image
+                                source={icons.video} 
+                                resizeMode="contain"
+                                className="w-6 h-6"
+                            />
+                        </View>
+                        <View className="ml-4">
+                            <Text className="text-lg font-ManropeMedium text-dark">
+                                Videos
+                            </Text>
+                            <Text className="text-sm font-ManropeRegular text-gray-500">
+                                {groupedMediaItems.videos.length} items
+                            </Text>
+                        </View>
+                    </View>
+                    <Image
+                        source={icons.arrowRight} 
+                        resizeMode="contain"
+                        className="w-5 h-5 text-gray-500"
+                    />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => navigateToCategory(id, "documents", groupedMediaItems.documents)}
+                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border`}
+                >
+                    <View className="flex-row items-center">
+                        <View className="w-12 h-12 rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow">
+                            <Image
+                                source={icons.video} 
+                                resizeMode="contain"
+                                className="w-6 h-6"
+                            />
+                        </View>
+                        <View className="ml-4">
+                            <Text className="text-lg font-ManropeMedium text-dark">
+                                Documents
+                            </Text>
+                            <Text className="text-sm font-ManropeRegular text-gray-500">
+                                {groupedMediaItems.documents.length} items
+                            </Text>
+                        </View>
+                    </View>
+                    <Image
+                        source={icons.arrowRight} 
+                        resizeMode="contain"
+                        className="w-5 h-5 text-gray-500"
+                    />
+                </TouchableOpacity>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+export default Media;

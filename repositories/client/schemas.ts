@@ -23,6 +23,12 @@ export const clientMediaSchema = Yup.object().shape({
   files: Yup.array().of(mediaSchema).required("Files are required"), // Matches @ValidateNested()
 });
 
+export const getClientMediaSchema = Yup.object().shape({
+  client_id: Yup.number().required("Client ID is required"), // Matches IsNumber()
+  owner_id: Yup.number().required("Owner ID is required"), // Matches IsNumber()
+  owner_type: Yup.string().required("Owner type is required"), // Matches IsString()
+});
+
 // CreateNoteDto schema matches the backend's CreateNoteDto
 export const createNoteSchema = Yup.object().shape({
   notes: Yup.string().required("Notes are required"), // Matches IsString()
@@ -142,7 +148,9 @@ export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
 export type UpdateClientMediaPayload = Yup.InferType<typeof updateClientMediaSchema>
 export type BriefPayload = Yup.InferType<typeof briefSchema>;
+getClientMediaSchema
 export type ClientMediaPayload = Yup.InferType<typeof clientMediaSchema>;
+export type GetClientMediaPayload = Yup.InferType<typeof getClientMediaSchema>;
 export type TaskPayload = Yup.InferType<typeof taskSchema>;
 export type UpdateTaskPayload = Yup.InferType<typeof updateTaskSchema>;
 export type CreateNotePayload = Yup.InferType<typeof createNoteSchema>;

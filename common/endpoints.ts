@@ -199,6 +199,9 @@ export const END_POINTS = {
     UPLOAD: {
       route: UserUrl + "/upload"
     },
+    GET_CLIENT_MEDIA: {
+      route: UserUrl + "/client/Get-client-media"
+    },
     UPDATE_CLIENT_MEDIA:
       { route: UserUrl + "/client-media" },
   },

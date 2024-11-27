@@ -21,6 +21,7 @@ import tasks from "@/assets/icons/tasks.png";
 import notes from "@/assets/icons/notes.png";
 import media from "@/assets/icons/media.png";
 import noTask from "@/assets/icons/no-task.png";
+import video from "@/assets/icons/video.png";
 import noNotes from "@/assets/icons/no-notes.png";
 import pdfIcon from "@/assets/icons/pdf-icon.png";
 import docIcon from "@/assets/icons/doc-icon.png";
@@ -50,6 +51,7 @@ export const icons = {
   media,
   noTask,
   noNotes,
+  video,
   pdfIcon,
   docIcon,
 };

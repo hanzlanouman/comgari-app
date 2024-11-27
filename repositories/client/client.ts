@@ -10,6 +10,7 @@ import {
   BriefPayload,
   UpdateTaskPayload,
   ClientMediaPayload,
+  GetClientMediaPayload,
   UpdateClientMediaPayload,
   TaskPayload,
   CreateNotePayload,
@@ -36,6 +37,7 @@ interface IClientRepository {
   getSingleClient(clientId: number): Promise<TClientReponse>;
   getClients(payload: ClientListingPayload, req: Request): Promise<TReponse>;
   saveClientMedia(payload: ClientMediaPayload): Promise<TReponse>;
+  getClientMedia(payload: GetClientMediaPayload): Promise<TReponse>;
   createTask(req: Request, payload: TaskPayload): Promise<TReponse>;
   updateTask(taskId: number, payload: UpdateTaskPayload): Promise<TReponse>;
   deleteTask(taskId: number): Promise<TReponse>;
@@ -257,6 +259,18 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
+  async getClientMedia(payload: GetClientMediaPayload): Promise<TReponse> {
+    try {
+      const res = await post(
+        `${BaseUrl}${END_POINTS.Client.GET_CLIENT_MEDIA.route}`, 
+        payload
+      );
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+  
   async createProject(req: Request, payload: CreateProjectPayload): Promise<TReponse> {
     try {
       const res = await post(`${BaseUrl}${END_POINTS.Client.CREATE_PROJECT.route}`, payload);
