@@ -48,8 +48,6 @@ type MediaItem = {
     url: string;
     mimeType: string;
     clientId: number;
-    ownerId: number;
-    ownerType: string;
     localUri?: string;
 };
 
@@ -287,8 +285,8 @@ const AddNote = () => {
                         url: uploadResult.url,
                         mimeType: uploadResult.mimeType,
                         clientId: Number(id),
-                        ownerId: Number(parsedNoteDetails.id),
-                        ownerType: 'note',
+                        // ownerId: Number(parsedNoteDetails.id),
+                        // ownerType: 'note',
                         localUri: file.uri
                     };
 
@@ -473,7 +471,7 @@ const AddNote = () => {
             </ScrollView>
             <View className="p-4 bg-white">
                 <CustomButton
-                    title={isUploading ? "Saving" : (isEditMode ? "Update Note" : "Add Note")}
+                    title={isEditMode ? "Update Note" : "Add Note"}
                     onPress={formik.handleSubmit}
                     disabled={isUploading}
                 />

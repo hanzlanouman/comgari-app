@@ -34,14 +34,14 @@ const ActionModal = forwardRef<BottomSheetModal, ActionModalProps>(
                     <View style={styles.container}>
                         <View style={styles.buttonContainer}>
                             <CustomButton
-                                title="Edit Task"
+                                title="Edit"
                                 onPress={onUpdate}
                                 style={styles.button}
                             />
                         </View>
                         <View style={styles.buttonContainer}>
                             <CustomButton
-                                title="Delete Task"
+                                title="Delete"
                                 onPress={onDelete}
                                 style={[styles.button, styles.deleteButton]}
                             />
