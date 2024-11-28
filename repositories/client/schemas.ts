@@ -18,6 +18,12 @@ export const mediaSchema = Yup.object().shape({
   ownerType: Yup.string().required("Owner type is required"), // Matches IsString()
 });
 
+export const notemediaSchema = Yup.object().shape({
+  url: Yup.string().required("URL is required"), // Matches IsString()
+  mimeType: Yup.string().required("MIME type is required"), // Matches IsString()
+  clientId: Yup.number().required("Client ID is required"), // Matches IsNumber()
+});
+
 // ClientMediaDTO schema matches the backend's ClientMediaDTO
 export const clientMediaSchema = Yup.object().shape({
   files: Yup.array().of(mediaSchema).required("Files are required"), // Matches @ValidateNested()
@@ -33,7 +39,7 @@ export const getClientMediaSchema = Yup.object().shape({
 export const createNoteSchema = Yup.object().shape({
   notes: Yup.string().required("Notes are required"), // Matches IsString()
   project_id: Yup.number().required("Project ID is required"), // Matches IsNumber()
-  client_note_media: Yup.array().of(mediaSchema).required("Client note media is required"), // Matches IsArray()
+  client_note_media: Yup.array().of(notemediaSchema).required("Client note media is required"), // Matches IsArray()
 });
 
 export const createProjectSchema = Yup.object().shape({
@@ -52,25 +58,20 @@ export const updateClientMediaSchema = Yup.object().shape({
   media: Yup.array()
     .of(
       Yup.object().shape({
-        prev_media_id: Yup.number()
-          .optional()
-          .nullable(), // Matches @IsOptional() and @IsNumber()
-        new_url: Yup.string()
-          .optional()
-          .nullable(), // Matches @IsOptional() and @IsString()
-        client_id: Yup.number().required('Client ID is required'), // Matches @IsNumber()
-        owner_type: Yup.string().required('Owner type is required'), // Matches @IsString()
-        mimeType: Yup.string()
-          .optional()
-          .nullable(), // Matches @IsOptional()
-        owner_id: Yup.number().required('Owner ID is required'), // Matches @IsNumber()
+        prev_media_id: Yup.number().optional().nullable(),
+        new_url: Yup.string().optional().nullable(),
+        client_id: Yup.number().required('Client ID is required'),
+        owner_type: Yup.string().required('Owner type is required'),
+        mimeType: Yup.string().optional().nullable(),
+        owner_id: Yup.number().required('Owner ID is required'),
         action: Yup.mixed()
-          .oneOf(Object.values(Action), 'Invalid action type') // Matches @IsEnum(ActionType)
+          .oneOf(Object.values(Action), 'Invalid action type')
           .required('Action is required'),
       })
     )
-    .required('Media array is required'), // Matches @IsArray()
+    .required('Media array is required'),
 });
+
 
 export const createClientSchema = Yup.object().shape({
   name: Yup.string().required("Client name is required."),
@@ -148,7 +149,6 @@ export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
 export type UpdateClientMediaPayload = Yup.InferType<typeof updateClientMediaSchema>
 export type BriefPayload = Yup.InferType<typeof briefSchema>;
-getClientMediaSchema
 export type ClientMediaPayload = Yup.InferType<typeof clientMediaSchema>;
 export type GetClientMediaPayload = Yup.InferType<typeof getClientMediaSchema>;
 export type TaskPayload = Yup.InferType<typeof taskSchema>;

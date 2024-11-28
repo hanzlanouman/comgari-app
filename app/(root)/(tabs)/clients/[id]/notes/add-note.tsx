@@ -11,78 +11,98 @@ import {
     TouchableOpacity,
     Alert,
 } from "react-native";
+import { Video } from 'expo-av';
 import {
     actions,
     RichEditor,
     RichToolbar,
 } from "react-native-pell-rich-editor";
 import { LinearGradient } from 'expo-linear-gradient';
-import * as ImagePicker from 'expo-image-picker';
-import { CustomButton } from "@/common/components";
-import { images, getImageUrl } from "@/constants";
+import * as DocumentPicker from 'expo-document-picker';
+
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Upload, Trash2 } from "lucide-react-native";
 import { useFormik } from 'formik';
 import { useMutation } from 'react-query';
+
+// Import necessary constants and types
+import { CustomButton } from "@/common/components";
+import { images, getImageUrl } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 
-// Types for media handling
-type UploadedMedia = {
-    id?: number; 
+// Constants for file validation
+const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "video/mp4",
+    "application/pdf",
+    "text/plain",
+];
+
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.pdf', '.txt'];
+
+// Type definitions
+type MediaItem = {
+    id?: number;
     url: string;
     mimeType: string;
-    localUri: string;
     clientId: number;
     ownerId: number;
     ownerType: string;
+    localUri?: string;
 };
 
 type MediaUpdatePayload = {
     prev_media_id?: number;
     new_url?: string;
-    client_id?: number;
-    owner_type?: string;
+    client_id: number;
+    owner_type: string;
     mimeType?: string;
-    owner_id?: number;
+    owner_id: number;
     action: 'Add' | 'Remove';
 };
 
+// Custom header rendering for RichToolbar
 const handleHead = ({ tintColor }) => (
     <Text style={{ color: tintColor }}>H1</Text>
 );
-
+const getMediaPreview = (mimeType: string, url: string) => {
+    switch (true) {
+        case mimeType.includes('pdf'):
+            return images.pdf;
+        case mimeType.includes('text'):
+            return images.doc;
+        case mimeType.includes('video'):
+            return { uri: url };
+        default:
+            return { uri: getImageUrl(url) };
+    }
+};
 const AddNote = () => {
+    // Refs and state management
     const richText = useRef();
-    const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia[]>([]);
+    const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
     const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Route and navigation parameters
     const { id, noteId, noteDetails } = useLocalSearchParams();
-    const projectId = parseInt(id);
+    const projectId = parseInt(id as string);
     const clientRepo = ClientRepository.getInstance();
     const navigation = useNavigation();
-    
-    // Parse noteDetails if provided
+
+    // Parse note details for edit mode
     const parsedNoteDetails = noteDetails ? JSON.parse(noteDetails as string) : null;
     const isEditMode = !!parsedNoteDetails;
+
+    // Dimensions for image layout
     const windowWidth = Dimensions.get("window").width;
     const spacingBetweenImages = 16;
     const sidePadding = 16;
     const imageWidth = (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
-    useEffect(() => {
-        if (isEditMode && parsedNoteDetails.media && uploadedMedia.length === 0) {
-            setUploadedMedia(parsedNoteDetails.media.map(media => ({
-                id: media.id, 
-                url: media.url,
-                mimeType: media.mimeType,
-                localUri: getImageUrl(media.url),
-                clientId: projectId,
-                ownerId: media.ownerId,
-                ownerType: media.ownerType,
-            })));
-        }
-    }, [isEditMode, parsedNoteDetails, projectId, uploadedMedia.length]);
-    
+    // Media upload mutation
     const uploadMediaMutation = useMutation({
         mutationFn: async (file: { uri: string; type: string; fileName?: string }) => {
             const formData = new FormData();
@@ -102,15 +122,17 @@ const AddNote = () => {
         }
     });
 
+    // Note and media mutation
     const noteMutation = useMutation({
         mutationFn: async (payload: {
             notes?: string;
             project_id?: number;
-            client_note_media?: Omit<UploadedMedia, 'localUri'>[];
+            client_note_media?: Omit<MediaItem, 'localUri'>[];
             media?: MediaUpdatePayload[];
         }) => {
             if (isEditMode) {
-                // Update notes separately
+                console.log("editing payload is", payload)
+                // Update notes
                 if (payload.notes || payload.project_id) {
                     await clientRepo.updateNote(parsedNoteDetails.id, {
                         notes: payload.notes,
@@ -118,9 +140,9 @@ const AddNote = () => {
                     });
                 }
 
-                // Update media separately if media payload exists
+                // Update media if payload exists
                 if (payload.media && payload.media.length > 0) {
-                    await clientRepo.updateClientMedia(parsedNoteDetails.id, {
+                    await clientRepo.updateClientMedia(Number(id), {
                         media: payload.media
                     });
                 }
@@ -135,49 +157,77 @@ const AddNote = () => {
         }
     });
 
+    useEffect(() => {
+        if (isEditMode && parsedNoteDetails?.media) {
+            const initialMedia = parsedNoteDetails.media.map(media => ({
+                id: media.id,
+                url: media.url,
+                mimeType: media.mimeType,
+                localUri: getImageUrl(media.url),
+                clientId: projectId,
+                ownerId: media.ownerId,
+                ownerType: media.ownerType,
+            }));
+
+            // Use a functional update with a stable reference
+            setUploadedMedia(prevMedia => {
+                // Only update if the initial media is different
+                const shouldUpdate = initialMedia.length !== prevMedia.filter(media => media.id).length;
+                return shouldUpdate
+                    ? [
+                        ...initialMedia,
+                        ...prevMedia.filter(media => !media.id)
+                    ]
+                    : prevMedia;
+            });
+        }
+    }, [isEditMode, parsedNoteDetails?.media, projectId]);
+
+    // Formik form management
     const formik = useFormik({
         initialValues: {
-            notes: isEditMode ? 
-                parsedNoteDetails.notes.replace(/<[^>]*>/g, '') : 
+            notes: isEditMode ?
+                parsedNoteDetails.notes.replace(/<[^>]*>/g, '') :
                 '',
             project_id: projectId,
         },
         onSubmit: async (values) => {
             try {
-                // Prepare payload for creation or update
                 if (isEditMode) {
-                    // Separate notes update payload
-                    await noteMutation.mutateAsync({ 
-                        notes: values.notes, 
-                        project_id: values.project_id 
-                    });
+                    // Prepare media updates
+                    const mediaUpdates: MediaUpdatePayload[] = [
+                        // Removed media
+                        ...Array.from(new Set(removedMediaIds)).map(mediaId => ({
+                            prev_media_id: mediaId,
+                            client_id: projectId,
+                            owner_type: 'note',
+                            owner_id: parsedNoteDetails.id,
+                            action: 'Remove' as const
+                        })),
 
-                    // Separate media update payload
-                    if (uploadedMedia.length > 0 || removedMediaIds.length > 0) {
-                        // Prepare media updates
-                        const mediaUpdates: MediaUpdatePayload[] = [
-                            // Removed media
-                            ...removedMediaIds.map(mediaId => ({
-                                prev_media_id: mediaId,
-                                action: 'Remove' as const
-                            })),
-
-                            // New or updated media
-                            ...uploadedMedia.map((media) => ({
-                                prev_media_id: media.id,
-                                new_url: media.url,
+                        ...uploadedMedia
+                            .filter(media => !media.id)
+                            .map((media) => ({
                                 client_id: projectId,
-                                owner_type: media.ownerType || 'user',
+                                owner_type: 'note',
+                                owner_id: parsedNoteDetails.id,
+                                new_url: media.url,
                                 mimeType: media.mimeType,
-                                owner_id: media.ownerId || 1,
                                 action: 'Add' as const
                             }))
-                        ];
+                    ];
 
-                        await noteMutation.mutateAsync({ media: mediaUpdates });
-                    }
+                    // Log the mediaUpdates to verify
+                    console.log('Media Updates:', mediaUpdates);
+
+                    // Update notes and media
+                    await noteMutation.mutateAsync({
+                        notes: values.notes,
+                        project_id: values.project_id,
+                        media: mediaUpdates.length > 0 ? mediaUpdates : undefined
+                    });
                 } else {
-                    // Create new note payload
+                    // Create new note with media
                     await noteMutation.mutateAsync({
                         notes: values.notes,
                         project_id: values.project_id,
@@ -189,47 +239,75 @@ const AddNote = () => {
                     'Success',
                     isEditMode ? 'Note updated successfully' : 'Note created successfully'
                 );
-                router.push('/');
+                router.push(`/clients/${id.toString()}/notes`);
             } catch (error) {
                 Alert.alert('Error', error.message || 'Failed to save note');
             }
         },
     });
 
-    const isLoading = noteMutation.isPending || isUploading;
-
     const pickMedia = async () => {
         try {
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsMultipleSelection: true,
-                quality: 1,
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "*/*",
+                multiple: true,
             });
 
-            if (!result.canceled && result.assets) {
-                setIsUploading(true);
+            if (result.canceled) {
+                return;
+            }
 
-                // Upload each media file as it's picked
-                for (const asset of result.assets) {
-                    try {
-                        const uploadResult = await uploadMediaMutation.mutateAsync({
-                            uri: asset.uri,
-                            type: asset.type === 'image' ? 'image/jpeg' : 'video/mp4',
-                            fileName: asset.uri.split('/').pop(),
-                        });
+            const validFiles = result.assets || [];
 
-                        setUploadedMedia(prev => [...prev, {
-                            ...uploadResult,
-                            clientId: projectId,
-                            ownerId: 1,
-                            ownerType: 'user'
-                        }]);
-                    } catch (error) {
-                        Alert.alert('Error', `Failed to upload media: ${error.message}`);
-                    }
+            const filteredFiles = validFiles.filter((file) => {
+                const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
+                const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
+                    file.name.toLowerCase().endsWith(ext)
+                );
+                return mimeTypeAllowed || extensionAllowed;
+            });
+
+            if (filteredFiles.length === 0) {
+                Alert.alert('Invalid File', 'Only images, videos, PDFs, and text files are allowed.');
+                return;
+            }
+
+            setIsUploading(true);
+
+            const newUploadedMediaItems: MediaItem[] = [];
+            for (const file of filteredFiles) {
+                try {
+                    const uploadResult = await uploadMediaMutation.mutateAsync({
+                        uri: file.uri,
+                        type: file.mimeType || 'application/octet-stream',
+                        fileName: file.name,
+                    });
+
+                    const mediaItem: MediaItem = {
+                        url: uploadResult.url,
+                        mimeType: uploadResult.mimeType,
+                        clientId: Number(id),
+                        ownerId: Number(parsedNoteDetails.id),
+                        ownerType: 'note',
+                        localUri: file.uri
+                    };
+
+                    newUploadedMediaItems.push(mediaItem);
+                } catch (error: any) {
+                    Alert.alert('Error', `Failed to upload media: ${error.message}`);
                 }
             }
-        } catch (error) {
+
+            // Explicitly log what's being added to help debug
+            console.log('New uploaded media items:', newUploadedMediaItems);
+
+            // Update state with new media items
+            setUploadedMedia(prevMedia => {
+                const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
+                console.log('Updated media state:', updatedMedia);
+                return updatedMedia;
+            });
+        } catch (error: any) {
             Alert.alert('Error', 'Failed to pick media');
         } finally {
             setIsUploading(false);
@@ -238,7 +316,7 @@ const AddNote = () => {
 
     const removeMedia = (index: number) => {
         const mediaToRemove = uploadedMedia[index];
-        
+
         // If the media has an existing ID, track it for removal
         if (mediaToRemove.id) {
             setRemovedMediaIds(prev => [...prev, mediaToRemove.id]);
@@ -248,6 +326,7 @@ const AddNote = () => {
         setUploadedMedia(prev => prev.filter((_, i) => i !== index));
     };
 
+    // Upload button component
     const UploadButton = () => (
         <LinearGradient
             colors={["#1B78B9", "#63348F"]}
@@ -267,25 +346,67 @@ const AddNote = () => {
                     alignItems: "center",
                     justifyContent: "center",
                 }}
-                disabled={isLoading}
+                disabled={isUploading || noteMutation.isPending}
             >
                 <Upload size={18} color="#ffffff" />
             </TouchableOpacity>
         </LinearGradient>
     );
 
+    // Update navigation options
     useEffect(() => {
         navigation.setOptions({
             headerShown: true,
             title: isEditMode ? "Edit Note" : "Add Note",
             headerRight: () => <UploadButton />,
         });
-    }, [navigation, isLoading]);
+    }, [navigation, isUploading, noteMutation.isPending]);
 
+    // Handle content change in rich text editor
     const handleContentChange = (content) => {
         formik.setFieldValue('notes', content);
     };
+    const renderMediaPreview = (media: MediaItem, index: number) => {
+        const previewSource = getMediaPreview(media.mimeType, media.url);
 
+        return (
+            <View
+                key={index}
+                style={{
+                    width: imageWidth,
+                    height: imageWidth,
+                    marginRight: index % 3 === 2 ? 0 : spacingBetweenImages,
+                    marginBottom: spacingBetweenImages,
+                }}
+                className="relative"
+            >
+                <TouchableOpacity
+                    className="bg-red-500 flex items-center justify-center w-6 h-6 rounded-full absolute top-2 right-2 z-10"
+                    onPress={() => removeMedia(index)}
+                    disabled={isUploading}
+                >
+                    <Trash2 size={12} color="#ffffff" />
+                </TouchableOpacity>
+
+                {media.mimeType.includes('video') ? (
+                    <Video
+                        source={{ uri: media.localUri }}
+                        style={{ width: "100%", height: "100%" }}
+                        className="rounded-[20px]"
+                        resizeMode="cover"
+                        shouldPlay={false}
+                    />
+                ) : (
+                    <Image
+                        source={previewSource}
+                        style={{ width: "100%", height: "100%" }}
+                        className="rounded-[20px]"
+                        resizeMode="cover"
+                    />
+                )}
+            </View>
+        );
+    };
     return (
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -324,7 +445,7 @@ const AddNote = () => {
                     <RichEditor
                         ref={richText}
                         initialHeight={45}
-                        initialContents={isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ''}
+                        initialContentHTML={isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ''}
                         editorStyle={{
                             color: "#4A4A4A",
                             placeholderColor: "#1C1C1C",
@@ -346,40 +467,15 @@ const AddNote = () => {
 
                 <View className="p-4">
                     <View className="flex flex-row flex-wrap">
-                        {uploadedMedia.map((media, index) => (
-                            <View
-                                key={index}
-                                style={{
-                                    width: imageWidth,
-                                    height: imageWidth,
-                                    marginRight: index % 3 === 2 ? 0 : spacingBetweenImages,
-                                    marginBottom: spacingBetweenImages,
-                                }}
-                                className="relative"
-                            >
-                                <TouchableOpacity
-                                    className="bg-red-500 flex items-center justify-center w-6 h-6 rounded-full absolute top-2 right-2 z-10"
-                                    onPress={() => removeMedia(index)}
-                                    disabled={isLoading}
-                                >
-                                    <Trash2 size={12} color="#ffffff" />
-                                </TouchableOpacity>
-                                <Image
-                                    source={{ uri: media.localUri }}
-                                    style={{ width: "100%", height: "100%" }}
-                                    className="rounded-[20px]"
-                                    resizeMode="cover"
-                                />
-                            </View>
-                        ))}
+                        {uploadedMedia.map(renderMediaPreview)}
                     </View>
                 </View>
             </ScrollView>
             <View className="p-4 bg-white">
                 <CustomButton
-                    title={isLoading ? "Saving" : (isEditMode ? "Update Note" : "Add Note")}
+                    title={isUploading ? "Saving" : (isEditMode ? "Update Note" : "Add Note")}
                     onPress={formik.handleSubmit}
-                    disabled={isLoading}
+                    disabled={isUploading}
                 />
             </View>
         </SafeAreaView>

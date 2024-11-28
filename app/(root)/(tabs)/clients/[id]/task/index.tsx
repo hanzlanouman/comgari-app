@@ -258,8 +258,8 @@ const Tasks = () => {
                     <CustomButton
                       title="Add Task"
                       onPress={() => addModalRef.current?.present()}
-                      IconLeft={Plus}
-                      iconSize={20}
+                      // IconLeft={Plus}
+                      // iconSize={20}
                     />
                   </View>
                 </View>

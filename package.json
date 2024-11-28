@@ -34,6 +34,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
     "expo-video": "^2.0.0",
+    "expo-video-player": "^2.2.0",
     "expo-web-browser": "~13.0.3",
     "formik": "^2.4.6",
     "lucide-react-native": "^0.451.0",
@@ -59,7 +60,11 @@
     "react-query": "^3.39.3",
     "react-redux": "^9.1.2",
     "redux-persist": "^6.0.0",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "expo-av": "~14.0.7",
+    "expo-document-picker": "~12.0.2",
+    "expo-file-system": "~17.0.1",
+    "expo-sharing": "~12.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

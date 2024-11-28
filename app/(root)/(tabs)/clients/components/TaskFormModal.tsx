@@ -155,25 +155,19 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
             >
               <View className="space-y-4">
                 <View>
-                  <Text className="text-sm font-ManropeMedium text-gray-700 mb-2">
-                    Title
-                  </Text>
                   <InputField
                     value={values.title}
                     onChangeText={handleChange("title")}
-                    placeholder="Enter task title"
+                    placeholder="Title"
                     className="bg-white"
                   />
                 </View>
 
                 <View>
-                  <Text className="text-sm font-ManropeMedium text-gray-700 mb-2">
-                    Description
-                  </Text>
                   <InputField
                     value={values.description}
                     onChangeText={handleChange("description")}
-                    placeholder="Enter task description"
+                    placeholder="Description"
                     multiline
                     numberOfLines={4}
                     className="bg-white min-h-[100]"
@@ -182,27 +176,21 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                 </View>
 
                 <View>
-                  <Text className="text-sm font-ManropeMedium text-gray-700 mb-2">
-                    Due Date
-                  </Text>
                   <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={() => setDatePickerVisible(true)}
                     className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl flex-row items-center"
                   >
                     <Text className="flex-1 text-black font-ManropeMedium">
-                      {values.dueDate ? new Date(values.dueDate).toLocaleDateString() : "Select Due Date"}
+                      {values.dueDate ? new Date(values.dueDate).toLocaleDateString() : "Date"}
                     </Text>
                     <CalendarDays size={16} color="#4A4A4A" />
                   </TouchableOpacity>
                 </View>
 
                 <View>
-                  <Text className="text-sm font-ManropeMedium text-gray-700 mb-2">
-                    Assign To
-                  </Text>
                   <MultiSelectDropdown
-                    placeholder="Select team members"
+                    placeholder="Assignment"
                     data={memberOptions || []}
                     selectedValues={(values.selectedMembers || []).map(String)}
                     setFieldValue={handleMemberSelection}
@@ -211,11 +199,8 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                 </View>
 
                 <View>
-                  <Text className="text-sm font-ManropeMedium text-gray-700 mb-2">
-                    Priority
-                  </Text>
                   <DropdownSelect
-                    placeholder="Select priority level"
+                    placeholder="Priority"
                     data={PRIORITY_OPTIONS}
                     selectedValue={values.priority}
                     setFieldValue={setFieldValue}

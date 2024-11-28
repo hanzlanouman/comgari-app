@@ -203,6 +203,6 @@ export const END_POINTS = {
       route: UserUrl + "/client/Get-client-media"
     },
     UPDATE_CLIENT_MEDIA:
-      { route: UserUrl + "/client-media" },
+      { route: UserUrl + "/client/client-media" },
   },
 };

@@ -1,7 +1,7 @@
 import React, { forwardRef, useMemo } from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { CustomButton } from '@/common/components'; // Ensure correct import of CustomButton
+import { CustomButton } from '@/common/components';
 
 type ActionModalProps = {
     onUpdate: () => void;
@@ -10,15 +10,14 @@ type ActionModalProps = {
 
 const ActionModal = forwardRef<BottomSheetModal, ActionModalProps>(
     ({ onUpdate, onDelete }, ref) => {
-
         // Memoize the custom backdrop to optimize re-renders
         const renderBackdrop = useMemo(
             () => (props) => (
                 <BottomSheetBackdrop
                     {...props}
-                    appearsOnIndex={0} // Shows backdrop when the modal is open
-                    disappearsOnIndex={-1} // Hides backdrop when the modal is closed
-                    pressBehavior="close" // Closes the modal when backdrop is pressed
+                    appearsOnIndex={0} 
+                    disappearsOnIndex={-1} 
+                    pressBehavior="close" 
                 />
             ),
             []
@@ -27,30 +26,47 @@ const ActionModal = forwardRef<BottomSheetModal, ActionModalProps>(
         return (
             <BottomSheetModal
                 ref={ref}
-                snapPoints={["30%"]}
-                index={0} 
-                backdropComponent={renderBackdrop} 
+                snapPoints={['30%']}
+                index={0}
+                backdropComponent={renderBackdrop}
             >
                 <BottomSheetScrollView>
-                    <View className="flex-2 p-4">
-                        <View className="mb-4">            
-                        <CustomButton
-                            title="Update"
-                            onPress={onUpdate}
-                        />
+                    <View style={styles.container}>
+                        <View style={styles.buttonContainer}>
+                            <CustomButton
+                                title="Edit Task"
+                                onPress={onUpdate}
+                                style={styles.button}
+                            />
                         </View>
-                        <View className="mb-4">
-                        <CustomButton
-                            title="Delete"
-                            onPress={onDelete}
-
-                        />
+                        <View style={styles.buttonContainer}>
+                            <CustomButton
+                                title="Delete Task"
+                                onPress={onDelete}
+                                style={[styles.button, styles.deleteButton]}
+                            />
                         </View>
-                    </View >
+                    </View>
                 </BottomSheetScrollView>
             </BottomSheetModal>
         );
     }
 );
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 2,
+        padding: 16,
+    },
+    buttonContainer: {
+        marginBottom: 16,
+    },
+    button: {
+        borderRadius: 12,
+    },
+    deleteButton: {
+        backgroundColor: '#FF0000',
+    },
+});
 
 export default ActionModal;

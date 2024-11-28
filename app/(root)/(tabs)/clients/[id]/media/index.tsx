@@ -5,14 +5,22 @@ import { SafeAreaView, ScrollView } from "react-native";
 import { vs } from "react-native-size-matters";
 import { icons } from "@/constants"; 
 import { LinearGradient } from 'expo-linear-gradient';
-import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { Upload } from "lucide-react-native";
 import { useMutation } from 'react-query';
-import { getImageUrl } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
-import * as Yup from 'yup';
 
-// Types for media handling
+const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "video/mp4",
+    "application/pdf",
+    "text/plain",
+];
+
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.pdf', '.txt'];
+
 type MediaItem = {
     id?: number;
     url: string;
@@ -31,7 +39,6 @@ const Media: React.FC = () => {
     const { clientId } = useLocalSearchParams();
     const navigation = useNavigation();
     const id = Number(clientId) 
-    // Fetch client media dynamically
     const fetchClientMedia = async () => {
         try {
             const response = await clientRepo.getClientMedia({
@@ -53,7 +60,6 @@ const Media: React.FC = () => {
             headerRight: () => <UploadButton />,
         });
     }, [navigation]);
-// Group media items by type
 const groupedMediaItems = mediaItems.reduce(
     (acc, item) => {
         if (item.mimeType.startsWith('image/')) {
@@ -76,7 +82,6 @@ const groupedMediaItems = mediaItems.reduce(
                 name: file.fileName || 'file.jpg',
             } as any;
             formData.append('files', fileToUpload);
-            console.log("Uploading", formData)
             const response = await clientRepo.uploadMedia(formData);
             return {
                 url: response.data[0].filename,
@@ -110,54 +115,71 @@ const groupedMediaItems = mediaItems.reduce(
 
     const pickMedia = async () => {
         try {
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsMultipleSelection: true,
-                quality: 1,
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "*/*", 
+                multiple: true,
             });
-
-            if (!result.canceled && result.assets) {
-                setIsUploading(true);
-
-                const uploadedMediaItems: MediaItem[] = [];
-
-                for (const asset of result.assets) {
-                    try {
-                        const uploadResult = await uploadMediaMutation.mutateAsync({
-                            uri: asset.uri,
-                            type: asset.type === 'image' ? 'image/jpeg' : 'video/mp4',
-                            fileName: asset.uri.split('/').pop(),
-                        });
-
-                        const mediaItem: MediaItem = {
-                            url: uploadResult.url,
-                            mimeType: uploadResult.mimeType,
-                            clientId: Number(id),
-                            ownerId: Number(id),
-                            ownerType: 'client'
-                        };
-
-                        uploadedMediaItems.push(mediaItem);
-                        setUploadedMedia(prev => [...prev, mediaItem]);
-                    } catch (error: any) {
-                        Alert.alert('Error', `Failed to upload media: ${error.message}`);
-                    }
-                }
-
-                // Save uploaded media
-                try {
-                    await saveMediaMutation.mutateAsync(uploadedMediaItems);
-                    await fetchClientMedia(); // Refresh media list
-                } catch (error: any) {
-                    Alert.alert('Error', `Failed to save media: ${error.message}`);
-                }
+    
+            // Type guard to check if result is a successful pick
+            if (result.canceled) {
+                return;
             }
+    
+            const validFiles = result.assets || [];
+    
+            // Rest of the existing filtering and upload logic remains the same
+            const filteredFiles = validFiles.filter((file) => {
+                const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
+                const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
+                    file.name.toLowerCase().endsWith(ext)
+                );
+                return mimeTypeAllowed || extensionAllowed;
+            });
+      
+          if (filteredFiles.length === 0) {
+            Alert.alert('Invalid File', 'Only images, videos, PDFs, and text files are allowed.');
+            return;
+          }
+      
+          // Uploading files
+          setIsUploading(true);
+      
+          const uploadedMediaItems: MediaItem[] = [];
+          for (const file of filteredFiles) {
+            try {
+              const uploadResult = await uploadMediaMutation.mutateAsync({
+                uri: file.uri,
+                type: file.mimeType || 'application/octet-stream',
+                fileName: file.name,
+              });
+      
+              const mediaItem: MediaItem = {
+                url: uploadResult.url,
+                mimeType: uploadResult.mimeType,
+                clientId: Number(id),
+                ownerId: Number(id),
+                ownerType: 'client',
+              };
+      
+              uploadedMediaItems.push(mediaItem);
+              setUploadedMedia((prev) => [...prev, mediaItem]);
+            } catch (error: any) {
+              Alert.alert('Error', `Failed to upload media: ${error.message}`);
+            }
+          }
+      
+          try {
+            await saveMediaMutation.mutateAsync(uploadedMediaItems);
+            await fetchClientMedia();
+          } catch (error: any) {
+            Alert.alert('Error', `Failed to save media: ${error.message}`);
+          }
         } catch (error: any) {
-            Alert.alert('Error', 'Failed to pick media');
+          Alert.alert('Error', 'Failed to pick media');
         } finally {
-            setIsUploading(false);
+          setIsUploading(false);
         }
-    };
+      };
 
     const UploadButton = () => (
         <LinearGradient
@@ -186,10 +208,9 @@ const groupedMediaItems = mediaItems.reduce(
     );
 
     const navigateToCategory = (id:number, type: string, items: MediaItem[]) => {
-        console.log(`Navigating to: /clients/[id]/media/${type}`)
         router.push({
             pathname: `/clients/${id}/media/${type}`,
-            params: { type, items: JSON.stringify(items) },
+            params: { id, items: JSON.stringify(items) },
         });
     };
 
@@ -210,9 +231,9 @@ const groupedMediaItems = mediaItems.reduce(
 
                 <TouchableOpacity
                     onPress={() => navigateToCategory(id, "images", groupedMediaItems.images)}
-                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border`}
+                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}
                 >
-                    <View className="flex-row items-center">
+                    <View className="flex-row items-center border-light rounded-[20px]">
                         <View className="w-12 h-12 rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow">
                             <Image
                                 source={icons.video} 
@@ -238,7 +259,7 @@ const groupedMediaItems = mediaItems.reduce(
 
                 <TouchableOpacity
                     onPress={() => navigateToCategory(id, "videos", groupedMediaItems.videos)}
-                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border`}
+                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border border-light`}
                 >
                     <View className="flex-row items-center">
                         <View className="w-12 h-12 rounded-lg bg-[#FEE2E2] flex items-center justify-center shadow">
@@ -266,7 +287,7 @@ const groupedMediaItems = mediaItems.reduce(
 
                 <TouchableOpacity
                     onPress={() => navigateToCategory(id, "documents", groupedMediaItems.documents)}
-                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border`}
+                    className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}
                 >
                     <View className="flex-row items-center">
                         <View className="w-12 h-12 rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow">

@@ -23,7 +23,7 @@ const handleHead = ({ tintColor }) => (
 );
 
 const Brief = () => {
-    const { id } = useLocalSearchParams(); // Get client ID from route
+    const { id } = useLocalSearchParams(); 
     const richText = useRef(null);
 
     // State management
@@ -34,11 +34,9 @@ const Brief = () => {
     const [isCreateMode, setIsCreateMode] = useState<boolean>(true);
     const clientRepo = ClientRepository.getInstance();
 
-    // Fetch brief on component mount
     useEffect(() => {
         const fetchBrief = async () => {
             if (!id) {
-                // No client ID provided, cannot fetch brief
                 setIsLoading(false);
                 return;
             }
@@ -48,26 +46,20 @@ const Brief = () => {
 
                 const response = await clientRepo.getBrief(Number(id));
                 console.log("brief respnose", response)
-                // Check if brief exists and is not empty
                 if (response.brief) {
-                    // Strip HTML tags to get plain text, but preserve HTML content
                     const briefText = response.brief;
                     const plainText = briefText.replace(/<[^>]+>/g, '');
                     
-                    // Set content to full HTML content
                     setContent(briefText);
                     setInitialContent(plainText);
                     
-                    // Switch to update mode when brief exists
                     setIsCreateMode(false);
                 } else {
-                    // No existing brief, remain in create mode
                     setContent('');
                     setInitialContent(null);
                     setIsCreateMode(true);
                 }
             } catch (error) {
-                // Handle error - potentially log or show a specific error message
                 Alert.alert('Error Fetching Brief', error.message || 'Unable to fetch brief');
                 setContent('');
                 setInitialContent(null);
@@ -97,7 +89,6 @@ const Brief = () => {
                 return;
             }
 
-            // Perform create or update based on mode
             if (isCreateMode) {
                 await clientRepo.createBrief(payload);
             } else {
@@ -105,7 +96,6 @@ const Brief = () => {
                 await clientRepo.updateBrief(Number(id), payload);
             }
 
-            // Update state and show success
             setInitialContent(content);
             setIsCreateMode(false);
             Alert.alert('Success', 'Brief saved successfully');

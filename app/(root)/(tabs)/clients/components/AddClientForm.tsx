@@ -210,7 +210,7 @@ export default function AddClientForm({
           label=""
           value={formik.values.name}
           onChangeText={formik.handleChange('name')}
-          placeholder="Client name"
+          placeholder="Full Name"
           error={typeof formik.errors.name === 'string' ? formik.errors.name : undefined}
         />
       </View>
@@ -220,7 +220,7 @@ export default function AddClientForm({
           label=""
           value={formik.values.email}
           onChangeText={formik.handleChange('email')}
-          placeholder="Client email"
+          placeholder="Email"
           error={typeof formik.errors.email === 'string' ? formik.errors.email : undefined}
         />
       </View>
@@ -230,14 +230,14 @@ export default function AddClientForm({
           label=""
           value={formik.values.phone}
           onChangeText={formik.handleChange('phone')}
-          placeholder="Client phone"
+          placeholder="Phone"
           error={typeof formik.errors.phone === 'string' ? formik.errors.phone : undefined}
         />
       </View>
 
       <View className="mt-3">
         <MultiSelectDropdown
-          placeholder="Select Members"
+          placeholder="Assign Members"
           data={memberOptions}
           selectedValues={formik.values.member_ids?.map(String) || []} 
           setFieldValue={handleMemberSelection}
@@ -248,7 +248,7 @@ export default function AddClientForm({
 
       <View className="mt-3">
         <DropdownSelect
-          placeholder="Select Client Type"
+          placeholder="Type"
           data={typeOptions}
           selectedValue={String(formik.values.type || '')}  
           setFieldValue={(field, value) => {
@@ -261,7 +261,7 @@ export default function AddClientForm({
 
       <View className="mt-3">
         <DropdownSelect
-          placeholder="Select Client Status"
+          placeholder="Status"
           data={statusOptions}
           selectedValue={String(formik.values.status || '')} 
           setFieldValue={(field, value) => {

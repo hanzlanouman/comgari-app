@@ -81,11 +81,11 @@ const Notes = () => {
   const hasData =
     clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
 
-  // Helper function to strip HTML tags
-  const stripHtmlTags = (html) => {
-    if (!html) return "";
-    return html.replace(/<[^>]*>/g, "");
-  };
+    const processNoteText = (html: string) => {
+      if (!html) return "";
+      const strippedText = html.replace(/<[^>]*>/g, ''); // Remove HTML tags
+      return strippedText.length > 30 ? `${strippedText.slice(0, 30)}...` : strippedText;
+    };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -106,7 +106,7 @@ const Notes = () => {
                 className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
               >
                 <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
-                  {stripHtmlTags(note?.notes)}
+                  {processNoteText(note?.notes)}
                 </Text>
                 <View className="flex-row items-center justify-between mt-2.5">
                   <View className="flex-row items-center">
