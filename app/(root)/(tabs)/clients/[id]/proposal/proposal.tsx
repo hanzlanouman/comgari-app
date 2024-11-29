@@ -93,7 +93,9 @@ const Proposal = () => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                router.push("/(root)/(tabs)/proposal-detail");
+                router.push(
+                  "/(root)/(tabs)/clients/[id]/proposal/proposal-detail"
+                );
               }}
               className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
               <View className="flex-row items-center">
@@ -162,7 +164,9 @@ const Proposal = () => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                router.push("/(root)/(tabs)/proposal-detail");
+                router.push(
+                  "/(root)/(tabs)/clients/[id]/proposal/proposal-detail"
+                );
               }}
               className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
               <View className="flex-row items-center">
@@ -231,7 +235,9 @@ const Proposal = () => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                router.push("/(root)/(tabs)/proposal-detail");
+                router.push(
+                  "/(root)/(tabs)/clients/[id]/proposal/proposal-detail"
+                );
               }}
               className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
               <View className="flex-row items-center">
