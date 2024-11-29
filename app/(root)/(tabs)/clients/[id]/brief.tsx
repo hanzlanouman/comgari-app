@@ -93,14 +93,15 @@ const Brief = () => {
                 await clientRepo.createBrief(payload);
             } else {
                 console.log("brief update payload", payload)
-                await clientRepo.updateBrief(Number(id), payload);
+                await clientRepo.createBrief(payload);
             }
 
             setInitialContent(content);
             setIsCreateMode(false);
             Alert.alert('Success', 'Brief saved successfully');
         } catch (error) {
-            Alert.alert('Error', error.message);
+            console.log(error)
+            Alert.alert('Error');
         } finally {
             setIsMutating(false);
         }

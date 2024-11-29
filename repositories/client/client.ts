@@ -68,13 +68,14 @@ export class ClientRepository implements IClientRepository {
         {
           headers: {
             'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
           transformRequest: (data) => {
             return data; 
           },
         }
       );
-      
+      console.log("response from upload",res)
       if (res?.data?.data) {
         return res.data;
       } else if (Array.isArray(res?.data)) {

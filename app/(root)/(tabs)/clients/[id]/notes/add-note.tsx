@@ -110,7 +110,7 @@ const AddNote = () => {
                 name: file.fileName || 'file.jpg',
             } as any;
             formData.append('files', fileToUpload);
-
+            console.log("form data ", fileToUpload);
             const response = await clientRepo.uploadMedia(formData);
             return {
                 url: response.data[0].filename,
@@ -119,7 +119,73 @@ const AddNote = () => {
             };
         }
     });
+    const pickMedia = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "*/*",
+                multiple: true,
+            });
 
+            if (result.canceled) {
+                return;
+            }
+
+            const validFiles = result.assets || [];
+
+            const filteredFiles = validFiles.filter((file) => {
+                const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
+                const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
+                    file.name.toLowerCase().endsWith(ext)
+                );
+                return mimeTypeAllowed || extensionAllowed;
+            });
+
+            if (filteredFiles.length === 0) {
+                Alert.alert('Invalid File', 'Only images, videos, PDFs, and text files are allowed.');
+                return;
+            }
+
+            setIsUploading(true);
+
+            const newUploadedMediaItems: MediaItem[] = [];
+            for (const file of filteredFiles) {
+                try {
+                    const uploadResult = await uploadMediaMutation.mutateAsync({
+                        uri: file.name,
+                        type: file.mimeType || 'application/octet-stream',
+                        fileName: file.name,
+                    });
+
+                    const mediaItem: MediaItem = {
+                        url: uploadResult.url,
+                        mimeType: uploadResult.mimeType,
+                        clientId: Number(id),
+                        // ownerId: Number(parsedNoteDetails.id),
+                        // ownerType: 'note',
+                        localUri: file.name
+                    };
+
+                    newUploadedMediaItems.push(mediaItem);
+                } catch (error: any) {
+                    console.log(error)
+                    Alert.alert('Error', `Failed to upload media: ${error.message}`);
+                }
+            }
+
+            console.log('New uploaded media items:', newUploadedMediaItems);
+
+            // Update state with new media items
+            setUploadedMedia(prevMedia => {
+                const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
+                console.log('Updated media state:', updatedMedia);
+                return updatedMedia;
+            });
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to pick media');
+        } finally {
+            setIsUploading(false);
+        }
+    };
     // Note and media mutation
     const noteMutation = useMutation({
         mutationFn: async (payload: {
@@ -244,73 +310,7 @@ const AddNote = () => {
         },
     });
 
-    const pickMedia = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: "*/*",
-                multiple: true,
-            });
 
-            if (result.canceled) {
-                return;
-            }
-
-            const validFiles = result.assets || [];
-
-            const filteredFiles = validFiles.filter((file) => {
-                const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
-                const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
-                    file.name.toLowerCase().endsWith(ext)
-                );
-                return mimeTypeAllowed || extensionAllowed;
-            });
-
-            if (filteredFiles.length === 0) {
-                Alert.alert('Invalid File', 'Only images, videos, PDFs, and text files are allowed.');
-                return;
-            }
-
-            setIsUploading(true);
-
-            const newUploadedMediaItems: MediaItem[] = [];
-            for (const file of filteredFiles) {
-                try {
-                    const uploadResult = await uploadMediaMutation.mutateAsync({
-                        uri: file.uri,
-                        type: file.mimeType || 'application/octet-stream',
-                        fileName: file.name,
-                    });
-
-                    const mediaItem: MediaItem = {
-                        url: uploadResult.url,
-                        mimeType: uploadResult.mimeType,
-                        clientId: Number(id),
-                        // ownerId: Number(parsedNoteDetails.id),
-                        // ownerType: 'note',
-                        localUri: file.uri
-                    };
-
-                    newUploadedMediaItems.push(mediaItem);
-                } catch (error: any) {
-                    Alert.alert('Error', `Failed to upload media: ${error.message}`);
-                }
-            }
-
-            // Explicitly log what's being added to help debug
-            console.log('New uploaded media items:', newUploadedMediaItems);
-
-            // Update state with new media items
-            setUploadedMedia(prevMedia => {
-                const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
-                console.log('Updated media state:', updatedMedia);
-                return updatedMedia;
-            });
-        } catch (error: any) {
-            Alert.alert('Error', 'Failed to pick media');
-        } finally {
-            setIsUploading(false);
-        }
-    };
 
     const removeMedia = (index: number) => {
         const mediaToRemove = uploadedMedia[index];
