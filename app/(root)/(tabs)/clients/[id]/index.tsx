@@ -76,37 +76,43 @@ interface Client {
 
 const navigationItems = [
   {
-    id: "brief",
+    id: 1,
+    icon: "brief",
     title: "Brief",
     description: "Brief yourself in detail",
     route: "/(root)/(tabs)/clients/{projectId}/brief",
   },
   {
-    id: "tasks",
+    id: 2,
+    icon: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
     route: "/(root)/(tabs)/clients/{projectId}/task",
   },
   {
-    id: "notes",
+    id: 3,
+    icon: "notes",
     title: "Notes",
     description: "Add important notes",
     route: "/(root)/(tabs)/clients/{projectId}/notes",
   },
   {
-    id: "media",
+    id: 4,
+    icon: "media",
     title: "Media",
     description: "Find all media files here",
     route: "/(root)/(tabs)/clients/{projectId}/media",
   },
   {
-    id: "proposal",
+    id: 5,
+    icon: "tasks",
     title: "Proposal",
     description: "Create a proposal for the client",
     route: "/(root)/(tabs)/clients/{projectId}/proposal",
   },
   {
-    id: "invoice",
+    id: 6,
+    icon: "notes",
     title: "Invoice",
     description: "Create a Invoice for the client",
     route: "/(root)/(tabs)/clients/{projectId}/add-invoice",
@@ -225,7 +231,7 @@ const ClientDetailPage: React.FC = () => {
         className="border border-light rounded-[20px] p-4">
         <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
           <Image
-            source={icons[item.id]}
+            source={icons[item.icon]}
             resizeMode="contain"
             className="w-[23px] h-5"
           />

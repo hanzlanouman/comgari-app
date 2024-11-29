@@ -1,22 +1,16 @@
-import React, { useState } from 'react';
-import {
-  Image,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Alert,
-} from 'react-native';
-import { FormikProps } from 'formik';
-import { Upload } from 'lucide-react-native';
-import { vs } from 'react-native-size-matters';
-import { InputField } from '@/common/components';
-import { OptionType, ClientType, ClientStatus } from '@/common/types';
-import { Action } from '@/common/enum';
-import DropdownSelect from '@/common/components/Select';
-import MultiSelectDropdown from '@/common/components/MultiSelect';
-import { ClientRepository } from '@/repositories/client/client';
-import { images, getImageUrl } from '@/constants';
-import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from "react";
+import { Image, TextInput, TouchableOpacity, View, Alert } from "react-native";
+import { FormikProps } from "formik";
+import { Upload } from "lucide-react-native";
+import { vs } from "react-native-size-matters";
+import { InputField } from "@/common/components";
+import { OptionType, ClientType, ClientStatus } from "@/common/types";
+import { Action } from "@/common/enum";
+import DropdownSelect from "@/common/components/Select";
+import MultiSelectDropdown from "@/common/components/MultiSelect";
+import { ClientRepository } from "@/repositories/client/client";
+import { images, getImageUrl } from "@/constants";
+import * as ImagePicker from "expo-image-picker";
 
 interface MemberAction {
   staff_id: number;
@@ -51,21 +45,31 @@ export default function AddClientForm({
   isEditing,
 }: AddClientFormProps) {
   const clientRepo = ClientRepository.getInstance();
-  const [selectedMembers, setSelectedMembers] = useState<number[]>(formik.values.member_ids || []);
-  const [memberActions, setMemberActions] = useState<MemberAction[]>(formik.values.client_Staff || []);
+  const [selectedMembers, setSelectedMembers] = useState<number[]>(
+    formik.values.member_ids || []
+  );
+  const [memberActions, setMemberActions] = useState<MemberAction[]>(
+    formik.values.client_Staff || []
+  );
   const [imagePreview, setImagePreview] = useState<string | null>(
     formik.values.logo ? getImageUrl(formik.values.logo) : null
   );
 
   const handleMemberSelection = (field: string, value: string[]) => {
     const newSelected = value.map(Number);
-    
-    const addedMembers = newSelected.filter(id => !selectedMembers.includes(id));
-    const removedMembers = selectedMembers.filter(id => !newSelected.includes(id));
+
+    const addedMembers = newSelected.filter(
+      (id) => !selectedMembers.includes(id)
+    );
+    const removedMembers = selectedMembers.filter(
+      (id) => !newSelected.includes(id)
+    );
     const newMemberActions = [...memberActions];
 
-    addedMembers.forEach(id => {
-      const existingIndex = newMemberActions.findIndex(item => item.staff_id === id);
+    addedMembers.forEach((id) => {
+      const existingIndex = newMemberActions.findIndex(
+        (item) => item.staff_id === id
+      );
       if (existingIndex !== -1) {
         newMemberActions[existingIndex] = { staff_id: id, action: Action.ADD };
       } else {
@@ -73,10 +77,15 @@ export default function AddClientForm({
       }
     });
 
-    removedMembers.forEach(id => {
-      const existingIndex = newMemberActions.findIndex(item => item.staff_id === id);
+    removedMembers.forEach((id) => {
+      const existingIndex = newMemberActions.findIndex(
+        (item) => item.staff_id === id
+      );
       if (existingIndex !== -1) {
-        newMemberActions[existingIndex] = { staff_id: id, action: Action.REMOVE };
+        newMemberActions[existingIndex] = {
+          staff_id: id,
+          action: Action.REMOVE,
+        };
       } else {
         newMemberActions.push({ staff_id: id, action: Action.REMOVE });
       }
@@ -85,48 +94,44 @@ export default function AddClientForm({
     setMemberActions(newMemberActions);
     setSelectedMembers(newSelected);
     formik.setFieldValue(field, newSelected);
-    formik.setFieldValue('client_Staff', newMemberActions);
+    formik.setFieldValue("client_Staff", newMemberActions);
   };
 
   const validateFile = (fileInfo: ImagePicker.ImagePickerAsset): boolean => {
     // Check file size (limit to 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (fileInfo.fileSize && fileInfo.fileSize > maxSize) {
-      Alert.alert(
-        'File too large',
-        'Please select an image under 5MB'
-      );
+      Alert.alert("File too large", "Please select an image under 5MB");
       return false;
     }
 
     // Check file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    const fileType = fileInfo.mimeType || 'image/jpeg';
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    const fileType = fileInfo.mimeType || "image/jpeg";
     if (!allowedTypes.includes(fileType)) {
-      Alert.alert(
-        'Invalid file type',
-        'Please select a JPEG or PNG image'
-      );
+      Alert.alert("Invalid file type", "Please select a JPEG or PNG image");
       return false;
     }
 
     return true;
   };
 
-  const uploadMedia = async (file: ImagePicker.ImagePickerAsset): Promise<string> => {
+  const uploadMedia = async (
+    file: ImagePicker.ImagePickerAsset
+  ): Promise<string> => {
     try {
       if (!validateFile(file)) {
-        throw new Error('File validation failed');
+        throw new Error("File validation failed");
       }
 
       const formData = new FormData();
       const fileToUpload = {
         uri: file.uri,
-        type: file.mimeType || 'image/jpeg',
-        name: file.uri.split('/').pop() || 'image.jpg',
+        type: file.mimeType || "image/jpeg",
+        name: file.uri.split("/").pop() || "image.jpg",
       } as any;
-      formData.append('files', fileToUpload);
-
+      formData.append("files", fileToUpload);
+      console.log(file, "File is this");
       const response = await clientRepo.uploadMedia(formData);
 
       if (response?.data?.length > 0) {
@@ -135,18 +140,22 @@ export default function AddClientForm({
         return response[0].filename;
       }
 
-      throw new Error('No file data received from server');
+      throw new Error("No file data received from server");
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
       throw error;
     }
   };
 
   const handleImageUpload = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission required', 'Permission to access media library is required!');
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission required",
+          "Permission to access media library is required!"
+        );
         return;
       }
 
@@ -161,27 +170,30 @@ export default function AddClientForm({
       if (!result.canceled && result.assets?.[0]) {
         try {
           setImagePreview(result.assets[0].uri);
-          
+
           const imageUrl = await uploadMedia(result.assets[0]);
           if (!imageUrl) {
-            throw new Error('No image URL returned');
+            throw new Error("No image URL returned");
           }
-          
-          formik.setFieldValue('logo', imageUrl);
+
+          formik.setFieldValue("logo", imageUrl);
         } catch (uploadError: any) {
-          setImagePreview(formik.values.logo ? getImageUrl(formik.values.logo) : null);
-          
+          setImagePreview(
+            formik.values.logo ? getImageUrl(formik.values.logo) : null
+          );
+
           Alert.alert(
-            'Upload failed',
-            uploadError.message || 'Failed to upload image. Please check your connection and try again.'
+            "Upload failed",
+            uploadError.message ||
+              "Failed to upload image. Please check your connection and try again."
           );
         }
       }
     } catch (error) {
-      console.error('Image picker error:', error);
+      console.error("Image picker error:", error);
       Alert.alert(
-        'Error',
-        'Failed to access image picker. Please check app permissions.'
+        "Error",
+        "Failed to access image picker. Please check app permissions."
       );
     }
   };
@@ -190,8 +202,7 @@ export default function AddClientForm({
     <View>
       <View
         className="mt-2.5 relative mx-auto"
-        style={{ width: vs(80), height: vs(80) }}
-      >
+        style={{ width: vs(80), height: vs(80) }}>
         <Image
           source={imagePreview ? { uri: imagePreview } : images.user}
           resizeMode="cover"
@@ -199,8 +210,7 @@ export default function AddClientForm({
         />
         <TouchableOpacity
           onPress={handleImageUpload}
-          className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px"
-        >
+          className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px">
           <Upload size={13} color="#ffffff" />
         </TouchableOpacity>
       </View>
@@ -209,9 +219,13 @@ export default function AddClientForm({
         <InputField
           label=""
           value={formik.values.name}
-          onChangeText={formik.handleChange('name')}
+          onChangeText={formik.handleChange("name")}
           placeholder="Full Name"
-          error={typeof formik.errors.name === 'string' ? formik.errors.name : undefined}
+          error={
+            typeof formik.errors.name === "string"
+              ? formik.errors.name
+              : undefined
+          }
         />
       </View>
 
@@ -219,9 +233,13 @@ export default function AddClientForm({
         <InputField
           label=""
           value={formik.values.email}
-          onChangeText={formik.handleChange('email')}
+          onChangeText={formik.handleChange("email")}
           placeholder="Email"
-          error={typeof formik.errors.email === 'string' ? formik.errors.email : undefined}
+          error={
+            typeof formik.errors.email === "string"
+              ? formik.errors.email
+              : undefined
+          }
         />
       </View>
 
@@ -229,9 +247,13 @@ export default function AddClientForm({
         <InputField
           label=""
           value={formik.values.phone}
-          onChangeText={formik.handleChange('phone')}
+          onChangeText={formik.handleChange("phone")}
           placeholder="Phone"
-          error={typeof formik.errors.phone === 'string' ? formik.errors.phone : undefined}
+          error={
+            typeof formik.errors.phone === "string"
+              ? formik.errors.phone
+              : undefined
+          }
         />
       </View>
 
@@ -239,9 +261,13 @@ export default function AddClientForm({
         <MultiSelectDropdown
           placeholder="Assign Members"
           data={memberOptions}
-          selectedValues={formik.values.member_ids?.map(String) || []} 
+          selectedValues={formik.values.member_ids?.map(String) || []}
           setFieldValue={handleMemberSelection}
-          error={typeof formik.errors.member_ids === 'string' ? formik.errors.member_ids : undefined}
+          error={
+            typeof formik.errors.member_ids === "string"
+              ? formik.errors.member_ids
+              : undefined
+          }
           fieldName="member_ids"
         />
       </View>
@@ -250,11 +276,15 @@ export default function AddClientForm({
         <DropdownSelect
           placeholder="Type"
           data={typeOptions}
-          selectedValue={String(formik.values.type || '')}  
+          selectedValue={String(formik.values.type || "")}
           setFieldValue={(field, value) => {
             formik.setFieldValue(field, value);
           }}
-          error={typeof formik.errors.type === 'string' ? formik.errors.type : undefined}
+          error={
+            typeof formik.errors.type === "string"
+              ? formik.errors.type
+              : undefined
+          }
           fieldName="type"
         />
       </View>
@@ -263,11 +293,15 @@ export default function AddClientForm({
         <DropdownSelect
           placeholder="Status"
           data={statusOptions}
-          selectedValue={String(formik.values.status || '')} 
+          selectedValue={String(formik.values.status || "")}
           setFieldValue={(field, value) => {
             formik.setFieldValue(field, value);
           }}
-          error={typeof formik.errors.status === 'string' ? formik.errors.status : undefined}
+          error={
+            typeof formik.errors.status === "string"
+              ? formik.errors.status
+              : undefined
+          }
           fieldName="status"
         />
       </View>
@@ -280,7 +314,7 @@ export default function AddClientForm({
           multiline
           placeholderTextColor="#1C1C1C"
           placeholder="Description"
-          onChangeText={formik.handleChange('description')}
+          onChangeText={formik.handleChange("description")}
         />
       </View>
     </View>
