@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { APP_NAMES } from "./enum";
 
-export const environment = "production";
-// export const environment = process.env.NODE_ENV;
+export const environment = process.env.NODE_ENV;
 
 const isDev = environment === "development";
 
