@@ -5,11 +5,11 @@ import { vs } from "react-native-size-matters";
 import { TMember } from "../members";
 const getRoleName = (roleId: number | undefined) => {
   switch (roleId) {
-    case 1:
-      return 'Admin';
     case 2:
-      return 'Secretary';
+      return 'Admin';
     case 3:
+      return 'Secretary';
+    case 4:
       return 'Salesman';
     default:
       return 'Member';

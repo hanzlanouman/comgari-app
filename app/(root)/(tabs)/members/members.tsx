@@ -52,6 +52,7 @@ const Members = () => {
   const { data, isError, error, refetch } = useQuery(["member"], async () => {
     return await MemberRepo.getMember();
   });
+
   // Mutation for deleting a member
   const deleteMemberMutation = useMutation({
     mutationFn: () => {
@@ -118,18 +119,22 @@ const Members = () => {
       setMembers(
         data?.data?.map((item: any) => ({
           id: item?.Auth?.user[0]?.id,
-          user_name: item?.Auth?.user[0]?.user_name,
+          user_name: item?.Auth?.username,
           full_name: item?.Auth?.user[0]?.full_name,
           image: item?.Auth?.user[0]?.avatar,
           phone: item?.Auth?.phone || undefined,
           email: item?.Auth?.email || '',
           role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
           status: item?.Auth?.status,
-          permission_ids: item?.Auth?.user[0]?.user_permissions?.map((p: any) => p.permission_id)
+          permission_ids: item?.Auth?.user?.[0]?.permission_by_user
+            ?.map((p: any) => p?.permission?.id || p?.permissionId)
+            ?.filter((id: any) => id !== undefined) || []
         })) || []
       );
     }
   }, [data]);
+
+  console.log(member)
 
   return (
     <SafeAreaView>
@@ -161,14 +166,14 @@ const Members = () => {
                 <View className="w-[158px] mx-auto mt-5">
                   <CustomButton
                     title="Add Member"
-                    onPress={() => router.push("/")} 
+                    onPress={() => router.push("/")}
                   />
                 </View>
               </View>
             </View>
           }
         />
-                <ActionModal
+        <ActionModal
           ref={actionModalRef}
           onUpdate={handleUpdatePress}
           onDelete={handleDeletePress}

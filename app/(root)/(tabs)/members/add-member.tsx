@@ -37,7 +37,7 @@ const AddMember = () => {
   const getRole = () => MemberRepo.getAllRoles();
   const getPermission = () => MemberRepo.getPermissions();
   const { isEditing, memberId, memberData } = useLocalSearchParams();
-  const initialMemberData: MemberPayload | null = memberData 
+  const initialMemberData: MemberPayload | null = memberData
     ? JSON.parse(memberData as string)
     : null;
 
@@ -47,7 +47,7 @@ const AddMember = () => {
 
   // Create mutation for updating a member
   const updateMutation = useMutation({
-    mutationFn: (payload: UpdateMemberPayload) => 
+    mutationFn: (payload: UpdateMemberPayload) =>
       MemberRepo.updateMember(Number(memberId), payload),
   });
 
@@ -69,12 +69,13 @@ const AddMember = () => {
 
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
+  console.log("roles:", roles)
 
   useEffect(() => {
     if (role) {
       setRole(
         role?.data?.map((item: any) => ({
-          value: item?.name, 
+          value: item?.name,
           key: Number(item?.id),
         }))
       );
@@ -93,66 +94,66 @@ const AddMember = () => {
       user_name: initialMemberData?.user_name || '',
       email: initialMemberData?.email || '',
       phone: initialMemberData?.phone || '',
-      password: '', 
+      password: '',
       full_name: initialMemberData?.full_name || '',
       permission_ids: initialMemberData?.permission_ids || [],
       status: initialMemberData?.status || UserStatus.ACTIVE,
-      role_id: initialMemberData?.role_id 
-      ? Number(initialMemberData.role_id)  
-      :  0,
+      role_id: initialMemberData?.role_id
+        ? Number(initialMemberData.role_id)
+        : 0,
     },
     enableReinitialize: true,
     validationSchema: isEditing === 'true' ? updateMemberSchema : memberSchema,
     onSubmit: (values) => {
       if (isEditing === 'true' && initialMemberData) {
         const updatePayload: UpdateMemberPayload = {};
-            updatePayload.role = [
-            // ...(initialMemberData.role_id ? [{
-            //   role_id: initialMemberData.role_id,
-            //   action: Action.REMOVE
-            // }] : []),
-            {
-              role_id: Number(values.role_id),
-              action: Action.ADD
-            }
-          ];
-      
+        updatePayload.role = [
+          ...(initialMemberData.role_id ? [{
+            role_id: initialMemberData.role_id,
+            action: Action.REMOVE
+          }] : []),
+          {
+            role_id: Number(values.role_id),
+            action: Action.ADD
+          }
+        ];
+
         const initialPermissionIds = initialMemberData.permission_ids || [];
         const currentPermissionIds = values.permission_ids || [];
-  
+
         const permissionsToRemove = initialPermissionIds.filter(
           pid => !currentPermissionIds.includes(pid)
         ).map(pid => ({
           permission_id: pid,
           action: Action.REMOVE
         }));
-  
+
         const permissionsToAdd = currentPermissionIds.filter(
           pid => !initialPermissionIds.includes(pid)
         ).map(pid => ({
           permission_id: pid,
           action: Action.ADD
         }));
-  
+
         if (permissionsToRemove.length > 0 || permissionsToAdd.length > 0) {
           updatePayload.permission = [
             ...permissionsToRemove,
             ...permissionsToAdd
           ];
         }
-  
-          updatePayload.user_name = values.user_name;
-        
-          updatePayload.full_name = values.full_name;
-        
-          updatePayload.phone = values.phone;
-        
-          updatePayload.status = values.status;
-  
-          console.error("updating", updatePayload);
+
+        updatePayload.user_name = values.user_name;
+
+        updatePayload.full_name = values.full_name;
+
+        updatePayload.phone = values.phone;
+
+        updatePayload.status = values.status;
+
+        console.error("updating", updatePayload);
 
         updateMutation.mutate(updatePayload, {
-          
+
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");
           },
@@ -171,12 +172,12 @@ const AddMember = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AppContainer 
-        isError={isError || updateMutation.isError} 
+      <AppContainer
+        isError={isError || updateMutation.isError}
         message={error || updateMutation.error}
       >
-        <ScrollView 
-          contentContainerStyle={{ flexGrow: 1 }} 
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
           className="px-4"
         >
           <AddMemberForm
