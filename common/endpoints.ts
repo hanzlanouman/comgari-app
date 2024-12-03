@@ -72,6 +72,12 @@ export const END_POINTS = {
       method: "POST",
       description: "Create new member"
     },
+    DELETE_MEMBER: {
+      route: UserUrl + "/member"
+    },
+    UPDATE_MEMBER: {
+      route: UserUrl + "/member"
+    },
     GET_MEMBER: {
       route: UserUrl + "/member",
       method: "GET",

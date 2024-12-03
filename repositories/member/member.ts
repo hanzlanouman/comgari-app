@@ -1,16 +1,19 @@
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
 import { getErrorMessage } from "@/common/utils";
-import { del, get, post, put } from "@/common/api";
+import { get, post, put, del, postForm } from "@/common/api";
 import { BaseUrl, UserUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
-import { MemberPayload,UpdateMemberPayload  } from "./schemas";
+import { MemberPayload, UpdateMemberPayload } from "./schemas";
 
 interface IMemberRepository {
   getAllRoles(): Promise<TReponse>;
   getPermissions(): Promise<TReponse>;
   createMember(payload: MemberPayload): Promise<TReponse>;
   getMember(): Promise<TReponse>;
+  deleteMember(id: number): Promise<TReponse>;
+  updateMember(id:number , payload: UpdateMemberPayload ): Promise<TReponse>;
+
 }
 export class MemberRepository implements IMemberRepository {
   private static instance: MemberRepository;
@@ -48,7 +51,6 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
-
   async deleteMember(id: number): Promise<TReponse>
   {
     try {
@@ -68,7 +70,7 @@ export class MemberRepository implements IMemberRepository {
   {
     try {
       const res: any = await put(
-        `${BaseUrl + END_POINTS.Member.UPDATE_MEMBER.route}/${id}`,
+        `${BaseUrl + END_POINTS.Member.DELETE_MEMBER.route}/${id}`,
         payload,
         { show_loader: true }
       );
@@ -79,7 +81,6 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
-
   async getAllRoles(): Promise<TReponse> {
     try {
       const res = await get(`${BaseUrl + END_POINTS.Member.GET_ROLE.route}`);
@@ -116,4 +117,5 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
+
 }

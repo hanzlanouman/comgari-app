@@ -1,13 +1,12 @@
 import { Action } from '@/common/enum';
 import * as Yup from "yup";
 
-enum UserStatus {
+export enum UserStatus {
   ACTIVE,
   INACTIVE,
   SUSPENDED,
 }
 
-// Schema for creating a new member
 export const memberSchema = Yup.object().shape({
   user_name: Yup.string().required("Username is required."),
   email: Yup.string()
@@ -27,7 +26,6 @@ export const memberSchema = Yup.object().shape({
     .typeError("Role ID must be a number."),
 });
 
-// Schema for updating an existing member
 export const updateMemberSchema = Yup.object().shape({
   user_name: Yup.string().optional(),
   phone: Yup.string().optional(),

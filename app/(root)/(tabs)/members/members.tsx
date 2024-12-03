@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\members\members.tsx
 import {
   SafeAreaView,
   ScrollView,
@@ -23,17 +24,20 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
-
+enum UserStatus {
+  ACTIVE,
+  INACTIVE,
+  SUSPENDED,
+}
 export type TMember = {
   id: number;
-  name: string;
-  image: string;
-  role: string;
+  user_name: string;
+  full_name: string;
+  image?: string;
+  role_id: number;
   email: string;
-  phone: string;
-  status: string;
-  user_name?: string;
-  role_id?: number;
+  phone?: string;
+  status: UserStatus;
   permission_ids?: number[];
 };
 
@@ -48,7 +52,6 @@ const Members = () => {
   const { data, isError, error, refetch } = useQuery(["member"], async () => {
     return await MemberRepo.getMember();
   });
-
   // Mutation for deleting a member
   const deleteMemberMutation = useMutation({
     mutationFn: () => {
@@ -83,24 +86,15 @@ const Members = () => {
     actionModalRef.current?.present();
   }, []);
 
-  // Handle update press to open edit modal
   const handleUpdatePress = useCallback(() => {
     actionModalRef.current?.dismiss();
-    // Navigate to add-member screen with edit mode and prefilled data
     if (selectedMember) {
       router.push({
         pathname: "/(root)/(tabs)/members/add-member",
         params: {
-          isEditMode: 'true',
+          isEditing: 'true',
           memberId: selectedMember.id.toString(),
-          userName: selectedMember.user_name || '',
-          fullName: selectedMember.name || '',
-          email: selectedMember.email || '',
-          phone: selectedMember.phone || '',
-          status: selectedMember.status || '',
-          roleId: selectedMember.role_id?.toString() || '0',
-          // You might need to pass permission_ids as a string 
-          // or handle it in the add-member screen
+          memberData: JSON.stringify(selectedMember)
         }
       });
     }
@@ -121,19 +115,17 @@ const Members = () => {
 
   useEffect(() => {
     if (data) {
-      console.log(data, "Data of member is");
       setMembers(
         data?.data?.map((item: any) => ({
           id: item?.Auth?.user[0]?.id,
-          name: item?.Auth?.user[0]?.full_name,
-          image: item?.Auth?.user[0]?.avatar,
-          phone: item?.Auth?.phone || null,
-          email: item?.Auth?.email || null,
-          role: item?.Auth?.user[0]?.user_roles[0]?.role?.name || null,
-          status: item?.Auth?.status,
           user_name: item?.Auth?.user[0]?.user_name,
-          role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id,
-          // You might want to handle permissions similarly
+          full_name: item?.Auth?.user[0]?.full_name,
+          image: item?.Auth?.user[0]?.avatar,
+          phone: item?.Auth?.phone || undefined,
+          email: item?.Auth?.email || '',
+          role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
+          status: item?.Auth?.status,
+          permission_ids: item?.Auth?.user[0]?.user_permissions?.map((p: any) => p.permission_id)
         })) || []
       );
     }
@@ -145,11 +137,9 @@ const Members = () => {
         <FlatList
           data={member}
           keyExtractor={(item) => item?.id?.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleMemberPress(item)}>
-              <MemberCard member={item} />
-            </TouchableOpacity>
-          )}
+          renderItem={({ item }) => <TouchableOpacity onPress={() => handleMemberPress(item)}>
+            <MemberCard member={item} />
+          </TouchableOpacity>}
           contentContainerStyle={{
             paddingBottom: vs(10),
           }}
@@ -171,14 +161,14 @@ const Members = () => {
                 <View className="w-[158px] mx-auto mt-5">
                   <CustomButton
                     title="Add Member"
-                    onPress={() => router.push("/(root)/(tabs)/members/add-member")}
+                    onPress={() => router.push("/")} 
                   />
                 </View>
               </View>
             </View>
           }
         />
-        <ActionModal
+                <ActionModal
           ref={actionModalRef}
           onUpdate={handleUpdatePress}
           onDelete={handleDeletePress}

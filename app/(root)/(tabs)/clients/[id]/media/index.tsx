@@ -89,7 +89,7 @@ const Media: React.FC = () => {
     }) => {
       const formData = new FormData();
       const fileToUpload = {
-        uri: file.uri,
+        uri: file.fileName,
         type: file.type || "image/jpeg",
         name: file.fileName || "file.jpg",
       } as any;

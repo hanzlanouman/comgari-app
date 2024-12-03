@@ -74,7 +74,7 @@ const AddMember = () => {
     if (role) {
       setRole(
         role?.data?.map((item: any) => ({
-          value: item?.name, // Display name in the dropdown
+          value: item?.name, 
           key: Number(item?.id),
         }))
       );
@@ -88,7 +88,6 @@ const AddMember = () => {
     }
   }, [role, permission]);
 
-  // Initialize Formik
   const formik = useFormik({
     initialValues: {
       user_name: initialMemberData?.user_name || '',
@@ -99,37 +98,28 @@ const AddMember = () => {
       permission_ids: initialMemberData?.permission_ids || [],
       status: initialMemberData?.status || UserStatus.ACTIVE,
       role_id: initialMemberData?.role_id 
-      ? Number(initialMemberData.role_id)  // Ensure it's a number
-      : roles.length > 0 
-        ? roles[0].key  // Default to first role if no initial data
-        : 0,
+      ? Number(initialMemberData.role_id)  
+      :  0,
     },
     enableReinitialize: true,
     validationSchema: isEditing === 'true' ? updateMemberSchema : memberSchema,
     onSubmit: (values) => {
       if (isEditing === 'true' && initialMemberData) {
         const updatePayload: UpdateMemberPayload = {};
-  
-        // Handle role changes
-          updatePayload.role = [
-            // Remove old role if exists
-            ...(initialMemberData.role_id ? [{
-              role_id: initialMemberData.role_id,
-              action: Action.REMOVE
-            }] : []),
-            // Add new role
+            updatePayload.role = [
+            // ...(initialMemberData.role_id ? [{
+            //   role_id: initialMemberData.role_id,
+            //   action: Action.REMOVE
+            // }] : []),
             {
               role_id: Number(values.role_id),
               action: Action.ADD
             }
           ];
       
-  
-        // Handle permission changes
         const initialPermissionIds = initialMemberData.permission_ids || [];
         const currentPermissionIds = values.permission_ids || [];
   
-        // Find permissions to remove
         const permissionsToRemove = initialPermissionIds.filter(
           pid => !currentPermissionIds.includes(pid)
         ).map(pid => ({
@@ -137,7 +127,6 @@ const AddMember = () => {
           action: Action.REMOVE
         }));
   
-        // Find permissions to add
         const permissionsToAdd = currentPermissionIds.filter(
           pid => !initialPermissionIds.includes(pid)
         ).map(pid => ({
@@ -145,7 +134,6 @@ const AddMember = () => {
           action: Action.ADD
         }));
   
-        // Combine remove and add permissions
         if (permissionsToRemove.length > 0 || permissionsToAdd.length > 0) {
           updatePayload.permission = [
             ...permissionsToRemove,
@@ -153,7 +141,6 @@ const AddMember = () => {
           ];
         }
   
-        // Handle other field changes
           updatePayload.user_name = values.user_name;
         
           updatePayload.full_name = values.full_name;
@@ -162,9 +149,8 @@ const AddMember = () => {
         
           updatePayload.status = values.status;
   
-          console.log("updating", updatePayload);
+          console.error("updating", updatePayload);
 
-        // Perform update
         updateMutation.mutate(updatePayload, {
           
           onSuccess: () => {
@@ -172,7 +158,8 @@ const AddMember = () => {
           },
         });
       } else {
-        // Create new member
+        console.error("creating", values);
+
         mutate(values, {
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");

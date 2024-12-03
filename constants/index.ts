@@ -2,7 +2,7 @@ import { BaseUrl, environment } from "@/common/enviornment";
 import onboarding1 from "@/assets/images/onboarding1.jpg";
 import onboarding2 from "@/assets/images/onboarding2.jpg";
 import onboarding3 from "@/assets/images/onboarding3.jpg";
-
+// import { environment } from "@/common/enviornment";
 import welcome from "@/assets/images/welcome.jpg";
 import logo from "@/assets/images/logo.png";
 import login from "@/assets/images/login.jpg";

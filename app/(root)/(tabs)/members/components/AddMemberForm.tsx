@@ -81,7 +81,7 @@ export default function AddMemberForm({
       </View>
 
       <View className="mt-3">
-        <DropdownSelect
+      <DropdownSelect
           placeholder="Role"
           data={roleOptions}
           selectedValue={formik.values.role_id}
@@ -96,7 +96,7 @@ export default function AddMemberForm({
       </View>
 
       <View className="mt-3">
-        <MultiSelectDropdown
+      <MultiSelectDropdown
           placeholder="Permissions"
           data={permissionOptions}
           selectedValues={formik.values.permission_ids}
@@ -141,7 +141,7 @@ export default function AddMemberForm({
         </View>
       )}
       <View className="p-4 bg-white">
-      <CustomButton
+        <CustomButton
           title={isEditing ? "Update Member" : "Add Member"}
           onPress={() => {
             formik.handleSubmit();
