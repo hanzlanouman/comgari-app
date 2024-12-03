@@ -77,6 +77,16 @@ export const END_POINTS = {
       method: "GET",
       description: "Get member details"
     },
+    DELETE_MEMBER: {
+      route: UserUrl + "/member",
+      method: "DELETE",
+      description: "Delete member details"
+    },
+    UPDATE_MEMBER: {
+      route: UserUrl + "/member",
+      method: "PUT",
+      description: "Update member details"
+    },
     GET_USER_PERMISSION: {
       route: UserUrl + "/permission",
       method: "GET",

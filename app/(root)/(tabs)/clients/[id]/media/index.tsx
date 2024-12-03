@@ -130,6 +130,7 @@ const Media: React.FC = () => {
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
         multiple: true,
+        copyToCacheDirectory: false,
       });
 
       // Type guard to check if result is a successful pick

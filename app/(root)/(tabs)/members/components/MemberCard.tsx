@@ -19,7 +19,7 @@ export default function MemberCard({ member }: { member: TMember }) {
             <Text
               className="text-white text-sm text-center font-ManropeMedium"
               style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}>
-              {member?.role}
+              {member.role_id}
             </Text>
           </View>
         </View>

@@ -1,33 +1,18 @@
+//app\(root)\(tabs)\members\components\AddMemberForm.tsx
 import { View, Platform, Text } from "react-native";
 import React from "react";
 import { CustomButton, InputField } from "@/common/components";
-import {
-  MultipleSelectList,
-  SelectList,
-} from "react-native-dropdown-select-list";
-import { ChevronDown, Search, X } from "lucide-react-native";
-import * as Yup from "yup";
 import { FormikProps } from "formik";
 import { OptionType } from "@/common/types";
 import DropdownSelect from "@/common/components/Select";
 import MultiSelectDropdown from "@/common/components/MultiSelect";
-
-// Define the validation schema using Yup
-const validationSchema = Yup.object({
-  fullName: Yup.string().required("Full name is required"),
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-  phoneNumber: Yup.string().required("Contact number is required"),
-  role: Yup.string().required("Role is required"),
-  status: Yup.string().required("Status is required"),
-});
 
 interface AddMemberFormProps {
   formik: FormikProps<any>;
   roleOptions: OptionType[];
   permissionOptions: OptionType[];
   statusOptions: OptionType[];
+  isEditing?: boolean;
 }
 
 export default function AddMemberForm({
@@ -35,6 +20,7 @@ export default function AddMemberForm({
   roleOptions,
   permissionOptions,
   statusOptions,
+  isEditing = false,
 }: AddMemberFormProps) {
   return (
     <View>
@@ -43,7 +29,7 @@ export default function AddMemberForm({
           label=""
           value={formik.values.user_name}
           onChangeText={formik.handleChange("user_name")}
-          placeholder="User Name"
+          placeholder="Username"
           error={
             typeof formik.errors.user_name === "string"
               ? formik.errors.user_name
@@ -138,25 +124,25 @@ export default function AddMemberForm({
           fieldName="status"
         />
       </View>
-      <View className="mt-3">
-        <InputField
-          label=""
-          value={formik.values.password}
-          onChangeText={formik.handleChange("password")}
-          placeholder="Password"
-          error={
-            typeof formik.errors.password === "string"
-              ? formik.errors.password
-              : undefined
-          }
-          generatePasswordIcon={true}
-          onGeneratePassword={formik.handleChange("password")}
-          secureTextEntry={true}
-        />
-      </View>
+      {!isEditing && (
+        <View className="mt-3">
+          <InputField
+            label=""
+            value={formik.values.password}
+            onChangeText={formik.handleChange("password")}
+            placeholder="Password"
+            error={
+              formik.touched.password && typeof formik.errors.password === "string"
+                ? formik.errors.password
+                : undefined
+            }
+            secureTextEntry={true}
+          />
+        </View>
+      )}
       <View className="p-4 bg-white">
-        <CustomButton
-          title="Add Member"
+      <CustomButton
+          title={isEditing ? "Update Member" : "Add Member"}
           onPress={() => {
             formik.handleSubmit();
           }}
