@@ -145,6 +145,40 @@ export const updateTaskSchema = Yup.object().shape({
     .oneOf(Object.values(TaskPriority), "Invalid priority")
     .required("Priority is required"),
 });
+
+export const createAppointmentSchema = Yup.object().shape({
+  title: Yup.string().required('Title is required'),
+  clientId: Yup.number().integer('Client ID must be an integer').required('Client ID is required'),
+  memberId: Yup.array().required('Member ID is required.'),
+  date: Yup.string().required('Date is required'),
+  startTime: Yup.string().required('Start Time is required'),
+  endTime: Yup.string().required('End Time is required'),
+  notes: Yup.string().required('Notes are required'),
+  projectId: Yup.number().integer('Project ID must be an integer').required('Project ID is required'),  
+});
+export const createProposalSchema = Yup.object().shape({
+  clientId: Yup.number()
+    .integer('Client ID must be an integer')
+    .required('Client ID is required'),
+  date: Yup.date().required('Date is required'),
+  address: Yup.string().required('Address is required'),
+  city: Yup.string().required('City is required'),
+  zipCode: Yup.number()
+    .integer('Zip Code must be an integer')
+    .required('Zip Code is required'),
+  jobName: Yup.string().required('Job Name is required'),
+  jobPhone: Yup.string().required('Job Phone is required'),
+  specification: Yup.string().required('Specification is required'),
+  projectDirector: Yup.string().required('Project Director is required'),
+  estimatedDays: Yup.number()
+    .integer('Estimated Days must be an integer')
+    .required('Estimated Days is required'),
+  estimatedCost: Yup.number().required('Estimated Cost is required'),
+  projectId: Yup.number()
+    .integer('Project ID must be an integer')
+    .required('Project ID is required'),
+});
+export type CreateProposalPayload = Yup.InferType<typeof createProposalSchema>;
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
 export type UpdateClientMediaPayload = Yup.InferType<typeof updateClientMediaSchema>
@@ -156,6 +190,8 @@ export type UpdateTaskPayload = Yup.InferType<typeof updateTaskSchema>;
 export type CreateNotePayload = Yup.InferType<typeof createNoteSchema>;
 export type UpdateNotePayload = Yup.InferType<typeof updateNoteSchema>;
 export type CreateProjectPayload = Yup.InferType<typeof createProjectSchema>;
+export type CreateAppointmentPayload = Yup.InferType<typeof createAppointmentSchema>;
+
 export type ClientListingPayload = {
   start: number;
   limit: number;

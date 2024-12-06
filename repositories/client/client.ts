@@ -9,8 +9,10 @@ import {
   CreateClientPayload,
   BriefPayload,
   UpdateTaskPayload,
+  CreateProposalPayload,
   ClientMediaPayload,
   GetClientMediaPayload,
+  CreateAppointmentPayload,
   UpdateClientMediaPayload,
   TaskPayload,
   CreateNotePayload,
@@ -46,10 +48,20 @@ interface IClientRepository {
   deleteTask(taskId: number): Promise<TReponse>;
   getTask(projectId: number): Promise<TReponse>;
   createNote(payload: CreateNotePayload): Promise<TReponse>;
+  createAppointment(payload: CreateAppointmentPayload): Promise<TReponse>;
   getNotes(projectId: number): Promise<TReponse>;
+  getAppointment(): Promise<TReponse>; 
   deleteNote(noteId: number): Promise<TReponse>;
   updateNote(noteId: number, payload: UpdateNotePayload): Promise<TReponse>;
   createProject(req: Request, payload: CreateProjectPayload): Promise<TReponse>;
+  createProposal(payload: CreateProposalPayload): Promise<string>;
+  getProposalsByProject(projectId: number): Promise<TReponse[]>;
+  updateProposal(
+    proposalId: number, 
+    payload: CreateProposalPayload
+  ): Promise<string>;
+  deleteProposal(proposalId: number): Promise<string>;
+
 }
 
 export class ClientRepository implements IClientRepository {
@@ -63,6 +75,82 @@ export class ClientRepository implements IClientRepository {
     }
     return ClientRepository.instance;
   }
+
+   async createProposal(payload: CreateProposalPayload): Promise<string> {
+    try {
+      const res = await post(
+        `${BaseUrl}${END_POINTS.Client.CREATE_PROPOSAL.route}`,
+        payload, 
+        { show_loader: true }
+      );
+      return res;
+    } catch (e) {
+      throw getErrorMessage(e);
+    }
+  }
+
+   async getProposalsByProject(projectId: number): Promise<TReponse[]> {
+    try {
+      const res = await get(
+        `${BaseUrl}${END_POINTS.Client.GET_PROPOSAL.route}/${projectId}`,
+        { show_loader: true }
+      );
+      return res;
+    } catch (e) {
+      throw getErrorMessage(e);
+    }
+  }
+
+   async updateProposal(
+    proposalId: number, 
+    payload: CreateProposalPayload
+  ): Promise<string> {
+    try {
+      const res = await put(
+        `${BaseUrl}${END_POINTS.Client.UPDATE_PROPOSAL.route}/${proposalId}`,
+        payload, 
+        { show_loader: true }
+      );
+      return res;
+    } catch (e) {
+      throw getErrorMessage(e);
+    }
+  }
+
+   async deleteProposal(proposalId: number): Promise<string> {
+    try {
+      const res = await httpDelete(
+        `${BaseUrl}${END_POINTS.Client.DELETE_PROPOSAL.route}/${proposalId}`,
+        { show_loader: true }
+      );
+      return res;
+    } catch (e) {
+      throw getErrorMessage(e);
+    }
+  }
+
+  async createAppointment(payload: CreateAppointmentPayload): Promise<TReponse> {
+    try {
+      const res: any = await post(`${BaseUrl + END_POINTS.Client.CREATE_APPOINTMENT.route}`,
+        payload,
+        { show_loader: true })
+
+      return res
+    } catch (e) {
+      throw getErrorMessage(e)
+    }
+  }
+
+  async getAppointment(): Promise<TReponse> {
+    try {
+      const res = await get(`${BaseUrl + END_POINTS.Client.GET_APPOINTMENT.route}`)
+      
+      return res
+    } catch (e) {
+      throw getErrorMessage(e)
+    }
+  }
+
   async uploadMedia(formData: FormData): Promise<any> {
     console.log(`${BaseUrl + END_POINTS.Client.UPLOAD.route}`, "Issue");
     try {

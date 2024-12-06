@@ -72,12 +72,6 @@ export const END_POINTS = {
       method: "POST",
       description: "Create new member"
     },
-    DELETE_MEMBER: {
-      route: UserUrl + "/member"
-    },
-    UPDATE_MEMBER: {
-      route: UserUrl + "/member"
-    },
     GET_MEMBER: {
       route: UserUrl + "/member",
       method: "GET",
@@ -98,6 +92,7 @@ export const END_POINTS = {
       method: "GET",
       description: "Get user permissions"
     },
+    
   },
   PAYMENT: {
     CREATE_BUYER: {
@@ -220,5 +215,29 @@ export const END_POINTS = {
     },
     UPDATE_CLIENT_MEDIA:
       { route: UserUrl + "/client/client-media" },
+      CREATE_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+       GET_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+       UPDATE_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+      DELETE_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+      CREATE_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+       GET_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+       UPDATE_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+      DELETE_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      }
   },
 };

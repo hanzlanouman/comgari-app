@@ -17,6 +17,7 @@ import {
 import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+import { useLocalSearchParams } from "expo-router";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
@@ -26,7 +27,31 @@ import {
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric' 
+  });
+};
+
 const Proposal = () => {
+  // Get params from route
+  const { 
+    id, 
+    jobName, 
+    jobPhone,
+    city,
+    zip,
+    estimatedDays,
+    clientName, 
+    clientType, 
+    address, 
+    date,
+    clientId 
+  } = useLocalSearchParams();
+
   // Download/Share Ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -42,6 +67,7 @@ const Proposal = () => {
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({
+      title: "Proposal Details",
       headerRight: () => (
         <LinearGradient
           colors={["#1B78B9", "#63348F"]}
@@ -56,7 +82,7 @@ const Proposal = () => {
         </LinearGradient>
       ),
     });
-  }, [navigation, handlePresentModalPress]);
+  }, [navigation, handlePresentModalPress, jobName]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -68,7 +94,7 @@ const Proposal = () => {
                 <View className="flex-row items-center">
                   <View className="flex-1">
                     <Text className="text-base sm:text-lg font-ManropeBold text-dark w-full">
-                      Project Name
+                      {jobName || 'Unnamed Project'}
                     </Text>
                     <View>
                       <View className="flex-row items-center mt-1.5">
@@ -76,15 +102,14 @@ const Proposal = () => {
                           <View className="bg-blue w-1.5 h-1.5" />
                         </View>
                         <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                          Construction
+                          {clientType || 'Construction'}
                         </Text>
                       </View>
                     </View>
                   </View>
                 </View>
                 <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting Lorem Ipsum is simply dummy text of the printing.
+                  Project details for {jobName || 'Unnamed Project'}
                 </Text>
                 <View className="bg-light w-full h-px my-3" />
                 <View className="flex-row items-center justify-between">
@@ -96,7 +121,7 @@ const Proposal = () => {
                       style={{ width: vs(25), height: vs(25) }}
                     />
                     <Text className="text-sm text-dark font-ManropeMedium ml-1.5">
-                      Ammar Hanif
+                      {clientName || 'Unknown Client'}
                     </Text>
                   </View>
                   <View className="flex-row items-center">
@@ -106,7 +131,7 @@ const Proposal = () => {
                       className="text-dark"
                     />
                     <Text className="text-sm text-dark-100 font-ManropeMedium ml-1">
-                      14 Oct 2024
+                      {date ? formatDate(date.toString()) : 'No Date'}
                     </Text>
                   </View>
                 </View>
@@ -116,7 +141,7 @@ const Proposal = () => {
                     Project Director
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    Ali Raza
+                    {clientName || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-center justify-between border-b border-light py-3.5">
@@ -124,7 +149,7 @@ const Proposal = () => {
                     Job Name
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    Job Name
+                    {jobName || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-center justify-between border-b border-light py-3.5">
@@ -132,7 +157,7 @@ const Proposal = () => {
                     Job Phone
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    +92 301 60 86 150
+                  {jobPhone || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -140,7 +165,7 @@ const Proposal = () => {
                     Address
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    Islamabad
+                    {address || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -148,7 +173,7 @@ const Proposal = () => {
                     City
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    Islamabad
+                  {city || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -156,7 +181,7 @@ const Proposal = () => {
                     Zip
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    233323
+                  {zip || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -164,7 +189,7 @@ const Proposal = () => {
                     Estimated Days
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    90 days
+                  {estimatedDays || 'Not Specified'}
                   </Text>
                 </View>
               </View>
