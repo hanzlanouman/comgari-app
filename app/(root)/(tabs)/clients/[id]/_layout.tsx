@@ -38,7 +38,7 @@ const Layout = () => {
                 onPress={() =>
                   router.push({
                     pathname: "/clients/[id]/notes/add-note",
-                    params: { id: clientId }, 
+                    params: { id: clientId },
                   })
                 }
                 className="w-full h-full rounded-full flex flex-row justify-center items-center">
@@ -48,12 +48,43 @@ const Layout = () => {
           ),
         }}
       />
-      <Stack.Screen name="brief" options={{           headerShown: true,
-          title: "Brief",}} />
+      <Stack.Screen
+        name="invoices/index"
+        options={{
+          headerShown: true,
+          title: "Invoices",
+          headerRight: () => (
+            <LinearGradient
+              colors={["#1B78B9", "#63348F"]}
+              className="rounded-full w-8 h-8"
+              start={[0, 0]}
+              end={[1, 1]}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/(root)/clients/[id]/invoices/add-invoice",
+                    params: { id: clientId },
+                  })
+                }
+                className="w-full h-full rounded-full flex flex-row justify-center items-center">
+                <Plus size={18} color="#ffffff" />
+              </TouchableOpacity>
+            </LinearGradient>
+          ),
+        }}
+      />
+      <Stack.Screen name="invoices/add-invoice" options={{
+        headerShown: true,
+        title: "Add Invoices",
+      }} />
+      <Stack.Screen name="brief" options={{
+        headerShown: true,
+        title: "Brief",
+      }} />
       <Stack.Screen name="notes/add-note" options={{ headerShown: false }} />
-      <Stack.Screen name="media/images" options={{ headerShown: true,      title: "Images", }} />
-      <Stack.Screen name="media/videos" options={{ headerShown: true,      title: "Videos", }} />
-      <Stack.Screen name="media/documents" options={{ headerShown: true,      title: "Documents", }} />
+      <Stack.Screen name="media/images" options={{ headerShown: true, title: "Images", }} />
+      <Stack.Screen name="media/videos" options={{ headerShown: true, title: "Videos", }} />
+      <Stack.Screen name="media/documents" options={{ headerShown: true, title: "Documents", }} />
       <Stack.Screen name="proposal" options={{ headerShown: false }} />
     </Stack>
   );

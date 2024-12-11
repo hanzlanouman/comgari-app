@@ -1,55 +1,37 @@
+import React, { useState, useEffect } from "react";
 import {
   Platform,
-  SafeAreaView,
   ScrollView,
   View,
   Text,
   KeyboardAvoidingView,
 } from "react-native";
 import { CustomButton } from "@/common/components";
-import { router } from "expo-router";
 import {
   actions,
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import React from "react";
 
 const handleHead = ({ tintColor }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
 
-const Specifications = () => {
+const Specifications = ({ initialData, onNext, onPrevious }) => {
   const richText = React.useRef();
+  const [description, setDescription] = useState(initialData.specification || "");
+
+  const handleSubmit = () => {
+    // Optional: Validate description
+    if (description.trim()) {
+      onNext({ specification: description });
+    } else {
+      alert("Please enter specifications");
+    }
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="bg-gray px-4 py-3 flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-green">
-            <Text className="text-sm text-white font-ManropeBold">1</Text>
-          </View>
-          <Text className="text-sm text-green font-ManropeSemibold ml-2">
-            Job details
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-blue">
-            <Text className="text-sm text-white font-ManropeBold">2</Text>
-          </View>
-          <Text className="text-sm text-blue font-ManropeSemibold ml-2">
-            Specifications
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-white">
-            <Text className="text-sm text-dark font-ManropeBold">3</Text>
-          </View>
-          <Text className="text-sm text-dark font-ManropeSemibold ml-2">
-            Review
-          </Text>
-        </View>
-      </View>
+    <>
       <RichToolbar
         editor={richText}
         actions={[
@@ -85,21 +67,21 @@ const Specifications = () => {
           <RichEditor
             ref={richText}
             initialHeight={45}
+            initialContentHTML={description}
             editorStyle={{
               color: "#4A4A4A",
               placeholderColor: "#1C1C1C",
               backgroundColor: "#ffffff",
               cssText: `
-                  body {
-                    font-size: 16px;
-                    padding: 3px;
-                  }
-                `,
+                body {
+                  font-size: 16px;
+                  padding: 3px;
+                }
+              `,
             }}
             placeholder="Start typing here..."
-            // initialContentHTML="I’m so exited for you to be joining us here at Comgari."
             onChange={(descriptionText) => {
-              console.log("descriptionText:", descriptionText);
+              setDescription(descriptionText);
             }}
           />
         </KeyboardAvoidingView>
@@ -107,11 +89,13 @@ const Specifications = () => {
       <View className="p-4 bg-white">
         <CustomButton
           title="Next"
-          onPress={() => router.push("/(root)/(tabs)/proposal/review")}
+          onPress={handleSubmit}
         />
       </View>
-    </SafeAreaView>
+    </>
   );
 };
 
 export default Specifications;
+
+  

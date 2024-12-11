@@ -36,16 +36,17 @@ const VideosMediaDetailScreen = () => {
   const [parsedItems, setParsedItems] = useState<MediaItem[]>(
     JSON.parse(items || "[]")
   );
+
+  useEffect(() => {
+    setParsedItems(JSON.parse(items || "[]"));
+  }, [items]);
   // const parsedItems: MediaItem[] = JSON.parse(items || '[]');
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [videoStatus, setVideoStatus] = useState({});
   const clientRepo = ClientRepository.getInstance();
 
-  useEffect(() => {
-    setParsedItems(JSON.parse(items || "[]"));
-    console.log(items, "Item is this");
-  }, [items]);
+
   const windowWidth = Dimensions.get("window").width;
   const spacingBetweenVideos = 16;
   const sidePadding = 16;
@@ -83,7 +84,12 @@ const VideosMediaDetailScreen = () => {
                 // Call update client media API for deletion
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
 
-                // Optionally update local state or refetch documents
+                // Update local state to remove the deleted video
+                const updatedItems = parsedItems.filter(i => i.id !== item.id);
+                setParsedItems(updatedItems);                
+                                // Close the modal
+                                setModalVisible(false);
+                                setSelectedItem(null);
                 Alert.alert("Success", "Video deleted successfully");
               } catch (apiError) {
                 console.error("Delete API Error:", apiError);

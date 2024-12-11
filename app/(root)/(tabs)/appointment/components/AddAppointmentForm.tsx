@@ -12,10 +12,17 @@ import { format } from "date-fns";
 import { CalendarDays } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { OptionType } from '@/common/types';
+
 import { CustomButton, InputField, MultiSelectDropdown, DropdownSelect } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
-
+interface InitialData {
+  titleOfMeeting?: string;
+  selectedClient?: string;
+  status?: string;
+  selectedDate?: Date | null;
+  notes?: string;
+}
 interface AddAppointmentFormProps {
   clientOptions: OptionType[];
   memberOptions: OptionType[];
@@ -23,33 +30,39 @@ interface AddAppointmentFormProps {
   isClientsLoading: boolean;
   isMembersLoading: boolean;
   onSubmitSuccess?: () => void;
+  isEditing?: boolean;
+  editingAppointmentId?: string;
+  initialData?: InitialData;
 }
 
-export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({ 
-  clientOptions, 
-  memberOptions, 
+export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
+  clientOptions,
+  memberOptions,
   statusOptions,
   isClientsLoading,
   isMembersLoading,
-  onSubmitSuccess 
+  onSubmitSuccess,
+  isEditing = false,
+  editingAppointmentId,
+  initialData
 }) => {
-  const clientRepo = ClientRepository.getInstance();
-
-  const user = useAppSelector((state) => state.auth.user);
-
   const [values, setValues] = useState({
-    titleOfMeeting: "",
-    notes: "",
-    selectedClient: "",
+    titleOfMeeting: initialData?.titleOfMeeting || "",
+    notes: initialData?.notes || "",
+    selectedClient: initialData?.selectedClient || "",
     selectedMembers: [],
-    status: "",
+    status: initialData?.status || "",
   });
 
+
+
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    initialData?.selectedDate || null
+  ); const clientRepo = ClientRepository.getInstance();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const id = Number(editingAppointmentId)
   const handleValueChange = (field: string, value: string) => {
     setValues(prev => ({
       ...prev,
@@ -114,13 +127,24 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         projectId: parseInt(values.selectedClient, 10),
       };
 
-      await clientRepo.createAppointment(payload);
+      if (isEditing && id) {
+        console.log(id, typeof(id))
+        // Update existing appointment
+        await clientRepo.updateAppointment(
+          Number(id),
+          payload
+        );
+        Alert.alert("Success", "Appointment updated successfully");
+      } else {
+        // Create new appointment
+        await clientRepo.createAppointment(payload);
+        Alert.alert("Success", "Appointment added successfully");
+      }
 
-      Alert.alert("Success", "Appointment added successfully");
       onSubmitSuccess && onSubmitSuccess();
     } catch (error) {
-      console.error("Appointment creation error:", error);
-      Alert.alert("Error", "Failed to create appointment");
+      console.error("Appointment submission error:", error);
+      Alert.alert("Error", `Failed to ${isEditing ? 'update' : 'create'} appointment`);
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +160,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           placeholder="Title of meeting"
         />
       </View>
-      
+
       <View className="mt-3">
         <DropdownSelect
           placeholder="Select Client"
@@ -146,7 +170,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           fieldName="selectedClient"
         />
       </View>
-      
+
       <View className="mt-3">
         <MultiSelectDropdown
           placeholder="Assign Members"
@@ -156,7 +180,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           fieldName="selectedMembers"
         />
       </View>
-      
+
       <View className="mt-3">
         <DropdownSelect
           placeholder="Status"
@@ -166,7 +190,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           fieldName="status"
         />
       </View>
-      
+
       <TouchableOpacity
         activeOpacity={1}
         onPress={showDatePicker}
@@ -180,14 +204,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         </Text>
         <CalendarDays size={16} className="text-dark-100" />
       </TouchableOpacity>
-      
+
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-      
+
       <View className="mt-3">
         <TextInput
           className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] text-left"
@@ -199,7 +223,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           onChangeText={(value) => handleValueChange('notes', value)}
         />
       </View>
-      
+
       <View className="mt-3">
         <CustomButton
           title="Add Appointment"

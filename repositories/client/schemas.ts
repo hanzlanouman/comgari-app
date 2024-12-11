@@ -1,6 +1,6 @@
 import * as Yup from "yup";
-import {  CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
-import {  Action } from '@/common/enum';
+import { CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
+import { Action } from '@/common/enum';
 import { TaskPriority } from './types';
 
 
@@ -105,9 +105,9 @@ export const updateClientSchema = Yup.object().shape({
   phone: Yup.string(),
   status: Yup.string().required('Status is required'),
   client_Staff: Yup.array().of(Yup.object().shape({
-      staff_id: Yup.number(),
-      action: Yup.mixed().oneOf(Object.values(Action))
-    })
+    staff_id: Yup.number(),
+    action: Yup.mixed().oneOf(Object.values(Action))
+  })
   )
 })
 
@@ -154,30 +154,75 @@ export const createAppointmentSchema = Yup.object().shape({
   startTime: Yup.string().required('Start Time is required'),
   endTime: Yup.string().required('End Time is required'),
   notes: Yup.string().required('Notes are required'),
-  projectId: Yup.number().integer('Project ID must be an integer').required('Project ID is required'),  
+  projectId: Yup.number().integer('Project ID must be an integer').required('Project ID is required'),
+});
+export const updateAppointmentSchema = Yup.object().shape({
+  title: Yup.string().optional(),
+  clientId: Yup.number().integer('Client ID must be an integer').optional(),
+  date: Yup.string().optional(),
+  startTime: Yup.string().optional(),
+  endTime: Yup.string().optional(),
+  notes: Yup.string().optional(),
+  projectId: Yup.number().integer('Project ID must be an integer').optional(),
+  appointment_member: Yup.array().of(
+    Yup.object().shape({
+      staff_id: Yup.number().integer('Staff ID must be an integer').optional(),
+      action: Yup.mixed<Action>().oneOf(Object.values(Action)).optional()
+    })
+  ).optional()
 });
 export const createProposalSchema = Yup.object().shape({
-  clientId: Yup.number()
+  client_id: Yup.number()
     .integer('Client ID must be an integer')
     .required('Client ID is required'),
   date: Yup.date().required('Date is required'),
   address: Yup.string().required('Address is required'),
   city: Yup.string().required('City is required'),
-  zipCode: Yup.number()
+  zip_code: Yup.number()
     .integer('Zip Code must be an integer')
     .required('Zip Code is required'),
-  jobName: Yup.string().required('Job Name is required'),
-  jobPhone: Yup.string().required('Job Phone is required'),
+  job_name: Yup.string().required('Job Name is required'),
+  job_phone: Yup.string().required('Job Phone is required'),
   specification: Yup.string().required('Specification is required'),
-  projectDirector: Yup.string().required('Project Director is required'),
-  estimatedDays: Yup.number()
+  project_director: Yup.string().required('Project Director is required'),
+  estimated_days: Yup.number()
     .integer('Estimated Days must be an integer')
     .required('Estimated Days is required'),
-  estimatedCost: Yup.number().required('Estimated Cost is required'),
-  projectId: Yup.number()
+    estimated_cost: Yup.string()
+    .matches(
+      /^\d+(\.\d{1,2})?$/,
+      "Estimated cost must be a valid decimal number (e.g., 100.00)"
+    )
+    .required("Estimated cost is required"),
+      project_id: Yup.number()
     .integer('Project ID must be an integer')
     .required('Project ID is required'),
 });
+enum InvoiceStatus {
+ccc
+}
+
+export const createInvoiceSchema = Yup.object().shape({
+  client_id: Yup.number()
+    .integer('Client ID must be an integer')
+    .required('Client ID is required'),
+  date: Yup.date().required('Date is required'),
+  job_name: Yup.string().required('Job Name is required'),
+  total_amount: Yup.number()
+    .test(
+      'is-decimal',
+      'Total amount must be a valid decimal number (e.g., 100.00)',
+      (value) => value !== undefined && /^\d+(\.\d{1,2})?$/.test(value.toString())
+    )
+    .required('Total amount is required'),
+    status: Yup.string()
+      .oneOf(Object.values(InvoiceStatus), "Invalid status")
+      .required("Status is required"),
+  project_id: Yup.number()
+    .integer('Project ID must be an integer')
+    .required('Project ID is required'),
+});
+export type CreateInvoicePayload = Yup.InferType<typeof createInvoiceSchema>;
 export type CreateProposalPayload = Yup.InferType<typeof createProposalSchema>;
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;
 export type UpdateClientPayload = Yup.InferType<typeof updateClientSchema>
@@ -191,6 +236,7 @@ export type CreateNotePayload = Yup.InferType<typeof createNoteSchema>;
 export type UpdateNotePayload = Yup.InferType<typeof updateNoteSchema>;
 export type CreateProjectPayload = Yup.InferType<typeof createProjectSchema>;
 export type CreateAppointmentPayload = Yup.InferType<typeof createAppointmentSchema>;
+export type UpdateAppointmentPayload = Yup.InferType<typeof updateAppointmentSchema>;
 
 export type ClientListingPayload = {
   start: number;

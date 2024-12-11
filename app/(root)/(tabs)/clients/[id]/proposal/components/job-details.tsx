@@ -1,233 +1,290 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Formik, FormikProps } from "formik";
+import * as Yup from "yup";
 import {
-  Image,
-  Platform,
-  SafeAreaView,
   ScrollView,
-  TextInput,
   TouchableOpacity,
+  Alert,
   View,
   Text,
 } from "react-native";
-
-import { router } from "expo-router";
-
-import React, { useState } from "react";
-import { SelectList } from "react-native-dropdown-select-list";
-import { CalendarDays, ChevronDown, Euro } from "lucide-react-native";
+import { CalendarDays, Euro } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { InputField, CustomButton } from "@/common/components";
+import { CustomButton, InputField, DropdownSelect } from "@/common/components";
+import { ClientRepository } from "@/repositories/client/client";
+import { useAppSelector } from "@/hooks/redux";
+import { OptionType } from "@/common/types";
 
-const client = [
-  { key: "1", value: "Super Admin" },
-  { key: "2", value: "Admin" },
-  { key: "3", value: "User" },
-  { key: "4", value: "Contractor" },
-  { key: "5", value: "Dealor" },
-];
+interface JobDetailsFormValues {
+  client_id: number;
+  project_id: number;
+  date: string;
+  address: string;
+  city: string;
+  zip_code: number | string;
+  job_name: string;
+  job_phone: string;
+  project_director: string;
+  specification: string;
+  estimated_days: number | string;
+  estimated_cost: string;
+}
 
-const JobDetails = () => {
-  const [selectedClient, setSelectedClient] = useState("");
+const JobDetails = ({ initialData, onNext }: {
+  initialData: Partial<JobDetailsFormValues>;
+  onNext: (data: JobDetailsFormValues) => void
+}) => {
+  const formikRef = useRef<FormikProps<JobDetailsFormValues>>(null);
+  const clientRepo = ClientRepository.getInstance();
+  const user = useAppSelector((state) => state.auth.user);
+
+  // State variables
+  const [clientOptions, setClientOptions] = useState<OptionType[]>([]);
+  const [isClientsLoading, setIsClientsLoading] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
 
+  // Fetch clients on mount
+  const fetchClients = async () => {
+    setIsClientsLoading(true);
+    try {
+      const clients = await clientRepo.getClients(
+        { start: 0, limit: 10 },
+        { user }
+      );
+      const options: OptionType[] = clients.map((client) => ({
+        key: client.id,
+        value: client.name,
+      }));
+      setClientOptions(options);
+    } catch (err) {
+      Alert.alert("Error", "Failed to fetch clients");
+    } finally {
+      setIsClientsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  // Handlers for Date Picker
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
 
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date: Date) => {
-    const dateString = date.toISOString().split("T")[0].replaceAll("-", "/");
-    setSelectedDate(dateString);
-    hideDatePicker();
-  };
-
-  const [form, setForm] = useState({
-    address: "",
-    city: "",
-    zip: "",
-    jobName: "",
-    jobPhone: "",
-    projectDirector: "",
-    estimatedDays: "",
-    estimatedCost: "",
-  });
+  const hideDatePicker = () => setDatePickerVisibility(false);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="bg-gray px-4 py-3 flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-blue">
-            <Text className="text-sm text-white font-ManropeBold">1</Text>
-          </View>
-          <Text className="text-sm text-blue font-ManropeSemibold ml-2">
-            Job details
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-white">
-            <Text className="text-sm text-dark font-ManropeBold">2</Text>
-          </View>
-          <Text className="text-sm text-dark font-ManropeSemibold ml-2">
-            Specifications
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-white">
-            <Text className="text-sm text-dark font-ManropeBold">3</Text>
-          </View>
-          <Text className="text-sm text-dark font-ManropeSemibold ml-2">
-            Review
-          </Text>
-        </View>
-      </View>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="px-4">
-          <View className="mt-4">
-            <SelectList
-              setSelected={(val) => setSelectedClient(val)}
-              data={client}
-              save="value"
-              fontFamily="Manrope-Medium"
-              placeholder="Select client"
-              search={false}
-              arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-              placeholderTextColor="#1B78B9"
-              boxStyles={{
-                backgroundColor: "#fff",
-                height: 54,
-                borderStyle: "solid",
-                borderWidth: 1,
-                borderColor: "#EDEDED",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                paddingTop: Platform.OS === "ios" ? 12 : 10,
-                alignItems: "center",
-              }}
-              inputStyles={{
-                color: "#1C1C1C",
-                paddingHorizontal: 0,
-                fontSize: 15,
-              }}
-              dropdownStyles={{
-                borderStyle: "solid",
-                borderWidth: 1,
-                borderColor: "#EDEDED",
-                borderRadius: 12,
-                backgroundColor: "#fff",
-              }}
-            />
-          </View>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={showDatePicker}
-            className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-2.5 relative">
-            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
-              {selectedDate ? (
-                selectedDate
-              ) : (
-                <Text className="text-[#4A4A4A] pb-[2px]">Date</Text>
+    <Formik<JobDetailsFormValues>
+      innerRef={formikRef}
+      initialValues={{
+        client_id: initialData.client_id || 0,
+        project_id: initialData.project_id || 0,
+        date: initialData.date || "",
+        address: initialData.address || "",
+        city: initialData.city || "",
+        zip_code: initialData.zip_code?.toString() || "",
+        job_name: initialData.job_name || "",
+        job_phone: initialData.job_phone || "",
+        project_director: initialData.project_director || "",
+        specification: initialData.specification || "",
+        estimated_days: initialData.estimated_days?.toString() || "",
+        estimated_cost: initialData.estimated_cost?.toString() || "",
+      }}
+      onSubmit={(values) => {
+        const estimatedCostNumber = Number(values.estimated_cost);
+        const formattedEstimatedCost = parseFloat((estimatedCostNumber).toFixed(2));
+        console.log('Estimated Cost Converted:', formattedEstimatedCost);
+        console.log('Estimated Cost Converted Type:', typeof formattedEstimatedCost);
+
+        const submitData: JobDetailsFormValues = {
+          ...values,
+          client_id: Number(values.client_id),
+          project_id: Number(values.client_id),
+          zip_code: values.zip_code ? Number(values.zip_code) : 0,
+          estimated_days: values.estimated_days ? Number(values.estimated_days) : 0,
+          estimated_cost: parseFloat(values.estimated_cost).toFixed(2), // Ensure 2 decimal places as a string
+
+
+          date: values.date instanceof Date
+            ? values.date.toISOString()
+            : values.date || new Date().toISOString(),
+
+        };
+        console.log(submitData)
+        onNext(submitData);
+      }}
+    >
+      {(formikProps) => (
+        <>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View className="px-4">
+              {/* Client Dropdown */}
+              <View className="mt-4">
+                <DropdownSelect
+                  placeholder="Select Client"
+                  data={clientOptions}
+                  selectedValue={formikProps.values.client_id.toString()}
+                  setFieldValue={(field, value) =>
+                    formikProps.setFieldValue(field, Number(value))
+                  }
+                  fieldName="client_id"
+                  isLoading={isClientsLoading}
+                />
+                {formikProps.touched.client_id && formikProps.errors.client_id && (
+                  <Text className="text-red-500 mt-1">{formikProps.errors.client_id}</Text>
+                )}
+              </View>
+
+              {/* Date Picker */}
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={showDatePicker}
+                className="w-full h-12 px-4 border border-light bg-white rounded-xl flex-row items-center justify-center mt-2.5 relative"
+              >
+                <Text className="flex-1 text-black font-ManropeMedium text-base">
+                  {formikProps.values.date ? (
+                    <Text>
+                      {formikProps.values.date instanceof Date
+                        ? formikProps.values.date.toLocaleDateString()
+                        : new Date(formikProps.values.date).toLocaleDateString()}
+                    </Text>
+                  ) : (
+                    <Text className="text-gray">Date</Text>
+                  )}
+                </Text>
+                <CalendarDays size={16} color="#000000" />
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={(date) => {
+                  formikProps.setFieldValue("date", date);
+                  hideDatePicker();
+                }}
+                onCancel={hideDatePicker}
+              />
+              {formikProps.touched.date && formikProps.errors.date && (
+                <Text className="text-red-500 mt-1">{formikProps.errors.date}</Text>
               )}
-            </Text>
-            <CalendarDays size={16} className="text-dark-100" />
-          </TouchableOpacity>
-          <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            mode="date"
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
-          />
-          <View className="mt-2.5">
-            <InputField
-              label=""
-              value={form.address}
-              onChangeText={(value) => setForm({ ...form, address: value })}
-              placeholder="Address"
-            />
-          </View>
-          <View className="flex-row items-center -mx-2 mt-2.5">
-            <View className="w-3/5 px-2">
-              <View className="">
+
+              {/* Input fields with type conversions */}
+              <View className="mt-2.5">
                 <InputField
-                  label=""
-                  value={form.city}
-                  onChangeText={(value) => setForm({ ...form, city: value })}
-                  placeholder="City"
+                  value={formikProps.values.address}
+                  placeholder="Address"
+                  onChangeText={formikProps.handleChange("address")}
+                  onBlur={formikProps.handleBlur("address")}
                 />
+                {formikProps.touched.address && formikProps.errors.address && (
+                  <Text className="text-red-500 mt-1">{formikProps.errors.address}</Text>
+                )}
+              </View>
+
+              <View className="flex-row items-center -mx-2 mt-2.5">
+                <View className="w-3/5 px-2">
+                  <InputField
+                    value={formikProps.values.city}
+                    placeholder="City"
+                    onChangeText={formikProps.handleChange("city")}
+                    onBlur={formikProps.handleBlur("city")}
+                  />
+                  {formikProps.touched.city && formikProps.errors.city && (
+                    <Text className="text-red-500 mt-1">{formikProps.errors.city}</Text>
+                  )}
+                </View>
+                <View className="w-2/5 px-2">
+                  <InputField
+                    value={formikProps.values.zip_code.toString()}
+                    placeholder="Zip"
+                    onChangeText={(text) => formikProps.setFieldValue("zip_code", text)}
+                    onBlur={formikProps.handleBlur("zip_code")}
+                    keyboardType="numeric"
+                  />
+                  {formikProps.touched.zip_code && formikProps.errors.zip_code && (
+                    <Text className="text-red-500 mt-1">{formikProps.errors.zip_code}</Text>
+                  )}
+                </View>
+              </View>
+              <View className="mt-2.5 relative">
+
+              <InputField
+                value={formikProps.values.job_name}
+                placeholder="Job Name"
+                onChangeText={formikProps.handleChange("job_name")}
+                onBlur={formikProps.handleBlur("job_name")}
+                className="mt-2.5"
+              />
+              </View>
+              <View className="mt-2.5 relative">
+
+              <InputField
+                value={formikProps.values.job_phone}
+                placeholder="Job Phone"
+                onChangeText={formikProps.handleChange("job_phone")}
+                onBlur={formikProps.handleBlur("job_phone")}
+                className="mt-2.5"
+              />
+              </View>
+              <View className="mt-2.5 relative">
+
+              <InputField
+                value={formikProps.values.project_director}
+                placeholder="Project Director"
+                onChangeText={formikProps.handleChange("project_director")}
+                onBlur={formikProps.handleBlur("project_director")}
+                className="mt-2.5"
+              />
+                            </View>
+
+              <View className="mt-2.5 relative">
+
+              <InputField
+                value={formikProps.values.estimated_days.toString()}
+                placeholder="Estimated Days"
+                onChangeText={(text) => formikProps.setFieldValue("estimated_days", text)}
+                onBlur={formikProps.handleBlur("estimated_days")}
+                className="mt-2.5"
+                keyboardType="numeric"
+              />
+              </View>
+
+              <View className="mt-2.5 relative">
+                <InputField
+                  value={formikProps.values.estimated_cost}
+                  placeholder="Estimated Cost"
+                  onChangeText={(text) => {
+                    let formattedText = text.replace(/[^0-9.]/g, '');
+
+                    const parts = formattedText.split('.');
+                    if (parts.length > 2) {
+                      formattedText = `${parts[0]}.${parts.slice(1).join('')}`;
+                    }
+
+                    if (parts[1] && parts[1].length > 2) {
+                      parts[1] = parts[1].slice(0, 2);
+                      formattedText = `${parts[0]}.${parts[1]}`;
+                    }
+
+                    formikProps.setFieldValue("estimated_cost", formattedText);
+                  }}
+                  onBlur={formikProps.handleBlur("estimated_cost")}
+                  keyboardType="decimal-pad"
+                />
+                <Euro size={16} color="#000000" className="absolute top-[18px] right-4" />
+                {formikProps.touched.estimated_cost && formikProps.errors.estimated_cost && (
+                  <Text className="text-red-500 mt-1">{formikProps.errors.estimated_cost}</Text>
+                )}
               </View>
             </View>
-            <View className="w-2/5 px-2">
-              <View className="">
-                <InputField
-                  label=""
-                  value={form.zip}
-                  onChangeText={(value) => setForm({ ...form, zip: value })}
-                  placeholder="Zip"
-                />
-              </View>
-            </View>
+          </ScrollView>
+
+          <View className="p-4 bg-white">
+            <CustomButton title="Next" onPress={formikProps.handleSubmit} />
           </View>
-          <View className="mt-2.5">
-            <InputField
-              label=""
-              value={form.jobName}
-              onChangeText={(value) => setForm({ ...form, jobName: value })}
-              placeholder="Job name"
-            />
-          </View>
-          <View className="mt-2.5">
-            <InputField
-              label=""
-              value={form.jobPhone}
-              onChangeText={(value) => setForm({ ...form, jobPhone: value })}
-              placeholder="Job phone"
-            />
-          </View>
-          <View className="mt-2.5">
-            <InputField
-              label=""
-              value={form.projectDirector}
-              onChangeText={(value) =>
-                setForm({ ...form, projectDirector: value })
-              }
-              placeholder="Project director"
-            />
-          </View>
-          <View className="mt-2.5">
-            <InputField
-              label=""
-              value={form.estimatedDays}
-              onChangeText={(value) =>
-                setForm({ ...form, estimatedDays: value })
-              }
-              placeholder="Estimated days"
-            />
-          </View>
-          <View className="mt-2.5 relative">
-            <InputField
-              label=""
-              value={form.estimatedCost}
-              onChangeText={(value) =>
-                setForm({ ...form, estimatedCost: value })
-              }
-              placeholder="Estimated cost"
-            />
-            <Euro
-              size={16}
-              className="text-dark-100 absolute top-[18px] right-4"
-            />
-          </View>
-        </View>
-      </ScrollView>
-      <View className="p-4 bg-white">
-        <CustomButton
-          title="Next"
-          onPress={() => router.push("/(root)/(tabs)/proposal/specifications")}
-        />
-      </View>
-    </SafeAreaView>
+        </>
+      )}
+    </Formik>
   );
 };
 

@@ -32,8 +32,9 @@ const ImagesMediaDetailScreen = () => {
     items: string
   }>();
 
-  const parsedItems: MediaItem[] = JSON.parse(items || '[]');
-  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
+  const [parsedItems, setParsedItems] = useState<MediaItem[]>(
+    JSON.parse(items || '[]')
+  );  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const clientRepo = ClientRepository.getInstance();
 
@@ -72,8 +73,14 @@ const ImagesMediaDetailScreen = () => {
                   // Call update client media API for deletion
                   await clientRepo.updateClientMedia(Number(id), deletePayload);
   
-                  // Optionally update local state or refetch documents
-                  Alert.alert('Success', 'Image deleted successfully');
+                // Update local state to remove the deleted image
+                const updatedItems = parsedItems.filter(i => i.id !== item.id);
+                setParsedItems(updatedItems);          
+                                // Close the modal
+                                setModalVisible(false);
+                                setSelectedItem(null);        
+                Alert.alert('Success', 'Image deleted successfully');
+
                 } catch (apiError) {
                   console.error('Delete API Error:', apiError);
                   Alert.alert('Delete Failed', 'Could not delete the image');

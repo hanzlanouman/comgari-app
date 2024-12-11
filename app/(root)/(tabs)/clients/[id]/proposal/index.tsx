@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  RefreshControl
 } from "react-native";
 import { useQuery } from "react-query";
 import { vs } from "react-native-size-matters";
@@ -41,32 +42,29 @@ interface ProjectResponse {
   data: Project[];
 }
 
-const fetchProposals = async (id: number | string): Promise<ProjectResponse> => {
-  const clientRepo = ClientRepository.getInstance();
-  return clientRepo.getProposalsByProject(Number(id));
-};
-
 const Proposal = () => {
   const { id: projectId } = useLocalSearchParams();
   const navigation = useNavigation();
+  const clientRepo = ClientRepository.getInstance();
 
-  const { 
-    data, 
-    isLoading, 
-    isError, 
+  const {
+    data,
+    isLoading,
+    isError,
     error,
-    refetch 
+    refetch,
+    isFetching
   } = useQuery<ProjectResponse, Error>(
-    ['proposals', projectId], 
-    () => fetchProposals(projectId || ''),
+    ['proposals', projectId],
+    () => clientRepo.getProposalsByProject(Number(projectId)),
     {
-      enabled: !!projectId, 
-      staleTime: 5000, 
+      enabled: !!projectId,
+      staleTime: 5000,
       cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
     }
   );
 
-  const AddButton = () => (
+  const AddButton = React.useMemo(() => () => (
     <LinearGradient
       colors={["#1B78B9", "#63348F"]}
       style={{
@@ -79,7 +77,10 @@ const Proposal = () => {
     >
       <TouchableOpacity
         onPress={() => {
-          router.push("/(root)/(tabs)/proposal/job-details");
+          router.push({
+            pathname: "/(root)/(tabs)/clients/[id]/proposal/add-proposal",
+            params: { projectId }
+          });
         }}
         style={{
           width: "100%",
@@ -91,7 +92,7 @@ const Proposal = () => {
         <Plus size={18} color="#ffffff" />
       </TouchableOpacity>
     </LinearGradient>
-  );
+  ), [projectId]);
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -99,7 +100,7 @@ const Proposal = () => {
       title: "Proposals",
       headerRight: () => <AddButton />,
     });
-  }, [navigation]);
+  }, [navigation, AddButton]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -146,7 +147,10 @@ const Proposal = () => {
               <CustomButton
                 title="Add Proposal"
                 onPress={() =>
-                  router.push("/(root)/(tabs)/proposal/job-details")
+                  router.push({
+                    pathname: "/(root)/(tabs)/clients/[id]/proposal/add-proposal",
+                    params: { projectId }
+                  })
                 }
               />
             </View>
@@ -158,7 +162,16 @@ const Proposal = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }} 
+        className="px-4"
+        refreshControl={
+          <RefreshControl
+            refreshing={isFetching}
+            onRefresh={refetch}
+          />
+        }
+      >
         <View className="pb-4">
           {proposals.map((proposal) => (
             <TouchableOpacity
@@ -221,13 +234,6 @@ const Proposal = () => {
                   </View>
                 </View>
               </View>
-              <Text 
-                className="text-sm font-ManropeMedium text-dark-100 mt-3"
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
-                Project details for {proposal.job_name}
-              </Text>
               <View className="bg-light w-full h-px my-4" />
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">

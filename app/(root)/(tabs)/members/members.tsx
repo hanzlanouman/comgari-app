@@ -22,7 +22,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
 import {
   BottomSheetModal,
-  BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 enum UserStatus {
   ACTIVE,

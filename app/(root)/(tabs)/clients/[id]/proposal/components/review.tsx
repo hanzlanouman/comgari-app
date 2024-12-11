@@ -1,110 +1,64 @@
+import React from "react";
 import {
-  Platform,
-  SafeAreaView,
   ScrollView,
   View,
   Text,
-  KeyboardAvoidingView,
 } from "react-native";
 import { CustomButton } from "@/common/components";
-import { router } from "expo-router";
-import {
-  actions,
-  RichEditor,
-  RichToolbar,
-} from "react-native-pell-rich-editor";
-import React from "react";
-
-const handleHead = ({ tintColor }) => (
-  <Text style={{ color: tintColor }}>H1</Text>
-);
-
-const Specifications = () => {
-  const richText = React.useRef();
-
+const stripHtmlTags = (html: string) => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, '').replace(/\&nbsp;/g, ' ').trim();
+};
+const formatToLocalDate = (isoDate: string) => {
+  if (!isoDate) return "";
+  const date = new Date(isoDate);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+const Review = ({ formData, onSave }) => {
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="bg-gray px-4 py-3 flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-green">
-            <Text className="text-sm text-white font-ManropeBold">1</Text>
-          </View>
-          <Text className="text-sm text-green font-ManropeSemibold ml-2">
-            Job details
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-green">
-            <Text className="text-sm text-white font-ManropeBold">2</Text>
-          </View>
-          <Text className="text-sm text-green font-ManropeSemibold ml-2">
-            Specifications
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-full flex-row items-center justify-center bg-blue">
-            <Text className="text-sm text-white font-ManropeBold">3</Text>
-          </View>
-          <Text className="text-sm text-blue font-ManropeSemibold ml-2">
-            Review
-          </Text>
-        </View>
-      </View>
+    <>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className="px-4">
-          <View className="flex-row items-start mt-4">
-            <View className="w-1 h-1 rounded-full bg-dark relative top-2" />
-            <Text className="text-sm sm:text-base text-dark font-ManropeRegular flex-1 pl-3">
-              Al material is guaranteed to be as specified. Al work shall be
-              completed in a workmanlike manner according to standard practices.{" "}
-            </Text>
+          <View className="mt-4">
+            <Text className="text-lg font-ManropeBold mb-4">Job Details</Text>
+            <View className="flex-row mb-2">
+              <Text className="font-ManropeSemibold w-1/3">Date:</Text>
+              <Text className="flex-1">{formatToLocalDate(formData.date)}</Text>
+            </View>
+            <View className="flex-row mb-2">
+              <Text className="font-ManropeSemibold w-1/3">Address:</Text>
+              <Text className="flex-1">{formData.address}</Text>
+            </View>
+            <View className="flex-row mb-2">
+              <Text className="font-ManropeSemibold w-1/3">City:</Text>
+              <Text className="flex-1">{formData.city}</Text>
+            </View>
+            <View className="flex-row mb-2">
+              <Text className="font-ManropeSemibold w-1/3">Zip:</Text>
+              <Text className="flex-1">{formData.zip_code}</Text>
+            </View>
           </View>
-          <View className="flex-row items-start mt-4">
-            <View className="w-1 h-1 rounded-full bg-dark relative top-2" />
-            <Text className="text-sm sm:text-base text-dark font-ManropeRegular flex-1 pl-3">
-              Al material is guaranteed to be as specified. Al work shall be
-              completed in a workmanlike manner according to standard practices.{" "}
-            </Text>
-          </View>
-          <Text className="text-sm sm:text-base text-dark font-ManropeRegular mt-4">
-            Al material is guaranteed to be as specified. Al work shall be
-            completed in a workmanlike manner according to standard practices.{" "}
-          </Text>
-          <View className="flex-row items-start mt-4">
-            <View className="w-1 h-1 rounded-full bg-dark relative top-2" />
-            <Text className="text-sm sm:text-base text-dark font-ManropeRegular flex-1 pl-3">
-              Al material is guaranteed to be as specified. Al work shall be
-              completed in a workmanlike manner according to standard practices.{" "}
-            </Text>
-          </View>
-          <View className="flex-row items-start mt-4">
-            <View className="w-1 h-1 rounded-full bg-dark relative top-2" />
-            <Text className="text-sm sm:text-base text-dark font-ManropeRegular flex-1 pl-3">
-              Al material is guaranteed to be as specified. Al work shall be
-              completed in a workmanlike manner according to standard practices.{" "}
-            </Text>
-          </View>
-          <View className="flex-row items-start mt-4">
-            <View className="w-1 h-1 rounded-full bg-dark relative top-2" />
-            <Text className="text-sm sm:text-base text-dark font-ManropeRegular flex-1 pl-3">
-              Al material is guaranteed to be as specified. Al work shall be
-              completed in a workmanlike manner according to standard practices.{" "}
-            </Text>
-          </View>
-          <View className="flex-row items-start mt-4">
-            <View className="w-1 h-1 rounded-full bg-dark relative top-2" />
-            <Text className="text-sm sm:text-base text-dark font-ManropeRegular flex-1 pl-3">
-              Al material is guaranteed to be as specified. Al work shall be
-              completed in a workmanlike manner according to standard practices.{" "}
+
+          <View className="mt-4">
+            <Text className="text-lg font-ManropeBold mb-4">Specifications</Text>
+            <Text className="font-ManropeRegular">
+              {stripHtmlTags(formData.specification)}
             </Text>
           </View>
         </View>
       </ScrollView>
       <View className="p-4 bg-white">
-        <CustomButton title="Save" onPress={() => router.push("/")} />
+        <CustomButton
+          title="Save"
+          onPress={onSave}
+        />
       </View>
-    </SafeAreaView>
+    </>
   );
 };
 
-export default Specifications;
+export default Review;

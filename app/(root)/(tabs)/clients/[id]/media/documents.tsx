@@ -31,7 +31,7 @@ const MediaDocuments = () => {
   const { items, id } = useLocalSearchParams();
   const clientRepo = ClientRepository.getInstance();
 
-  const documentItems = items ? JSON.parse(items as string) : [];
+  const [documentItems, setDocumentItems] = useState(items ? JSON.parse(items as string) : []);
 
   const snapPoints = useMemo(() => ["22%", "22%"], []);
 
@@ -109,8 +109,10 @@ const MediaDocuments = () => {
 
                 // Call update client media API for deletion
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
-
-                // Optionally update local state or refetch documents
+              // Update local state to remove the deleted document
+              const updatedDocuments = documentItems.filter(item => item.id !== doc.id);
+              setDocumentItems(updatedDocuments);
+              bottomSheetModalRef.current?.close();
                 Alert.alert('Success', 'Document deleted successfully');
               } catch (apiError) {
                 console.error('Delete API Error:', apiError);

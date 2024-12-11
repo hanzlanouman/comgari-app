@@ -115,7 +115,7 @@ const navigationItems = [
     icon: "notes",
     title: "Invoice",
     description: "Create a Invoice for the client",
-    route: "/(root)/(tabs)/clients/{projectId}/add-invoice",
+    route: "/(root)/(tabs)/clients/{projectId}/invoices",
   },
 ] as const;
 export const options = {};

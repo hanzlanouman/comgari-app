@@ -57,6 +57,19 @@ const Layout = () => {
         }}
       />
       <Stack.Screen
+        name="add-proposal"
+        options={{
+          headerShown: true,
+          title: "Add Proposal",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{}}>
+              <ArrowLeft size={24} color="#1C1C1C" />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: "center",
+        }}
+      />
+      {/* <Stack.Screen
         name="job-details"
         options={{
           headerShown: true,
@@ -76,7 +89,7 @@ const Layout = () => {
       <Stack.Screen
         name="review"
         options={{ headerShown: true, title: "Review" }}
-      />
+      /> */}
     </Stack>
   );
 };

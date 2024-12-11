@@ -1,20 +1,29 @@
+//app\(root)\(tabs)\appointment\add-appointment.tsx
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, Alert } from "react-native";
 import { router } from "expo-router";
 import { AddAppointmentForm } from "./components/AddAppointmentForm";
 import { ClientRepository } from "@/repositories/client/client";
+import { useLocalSearchParams } from "expo-router";
+
 import { MemberRepository } from "@/repositories/member/member";
 import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from '@/common/types';
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
-  { key: "In Progress", value: "In Progress" },
+  { key: "PendingConfirmation", value: "PendingConfirmation" },
   { key: "Completed", value: "Completed" },
   { key: "Cancelled", value: "Cancelled" },
+  { key: "Confirmed", value: "Confirmed" },
+  { key: "Rescheduled", value: "Rescheduled" },
+  { key: "InProgress", value: "InProgress" },
+  { key: "NoShow", value: "NoShow" },
+  { key: "Expired", value: "Expired" },
 ];
 
 const AddAppointment = () => {
+  const { isEditing, appointmentId, title, clientId, status, date, notes } = useLocalSearchParams();
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
 
@@ -74,15 +83,24 @@ const AddAppointment = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AddAppointmentForm 
-        clientOptions={clientOptions}
-        memberOptions={memberOptions}
-        statusOptions={STATUS_OPTIONS}
-        isClientsLoading={isClientsLoading}
-        isMembersLoading={isMembersLoading}
-        onSubmitSuccess={handleSubmitSuccess}
-      />
-    </SafeAreaView>
+    <AddAppointmentForm 
+      clientOptions={clientOptions}
+      memberOptions={memberOptions}
+      statusOptions={STATUS_OPTIONS}
+      isClientsLoading={isClientsLoading}
+      isMembersLoading={isMembersLoading}
+      onSubmitSuccess={handleSubmitSuccess}
+      isEditing={!!isEditing}
+      editingAppointmentId={appointmentId as string}
+      initialData={{
+        titleOfMeeting: title as string,
+        selectedClient: clientId as string,
+        status: status as string,
+        selectedDate: date ? new Date(date as string) : null,
+        notes: notes as string
+      }}
+    />
+  </SafeAreaView>
   );
 };
 

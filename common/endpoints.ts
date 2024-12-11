@@ -222,10 +222,10 @@ export const END_POINTS = {
         route: UserUrl + "/appointment"
       },
        UPDATE_APPOINTMENT: {
-        route: UserUrl + "/appointment"
+        route: UserUrl + "/appointment/appointment_id"
       },
       DELETE_APPOINTMENT: {
-        route: UserUrl + "/appointment"
+        route: UserUrl + "/appointment/appointment_id"
       },
       CREATE_PROPOSAL: {
         route: UserUrl + "/proposal"
@@ -238,6 +238,18 @@ export const END_POINTS = {
       },
       DELETE_PROPOSAL: {
         route: UserUrl + "/proposal"
+      },
+      CREATE_INVOICE: {
+        route: UserUrl + "/invoice"
+      },
+      GET_INVOICES: {
+        route: UserUrl + "/invoice"
+      },
+      UPDATE_INVOICE: {
+        route: UserUrl + "/invoice"
+      },
+      DELETE_INVOICE: {
+        route: UserUrl + "/invoice"
       }
   },
 };
