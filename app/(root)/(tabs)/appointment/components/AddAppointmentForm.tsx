@@ -68,7 +68,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   });
 
 
- // State for handling date
+  // State for handling date
   const [selectedDate, setSelectedDate] = useState<Date | null>(initialData?.selectedDate || null);
 
   // State for tracking member actions
@@ -88,51 +88,51 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
 
   // Handle member selection changes
   const handleMemberSelection = (field: string, value: string[]) => {
-    const newSelected = value.map(Number); 
-  
+    const newSelected = value.map(Number);
+
     // Find newly added members
     const addedMembers = newSelected.filter(
       (id) => !values.selectedMembers.includes(id)
     );
-  
+
     // Find removed members (compared to current selection)
     const removedMembers = values.selectedMembers.filter(
       (id) => !newSelected.includes(id)
     );
-  
+
     // Copy the existing member actions
     const updatedMemberActions = [...memberActions];
-  
+
     // Handle added members
     addedMembers.forEach((memberId) => {
       const existsInActions = updatedMemberActions.some(
         (action) => action.staff_id === memberId && action.action === Action.ADD
       );
-  
+
       // Add the member action only if it does not already exist
       if (!existsInActions) {
         updatedMemberActions.push({ staff_id: memberId, action: Action.ADD });
       }
     });
-  
+
     // Handle removed members
     removedMembers.forEach((memberId) => {
       const existsInActions = updatedMemberActions.some(
         (action) => action.staff_id === memberId && action.action === Action.REMOVE
       );
-  
+
       // Add the REMOVE action only if it does not already exist
       if (!existsInActions) {
         updatedMemberActions.push({ staff_id: memberId, action: Action.REMOVE });
       }
     });
-  
+
     // Deduplicate actions: Keep only the latest action per staff_id
     const deduplicatedActions = Array.from(
       new Map(updatedMemberActions.map((action) => [action.staff_id, action]))
         .values()
     );
-  
+
     // Update state with new values and actions
     setMemberActions(deduplicatedActions);
     setValues((prev) => ({
@@ -140,9 +140,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
       [field]: newSelected, // Update selected members
     }));
   };
-  
-  
-  
+
+
+
 
   // Handle form submission
   const handleSubmitAppointment = async () => {
@@ -166,12 +166,12 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     setIsSubmitting(true);
 
     try {
-    // Deduplicate actions
-    const deduplicatedActions = Array.from(
-      new Map(
-        memberActions.map((action) => [action.staff_id, action]) // Map ensures only the latest action is kept
-      ).values()
-    );
+      // Deduplicate actions
+      const deduplicatedActions = Array.from(
+        new Map(
+          memberActions.map((action) => [action.staff_id, action]) 
+        ).values()
+      );
       if (isEditing && appointmentId) {
         const updatePayload = {
           title: values.titleOfMeeting || undefined,
@@ -182,7 +182,12 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           notes: values.notes || undefined,
           status: values.status || "Scheduled",
           projectId: parseInt(values.selectedClient, 10),
-          ...(deduplicatedActions.length > 0 && { appointment_member: deduplicatedActions }),
+          ...(deduplicatedActions.length > 0 && {
+            appointment_member: deduplicatedActions.map(action => ({
+              staff_id: action.staff_id,
+              action: action.action
+            }))
+          }),
         };
         await clientRepo.updateAppointment(Number(appointmentId), updatePayload);
         Alert.alert("Success", "Appointment updated successfully");

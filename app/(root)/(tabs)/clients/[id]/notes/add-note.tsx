@@ -29,6 +29,7 @@ import { useMutation } from "react-query";
 import { CustomButton } from "@/common/components";
 import { getImageUrl, images } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
+import { InsertLinkModal}  from "../../components/InsertLinkModal";
 
 // Constants for file validation
 const ALLOWED_TYPES = [
@@ -91,7 +92,9 @@ const AddNote = () => {
   const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
   const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-
+  const [isLinkModalVisible, setIsLinkModalVisible] = useState(false);
+  const [linkURL, setLinkURL] = useState("");
+  const [linkText, setLinkText] = useState("");
   // Route and navigation parameters
   const { id, noteId, noteDetails } = useLocalSearchParams();
   const projectId = parseInt(id as string);
@@ -392,10 +395,30 @@ const AddNote = () => {
       headerRight: () => <UploadButton />,
     });
   }, [navigation, isUploading, isEditMode]);
+  const handleInsertLink = () => {
+    if (linkURL.trim() && linkText.trim()) {
+      const linkHTML = `<a href="${linkURL}" target="_blank">${linkText}</a>`;
+      richText.current?.insertHTML(linkHTML);
+      setIsLinkModalVisible(false);
+      setLinkURL("");
+      setLinkText("");
+    } else {
+      Alert.alert("Error", "Both URL and text are required");
+    }
+  };
 
   // Handle content change in rich text editor
   const handleContentChange = (content) => {
     formik.setFieldValue("notes", content);
+  };
+  const openLinkModal = () => {
+    setIsLinkModalVisible(true);
+  };
+
+  const closeLinkModal = () => {
+    setIsLinkModalVisible(false);
+    setLinkURL("");
+    setLinkText("");
   };
   const renderMediaPreview = (media: MediaItem, index: number) => {
     console.log(media, "Media is this");
@@ -449,7 +472,7 @@ const AddNote = () => {
             actions.heading1,
             actions.insertBulletsList,
             actions.insertOrderedList,
-            actions.insertLink,
+            "customInsertLink",
             actions.keyboard,
             actions.setStrikethrough,
             actions.removeFormat,
@@ -459,6 +482,17 @@ const AddNote = () => {
           ]}
           iconMap={{
             [actions.heading1]: handleHead,
+            customInsertLink: () => (
+              <TouchableOpacity onPress={openLinkModal}>
+                <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
+              </TouchableOpacity>
+            ),
+
+          }}
+          onPressAction={(action) => {
+            if (action === "customInsertLink") {
+              openLinkModal();
+            }
           }}
           style={{
             backgroundColor: "#ffffff",
@@ -511,6 +545,15 @@ const AddNote = () => {
           disabled={isUploading}
         />
       </View>
+                  <InsertLinkModal
+              visible={isLinkModalVisible}
+              onClose={closeLinkModal}
+              onInsert={handleInsertLink}
+              linkURL={linkURL}
+              setLinkURL={setLinkURL}
+              linkText={linkText}
+              setLinkText={setLinkText}
+            />
     </SafeAreaView>
   );
 };
