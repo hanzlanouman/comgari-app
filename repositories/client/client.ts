@@ -210,11 +210,8 @@ export class ClientRepository implements IClientRepository {
   async updateAppointment(appointmentId: number, payload: UpdateAppointmentPayload): Promise<TReponse> {
     try {
       const res: any = await put(
-        `${BaseUrl + END_POINTS.Client.UPDATE_APPOINTMENT.route}`, 
-        {
-          appointment_id: appointmentId,
-          ...payload,
-        },
+        `${BaseUrl + END_POINTS.Client.UPDATE_APPOINTMENT.route}/${appointmentId}`, 
+          payload,
         { show_loader: true }
       );
       return res;
@@ -227,9 +224,8 @@ export class ClientRepository implements IClientRepository {
   async deleteAppointment(appointmentId: number): Promise<TReponse> {
     try {
       const res: any = await httpDelete(
-        `${BaseUrl + END_POINTS.Client.DELETE_APPOINTMENT.route}`,
+        `${BaseUrl + END_POINTS.Client.DELETE_APPOINTMENT.route}/${appointmentId}`,
         {
-          data: { appointment_id: appointmentId },
           show_loader: true,
         }
       );

@@ -222,10 +222,10 @@ export const END_POINTS = {
         route: UserUrl + "/appointment"
       },
        UPDATE_APPOINTMENT: {
-        route: UserUrl + "/appointment/appointment_id"
+        route: UserUrl + "/appointment"
       },
       DELETE_APPOINTMENT: {
-        route: UserUrl + "/appointment/appointment_id"
+        route: UserUrl + "/appointment"
       },
       CREATE_PROPOSAL: {
         route: UserUrl + "/proposal"

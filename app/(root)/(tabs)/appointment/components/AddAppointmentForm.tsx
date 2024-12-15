@@ -11,18 +11,30 @@ import { format } from "date-fns";
 
 import { CalendarDays } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { OptionType } from '@/common/types';
+import { OptionType } from "@/common/types";
 
-import { CustomButton, InputField, MultiSelectDropdown, DropdownSelect } from "@/common/components";
+import {
+  CustomButton,
+  InputField,
+  MultiSelectDropdown,
+  DropdownSelect,
+} from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
-import { useAppSelector } from "@/hooks/redux";
+
+enum Action {
+  ADD = "Add",
+  REMOVE = "Remove",
+}
+
 interface InitialData {
   titleOfMeeting?: string;
   selectedClient?: string;
   status?: string;
   selectedDate?: Date | null;
   notes?: string;
+  selectedMembers?: { id: string; name: string }[];
 }
+
 interface AddAppointmentFormProps {
   clientOptions: OptionType[];
   memberOptions: OptionType[];
@@ -44,64 +56,102 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   onSubmitSuccess,
   isEditing = false,
   editingAppointmentId,
-  initialData
+  initialData,
 }) => {
+  // State for form values
   const [values, setValues] = useState({
     titleOfMeeting: initialData?.titleOfMeeting || "",
     notes: initialData?.notes || "",
     selectedClient: initialData?.selectedClient || "",
-    selectedMembers: [],
+    selectedMembers: initialData?.selectedMembers?.map((member) => member.id) || [],
     status: initialData?.status || "",
   });
 
 
+ // State for handling date
+  const [selectedDate, setSelectedDate] = useState<Date | null>(initialData?.selectedDate || null);
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    initialData?.selectedDate || null
-  ); const clientRepo = ClientRepository.getInstance();
+  // State for tracking member actions
+  const [memberActions, setMemberActions] = useState<{ staff_id: number; action: Action }[]>([]);
 
+  // Track initial selected members for comparison
+  const [initialSelectedMembers] = useState(
+    initialData?.selectedMembers?.map((member) => member.id) || []
+  );
+
+  // State for submission
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const id = Number(editingAppointmentId)
-  const handleValueChange = (field: string, value: string) => {
-    setValues(prev => ({
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const clientRepo = ClientRepository.getInstance();
+  const appointmentId = Number(editingAppointmentId);
+
+  // Handle member selection changes
+  const handleMemberSelection = (field: string, value: string[]) => {
+    const newSelected = value.map(Number); 
+  
+    // Find newly added members
+    const addedMembers = newSelected.filter(
+      (id) => !values.selectedMembers.includes(id)
+    );
+  
+    // Find removed members (compared to current selection)
+    const removedMembers = values.selectedMembers.filter(
+      (id) => !newSelected.includes(id)
+    );
+  
+    // Copy the existing member actions
+    const updatedMemberActions = [...memberActions];
+  
+    // Handle added members
+    addedMembers.forEach((memberId) => {
+      const existsInActions = updatedMemberActions.some(
+        (action) => action.staff_id === memberId && action.action === Action.ADD
+      );
+  
+      // Add the member action only if it does not already exist
+      if (!existsInActions) {
+        updatedMemberActions.push({ staff_id: memberId, action: Action.ADD });
+      }
+    });
+  
+    // Handle removed members
+    removedMembers.forEach((memberId) => {
+      const existsInActions = updatedMemberActions.some(
+        (action) => action.staff_id === memberId && action.action === Action.REMOVE
+      );
+  
+      // Add the REMOVE action only if it does not already exist
+      if (!existsInActions) {
+        updatedMemberActions.push({ staff_id: memberId, action: Action.REMOVE });
+      }
+    });
+  
+    // Deduplicate actions: Keep only the latest action per staff_id
+    const deduplicatedActions = Array.from(
+      new Map(updatedMemberActions.map((action) => [action.staff_id, action]))
+        .values()
+    );
+  
+    // Update state with new values and actions
+    setMemberActions(deduplicatedActions);
+    setValues((prev) => ({
       ...prev,
-      [field]: value
+      [field]: newSelected, // Update selected members
     }));
   };
+  
+  
+  
 
-  // Handle member selection
-  const handleMemberSelection = (field: string, selectedMembers: string[]) => {
-    setValues(prev => ({
-      ...prev,
-      [field]: selectedMembers
-    }));
-  };
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date: Date) => {
-    setSelectedDate(date);
-    hideDatePicker();
-  };
-
+  // Handle form submission
   const handleSubmitAppointment = async () => {
-    if (!values.titleOfMeeting) {
+    if (!values.titleOfMeeting.trim()) {
       Alert.alert("Error", "Please enter a meeting title");
       return;
     }
     if (!values.selectedClient) {
       Alert.alert("Error", "Please select a client");
-      return;
-    }
-    if (values.selectedMembers.length === 0) {
-      Alert.alert("Error", "Please assign at least one member");
       return;
     }
     if (!values.status) {
@@ -114,63 +164,84 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     }
 
     setIsSubmitting(true);
-    try {
-      const payload = {
-        title: values.titleOfMeeting,
-        clientId: parseInt(values.selectedClient, 10),
-        memberId: values.selectedMembers.map((member) => parseInt(member, 10)),
-        status: values.status,
-        date: selectedDate.toISOString(),
-        startTime: selectedDate.toISOString(),
-        endTime: new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString(),
-        notes: values.notes || "No notes",
-        projectId: parseInt(values.selectedClient, 10),
-      };
 
-      if (isEditing && id) {
-        console.log(id, typeof(id))
-        // Update existing appointment
-        await clientRepo.updateAppointment(
-          Number(id),
-          payload
-        );
+    try {
+    // Deduplicate actions
+    const deduplicatedActions = Array.from(
+      new Map(
+        memberActions.map((action) => [action.staff_id, action]) // Map ensures only the latest action is kept
+      ).values()
+    );
+      if (isEditing && appointmentId) {
+        const updatePayload = {
+          title: values.titleOfMeeting || undefined,
+          clientId: parseInt(values.selectedClient, 10),
+          date: selectedDate?.toISOString(),
+          startTime: selectedDate?.toISOString(),
+          endTime: new Date(selectedDate?.getTime() + 60 * 60 * 1000).toISOString(),
+          notes: values.notes || undefined,
+          status: values.status || "Scheduled",
+          projectId: parseInt(values.selectedClient, 10),
+          ...(deduplicatedActions.length > 0 && { appointment_member: deduplicatedActions }),
+        };
+        await clientRepo.updateAppointment(Number(appointmentId), updatePayload);
         Alert.alert("Success", "Appointment updated successfully");
       } else {
-        // Create new appointment
-        await clientRepo.createAppointment(payload);
+        const createPayload = {
+          title: values.titleOfMeeting,
+          clientId: parseInt(values.selectedClient, 10),
+          memberId: values.selectedMembers.map((id) => parseInt(id, 10)),
+          date: selectedDate.toISOString(),
+          status: values.status || "Scheduled",
+          startTime: selectedDate.toISOString(),
+          endTime: new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString(),
+          notes: values.notes || "No notes",
+          projectId: parseInt(values.selectedClient, 10),
+        };
+
+        await clientRepo.createAppointment(createPayload);
         Alert.alert("Success", "Appointment added successfully");
       }
 
-      onSubmitSuccess && onSubmitSuccess();
+      onSubmitSuccess?.();
     } catch (error) {
       console.error("Appointment submission error:", error);
-      Alert.alert("Error", `Failed to ${isEditing ? 'update' : 'create'} appointment`);
+      Alert.alert("Error", `Failed to ${isEditing ? "update" : "create"} appointment`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Handle date picker confirmation
+  const handleConfirm = (date: Date) => {
+    setSelectedDate(date);
+    setDatePickerVisibility(false);
+  };
+
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+      {/* Title */}
       <View className="mt-5">
         <InputField
           label=""
           value={values.titleOfMeeting}
-          onChangeText={(value) => handleValueChange('titleOfMeeting', value)}
+          onChangeText={(value) => setValues((prev) => ({ ...prev, titleOfMeeting: value }))}
           placeholder="Title of meeting"
         />
       </View>
 
+      {/* Client Selection */}
       <View className="mt-3">
         <DropdownSelect
           placeholder="Select Client"
           data={clientOptions}
           selectedValue={values.selectedClient}
-          setFieldValue={handleValueChange}
+          setFieldValue={(field, value) => setValues((prev) => ({ ...prev, selectedClient: value }))}
           fieldName="selectedClient"
         />
       </View>
 
+      {/* Members Selection */}
       <View className="mt-3">
         <MultiSelectDropdown
           placeholder="Assign Members"
@@ -181,26 +252,24 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         />
       </View>
 
+      {/* Status */}
       <View className="mt-3">
         <DropdownSelect
           placeholder="Status"
           data={statusOptions}
           selectedValue={values.status}
-          setFieldValue={handleValueChange}
+          setFieldValue={(field, value) => setValues((prev) => ({ ...prev, status: value }))}
           fieldName="status"
         />
       </View>
 
+      {/* Date Picker */}
       <TouchableOpacity
         activeOpacity={1}
-        onPress={showDatePicker}
+        onPress={() => setDatePickerVisibility(true)}
         className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
         <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
-          {selectedDate ? (
-            format(selectedDate, "MMM dd, yyyy hh:mm a")
-          ) : (
-            <Text className="text-[#4A4A4A] pb-[2px]">Date/Time</Text>
-          )}
+          {selectedDate ? format(selectedDate, "MMM dd, yyyy hh:mm a") : "Date/Time"}
         </Text>
         <CalendarDays size={16} className="text-dark-100" />
       </TouchableOpacity>
@@ -209,9 +278,10 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
+        onCancel={() => setDatePickerVisibility(false)}
       />
 
+      {/* Notes */}
       <View className="mt-3">
         <TextInput
           className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] text-left"
@@ -220,13 +290,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           multiline
           placeholderTextColor="#1C1C1C"
           placeholder="Notes"
-          onChangeText={(value) => handleValueChange('notes', value)}
+          onChangeText={(value) => setValues((prev) => ({ ...prev, notes: value }))}
         />
       </View>
 
+      {/* Submit Button */}
       <View className="mt-3">
         <CustomButton
-          title="Add Appointment"
+          title={isEditing ? "Update Appointment" : "Add Appointment"}
           onPress={handleSubmitAppointment}
           disabled={isSubmitting || isClientsLoading || isMembersLoading}
         />

@@ -1,7 +1,7 @@
 import * as Yup from "yup";
 import { CLIENT_TYPES, CLIENT_STATUS } from '@/common/types';
 import { Action } from '@/common/enum';
-import { TaskPriority } from './types';
+import { TaskPriority, TaskStatus } from './types';
 
 
 export const briefSchema = Yup.object().shape({
@@ -115,7 +115,6 @@ export const updateClientSchema = Yup.object().shape({
 
 export const taskSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
-  description: Yup.string().required("Description is required"),
   assignedTo: Yup.array()
     .of(Yup.number())
     .optional(),
@@ -124,11 +123,13 @@ export const taskSchema = Yup.object().shape({
   priority: Yup.string()
     .oneOf(Object.values(TaskPriority), "Invalid priority")
     .required("Priority is required"),
+  status: Yup.string()
+    .oneOf(Object.values(TaskStatus), "Invalid priority")
+    .required("Priority is required"),
 });
 
 export const updateTaskSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
-  description: Yup.string().required("Description is required"),
   assingedTo: Yup.array()
     .of(
       Yup.object().shape({
@@ -143,6 +144,9 @@ export const updateTaskSchema = Yup.object().shape({
   dueDate: Yup.date().required("Due date is required"),
   priority: Yup.string()
     .oneOf(Object.values(TaskPriority), "Invalid priority")
+    .required("Priority is required"),
+  status: Yup.string()
+    .oneOf(Object.values(TaskStatus), "Invalid priority")
     .required("Priority is required"),
 });
 

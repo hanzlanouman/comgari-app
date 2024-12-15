@@ -8,7 +8,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { MultiSelectDropdown, DropdownSelect } from '@/common/components';
 import { MemberRepository } from "@/repositories/member/member";
 import { TaskPayload, UpdateTaskPayload, Action, MemberAction } from "@/repositories/client/types";
-import { PRIORITY_OPTIONS,  } from "@/repositories/client/constants";
+import { PRIORITY_OPTIONS,STATUS_OPTIONS  } from "@/repositories/client/constants";
 
 interface TaskFormModalProps {
   bottomSheetRef: React.RefObject<BottomSheetModal>;
@@ -59,7 +59,6 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
     const isEditMode = mode === "edit";
     return {
       title: initialValues.title || "",
-      description: initialValues.description || "",
       selectedMembers: isEditMode ? currentMembers : [],
       assignedTo: !isEditMode ? currentMembers : undefined, 
       assingedTo: isEditMode
@@ -71,6 +70,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
       projectId: initialValues.projectId || "",
       dueDate: initialValues.dueDate || new Date().toISOString(),
       priority: initialValues.priority || "medium",
+      status: initialValues.status || "TO_DO",
     };
   };
   
@@ -164,18 +164,6 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                 </View>
 
                 <View>
-                  <InputField
-                    value={values.description}
-                    onChangeText={handleChange("description")}
-                    placeholder="Description"
-                    multiline
-                    numberOfLines={4}
-                    className="bg-white min-h-[100]"
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                <View>
                   <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={() => setDatePickerVisible(true)}
@@ -205,6 +193,15 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                     selectedValue={values.priority}
                     setFieldValue={setFieldValue}
                     fieldName="priority"
+                  />
+                </View>
+                <View>
+                  <DropdownSelect
+                    placeholder="Status"
+                    data={STATUS_OPTIONS}
+                    selectedValue={values.status}
+                    setFieldValue={setFieldValue}
+                    fieldName="status"
                   />
                 </View>
 

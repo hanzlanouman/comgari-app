@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View } from 'react-native';
-import { useNavigation, router } from "expo-router";
+import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { useMutation, useQueryClient } from 'react-query';
 
 import StepsIndicator from './components/steps-indicator';
@@ -15,6 +15,9 @@ const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
   const queryClient = useQueryClient();
 
+  // Get route params
+  const { proposalId: proposalId, ...initialParams } = useLocalSearchParams();
+  const isEditing = Boolean(proposalId && !isNaN(Number(proposalId)));
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     client_id: 0,
@@ -30,14 +33,15 @@ const AddProposal = () => {
     specification: '',
     project_id: 0,
   });
- 
+
+  // Steps for the wizard
   const steps = ['Job details', 'Specifications', 'Review'];
   const navigation = useNavigation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: "Add Proposal",
+      title: isEditing ? "Edit Proposal" : "Add Proposal",
       headerLeft: () => (
         <TouchableOpacity onPress={() => router.back()} style={{}}>
           <ArrowLeft size={24} color="#1C1C1C" />
@@ -45,35 +49,59 @@ const AddProposal = () => {
       ),
       headerTitleAlign: "center",
     });
-  }, [navigation]);
+  }, [navigation]); 
+  
+  useEffect(() => {
+    if (isEditing) {
+      setFormData((prevData) => ({
+        ...prevData,
+        ...initialParams, 
+      }));
+    }
+  }, [isEditing]);
+  
 
   // Mutation for creating a proposal
   const createProposalMutation = useMutation(
     (payload) => clientRepo.createProposal(payload),
     {
       onSuccess: (response) => {
-        // Invalidate and refetch proposals query
-        queryClient.invalidateQueries('proposals');
-        
-
-      setTimeout(() => {
-                // Show success alert
         alert("Proposal created successfully!");
-        router.replace("/(root)/(tabs)/clients/[id]/proposal/");
-      }, 500);
-      
+        router.push({
+          pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
+          params: { id: formData.project_id },
+        });
       },
       onError: (error) => {
         console.error("Error creating proposal:", error);
         alert("Failed to create proposal. Please try again.");
-      }
+      },
+    }
+  );
+
+  // Mutation for updating a proposal
+  const updateProposalMutation = useMutation(
+    ({ proposalId, payload }) => clientRepo.updateProposal(proposalId, payload),
+    {
+      onSuccess: () => {
+        alert("Proposal updated successfully!");
+        router.push({
+          pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
+          params: { id: formData.project_id },
+        });
+        
+      },
+      onError: (error) => {
+        console.error("Error updating proposal:", error);
+        alert("Failed to update proposal. Please try again.");
+      },
     }
   );
 
   const updateFormData = (newData) => {
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      ...newData
+      ...newData,
     }));
   };
 
@@ -106,22 +134,26 @@ const AddProposal = () => {
       project_id: formData.project_id,
     };
 
-    // Trigger the mutation
-    createProposalMutation.mutate(payload);
+    // Trigger the appropriate mutation
+    if (isEditing) {
+      updateProposalMutation.mutate({ proposalId: Number(proposalId), payload });
+    } else {
+      createProposalMutation.mutate(payload);
+    }
   };
 
   const renderContent = () => {
-    switch(currentStep) {
+    switch (currentStep) {
       case 1:
         return (
-          <JobDetails 
+          <JobDetails
             initialData={formData}
             onNext={handleNextStep}
           />
         );
       case 2:
         return (
-          <Specifications 
+          <Specifications
             initialData={formData}
             onNext={handleNextStep}
             onPrevious={handlePreviousStep}
@@ -129,10 +161,14 @@ const AddProposal = () => {
         );
       case 3:
         return (
-          <Review 
+          <Review
             formData={formData}
             onSave={handleSave}
-            isLoading={createProposalMutation.isLoading}
+            isLoading={
+              isEditing
+                ? updateProposalMutation.isLoading
+                : createProposalMutation.isLoading
+            }
           />
         );
       default:

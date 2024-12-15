@@ -21,12 +21,12 @@ interface JobDetailsFormValues {
   date: string;
   address: string;
   city: string;
-  zip_code: number | string;
+  zip_code: string;
   job_name: string;
   job_phone: string;
   project_director: string;
   specification: string;
-  estimated_days: number | string;
+  estimated_days: string;
   estimated_cost: string;
 }
 
@@ -37,7 +37,6 @@ const JobDetails = ({ initialData, onNext }: {
   const formikRef = useRef<FormikProps<JobDetailsFormValues>>(null);
   const clientRepo = ClientRepository.getInstance();
   const user = useAppSelector((state) => state.auth.user);
-
   // State variables
   const [clientOptions, setClientOptions] = useState<OptionType[]>([]);
   const [isClientsLoading, setIsClientsLoading] = useState(false);
@@ -73,13 +72,13 @@ const JobDetails = ({ initialData, onNext }: {
   };
 
   const hideDatePicker = () => setDatePickerVisibility(false);
-
   return (
     <Formik<JobDetailsFormValues>
       innerRef={formikRef}
+      enableReinitialize
       initialValues={{
-        client_id: initialData.client_id || 0,
-        project_id: initialData.project_id || 0,
+        client_id: Number(initialData.client_id) || 0,
+        project_id: Number(initialData.project_id) || 0,
         date: initialData.date || "",
         address: initialData.address || "",
         city: initialData.city || "",
@@ -94,8 +93,7 @@ const JobDetails = ({ initialData, onNext }: {
       onSubmit={(values) => {
         const estimatedCostNumber = Number(values.estimated_cost);
         const formattedEstimatedCost = parseFloat((estimatedCostNumber).toFixed(2));
-        console.log('Estimated Cost Converted:', formattedEstimatedCost);
-        console.log('Estimated Cost Converted Type:', typeof formattedEstimatedCost);
+
 
         const submitData: JobDetailsFormValues = {
           ...values,
@@ -111,12 +109,14 @@ const JobDetails = ({ initialData, onNext }: {
             : values.date || new Date().toISOString(),
 
         };
+        
         console.log(submitData)
         onNext(submitData);
       }}
     >
       {(formikProps) => (
         <>
+        
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4">
               {/* Client Dropdown */}

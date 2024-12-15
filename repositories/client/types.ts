@@ -37,6 +37,13 @@ export type TClient = {
     medium = "medium",
     high = "high",
   }
+  export enum TaskStatus {
+    TO_DO = "TO_DO",
+    IN_PROGRESS = "IN_PROGRESS",
+    COMPLETED = "COMPLETED",
+    ON_HOLD = "ON_HOLD",
+    CANCELLED = "CANCELLED",
+  }
   export interface TaskMember {
     id: number;
     task_id: number;
@@ -47,20 +54,20 @@ export type TClient = {
   export interface Task {
     id: number;
     title: string;
-    description: string;
     dueDate: string;
     priority: string;
     projectId: number;
     task_member: TaskMember[];
+    status: string;
   }
   
   export interface TaskPayload {
     title: string;
-    description: string;
     assignedTo: number[];
     dueDate: string;
     priority: string;
     projectId: number;
+    status: string;
   }
   
   export interface MemberAction {

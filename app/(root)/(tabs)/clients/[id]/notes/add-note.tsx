@@ -154,13 +154,17 @@ const AddNote = () => {
           });
         }
 
-        // Update media if payload exists
         if (payload.media && payload.media.length > 0) {
           await clientRepo.updateClientMedia(Number(id), {
             media: payload.media,
           });
         }
       } else {
+        console.log({
+          notes: payload.notes,
+          project_id: payload.project_id,
+          client_note_media: payload.client_note_media,
+        })
         // Create new note with media
         return await clientRepo.createNote({
           notes: payload.notes,
@@ -306,8 +310,8 @@ const AddNote = () => {
             name: file.name || "file.jpg",
           } as any;
           formData.append("files", fileToUpload);
+
           const response = await clientRepo.uploadMedia(formData);
-          console.log(response, "Response is this of upload Media");
           if (!response) {
             return;
           }

@@ -45,7 +45,6 @@ const Brief = () => {
         setIsLoading(true);
 
         const response = await clientRepo.getBrief(Number(id));
-        console.log("brief respnose", response);
         if (response.brief) {
           const briefText = response.brief;
           const plainText = briefText.replace(/<[^>]+>/g, "");

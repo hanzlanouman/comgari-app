@@ -56,7 +56,13 @@ const Tasks = () => {
     refetch,
   } = useQuery({
     queryKey: ["tasks", projectId],
-    queryFn: () => clientRepo.getTask(Number(projectId)),
+    queryFn: () => {
+      // Fetch tasks from the repository
+      return clientRepo.getTask(Number(projectId)).then(tasks => 
+        // Sort tasks by creation date in descending order (latest first)
+        tasks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      );
+    },
     staleTime: 0,
   });
 
@@ -202,10 +208,10 @@ const Tasks = () => {
     task: Task
   ): Omit<TaskPayload, "projectId"> => ({
     title: task.title,
-    description: task.description,
     assignedTo: task.task_member.map((member) => Number(member.member_id)),
     dueDate: task.dueDate,
     priority: task.priority.toLowerCase(),
+    status: task.status.toLowerCase(),
   });
 
   return (

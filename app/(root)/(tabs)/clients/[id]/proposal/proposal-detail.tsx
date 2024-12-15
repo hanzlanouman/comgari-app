@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useEffect } from "react";
+import React, { useCallback, useMemo, useRef, useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Alert
 } from "react-native";
 import { vs } from "react-native-size-matters";
 import {
@@ -13,12 +14,13 @@ import {
   CalendarDays,
   ChevronRight,
   Share2,
+  Pencil,
+  Trash2
 } from "lucide-react-native";
 import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "@react-navigation/native";
-import { useLocalSearchParams } from "expo-router";
-
+import { useNavigation,router, useLocalSearchParams } from "expo-router";
+import { ClientRepository } from "@/repositories/client/client";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
 import {
@@ -49,22 +51,26 @@ const Proposal = () => {
     clientType, 
     address, 
     date,
-    clientId 
+    clientId,
+    estimatedCost,
+    projectDirector,
+    specification
   } = useLocalSearchParams();
 
   // Download/Share Ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const clientRepo = ClientRepository.getInstance();
 
   const snapPoints = useMemo(() => {
-    return ["22%", "22%"];
+    return ["50%", "50%"];
   }, []);
 
-  // Download/Share callbacks
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
 
   const navigation = useNavigation();
+
   useEffect(() => {
     navigation.setOptions({
       title: "Proposal Details",
@@ -77,12 +83,72 @@ const Proposal = () => {
           <TouchableOpacity
             onPress={handlePresentModalPress}
             className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-            <ArrowDownToLine size={16} className="text-white" />
+            <Pencil size={16} className="text-white" />
           </TouchableOpacity>
         </LinearGradient>
       ),
     });
   }, [navigation, handlePresentModalPress, jobName]);
+
+  const handleEditProposal = () => {
+    bottomSheetModalRef.current?.close();
+    router.push({
+      pathname: '(tabs)/clients/[id]/proposal/add-proposal',
+      params: {
+      proposalId: id,
+      job_name: jobName,
+      job_phone: jobPhone,
+      city: city,
+      zip_code: zip,
+      estimated_days: estimatedDays, 
+      address: address, 
+      date: date,
+      client_id: clientId,
+      estimated_cost: estimatedCost,
+      project_director: projectDirector,
+      specification: specification
+  }});
+  };
+
+  const handleDeleteProposal = () => {
+    Alert.alert(
+      'Delete Proposal',
+      'Are you sure you want to delete this proposal?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clientRepo.deleteProposal(Number(id));
+              
+        router.push({
+          pathname: `/(root)/(tabs)/clients/${clientId}/proposal`,
+          params: { id: clientId },
+        });
+            } catch (error) {
+              console.error('Error deleting proposal:', error);
+              Alert.alert('Error', 'Failed to delete proposal');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDownloadProposal = () => {
+    // Implement download functionality
+    Alert.alert('Download', 'Proposal download functionality to be implemented');
+  };
+
+  const handleShareProposal = () => {
+    // Implement share functionality
+    Alert.alert('Share', 'Proposal share functionality to be implemented');
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -109,7 +175,7 @@ const Proposal = () => {
                   </View>
                 </View>
                 <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                  Project details for {jobName || 'Unnamed Project'}
+                  Project details for {jobName || 'Unnamed Project'}:
                 </Text>
                 <View className="bg-light w-full h-px my-3" />
                 <View className="flex-row items-center justify-between">
@@ -141,7 +207,7 @@ const Proposal = () => {
                     Project Director
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {clientName || 'Not Specified'}
+                    {projectDirector || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-center justify-between border-b border-light py-3.5">
@@ -227,15 +293,52 @@ const Proposal = () => {
                 </View>
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
-              <TouchableOpacity className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+              <TouchableOpacity onPress={() => {}} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
                 <View className="flex-row items-center">
                   <TouchableOpacity
-                    onPress={() => {}}
+                    
                     className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
                     <Share2 size={16} className="text-white" />
                   </TouchableOpacity>
                   <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
                     Share
+                  </Text>
+                </View>
+                <ChevronRight size={16} color="#1C1C1C" />
+              </TouchableOpacity>
+              <TouchableOpacity                       onPress={handleEditProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+                <View className="flex-row items-center">
+                  <LinearGradient
+                    colors={["#1B78B9", "#63348F"]}
+                    className="rounded-full w-8 h-8"
+                    start={[0, 0]}
+                    end={[1, 1]}>
+                    <TouchableOpacity
+                      className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
+                      <Pencil size={16} color="#ffffff" />
+                    </TouchableOpacity>
+                  </LinearGradient>
+                  <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                    Edit Proposal
+                  </Text>
+                </View>
+                <ChevronRight size={16} color="#1C1C1C" />
+              </TouchableOpacity>
+              {/* Delete Proposal Button */}
+              <TouchableOpacity                       onPress={handleDeleteProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+                <View className="flex-row items-center">
+                  <LinearGradient
+                    colors={["#B72D2D", "#F29D2E"]}
+                    className="rounded-full w-8 h-8"
+                    start={[0, 0]}
+                    end={[1, 1]}>
+                    <TouchableOpacity
+                      className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
+                      <Trash2 size={16} color="#ffffff" />
+                    </TouchableOpacity>
+                  </LinearGradient>
+                  <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                    Delete Proposal
                   </Text>
                 </View>
                 <ChevronRight size={16} color="#1C1C1C" />

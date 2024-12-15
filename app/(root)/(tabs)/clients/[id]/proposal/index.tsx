@@ -59,10 +59,12 @@ const Proposal = () => {
     () => clientRepo.getProposalsByProject(Number(projectId)),
     {
       enabled: !!projectId,
+      refetchOnWindowFocus: true, // Refetch whenever the window is focused
       staleTime: 5000,
       cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
     }
   );
+  
 
   const AddButton = React.useMemo(() => () => (
     <LinearGradient
@@ -78,7 +80,7 @@ const Proposal = () => {
       <TouchableOpacity
         onPress={() => {
           router.push({
-            pathname: "/(root)/(tabs)/clients/[id]/proposal/add-proposal",
+            pathname: `/(root)/(tabs)/clients/${projectId}/proposal/add-proposal`,
             params: { projectId }
           });
         }}
@@ -190,7 +192,10 @@ const Proposal = () => {
                     clientType: proposal.client?.type,
                     address: proposal.address,
                     date: proposal.date,
-                    clientId: proposal.client_id
+                    clientId: proposal.client_id,
+                    estimatedCost: proposal.estimated_cost,
+                    projectDirector: proposal.project_director,
+                    specification: proposal.specification
                   }
                 });
               }}

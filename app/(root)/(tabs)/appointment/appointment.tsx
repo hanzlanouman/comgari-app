@@ -66,21 +66,24 @@ const Appointment = () => {
 
   const handleUpdatePress = () => {
     if (selectedAppointment) {
-      // Navigate to add-appointment screen in edit mode
-      router.push({
+      const members = selectedAppointment.fullAppointmentData.appointment_member.map(member => ({
+        id: member.id,
+        name: member.Auth.user[0]?.full_name || 'Unknown',
+      }));      router.push({
         pathname: "/(root)/(tabs)/appointment/add-appointment",
         params: {
           isEditing: 'true',
           appointmentId: selectedAppointment.id,
-          // Pass all necessary data for pre-filling the form
           title: selectedAppointment.name,
           clientId: selectedAppointment.fullAppointmentData.client_id,
           status: selectedAppointment.status,
           date: selectedAppointment.startTime,
-          notes: selectedAppointment.address
+          notes: selectedAppointment.address,
+          members: JSON.stringify(members), // Pass members as a stringified JSON
+
         }
       });
-      actionModalRef.current?.close();
+      actionModalRef.current?.dismiss();
     }
   };
 
@@ -117,9 +120,9 @@ const Appointment = () => {
 
           return acc;
         }, {});
+        actionModalRef.current?.dismiss();
 
         setItems(transformedItems);
-        actionModalRef.current?.close();
       } catch (error) {
         console.error('Failed to delete appointment', error);
       }
