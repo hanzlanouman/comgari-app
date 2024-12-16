@@ -62,3 +62,32 @@ const ResetPassowrdSchema = yup.object().shape({
 });
 export type ResetPasswordPayload = yup.InferType<typeof ResetPassowrdSchema>;
 export { ResetPassowrdSchema };
+// Change Password schema
+const ChangePasswordSchema = yup.object({
+  oldpassword: yup.string().required("Old password is required"),
+  password: yup
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .required("New password is required"),
+});
+
+// Update Profile schema
+const UpdateProfileSchema = yup.object({
+  full_name: yup.string().required("Full name is required"),
+});
+
+// Update Profile Picture schema
+const UpdateProfilePicSchema = yup.object({
+  avatar: yup.string().required("Avatar URL is required"),
+});
+
+
+export type ChangePasswordPayload = yup.InferType<typeof ChangePasswordSchema>;
+export type UpdateProfilePayload = yup.InferType<typeof UpdateProfileSchema>;
+export type UpdateProfilePicPayload = yup.InferType<typeof UpdateProfilePicSchema>;
+
+export {
+  ChangePasswordSchema,
+  UpdateProfileSchema,
+  UpdateProfilePicSchema,
+};

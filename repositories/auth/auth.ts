@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { post, put } from "@/common/api";
+import { get, post, put, del as httpDelete, postForm } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
 import { ApiReponse, AuthReponse } from "@/common/types";
@@ -8,6 +8,9 @@ import {
   forgotPasswordPayload,
   LoginPayload,
   OtpPayload,
+  ChangePasswordPayload,
+  UpdateProfilePayload,
+  UpdateProfilePicPayload,
   ResetPasswordPayload,
   SignupPayload,
 } from "@/repositories/auth/schemas";
@@ -44,7 +47,46 @@ export class AuthRepository implements IAuthRepository {
     }
     return AuthRepository.instance;
   }
+  async changePassword(
+    payload: ChangePasswordPayload
+  ): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.CHANGE_PASSWORD.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
 
+  async updateProfile(payload: UpdateProfilePayload): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+
+  async updateProfilePic(payload: UpdateProfilePicPayload): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE_PIC.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
   async login(payload: LoginPayload): Promise<TLoginResponse> {
     try {
       const res = await post(

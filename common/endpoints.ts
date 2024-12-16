@@ -52,9 +52,12 @@ export const END_POINTS = {
     },
     CHANGE_PASSWORD: {
       route: AuthUrl + "/change-password",
-      method: "POST",
+      method: "PUT",
       description: "Change password"
     },
+    UPDATE_PROFILE: { route:AuthUrl + "/update-profile",       method: "PUT"
+    },
+    UPDATE_PROFILE_PIC: { route: AuthUrl +"/update-profile-pic",       method: "PUT"    },
   },
   Member: {
     GET_ROLE: {
