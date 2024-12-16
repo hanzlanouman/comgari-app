@@ -51,7 +51,6 @@ const ALLOWED_EXTENSIONS = [
   ".txt",
 ];
 
-// Type definitions
 type MediaItem = {
   id?: number;
   url: string;

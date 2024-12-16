@@ -11,7 +11,6 @@ import {
 import { CustomButton, InputField } from "@/common/components";
 import DropdownSelect from "@/common/components/Select";
 import { router, useLocalSearchParams } from "expo-router";
-import * as Yup from "yup";
 import { Formik } from "formik";
 import { CalendarDays, Euro } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -40,16 +39,35 @@ export type OptionType = {
 // Convert enum to dropdown options
 const statusOptions: OptionType[] = Object.entries(InvoiceStatus).map(([key, value]) => ({
   key: value,
-  value: key.split('_').map(word => 
+  value: key.split('_').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
   ).join(' ')
 }));
 
 const AddInvoiceScreen = () => {
-  const { id: projectId } = useLocalSearchParams();
+  const {
+    id: projectId,
+    mode,
+    invoiceId,
+    job_name: editJobName,
+    total_amount: editTotalAmount,
+    status: editStatus,
+    date: editDate
+  } = useLocalSearchParams();
+
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    editDate ? new Date(editDate as string) : null
+  );
   const clientRepo = ClientRepository.getInstance();
+  const isEditMode = mode === 'edit';
+
+  const initialValues = {
+    job_name: isEditMode ? (editJobName as string) : "",
+    total_amount: isEditMode ? (editTotalAmount as string) : "",
+    status: isEditMode ? (editStatus as string) : "",
+    date: isEditMode && editDate ? new Date(editDate as string) : null,
+  };
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -64,14 +82,6 @@ const AddInvoiceScreen = () => {
     hideDatePicker();
   };
 
-  const initialValues = {
-    job_name: "",
-    total_amount: "",
-    status: "",
-    date: null,
-  };
-
-
   const handleSubmit = async (values: typeof initialValues) => {
     try {
       const payload = {
@@ -83,21 +93,30 @@ const AddInvoiceScreen = () => {
         project_id: Number(projectId)
       };
 
-      await clientRepo.createInvoice(payload);
-      Alert.alert("Success", "Invoice created successfully");
+      if (isEditMode && invoiceId) {
+        // Update existing invoice
+        await clientRepo.updateInvoice(Number(invoiceId), payload);
+        Alert.alert("Success", "Invoice updated successfully");
+      } else {
+        // Create new invoice
+        await clientRepo.createInvoice(payload);
+        Alert.alert("Success", "Invoice created successfully");
+      }
+
+      // Navigate back to invoices screen
       router.push({
         pathname: "/(root)/(tabs)/clients/[id]/invoices",
         params: { id: projectId }
-      });    } catch (error) {
+      });
+    } catch (error) {
       Alert.alert(
-        "Error", 
-        error instanceof Error 
-          ? error.message 
-          : "Failed to create invoice"
+        "Error",
+        error instanceof Error
+          ? error.message
+          : "Failed to " + (isEditMode ? "update" : "create") + " invoice"
       );
     }
   };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <Formik
@@ -173,7 +192,10 @@ const AddInvoiceScreen = () => {
               </View>
             </View>
             <View className="p-4 pb-0 bg-white mt-auto">
-              <CustomButton title="Add Invoice" onPress={() => formik.handleSubmit()} />
+              <CustomButton
+                title={isEditMode ? "Update Invoice" : "Add Invoice"}
+                onPress={() => formik.handleSubmit()}
+              />
             </View>
           </ScrollView>
         )}

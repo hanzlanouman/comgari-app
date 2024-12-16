@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-
 import {
   SafeAreaView,
   ScrollView,
@@ -11,10 +10,11 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { images } from "@/constants";
 import { ChevronDown, ChevronUp } from "lucide-react-native";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
+import { CustomButton } from "@/common/components";
+import { images } from "@/constants";
 
 const clientRepo = ClientRepository.getInstance();
 
@@ -29,22 +29,6 @@ type Invoice = {
   project_id: number;
   createdAt: string;
   updatedAt: string;
-  client: {
-    id: number;
-    name: string;
-    description: string;
-    logo: string;
-    type: string;
-    status: string;
-    email: string;
-    phone: string;
-    brief: null | string;
-    createdById: number;
-    agencyId: number;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: null | string;
-  };
 };
 
 const InvoicesScreen = () => {
@@ -53,6 +37,7 @@ const InvoicesScreen = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const fetchInvoices = async () => {
     try {
@@ -69,11 +54,40 @@ const InvoicesScreen = () => {
     }
   };
 
-useFocusEffect(
-  React.useCallback(() => {
-    fetchInvoices();
-  }, [projectId])
-);
+  const handleEditInvoice = (invoice: Invoice) => {
+    router.push({
+      pathname: "/(root)/clients/[id]/invoices/add-invoice",
+      params: {
+
+        mode: "edit",
+        job_name: invoice.job_name,
+        total_amount: invoice.total_amount,
+        status: invoice.status,
+        date: invoice.date,
+        invoiceId: invoice.id,
+        id: projectId,
+      },
+    });
+  };
+
+  const handleDeleteInvoice = async (invoiceId: number) => {
+    try {
+      await clientRepo.deleteInvoice(invoiceId);
+      await fetchInvoices();
+      Alert.alert("Success", "Invoice deleted successfully");
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to delete invoice"
+      );
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchInvoices();
+    }, [projectId])
+  );
 
   const toggleInvoiceDetails = (invoiceId: number) => {
     setExpandedInvoiceId(expandedInvoiceId === invoiceId ? null : invoiceId);
@@ -84,7 +98,6 @@ useFocusEffect(
     if (activeTab === "paid") return invoice.status.toLowerCase() === "paid";
     return invoice.status.toLowerCase() !== "paid";
   });
-
 
   const renderInvoiceItem = (invoice: Invoice) => (
     <View key={invoice.id} className="border border-light rounded-xl mt-4">
@@ -117,8 +130,10 @@ useFocusEffect(
           )}
         </View>
       </TouchableOpacity>
+
       {expandedInvoiceId === invoice.id && (
         <View className="border-t border-light p-2.5">
+          {/* Invoice Details */}
           <View>
             <Text className="text-sm text-dark-100 font-ManropeRegular">
               Invoice Number
@@ -133,86 +148,80 @@ useFocusEffect(
             </Text>
             <View
               className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${invoice.status === "PAID"
-                  ? "bg-green-100"
-                  : "bg-yellow-100"
+                ? "bg-green-100"
+                : "bg-yellow-100"
                 }`}>
               <Text
                 className={`text-base font-ManropeMedium ${invoice.status === "PAID"
-                    ? "text-green"
-                    : "text-yellow-600"
+                  ? "text-green"
+                  : "text-yellow-600"
                   }`}>
                 {invoice.status}
               </Text>
             </View>
           </View>
-          <View className="mt-2.5">
-            <Text className="text-sm text-dark-100 font-ManropeRegular">
-              Created
-            </Text>
-            <Text className="text-base text-dark font-ManropeMedium">
-              {new Date(invoice.createdAt).toLocaleDateString()}
-            </Text>
+
+          <View className="flex-row justify-center items-center mt-4 space-x-4">
+            <View className="flex-1 ">
+              <CustomButton
+                title="Edit"
+                onPress={() => handleEditInvoice(invoice)}
+              />
+            </View>
+            <View className="flex-1">
+              <CustomButton
+                title="Delete"
+                onPress={() => handleDeleteInvoice(invoice.id)}
+                className="bg-red"
+              />
+            </View>
           </View>
-          <View className="mt-2.5">
-            <Text className="text-sm text-dark-100 font-ManropeRegular">
-              Due Date
-            </Text>
-            <Text className="text-base text-dark font-ManropeMedium">
-              {new Date(invoice.date).toLocaleDateString()}
-            </Text>
-          </View>
+
         </View>
       )}
     </View>
   );
 
   return (
-<SafeAreaView className="flex-1 bg-white">
-  <View className="flex-1 p-4">
-    {/* Tabs */}
-    <View className="flex flex-row bg-gray-100 rounded-full p-1 shadow-sm">
-      {["all", "paid", "open"].map((tab) => (
-        <TouchableOpacity
-          key={tab}
-          onPress={() => setActiveTab(tab)}
-          className={`flex-1 items-center justify-center py-2 rounded-full ${
-            activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
-          }`}
-        >
-          <Text
-            className={`text-sm sm:text-base font-ManropeSemibold ${
-              activeTab === tab ? "text-blue" : "text-dark"
-            }`}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-
-    {/* Scrollable Content */}
-    <ScrollView
-      refreshControl={
-        <RefreshControl
-          refreshing={isLoading}
-          onRefresh={fetchInvoices}
-        />
-      }
-      className="mt-4"
-    >
-      {filteredInvoices.length === 0 ? (
-        <View className="flex-1 items-center justify-center mt-10">
-          <Text className="text-gray-500 text-base font-ManropeRegular">
-            No invoices found
-          </Text>
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-1 p-4">
+        {/* Tabs */}
+        <View className="flex flex-row bg-gray-100 rounded-full p-1 shadow-sm">
+          {["all", "paid", "open"].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              className={`flex-1 items-center justify-center py-2 rounded-full ${activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
+                }`}
+            >
+              <Text
+                className={`text-sm sm:text-base font-ManropeSemibold ${activeTab === tab ? "text-blue" : "text-dark"
+                  }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      ) : (
-        filteredInvoices.map(renderInvoiceItem)
-      )}
-    </ScrollView>
-  </View>
-</SafeAreaView>
 
+        {/* Scrollable Content */}
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isLoading} onRefresh={fetchInvoices} />
+          }
+          className="mt-4">
+          {filteredInvoices.length === 0 ? (
+            <View className="flex-1 items-center justify-center mt-10">
+              <Text className="text-gray-500 text-base font-ManropeRegular">
+                No invoices found
+              </Text>
+            </View>
+          ) : (
+            filteredInvoices.map(renderInvoiceItem)
+          )}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };
 

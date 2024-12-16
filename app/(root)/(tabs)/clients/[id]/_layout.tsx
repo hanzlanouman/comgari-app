@@ -63,7 +63,8 @@ const Layout = () => {
                 onPress={() =>
                   router.push({
                     pathname: "/(root)/clients/[id]/invoices/add-invoice",
-                    params: { id: clientId },
+                    params: { id: clientId,             mode: 'create' 
+                    },
                   })
                 }
                 className="w-full h-full rounded-full flex flex-row justify-center items-center">
