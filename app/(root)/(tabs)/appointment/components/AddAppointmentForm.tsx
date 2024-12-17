@@ -66,13 +66,8 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     selectedMembers: initialData?.selectedMembers?.map((member) => member.id) || [],
     status: initialData?.status || "",
   });
-
-
   // State for handling date
   const [selectedDate, setSelectedDate] = useState<Date | null>(initialData?.selectedDate || null);
-
-  // State for tracking member actions
-  const [memberActions, setMemberActions] = useState<{ staff_id: number; action: Action }[]>([]);
 
   // Track initial selected members for comparison
   const [initialSelectedMembers] = useState(
@@ -86,66 +81,17 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   const clientRepo = ClientRepository.getInstance();
   const appointmentId = Number(editingAppointmentId);
 
-  // Handle member selection changes
+  // Improved member selection handling
   const handleMemberSelection = (field: string, value: string[]) => {
-    const newSelected = value.map(Number);
-
-    // Find newly added members
-    const addedMembers = newSelected.filter(
-      (id) => !values.selectedMembers.includes(id)
-    );
-
-    // Find removed members (compared to current selection)
-    const removedMembers = values.selectedMembers.filter(
-      (id) => !newSelected.includes(id)
-    );
-
-    // Copy the existing member actions
-    const updatedMemberActions = [...memberActions];
-
-    // Handle added members
-    addedMembers.forEach((memberId) => {
-      const existsInActions = updatedMemberActions.some(
-        (action) => action.staff_id === memberId && action.action === Action.ADD
-      );
-
-      // Add the member action only if it does not already exist
-      if (!existsInActions) {
-        updatedMemberActions.push({ staff_id: memberId, action: Action.ADD });
-      }
-    });
-
-    // Handle removed members
-    removedMembers.forEach((memberId) => {
-      const existsInActions = updatedMemberActions.some(
-        (action) => action.staff_id === memberId && action.action === Action.REMOVE
-      );
-
-      // Add the REMOVE action only if it does not already exist
-      if (!existsInActions) {
-        updatedMemberActions.push({ staff_id: memberId, action: Action.REMOVE });
-      }
-    });
-
-    // Deduplicate actions: Keep only the latest action per staff_id
-    const deduplicatedActions = Array.from(
-      new Map(updatedMemberActions.map((action) => [action.staff_id, action]))
-        .values()
-    );
-
-    // Update state with new values and actions
-    setMemberActions(deduplicatedActions);
     setValues((prev) => ({
       ...prev,
-      [field]: newSelected, // Update selected members
+      [field]: value,
     }));
   };
 
-
-
-
   // Handle form submission
   const handleSubmitAppointment = async () => {
+    // Validation checks
     if (!values.titleOfMeeting.trim()) {
       Alert.alert("Error", "Please enter a meeting title");
       return;
@@ -166,13 +112,26 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Deduplicate actions
-      const deduplicatedActions = Array.from(
-        new Map(
-          memberActions.map((action) => [action.staff_id, action]) 
-        ).values()
-      );
       if (isEditing && appointmentId) {
+        // Convert to numbers and remove invalid IDs
+        const currentMemberIds = [...new Set(
+          values.selectedMembers.map(id => Number(id)).filter(id => !isNaN(id))
+        )];
+        const initialMemberIds = [...new Set(
+          initialSelectedMembers.map(id => Number(id)).filter(id => !isNaN(id))
+        )];
+
+        // Calculate member actions
+        const membersToAdd = currentMemberIds.filter(id => !initialMemberIds.includes(id));
+        const membersToRemove = initialMemberIds.filter(id => !currentMemberIds.includes(id));
+
+        // Generate member actions
+        const memberActions = [
+          ...membersToAdd.map(staff_id => ({ staff_id, action: Action.ADD })),
+          ...membersToRemove.map(staff_id => ({ staff_id, action: Action.REMOVE })),
+        ];
+
+
         const updatePayload = {
           title: values.titleOfMeeting || undefined,
           clientId: parseInt(values.selectedClient, 10),
@@ -182,13 +141,13 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           notes: values.notes || undefined,
           status: values.status || "Scheduled",
           projectId: parseInt(values.selectedClient, 10),
-          ...(deduplicatedActions.length > 0 && {
-            appointment_member: deduplicatedActions.map(action => ({
-              staff_id: action.staff_id,
-              action: action.action
-            }))
+          ...(memberActions.length > 0 && {
+            appointment_member: memberActions
           }),
         };
+
+        console.log('Update Payload:', JSON.stringify(updatePayload, null, 2));
+
         await clientRepo.updateAppointment(Number(appointmentId), updatePayload);
         Alert.alert("Success", "Appointment updated successfully");
       } else {

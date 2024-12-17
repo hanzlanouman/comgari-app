@@ -67,9 +67,10 @@ const Appointment = () => {
   const handleUpdatePress = () => {
     if (selectedAppointment) {
       const members = selectedAppointment.fullAppointmentData.appointment_member.map(member => ({
-        id: member.id,
+        id: member.member_id,
         name: member.Auth.user[0]?.full_name || 'Unknown',
-      }));      router.push({
+      }));      
+      router.push({
         pathname: "/(root)/(tabs)/appointment/add-appointment",
         params: {
           isEditing: 'true',
