@@ -41,7 +41,6 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
   clientId,
   clientData
 }) => {
-  console.log("CLient data is modal:",clientData)
   const clientRepo = ClientRepository.getInstance();
   const queryClient = useQueryClient();
   const snapPoints = useMemo(() => ["25%"], []); 
@@ -93,10 +92,8 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
       return;
     }
   
-  // Extracting the client_user data from clientData and ensuring it's an array of numbers
   const clientUserIds = clientData.client_user?.map(user => user.member_id) || [];
 
-  // Ensure that clientUserIds is an array of numbers
   if (!Array.isArray(clientUserIds)) {
     console.error('client_user_ids is not an array');
     return;

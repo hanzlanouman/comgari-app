@@ -1,30 +1,37 @@
-//app\(root)\(tabs)\clients\components\TaskCard.tsx
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { vs } from "react-native-size-matters";
 import { ChevronsUp, ChevronDown, ChevronUp } from "lucide-react-native";
 import { images } from "@/constants";
 
+interface Member {
+  id: number;
+  member: {
+    Auth: {
+      username: string;
+    };
+  };
+}
+
 interface TaskCardProps {
   task: {
     title: string;
     dueDate: string;
     priority: string;
-    assignedTo: number; // Single number for user ID
+    task_member?: Member[];
     status?: string;
   };
   onPress?: () => void;
 }
 
-// Utility function for date formatting
 const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+};
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
   const getPriorityIcon = () => {
@@ -39,8 +46,60 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
     return "text-blue";
   };
 
+  const renderMembers = () => {
+    if (!task.task_member || task.task_member.length === 0) {
+      return <View className="h-[30px]" />;
+    }
+    const maxVisibleMembers = 3;
+    const totalMembers = task.task_member.length;
+    const visibleMembers = task.task_member.slice(0, maxVisibleMembers);
+    const remainingCount = totalMembers - maxVisibleMembers;
+  
+    return (
+      <View className="flex-row items-center">
+        <View className="flex-row items-center">
+          {visibleMembers.map((member, index) => (
+            <View
+              key={member.id}
+              className={`${index > 0 ? "-ml-3" : ""}`}
+              style={{ zIndex: maxVisibleMembers - index }}
+            >
+              <Image
+                source={images.user}
+                resizeMode="cover"
+                className="rounded-full border-2 border-white"
+                style={{ width: vs(30), height: vs(30) }}
+              />
+            </View>
+          ))}
+          {remainingCount > 0 && (
+            <View 
+              className="-ml-3"
+              style={{ zIndex: 0 }}
+            >
+              <View className="w-[30px] h-[30px] rounded-full border-2 border-white bg-gray-100 items-center justify-center">
+                <Text className="text-xs font-ManropeMedium text-gray-600">
+                  +{remainingCount}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+        {totalMembers > 3 && (
+          <Text className="text-sm font-ManropeMedium text-gray-600 ml-2">
+            {totalMembers} Members
+          </Text>
+        )}
+      </View>
+    );
+  };
+  
+
   return (
-    <TouchableOpacity onPress={onPress} className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5">
+    <TouchableOpacity 
+      onPress={onPress} 
+      className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
+    >
       <View className="flex-row items-center">
         {getPriorityIcon()}
         <Text className={`text-sm font-ManropeSemibold ml-1.5 ${getPriorityColor()}`}>
@@ -55,15 +114,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
       </Text>
       <View className="bg-light w-full h-px my-3" />
       <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          {/* Replace with a single avatar or fallback */}
-          <Image
-            source={images.user} // Replace with actual image source if available
-            resizeMode="cover"
-            className="rounded-full border-2 border-white"
-            style={{ width: vs(30), height: vs(30) }}
-          />
-        </View>
+        {renderMembers()}
         <View className="flex-row items-center">
           <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
             <View className="bg-blue w-1.5 h-1.5" />

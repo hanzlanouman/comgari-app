@@ -46,35 +46,10 @@ const Layout = () => {
         name="add-client"
         options={{ headerShown: true, title: "Add Client" }}
       />
-      <Stack.Screen
-        name="[id]"
-      />
 
       <Stack.Screen
         name="brief"
         options={{ headerShown: true, title: "Brief" }}
-      />
-      <Stack.Screen
-        name="tasks/[id]"
-        options={{
-          headerShown: true,
-          title: "Tasks",
-          headerRight: () => (
-            <LinearGradient
-              colors={["#1B78B9", "#63348F"]}
-              className="rounded-full w-8 h-8"
-              start={[0, 0]}
-              end={[1, 1]}
-            >
-              <TouchableOpacity
-                onPress={() => router.push("/(root)/(tabs)/clients/add-client")}
-                className="w-full h-full rounded-full flex flex-row justify-center items-center"
-              >
-                <Plus size={18} color="#ffffff" />
-              </TouchableOpacity>
-            </LinearGradient>
-          ),
-        }}
       />
       <Stack.Screen
         name="notes"
