@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
+import { View, Text, ImageBackground, TouchableOpacity, Alert } from "react-native";
 import { images } from "@/constants";
 import InputField from "@/common/components/InputField";
 import { router } from "expo-router";
@@ -8,7 +8,6 @@ import { useFormik } from "formik";
 import {
   LoginPayload,
   LoginSchema,
-  SignupSchema,
 } from "@/repositories/auth/schemas";
 import AppContainer from "@/common/components/AppContainer";
 import { AuthRepository } from "@/repositories/auth/auth";
@@ -22,43 +21,79 @@ const SignIn = () => {
   const AuthRepo = AuthRepository.getInstance();
   const dispatch = useAppDispatch();
   const [otpScreen, setOtpScreen] = useState(false);
+
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: LoginPayload) => AuthRepo.login(payload),
   });
+
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: LoginSchema,
-    onSubmit: (value) => {
-      mutate(value, {
+    onSubmit: (values) => {
+      // First, validate all fields
+      const errors: { email?: string; password?: string } = {};
+
+      if (!values.email) {
+        errors.email = "Email is required";
+      }
+
+      if (!values.password) {
+        errors.password = "Password is required";
+      }
+
+      // If there are any errors, set them and prevent submission
+      if (Object.keys(errors).length > 0) {
+        formik.setErrors(errors);
+        return;
+      }
+
+      // Proceed with login if validation passes
+      mutate(values, {
         onSuccess: (data) => {
-          console.log(data, "Data here is");
           dispatch(login(data));
         },
         onError: (error) => {
-          console.log("Error received:", error);
-
-          // Adjust based on actual error structure
+          // Specific error handling for account verification
           if (error.message === "Please Verify Your Account First") {
-            console.log("Account verification required.");
             setOtpScreen(true);
-          }
+            Alert.alert(
+              "Account Verification",
+              "Please verify your account before logging in.",
+              [
+                {
+                  text: "Verify Now",
+                  onPress: () => {
+                    router.push({
+                      pathname: route.auth.Otp,
+                      params: {
+                        username: values.email,
+                        type: OTP_TYPE.MEMBER_VERIFICATION,
+                      },
+                    });
+                  },
+                },
+                { text: "Cancel", style: "cancel" },
+              ]
+            );
+          } 
         },
       });
     },
   });
+
   const onClick = () => {
     router.push({
       pathname: route.auth.Otp,
       params: {
         username: formik.values.email,
-
         type: OTP_TYPE.MEMBER_VERIFICATION,
       },
     });
   };
+
   return (
     <AppContainer
       hasScroll
@@ -71,7 +106,7 @@ const SignIn = () => {
         className="w-full h-screen">
         <View className="bg-white rounded-t-3xl p-5 absolute left-0 bottom-0 w-full">
           <Text className="text-dark text-center font-ManropeBold text-xl sm:text-2xl">
-            Let’s Connect With Us!
+            Let's Connect With Us!
           </Text>
           <View className="mt-6">
             <InputField
@@ -81,6 +116,7 @@ const SignIn = () => {
               placeholder="Email"
               keyboardType="email-address"
               onBlur={formik.handleBlur("email")}
+              error={formik.touched.email ? formik.errors.email : undefined}
             />
           </View>
           <View className="mt-3">
@@ -90,6 +126,8 @@ const SignIn = () => {
               onChangeText={formik.handleChange("password")}
               placeholder="Password"
               secureTextEntry={true}
+              onBlur={formik.handleBlur("password")}
+              error={formik.touched.password ? formik.errors.password : undefined}
             />
           </View>
           <TouchableOpacity

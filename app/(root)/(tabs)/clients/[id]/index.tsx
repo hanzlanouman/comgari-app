@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\clients\[id]\index.tsx
 import React from "react";
 import { useRouter, useNavigation } from "expo-router";
 import {
@@ -13,10 +14,13 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { vs } from "react-native-size-matters";
 import { useLocalSearchParams } from "expo-router";
 import { useRef, useEffect } from "react";
-import { LinearGradient } from 'expo-linear-gradient';
-import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { Pencil } from 'lucide-react-native';
-import { ClientEditModal } from './components/ClientEditModal';
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from "@gorhom/bottom-sheet";
+import { Pencil } from "lucide-react-native";
+import { ClientEditModal } from "../components/ClientEditModal";
 import { AppContainer } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
@@ -72,36 +76,51 @@ interface Client {
 
 const navigationItems = [
   {
-    id: "brief",
+    id: 1,
+    icon: "brief",
     title: "Brief",
     description: "Brief yourself in detail",
-    route: "/(root)/(tabs)/clients/brief",
+    route: "/(root)/(tabs)/clients/{projectId}/brief",
   },
   {
-    id: "tasks",
+    id: 2,
+    icon: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
-    route: "/(root)/(tabs)/clients/task/{projectId}",
+    route: "/(root)/(tabs)/clients/{projectId}/task",
   },
   {
-    id: "notes",
+    id: 3,
+    icon: "notes",
     title: "Notes",
     description: "Add important notes",
-    route: "/(root)/(tabs)/clients/notes",
+    route: "/(root)/(tabs)/clients/{projectId}/notes",
   },
   {
-    id: "media",
+    id: 4,
+    icon: "media",
     title: "Media",
     description: "Find all media files here",
-    route: "/(root)/(tabs)/clients/media",
+    route: "/(root)/(tabs)/clients/{projectId}/media",
+  },
+  {
+    id: 5,
+    icon: "tasks",
+    title: "Proposal",
+    description: "Create a proposal for the client",
+    route: "/(root)/(tabs)/clients/{projectId}/proposal",
+  },
+  {
+    id: 6,
+    icon: "notes",
+    title: "Invoice",
+    description: "Create a Invoice for the client",
+    route: "/(root)/(tabs)/clients/{projectId}/invoices",
   },
 ] as const;
-export const options = {
-
-};
+export const options = {};
 
 const ClientDetailPage: React.FC = () => {
-
   const { id } = useLocalSearchParams();
   const clientIdNum = typeof id === "string" ? parseInt(id, 10) : id;
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -113,8 +132,8 @@ const ClientDetailPage: React.FC = () => {
   const request: Request = {
     user: {
       id: user.id,
-      auth_id: user.authId
-    }
+      auth_id: user.authId,
+    },
   };
   const EditButton = () => (
     <LinearGradient
@@ -125,8 +144,7 @@ const ClientDetailPage: React.FC = () => {
         height: 32,
       }}
       start={[0, 0]}
-      end={[1, 1]}
-    >
+      end={[1, 1]}>
       <TouchableOpacity
         onPress={() => {
           bottomSheetRef.current?.present();
@@ -136,8 +154,7 @@ const ClientDetailPage: React.FC = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-        }}
-      >
+        }}>
         <Pencil size={18} color="#ffffff" />
       </TouchableOpacity>
     </LinearGradient>
@@ -150,15 +167,14 @@ const ClientDetailPage: React.FC = () => {
       headerRight: () => <EditButton />,
     });
   }, [navigation]);
-  const { data: client, isError, isLoading } = useQuery<Client>(
+  const {
+    data: client,
+    isError,
+    isLoading,
+  } = useQuery<Client>(
     ["client", clientIdNum],
     async () => {
-      if (!user || !isAuthenticated) {
-        throw new Error("User is not authenticated");
-      }
-
       const clientData = await clientRepo.getSingleClient(clientIdNum);
-      console.log("Fetched Client Data:", clientData);
       return clientData;
     },
     {
@@ -192,7 +208,10 @@ const ClientDetailPage: React.FC = () => {
   const handleNavigationPress = (route: string) => {
     if (route.includes("{projectId}")) {
       const projectId = client?.project?.[0]?.id;
-      const resolvedRoute = route.replace("{projectId}", String(projectId || ""));
+      const resolvedRoute = route.replace(
+        "{projectId}",
+        String(projectId || "")
+      );
       router.push({
         pathname: resolvedRoute,
         params: { clientId: clientIdNum },
@@ -205,15 +224,14 @@ const ClientDetailPage: React.FC = () => {
     }
   };
 
-  const renderNavigationItem = (item: typeof navigationItems[number]) => (
+  const renderNavigationItem = (item: (typeof navigationItems)[number]) => (
     <View key={item.id} className="px-1.5 mt-3 w-1/2">
       <TouchableOpacity
         onPress={() => handleNavigationPress(item.route)}
-        className="border border-light rounded-[20px] p-4"
-      >
+        className="border border-light rounded-[20px] p-4">
         <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
           <Image
-            source={icons[item.id]}
+            source={icons[item.icon]}
             resizeMode="contain"
             className="w-[23px] h-5"
           />
@@ -228,8 +246,6 @@ const ClientDetailPage: React.FC = () => {
     </View>
   );
 
-
-
   const renderClientInfo = () => {
     if (!client) return null;
 
@@ -237,7 +253,9 @@ const ClientDetailPage: React.FC = () => {
       <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
         <View className="flex-row items-center border-b border-light pb-3.5">
           <Image
-            source={client?.logo ? { uri: getImageUrl(client.logo) } : images.user}
+            source={
+              client?.logo ? { uri: getImageUrl(client.logo) } : images.user
+            }
             resizeMode="cover"
             className="rounded-full"
             style={{ width: vs(45), height: vs(45) }}
@@ -289,7 +307,9 @@ const ClientDetailPage: React.FC = () => {
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
           <AppContainer isError={isError} isLoading={isLoading}>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4 pt-2.5">
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              className="px-4 pt-2.5">
               {renderClientInfo()}
               <View className="flex-row flex-wrap -mx-1.5 justify-start">
                 {navigationItems.map(renderNavigationItem)}

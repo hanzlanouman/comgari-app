@@ -76,7 +76,6 @@ const SignUp = () => {
           </Text>
           <View className="mt-6">
             <InputField
-              label="User Name"
               value={formik.values.user_name}
               onChangeText={formik.handleChange("user_name")}
               onBlur={formik.handleBlur("user_name")}
@@ -90,7 +89,6 @@ const SignUp = () => {
           </View>
           <View className="mt-6">
             <InputField
-              label="Full Name"
               value={formik.values.fullName}
               onChangeText={formik.handleChange("fullName")}
               onBlur={formik.handleBlur("fullName")}
@@ -104,7 +102,6 @@ const SignUp = () => {
           </View>
           <View className="mt-3">
             <InputField
-              label="Email"
               value={formik.values.email}
               onChangeText={formik.handleChange("email")}
               onBlur={formik.handleBlur("email")}
@@ -115,7 +112,6 @@ const SignUp = () => {
           </View>
           <View className="mt-3">
             <InputField
-              label="Business Name"
               value={formik.values.businessName}
               onChangeText={formik.handleChange("businessName")}
               onBlur={formik.handleBlur("businessName")}
@@ -125,7 +121,6 @@ const SignUp = () => {
           </View>
           <View className="mt-3">
             <InputField
-              label="Contact Number"
               value={formik.values.phoneNumber}
               onChangeText={formik.handleChange("phoneNumber")}
               onBlur={formik.handleBlur("phoneNumber")}
@@ -135,7 +130,6 @@ const SignUp = () => {
           </View>
           <View className="mt-3">
             <InputField
-              label="Password"
               value={formik.values.password}
               onChangeText={formik.handleChange("password")}
               onBlur={formik.handleBlur("password")}
@@ -146,7 +140,6 @@ const SignUp = () => {
           </View>
           <View className="mt-3">
             <InputField
-              label="Confirm Password"
               value={formik.values.confirmPassword}
               onChangeText={formik.handleChange("confirmPassword")}
               onBlur={formik.handleBlur("confirmPassword")}

@@ -39,7 +39,6 @@ const AddClient = () => {
   };
   const clientUserIds = parseIds(params.clientUserIds)
   
-  console.log("params",params)
   const clientId = params.isEditing === 'true' ? Number(params.clientId) : undefined;
 
   useEffect(() => {

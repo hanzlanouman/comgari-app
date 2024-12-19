@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
 import { APP_NAMES } from "./enum";
 
-const environment = process.env.NODE_ENV;
+export const environment = process.env.NODE_ENV;
 
 const isDev = environment === "development";
 
 const SERVER_HOST = isDev
-  ? "http://192.168.100.7"
+  ? "http://172.20.10.2"
   : "https://comgari-api.devjunction.xyz";
 
 export const SERVER_URL = `${SERVER_HOST}`;

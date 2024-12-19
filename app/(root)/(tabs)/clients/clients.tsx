@@ -50,9 +50,6 @@ const Clients: React.FC = () => {
   const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
     ["clients", start],
     async () => {
-      if (!user || !isAuthenticated) {
-        throw new Error("User is not authenticated");
-      }
 
       const clientListingPayload: ClientListingPayload = {
         start,
@@ -71,7 +68,6 @@ const Clients: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log("API data:", data);
     if (data) {
       setClients(start === 0 ? data : (prevClients) => [...prevClients, ...data]);
     }
@@ -94,8 +90,7 @@ const Clients: React.FC = () => {
   };
 
   const handleClientPress = (clientId: number) => {
-    console.log(`Navigating to: /(root)/(tabs)/clients/${clientId}`);
-    router.push(`/(root)/(tabs)/clients/${clientId}`);
+    router.push(`/clients/${clientId}`);
   };
 
   const renderEmptyState = () => (

@@ -5,16 +5,16 @@ import { route } from "./routes";
 export type TRoute =
   | string
   | {
-      route: string;
-      description?: string;
-      method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    }
+    route: string;
+    description?: string;
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  }
   | {
-      prefix: string;
-      postfix: string;
-      description?: string;
-      method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    };
+    prefix: string;
+    postfix: string;
+    description?: string;
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  };
 
 export type TEndpoint = { [controller: string]: { [route: string]: TRoute } };
 
@@ -52,9 +52,12 @@ export const END_POINTS = {
     },
     CHANGE_PASSWORD: {
       route: AuthUrl + "/change-password",
-      method: "POST",
+      method: "PUT",
       description: "Change password"
     },
+    UPDATE_PROFILE: { route:AuthUrl + "/update-profile",       method: "PUT"
+    },
+    UPDATE_PROFILE_PIC: { route: AuthUrl +"/update-profile-pic",       method: "PUT"    },
   },
   Member: {
     GET_ROLE: {
@@ -77,11 +80,22 @@ export const END_POINTS = {
       method: "GET",
       description: "Get member details"
     },
+    DELETE_MEMBER: {
+      route: UserUrl + "/member",
+      method: "DELETE",
+      description: "Delete member details"
+    },
+    UPDATE_MEMBER: {
+      route: UserUrl + "/member",
+      method: "PUT",
+      description: "Update member details"
+    },
     GET_USER_PERMISSION: {
       route: UserUrl + "/permission",
       method: "GET",
       description: "Get user permissions"
     },
+    
   },
   PAYMENT: {
     CREATE_BUYER: {
@@ -117,7 +131,7 @@ export const END_POINTS = {
       description: "Get all clients with pagination"
     },
     GET_SINGLE_CLIENT: {
-      route: UserUrl + "/client",  
+      route: UserUrl + "/client",
       method: "GET",
       description: "Get details of a single client by ID"
     },
@@ -199,5 +213,46 @@ export const END_POINTS = {
     UPLOAD: {
       route: UserUrl + "/upload"
     },
+    GET_CLIENT_MEDIA: {
+      route: UserUrl + "/client/Get-client-media"
+    },
+    UPDATE_CLIENT_MEDIA:
+      { route: UserUrl + "/client/client-media" },
+      CREATE_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+       GET_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+       UPDATE_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+      DELETE_APPOINTMENT: {
+        route: UserUrl + "/appointment"
+      },
+      CREATE_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+       GET_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+       UPDATE_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+      DELETE_PROPOSAL: {
+        route: UserUrl + "/proposal"
+      },
+      CREATE_INVOICE: {
+        route: UserUrl + "/invoice"
+      },
+      GET_INVOICES: {
+        route: UserUrl + "/invoice"
+      },
+      UPDATE_INVOICE: {
+        route: UserUrl + "/invoice"
+      },
+      DELETE_INVOICE: {
+        route: UserUrl + "/invoice"
+      }
   },
 };

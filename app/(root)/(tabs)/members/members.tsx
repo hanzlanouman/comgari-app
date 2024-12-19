@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\members\members.tsx
 import {
   SafeAreaView,
   ScrollView,
@@ -10,33 +11,101 @@ import {
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/common";
-
+import ActionModal from "./components/ActionModal";
 import { router } from "expo-router";
 import { AppContainer, CustomButton } from "@/common/components";
 import MemberCard from "./components/MemberCard";
-import { useQuery } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { MemberRepository } from "@/repositories";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
-
+import {
+  BottomSheetModal,
+} from "@gorhom/bottom-sheet";
+enum UserStatus {
+  ACTIVE,
+  INACTIVE,
+  SUSPENDED,
+}
 export type TMember = {
   id: number;
-  name: string;
-  image: string;
-  role: string;
+  user_name: string;
+  full_name: string;
+  image?: string;
+  role_id: number;
   email: string;
-  phone: string;
-  status: string;
+  phone?: string;
+  status: UserStatus;
+  permission_ids?: number[];
 };
 
 const Members = () => {
   const MemberRepo = MemberRepository.getInstance();
   const [member, setMembers] = useState<TMember[]>([]);
+  const queryClient = useQueryClient();
+  const [selectedMember, setSelectedMember] = useState<TMember | null>(null);
+
+  const actionModalRef = useRef<BottomSheetModal>(null);
 
   const { data, isError, error, refetch } = useQuery(["member"], async () => {
     return await MemberRepo.getMember();
   });
+
+  // Mutation for deleting a member
+  const deleteMemberMutation = useMutation({
+    mutationFn: () => {
+      if (!selectedMember) throw new Error("No member selected");
+      return MemberRepo.deleteMember(selectedMember.id);
+    },
+    onSuccess: async () => {
+      // Update local state
+      queryClient.setQueryData(["member"], (oldMembers: TMember[] = []) =>
+        oldMembers.filter((member) => member.id !== selectedMember?.id)
+      );
+
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({
+        queryKey: ["member"],
+      });
+
+      // Dismiss modal
+      actionModalRef.current?.dismiss();
+    },
+    onError: (error) => {
+      console.error("Error deleting member:", error);
+      queryClient.invalidateQueries({
+        queryKey: ["member"],
+      });
+    },
+  });
+
+  // Handle member press to open action modal
+  const handleMemberPress = useCallback((member: TMember) => {
+    setSelectedMember(member);
+    actionModalRef.current?.present();
+  }, []);
+
+  const handleUpdatePress = useCallback(() => {
+    actionModalRef.current?.dismiss();
+    if (selectedMember) {
+      router.push({
+        pathname: "/(root)/(tabs)/members/add-member",
+        params: {
+          isEditing: 'true',
+          memberId: selectedMember.id.toString(),
+          memberData: JSON.stringify(selectedMember)
+        }
+      });
+    }
+  }, [selectedMember]);
+
+  // Handle delete press
+  const handleDeletePress = useCallback(() => {
+    if (selectedMember) {
+      deleteMemberMutation.mutate();
+    }
+  }, [selectedMember, deleteMemberMutation]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -46,20 +115,25 @@ const Members = () => {
 
   useEffect(() => {
     if (data) {
-      console.log(data, "Data of member is");
       setMembers(
         data?.data?.map((item: any) => ({
           id: item?.Auth?.user[0]?.id,
-          name: item?.Auth?.user[0]?.full_name,
+          user_name: item?.Auth?.username,
+          full_name: item?.Auth?.user[0]?.full_name,
           image: item?.Auth?.user[0]?.avatar,
-          phone: item?.Auth?.phone || null,
-          email: item?.Auth?.email || null,
-          role: item?.Auth?.user[0]?.user_roles[0]?.role?.name || null,
+          phone: item?.Auth?.phone || undefined,
+          email: item?.Auth?.email || '',
+          role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
           status: item?.Auth?.status,
+          permission_ids: item?.Auth?.user?.[0]?.permission_by_user
+            ?.map((p: any) => p?.permission?.id || p?.permissionId)
+            ?.filter((id: any) => id !== undefined) || []
         })) || []
       );
     }
   }, [data]);
+
+  console.log(member)
 
   return (
     <SafeAreaView>
@@ -67,7 +141,9 @@ const Members = () => {
         <FlatList
           data={member}
           keyExtractor={(item) => item?.id?.toString()}
-          renderItem={({ item }) => <MemberCard member={item} />}
+          renderItem={({ item }) => <TouchableOpacity onPress={() => handleMemberPress(item)}>
+            <MemberCard member={item} />
+          </TouchableOpacity>}
           contentContainerStyle={{
             paddingBottom: vs(10),
           }}
@@ -81,7 +157,7 @@ const Members = () => {
               />
               <View>
                 <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                  We can’t find any
+                  We can't find any
                 </Text>
                 <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
                   member yet!
@@ -89,12 +165,17 @@ const Members = () => {
                 <View className="w-[158px] mx-auto mt-5">
                   <CustomButton
                     title="Add Member"
-                    onPress={() => router.push("/")} // Adjust navigation if needed
+                    onPress={() => router.push("/")}
                   />
                 </View>
               </View>
             </View>
           }
+        />
+        <ActionModal
+          ref={actionModalRef}
+          onUpdate={handleUpdatePress}
+          onDelete={handleDeletePress}
         />
       </AppContainer>
     </SafeAreaView>
