@@ -54,7 +54,6 @@ const SignUp = () => {
 
       mutate(payload, {
         onSuccess: (data) => {
-          console.log(data, "Auth Response");
           router.push({
             pathname: route.auth.Otp,
             params: {
@@ -165,6 +164,7 @@ const SignUp = () => {
         <CustomButton
           title="Sign Up"
           onPress={() => {
+            //router.push("/(auth)/go-pro");
             formik.handleSubmit();
           }}
         />

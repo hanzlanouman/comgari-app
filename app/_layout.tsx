@@ -9,6 +9,9 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { store } from "@/store";
 import { useAppSelector } from "@/hooks/redux";
 import { SimpleActivityIndicator } from "@/common/components/Loader";
+import { AuthorizationProvider } from "@/context/PermissionContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,13 +50,18 @@ function LayoutWrapper() {
   return (
     <Fragment>
       {isLoading && <SimpleActivityIndicator />}
-
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(root)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <AuthorizationProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <BottomSheetModalProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(root)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </AuthorizationProvider>
     </Fragment>
   );
 }

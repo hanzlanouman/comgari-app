@@ -16,10 +16,12 @@ import { useMutation } from "react-query";
 import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
 import { login } from "@/store";
+import { OTP_TYPE } from "@/common/enum";
 
 const SignIn = () => {
   const AuthRepo = AuthRepository.getInstance();
   const dispatch = useAppDispatch();
+  const [otpScreen, setOtpScreen] = useState(false);
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: LoginPayload) => AuthRepo.login(payload),
   });
@@ -30,17 +32,39 @@ const SignIn = () => {
     },
     validationSchema: LoginSchema,
     onSubmit: (value) => {
-      console.log(formik.values, "Value");
       mutate(value, {
         onSuccess: (data) => {
+          console.log(data, "Data here is");
           dispatch(login(data));
-          console.log(data, "data");
+        },
+        onError: (error) => {
+          console.log("Error received:", error);
+
+          // Adjust based on actual error structure
+          if (error.message === "Please Verify Your Account First") {
+            console.log("Account verification required.");
+            setOtpScreen(true);
+          }
         },
       });
     },
   });
+  const onClick = () => {
+    router.push({
+      pathname: route.auth.Otp,
+      params: {
+        username: formik.values.email,
+
+        type: OTP_TYPE.MEMBER_VERIFICATION,
+      },
+    });
+  };
   return (
-    <AppContainer hasScroll isError={isError} message={error?.message}>
+    <AppContainer
+      hasScroll
+      isError={isError}
+      message={error?.message}
+      onPress={otpScreen ? onClick : undefined}>
       <ImageBackground
         source={images.login}
         resizeMode="cover"

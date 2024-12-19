@@ -8,6 +8,7 @@ import login from "@/assets/images/login.jpg";
 
 import user from "@/assets/images/user.jpg";
 
+
 export const images = {
   onboarding1,
   onboarding2,
@@ -46,3 +47,5 @@ export const onboarding = [
 export const data = {
   onboarding,
 };
+
+

@@ -158,7 +158,6 @@ export default function AddMemberForm({
         <CustomButton
           title="Add Member"
           onPress={() => {
-            console.log(formik.errors, "Error is");
             formik.handleSubmit();
           }}
         />
