@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView, ScrollView } from "react-native";
@@ -6,9 +6,10 @@ import { vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import * as DocumentPicker from "expo-document-picker";
-import { Upload } from "lucide-react-native";
+import { Accessibility, Upload } from "lucide-react-native";
 import { useMutation } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -36,6 +37,8 @@ type MediaItem = {
   clientId: number;
   ownerId: number;
   ownerType: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 const Media: React.FC = () => {
@@ -46,7 +49,7 @@ const Media: React.FC = () => {
   const { clientId } = useLocalSearchParams();
   const navigation = useNavigation();
   const id = Number(clientId);
-  const fetchClientMedia = async () => {
+  const fetchClientMedia = useCallback(async () => {
     try {
       const response = await clientRepo.getClientMedia({
         client_id: id,
@@ -58,10 +61,16 @@ const Media: React.FC = () => {
     } catch (error: any) {
       Alert.alert("Error", `Failed to fetch media: ${error.message}`);
     }
-  };
+  }, [id]);
+
+  // Refetch data when the screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchClientMedia();
+    }, [fetchClientMedia])
+  );
 
   useEffect(() => {
-    fetchClientMedia();
     navigation.setOptions({
       headerShown: true,
       title: "Media",
@@ -81,6 +90,7 @@ const Media: React.FC = () => {
     },
     { images: [], videos: [], documents: [] }
   );
+
   const uploadMediaMutation = useMutation({
     mutationFn: async (file: {
       uri: string;

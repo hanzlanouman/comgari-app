@@ -19,20 +19,20 @@ import { route } from "@/common";
 import { AppContainer } from "@/common/components";
 export type TOtpProps =
   | {
-      username: string;
-      authResponse: string;
-      type: OTP_TYPE.VIERIFICATION;
-    }
+    username: string;
+    authResponse: string;
+    type: OTP_TYPE.VIERIFICATION;
+  }
   | {
-      username: string;
-      type: OTP_TYPE.PASSWORD_RESET;
-      authResponse?: string;
-    }
+    username: string;
+    type: OTP_TYPE.PASSWORD_RESET;
+    authResponse?: string;
+  }
   | {
-      username: string;
-      type: OTP_TYPE.MEMBER_VERIFICATION;
-      authResponse?: string;
-    };
+    username: string;
+    type: OTP_TYPE.MEMBER_VERIFICATION;
+    authResponse?: string;
+  };
 export type TOtpComponentProps = {
   afterVerifyRoute: string;
   resetPassworRoute: string;
@@ -126,14 +126,8 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     <AppContainer isError={isError} message={error?.message}>
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
-          <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
-            Enter OTP Code!
-          </Text>
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-            We have send the code to{" "}
-            <Text className="font-ManropeMedium text-blue">+92 3410566466</Text>
-            , and
-            <Text className="font-ManropeMedium text-blue"> {username}</Text>
+          We have sent the verification code to your registered contact number and email. Please check your SMS or email to retrieve the code.
           </Text>
           <View className="flex-row -mx-2 mt-5">
             {formik.values.otp.map((_, index) => (
@@ -158,12 +152,14 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
           </View>
           <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
             Don’t receive OTP:{" "}
-            <TouchableOpacity
+            <Text
               className="text-blue underline font-ManropeSemibold"
-              onPress={resendOtp}>
-              <Text>Resend code</Text>
-            </TouchableOpacity>
+              onPress={resendOtp}
+            >
+              Resend code
+            </Text>
           </Text>
+
         </View>
         <View className="px-4">
           <CustomButton

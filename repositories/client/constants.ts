@@ -1,17 +1,18 @@
 import {TaskPayload} from "./types"
 
 export const STATUS_OPTIONS = [
-    { key: 'TO_DO', value: 'TO_DO' },
-    { key: 'IN_PROGRESS', value: 'IN_PROGRESS' },
-    { key: 'COMPLETED', value: 'COMPLETED' },
-    { key: 'ON_HOLD', value: 'ON_HOLD' },
-    { key: 'CANCELLED', value: 'CANCELLED' }
-  ];
+  { key: 'TO_DO', value: 'To Do' },
+  { key: 'IN_PROGRESS', value: 'In Progress' },
+  { key: 'COMPLETED', value: 'Completed' },
+  { key: 'ON_HOLD', value: 'On Hold' },
+  { key: 'CANCELLED', value: 'Cancelled' },
+];
+
 
   export const PRIORITY_OPTIONS = [
-    { key: 'high', value: 'high' },
-    { key: 'medium', value: 'medium' },
-    { key: 'low', value: 'low' }
+    { key: 'high', value: 'High' },
+    { key: 'medium', value: 'Medium' },
+    { key: 'low', value: 'Low' }
   ];
   
 export const INITIAL_FORM_VALUES: Omit<TaskPayload, 'projectId'> = {

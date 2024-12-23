@@ -1,14 +1,31 @@
 import React, { useRef, useMemo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { Formik } from "formik";
+import * as yup from "yup"; 
 import { CalendarDays } from "lucide-react-native";
 import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { CustomButton, InputField, Backdrop } from "@/common/components";
+import {
+  CustomButton,
+  InputField,
+  Backdrop,
+  MultiSelectDropdown,
+  DropdownSelect,
+} from "@/common/components";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { MultiSelectDropdown, DropdownSelect } from '@/common/components';
+import {
+  PRIORITY_OPTIONS,
+  STATUS_OPTIONS,
+} from "@/repositories/client/constants";
 import { MemberRepository } from "@/repositories/member/member";
 import { TaskPayload, UpdateTaskPayload, Action, MemberAction } from "@/repositories/client/types";
-import { PRIORITY_OPTIONS,STATUS_OPTIONS  } from "@/repositories/client/constants";
 
 interface TaskFormModalProps {
   bottomSheetRef: React.RefObject<BottomSheetModal>;
@@ -30,7 +47,9 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
   const snapPoints = useMemo(() => ["50%", "90%"], []);
   const formikRef = useRef<any>();
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-  const [memberOptions, setMemberOptions] = useState<Array<{ key: number; value: string }>>([]);
+  const [memberOptions, setMemberOptions] = useState<
+    Array<{ key: number; value: string }>
+  >([]);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
   const memberRepo = MemberRepository.getInstance();
 
@@ -55,64 +74,31 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
     }
   };
 
-  const getInitialFormValues = () => {
-    const isEditMode = mode === "edit";
-    return {
-      title: initialValues.title || "",
-      selectedMembers: isEditMode ? currentMembers : [],
-      assignedTo: !isEditMode ? currentMembers : undefined, 
-      assingedTo: isEditMode
-        ? currentMembers.map((memberId) => ({
-            member_id: memberId,
-            action: "Add" as Action,
-          }))
-        : undefined, 
-      projectId: initialValues.projectId || "",
-      dueDate: initialValues.dueDate || new Date().toISOString(),
-      priority: initialValues.priority || "medium",
-      status: initialValues.status || "TO_DO",
-    };
-  };
-  
+  const validationSchema = yup.object().shape({
+    title: yup.string().required("Title is required"),
+    dueDate: yup.string().required("Due date is required"),
+    priority: yup.string().required("Priority is required"),
+    status: yup.string().required("Status is required"),
+  });
 
-const handleMemberSelection = (name: string, selectedValues: string[]) => {
-  const newMembers = selectedValues.map(Number);
-
-  if (mode === "edit") {
-    const memberActions: MemberAction[] = [];
-
-    newMembers.forEach((memberId) => {
-      if (!currentMembers.includes(memberId)) {
-        memberActions.push({ member_id: memberId, action: "Add" });
-      }
-    });
-
-    currentMembers.forEach((memberId) => {
-      if (!newMembers.includes(memberId)) {
-        memberActions.push({ member_id: memberId, action: "Remove" });
-      }
-    });
-
-    formikRef.current?.setFieldValue("assingedTo", memberActions);
-    formikRef.current?.setFieldValue("selectedMembers", newMembers);
-  } else {
-    formikRef.current?.setFieldValue("assignedTo", newMembers);
-    formikRef.current?.setFieldValue("selectedMembers", newMembers);
-  }
-};
-
+  const getInitialFormValues = () => ({
+    title: initialValues.title || "",
+    selectedMembers: mode === "edit" ? currentMembers : [],
+    assignedTo: mode !== "edit" ? currentMembers : undefined,
+    projectId: initialValues.projectId || "",
+    dueDate: initialValues.dueDate || new Date().toISOString(),
+    priority: initialValues.priority || "medium",
+    status: initialValues.status || "TO_DO",
+  });
 
   const handleFormSubmit = async (values: TaskPayload | UpdateTaskPayload) => {
     try {
-      console.log("values:",)
       await onSubmit(values);
       bottomSheetRef.current?.dismiss();
     } catch (error) {
-      console.error("Form submission error:", error);
       Alert.alert("Error", "Failed to submit the form. Please try again.");
     }
   };
-
 
   const hideDatePicker = () => {
     setDatePickerVisible(false);
@@ -123,17 +109,13 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
     hideDatePicker();
   };
 
-
-
   return (
     <BottomSheetModal
       ref={bottomSheetRef}
       index={1}
       snapPoints={snapPoints}
       backdropComponent={Backdrop}
-      backgroundStyle={{
-        borderRadius: 24,
-      }}
+      backgroundStyle={{ borderRadius: 24 }}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -142,9 +124,17 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
         <Formik
           innerRef={formikRef}
           initialValues={getInitialFormValues()}
+          validationSchema={validationSchema} // Attach validation schema
           onSubmit={handleFormSubmit}
         >
-          {({ handleChange, handleSubmit, values, setFieldValue }) => (
+          {({
+            handleChange,
+            handleSubmit,
+            values,
+            setFieldValue,
+            errors,
+            touched,
+          }) => (
             <BottomSheetScrollView
               className="flex-1"
               contentContainerStyle={{
@@ -154,6 +144,7 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
               }}
             >
               <View className="space-y-4">
+                {/* Title Field */}
                 <View>
                   <InputField
                     value={values.title}
@@ -161,8 +152,14 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                     placeholder="Title"
                     className="bg-white"
                   />
+                  {touched.title && errors.title && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {errors.title}
+                    </Text>
+                  )}
                 </View>
 
+                {/* Due Date Field */}
                 <View>
                   <TouchableOpacity
                     activeOpacity={0.7}
@@ -170,22 +167,20 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                     className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl flex-row items-center"
                   >
                     <Text className="flex-1 text-black font-ManropeMedium">
-                      {values.dueDate ? new Date(values.dueDate).toLocaleDateString() : "Date"}
+                      {values.dueDate
+                        ? new Date(values.dueDate).toLocaleDateString()
+                        : "Date"}
                     </Text>
                     <CalendarDays size={16} color="#4A4A4A" />
                   </TouchableOpacity>
+                  {touched.dueDate && errors.dueDate && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {errors.dueDate}
+                    </Text>
+                  )}
                 </View>
 
-                <View>
-                  <MultiSelectDropdown
-                    placeholder="Assignment"
-                    data={memberOptions || []}
-                    selectedValues={(values.selectedMembers || []).map(String)}
-                    setFieldValue={handleMemberSelection}
-                    fieldName="selectedMembers"
-                  />
-                </View>
-
+                {/* Priority Field */}
                 <View>
                   <DropdownSelect
                     placeholder="Priority"
@@ -194,7 +189,14 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                     setFieldValue={setFieldValue}
                     fieldName="priority"
                   />
+                  {touched.priority && errors.priority && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {errors.priority}
+                    </Text>
+                  )}
                 </View>
+
+                {/* Status Field */}
                 <View>
                   <DropdownSelect
                     placeholder="Status"
@@ -203,17 +205,34 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                     setFieldValue={setFieldValue}
                     fieldName="status"
                   />
+                  {touched.status && errors.status && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {errors.status}
+                    </Text>
+                  )}
                 </View>
 
+                {/* Submit Button */}
                 <View className="flex-row pt-4">
-                  <View className={`flex-1 ${mode === "edit" ? "mr-2" : ""}`}>
+                  <View
+                    className={`flex-1 ${
+                      mode === "edit" ? "mr-2" : ""
+                    }`}
+                  >
                     <CustomButton
-                      title={isLoading ? `${mode === "add" ? "Adding" : "Updating"}` : `${mode === "add" ? "Add Task" : "Update Task"}`}
+                      title={
+                        isLoading
+                          ? mode === "add"
+                            ? "Adding"
+                            : "Updating"
+                          : mode === "add"
+                          ? "Add Task"
+                          : "Update Task"
+                      }
                       onPress={() => handleSubmit()}
                       disabled={isLoading}
                     />
                   </View>
-
                 </View>
               </View>
 
@@ -222,7 +241,9 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
                 mode="date"
                 onConfirm={handleConfirm}
                 onCancel={hideDatePicker}
-                date={values.dueDate ? new Date(values.dueDate) : new Date()}
+                date={
+                  values.dueDate ? new Date(values.dueDate) : new Date()
+                }
               />
             </BottomSheetScrollView>
           )}
@@ -233,4 +254,3 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
 };
 
 export default TaskFormModal;
-

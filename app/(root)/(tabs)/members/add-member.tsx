@@ -150,7 +150,6 @@ const AddMember = () => {
 
         updatePayload.status = values.status;
 
-        console.error("updating", updatePayload);
 
         updateMutation.mutate(updatePayload, {
 
@@ -159,7 +158,6 @@ const AddMember = () => {
           },
         });
       } else {
-        console.error("creating", values);
 
         mutate(values, {
           onSuccess: () => {

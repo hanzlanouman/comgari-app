@@ -89,6 +89,22 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     }));
   };
 
+  // Helper function to check if there are any changes
+  const hasUpdates = () => {
+    const currentMemberIds = [...new Set(values.selectedMembers.map(Number))];
+    const initialMemberIds = [...new Set(initialSelectedMembers.map(Number))];
+
+    return (
+      values.titleOfMeeting.trim() !== (initialData?.titleOfMeeting || "").trim() ||
+      values.notes.trim() !== (initialData?.notes || "").trim() ||
+      values.selectedClient !== initialData?.selectedClient ||
+      values.status !== initialData?.status ||
+      selectedDate?.toISOString() !== initialData?.selectedDate?.toISOString() ||
+      currentMemberIds.length !== initialMemberIds.length ||
+      !currentMemberIds.every((id) => initialMemberIds.includes(id))
+    );
+  };
+
   // Handle form submission
   const handleSubmitAppointment = async () => {
     // Validation checks
@@ -113,6 +129,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
 
     try {
       if (isEditing && appointmentId) {
+        if (!hasUpdates()) {
+          Alert.alert("No Updates", "No changes were made to the appointment.");
+          setIsSubmitting(false);
+          onSubmitSuccess?.();
+
+          return;
+
+        }
         // Convert to numbers and remove invalid IDs
         const currentMemberIds = [...new Set(
           values.selectedMembers.map(id => Number(id)).filter(id => !isNaN(id))
@@ -145,8 +169,6 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
             appointment_member: memberActions
           }),
         };
-
-        console.log('Update Payload:', JSON.stringify(updatePayload, null, 2));
 
         await clientRepo.updateAppointment(Number(appointmentId), updatePayload);
         Alert.alert("Success", "Appointment updated successfully");

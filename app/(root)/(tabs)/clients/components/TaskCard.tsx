@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import { vs } from "react-native-size-matters";
 import { ChevronsUp, ChevronDown, ChevronUp } from "lucide-react-native";
 import { images } from "@/constants";
+import { STATUS_OPTIONS, PRIORITY_OPTIONS } from "@/repositories/client/constants"; // Import options
 
 interface Member {
   id: number;
@@ -24,13 +25,16 @@ interface TaskCardProps {
   onPress?: () => void;
 }
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
+// Utility function to get the display value for status
+const getStatusDisplayValue = (statusKey: string) => {
+  const status = STATUS_OPTIONS.find((option) => option.key === statusKey);
+  return status ? status.value : "Unknown";
+};
+
+// Utility function to get the display value for priority
+const getPriorityDisplayValue = (priorityKey: string) => {
+  const priority = PRIORITY_OPTIONS.find((option) => option.key === priorityKey);
+  return priority ? priority.value : "Unknown";
 };
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
@@ -38,12 +42,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
     if (task.priority === "high") return <ChevronsUp size={18} color="#E03137" />;
     if (task.priority === "medium") return <ChevronUp size={18} color="#F9A000" />;
     return <ChevronDown size={18} color="#1B78B9" />;
-  };
-
-  const getPriorityColor = () => {
-    if (task.priority === "high") return "text-red";
-    if (task.priority === "medium") return "text-yellow";
-    return "text-blue";
   };
 
   const renderMembers = () => {
@@ -54,7 +52,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
     const totalMembers = task.task_member.length;
     const visibleMembers = task.task_member.slice(0, maxVisibleMembers);
     const remainingCount = totalMembers - maxVisibleMembers;
-  
+
     return (
       <View className="flex-row items-center">
         <View className="flex-row items-center">
@@ -73,10 +71,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
             </View>
           ))}
           {remainingCount > 0 && (
-            <View 
-              className="-ml-3"
-              style={{ zIndex: 0 }}
-            >
+            <View className="-ml-3" style={{ zIndex: 0 }}>
               <View className="w-[30px] h-[30px] rounded-full border-2 border-white bg-gray-100 items-center justify-center">
                 <Text className="text-xs font-ManropeMedium text-gray-600">
                   +{remainingCount}
@@ -93,17 +88,25 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
       </View>
     );
   };
-  
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
+    <TouchableOpacity
+      onPress={onPress}
       className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
     >
       <View className="flex-row items-center">
         {getPriorityIcon()}
-        <Text className={`text-sm font-ManropeSemibold ml-1.5 ${getPriorityColor()}`}>
-          {task.priority}
+        <Text className={`text-sm font-ManropeSemibold ml-1.5`}>
+          {getPriorityDisplayValue(task.priority)}
         </Text>
       </View>
       <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6 mt-1">
@@ -119,8 +122,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
           <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
             <View className="bg-blue w-1.5 h-1.5" />
           </View>
-          <Text className="text-base font-ManropeMedium text-blue ml-2">
-            {task.status || "Todo"}
+          <Text className="text-xs font-ManropeMedium text-blue ml-2">
+            {getStatusDisplayValue(task.status || "TO_DO")}
           </Text>
         </View>
       </View>

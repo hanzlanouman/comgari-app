@@ -164,6 +164,8 @@ const Brief = () => {
         <RichToolbar
           editor={richText}
           actions={[
+            actions.undo,
+            actions.redo,
             actions.setBold,
             actions.setItalic,
             actions.setUnderline,
@@ -171,12 +173,8 @@ const Brief = () => {
             actions.insertBulletsList,
             actions.insertOrderedList,
             "customInsertLink",
-            actions.keyboard,
-            actions.setStrikethrough,
-            actions.removeFormat,
             actions.checkboxList,
-            actions.undo,
-            actions.redo,
+
           ]}
           iconMap={{
             [actions.heading1]: handleHead,

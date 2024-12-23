@@ -52,24 +52,20 @@ const Members = () => {
     return await MemberRepo.getMember();
   });
 
-  // Mutation for deleting a member
   const deleteMemberMutation = useMutation({
     mutationFn: () => {
       if (!selectedMember) throw new Error("No member selected");
       return MemberRepo.deleteMember(selectedMember.id);
     },
     onSuccess: async () => {
-      // Update local state
       queryClient.setQueryData(["member"], (oldMembers: TMember[] = []) =>
         oldMembers.filter((member) => member.id !== selectedMember?.id)
       );
 
-      // Invalidate and refetch
       await queryClient.invalidateQueries({
         queryKey: ["member"],
       });
 
-      // Dismiss modal
       actionModalRef.current?.dismiss();
     },
     onError: (error) => {
@@ -80,7 +76,6 @@ const Members = () => {
     },
   });
 
-  // Handle member press to open action modal
   const handleMemberPress = useCallback((member: TMember) => {
     setSelectedMember(member);
     actionModalRef.current?.present();
@@ -100,7 +95,6 @@ const Members = () => {
     }
   }, [selectedMember]);
 
-  // Handle delete press
   const handleDeletePress = useCallback(() => {
     if (selectedMember) {
       deleteMemberMutation.mutate();
@@ -116,24 +110,25 @@ const Members = () => {
   useEffect(() => {
     if (data) {
       setMembers(
-        data?.data?.map((item: any) => ({
-          id: item?.Auth?.user[0]?.id,
-          user_name: item?.Auth?.username,
-          full_name: item?.Auth?.user[0]?.full_name,
-          image: item?.Auth?.user[0]?.avatar,
-          phone: item?.Auth?.phone || undefined,
-          email: item?.Auth?.email || '',
-          role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
-          status: item?.Auth?.status,
-          permission_ids: item?.Auth?.user?.[0]?.permission_by_user
-            ?.map((p: any) => p?.permission?.id || p?.permissionId)
-            ?.filter((id: any) => id !== undefined) || []
-        })) || []
+        data?.data
+          ?.map((item: any) => ({
+            id: item?.Auth?.user[0]?.id,
+            user_name: item?.Auth?.username,
+            full_name: item?.Auth?.user[0]?.full_name,
+            image: item?.Auth?.user[0]?.avatar,
+            phone: item?.Auth?.phone || undefined,
+            email: item?.Auth?.email || '',
+            role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
+            status: item?.Auth?.status,
+            permission_ids: item?.Auth?.user?.[0]?.permission_by_user
+              ?.map((p: any) => p?.permission?.id || p?.permissionId)
+              ?.filter((id: any) => id !== undefined) || [],
+          }))
+          ?.sort((a, b) => b.id - a.id) // Sort members by descending order of `id`
       );
     }
   }, [data]);
-
-  console.log(member)
+  
 
   return (
     <SafeAreaView>
@@ -157,15 +152,12 @@ const Members = () => {
               />
               <View>
                 <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                  We can't find any
-                </Text>
-                <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                  member yet!
+                It looks like no team members have been added yet. Start growing your team by adding new members who can help manage clients and properties. 
                 </Text>
                 <View className="w-[158px] mx-auto mt-5">
                   <CustomButton
                     title="Add Member"
-                    onPress={() => router.push("/")}
+                    onPress={() => router.push("/(root)/(tabs)/members/add-member")}
                   />
                 </View>
               </View>

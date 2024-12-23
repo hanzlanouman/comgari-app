@@ -16,7 +16,7 @@ import ClientCard from "./components/ClientCard";
 import { ClientRepository } from "@/repositories/client/client";
 import { ClientListingPayload } from "@/repositories/client/schemas";
 import { useAppSelector } from "@/hooks/redux";
-import {  ClientType, ClientStatus } from '@/common/types';
+import { ClientType, ClientStatus } from '@/common/types';
 
 
 interface Client {
@@ -43,7 +43,7 @@ const Clients: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [start, setStart] = useState(0);
   const [limit] = useState(10);
-  
+
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
@@ -55,7 +55,7 @@ const Clients: React.FC = () => {
         start,
         limit,
       };
-      
+
       const response = await clientRepo.getClients(clientListingPayload, {
         user,
       });
@@ -63,7 +63,7 @@ const Clients: React.FC = () => {
     },
     {
       keepPreviousData: true,
-      enabled: !!user && isAuthenticated, 
+      enabled: !!user && isAuthenticated,
     }
   );
 
@@ -96,7 +96,7 @@ const Clients: React.FC = () => {
   const renderEmptyState = () => (
     <View className="flex-grow flex-col items-center justify-center px-4">
       <Image
-        source={images.client}
+        source={images.member}
         resizeMode="contain"
         style={{ width: scale(150), height: vs(150) }}
         className="mx-auto"
@@ -118,13 +118,13 @@ const Clients: React.FC = () => {
     </View>
   );
 
-
+  console.log(clients)
 
   const renderClientsList = () => (
     <View className="pb-20">
       {clients.map((client) => (
-        <ClientCard 
-          key={client.id} 
+        <ClientCard
+          key={client.id}
           client={{
             ...client,
             description: client.description,
@@ -140,17 +140,21 @@ const Clients: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AppContainer 
+      <AppContainer
         isError={isError}
         isLoading={isLoading}
       >
-        <ScrollView 
+        <ScrollView
           className="flex-1 px-5"
           onRefresh={handleRefresh}
           refreshing={isLoading}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
         >
+          <Text className="text-sm  text-dark-100 mt-3">
+            Welcome to your client overview! Here, you can track all your client interactions, manage leads, and monitor project statuses. Assignments, property details, and due dates are easily visible for each client.
+
+          </Text>
           {clients.length > 0 ? renderClientsList() : renderEmptyState()}
         </ScrollView>
       </AppContainer>

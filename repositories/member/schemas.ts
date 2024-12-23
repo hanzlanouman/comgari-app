@@ -22,7 +22,7 @@ export const memberSchema = Yup.object().shape({
     .oneOf(Object.values(UserStatus), "Invalid status.")
     .required("Status is required."),
   role_id: Yup.number()
-    .required("Role ID is required.")
+    .optional()
     .typeError("Role ID must be a number."),
 });
 

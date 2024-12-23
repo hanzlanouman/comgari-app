@@ -29,7 +29,7 @@ import { useMutation } from "react-query";
 import { CustomButton } from "@/common/components";
 import { getImageUrl, images } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
-import { InsertLinkModal}  from "../../components/InsertLinkModal";
+import { InsertLinkModal } from "../../components/InsertLinkModal";
 
 // Constants for file validation
 const ALLOWED_TYPES = [
@@ -126,7 +126,6 @@ const AddNote = () => {
         type: file.type || "image/jpeg",
         name: file.fileName || "file.jpg",
       } as any;
-      console.log(fileToUpload, "File to upload");
       formData.append("files", fileToUpload);
 
       const response = await clientRepo.uploadMedia(formData);
@@ -147,7 +146,6 @@ const AddNote = () => {
       media?: MediaUpdatePayload[];
     }) => {
       if (isEditMode) {
-        console.log("editing payload is", payload);
         // Update notes
         if (payload.notes || payload.project_id) {
           await clientRepo.updateNote(parsedNoteDetails.id, {
@@ -188,18 +186,17 @@ const AddNote = () => {
         ownerId: media.ownerId,
         ownerType: media.ownerType,
       }));
-
-      // Use a functional update with a stable reference
+  
+      // Initialize only if `uploadedMedia` is empty
       setUploadedMedia((prevMedia) => {
-        // Only update if the initial media is different
-        const shouldUpdate =
-          initialMedia.length !== prevMedia.filter((media) => media.id).length;
-        return shouldUpdate
-          ? [...initialMedia, ...prevMedia.filter((media) => !media.id)]
-          : prevMedia;
+        if (prevMedia.length === 0) {
+          return initialMedia;
+        }
+        return prevMedia;
       });
     }
   }, [isEditMode, parsedNoteDetails?.media, projectId]);
+  
 
   // Formik form management
   const formik = useFormik({
@@ -333,13 +330,10 @@ const AddNote = () => {
         }
       }
 
-      // Explicitly log what's being added to help debug
-      console.log("New uploaded media items:", newUploadedMediaItems);
 
       // Update state with new media items
       setUploadedMedia((prevMedia) => {
         const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
-        console.log("Updated media state:", updatedMedia);
         return updatedMedia;
       });
     } catch (error: any) {
@@ -350,16 +344,19 @@ const AddNote = () => {
   };
 
   const removeMedia = (index: number) => {
-    const mediaToRemove = uploadedMedia[index];
-
-    // If the media has an existing ID, track it for removal
-    if (mediaToRemove.id) {
-      setRemovedMediaIds((prev) => [...prev, mediaToRemove.id]);
-    }
-
-    // Remove the media from the uploaded media list
-    setUploadedMedia((prev) => prev.filter((_, i) => i !== index));
+    setUploadedMedia((prevMedia) => {
+      const updatedMedia = prevMedia.filter((_, i) => i !== index);
+  
+      // Track removed media IDs if they exist
+      const mediaToRemove = prevMedia[index];
+      if (mediaToRemove?.id) {
+        setRemovedMediaIds((prevRemovedIds) => [...prevRemovedIds, mediaToRemove.id]);
+      }
+  
+      return updatedMedia; // Return the updated list
+    });
   };
+  
 
   // Upload button component
   const UploadButton = () => (
@@ -420,9 +417,10 @@ const AddNote = () => {
     setLinkText("");
   };
   const renderMediaPreview = (media: MediaItem, index: number) => {
-    console.log(media, "Media is this");
-    const previewSource = getMediaPreview(media.mimeType, media.url);
-    console.log(previewSource, "Previ source");
+    const previewSource = getMediaPreview(media.mimeType, media.localUri || media.url);
+    const isImage = media.mimeType?.includes("image");
+    const isVideo = media.mimeType?.includes("video");
+    const isPDFOrText = media.mimeType?.includes("pdf") || media.mimeType?.includes("text");
     return (
       <View
         key={index}
@@ -434,13 +432,20 @@ const AddNote = () => {
         }}
         className="relative">
         <TouchableOpacity
-          className="bg-red-500 flex items-center justify-center w-6 h-6 rounded-full absolute top-2 right-2 z-10"
+          className="bg-red flex items-center justify-center w-6 h-6 rounded-full absolute top-2 right-2 z-10"
           onPress={() => removeMedia(index)}
           disabled={isUploading}>
           <Trash2 size={12} color="#ffffff" />
         </TouchableOpacity>
 
-        {media.mimeType.includes("video") ? (
+        {isImage ? (
+          <Image
+            source={{ uri: media.localUri }}
+            style={{ width: "100%", height: "100%" }}
+            className="rounded-[20px]"
+            resizeMode="cover"
+          />
+        ) : isVideo ? (
           <Video
             source={{ uri: media.localUri }}
             style={{ width: "100%", height: "100%" }}
@@ -448,13 +453,39 @@ const AddNote = () => {
             resizeMode="cover"
             shouldPlay={false}
           />
+        ) : isPDFOrText ? (
+          <View
+            style={{
+              width: "100%",
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#f3f3f3",
+              borderRadius: 20,
+            }}
+          >
+            <Image
+              source={previewSource}
+              style={{ width: "100%", height: "100%" }}
+              className="rounded-[20px]"
+              resizeMode="contain"
+            />
+          </View>
         ) : (
-          <Image
-            source={{ uri: media.localUri }}
-            style={{ width: "100%", height: "100%" }}
-            className="rounded-[20px]"
-            resizeMode="cover"
-          />
+          <View
+            style={{
+              width: "100%",
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#f3f3f3",
+              borderRadius: 20,
+            }}
+          >
+            <Text style={{ color: "#4A4A4A", fontSize: 14, textAlign: "center" }}>
+              Unsupported File
+            </Text>
+          </View>
         )}
       </View>
     );
@@ -465,6 +496,8 @@ const AddNote = () => {
         <RichToolbar
           editor={richText}
           actions={[
+            actions.undo,
+            actions.redo,
             actions.setBold,
             actions.setItalic,
             actions.setUnderline,
@@ -472,12 +505,7 @@ const AddNote = () => {
             actions.insertBulletsList,
             actions.insertOrderedList,
             "customInsertLink",
-            actions.keyboard,
-            actions.setStrikethrough,
-            actions.removeFormat,
             actions.checkboxList,
-            actions.undo,
-            actions.redo,
           ]}
           iconMap={{
             [actions.heading1]: handleHead,
@@ -544,15 +572,15 @@ const AddNote = () => {
           disabled={isUploading}
         />
       </View>
-                  <InsertLinkModal
-              visible={isLinkModalVisible}
-              onClose={closeLinkModal}
-              onInsert={handleInsertLink}
-              linkURL={linkURL}
-              setLinkURL={setLinkURL}
-              linkText={linkText}
-              setLinkText={setLinkText}
-            />
+      <InsertLinkModal
+        visible={isLinkModalVisible}
+        onClose={closeLinkModal}
+        onInsert={handleInsertLink}
+        linkURL={linkURL}
+        setLinkURL={setLinkURL}
+        linkText={linkText}
+        setLinkText={setLinkText}
+      />
     </SafeAreaView>
   );
 };

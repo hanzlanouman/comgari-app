@@ -39,8 +39,10 @@ const Welcome = () => {
       </View>
       <View className="px-5 absolute bottom-0 left-0 w-full pb-6 sm:pb-6">
         <Text className="text-3xl sm:text-4xl text-white font-ManropeBold text-center mb-12 px-2 sm:px-0">
-          Here to mend your world with care and a smile, one fix at a time.
+          Simplifying Success, One Client at a Time.{"\n"}
+          Manage Your Business Like Never Before!
         </Text>
+
         <TouchableOpacity
           onPress={() => router.push(route.auth.login)}
           className="bg-white w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">

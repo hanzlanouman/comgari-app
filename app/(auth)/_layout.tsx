@@ -30,18 +30,18 @@ const Layout = () => {
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />
       <Stack.Screen
         name="forgot-password"
-        options={{ headerShown: true, title: "", headerBackTitle: "Sign In" }}
+        options={{ headerShown: true, title: "Forgot Password?", headerBackTitle: "Sign In" }}
       />
-      <Stack.Screen name="otp" options={{ headerShown: true, title: "" }} />
+      <Stack.Screen name="otp" options={{ headerShown: true, title: "Enter OTP Code!" }} />
       <Stack.Screen
         name="reset-password"
-        options={{ headerShown: true, title: "" }}
+        options={{ headerShown: true, title: "Reset Your Password" }}
       />
       <Stack.Screen
         name="sign-up"
         options={{
           headerShown: true,
-          title: "Create Account",
+          title: "Sign Up to Comgari",
           headerBackTitle: "Welcome",
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
@@ -52,15 +52,15 @@ const Layout = () => {
           ),
         }}
       />
-      <Stack.Screen name="go-pro" options={{ headerShown: true, title: "" }} />
+      <Stack.Screen name="go-pro" options={{ headerShown: true, title: "Upgrade to Pro with Comgari!" }} />
 
       <Stack.Screen
         name="payment-method"
-        options={{ headerShown: true, title: "Payment Method" }}
+        options={{ headerShown: true, title: "Choose a Payment Option" }}
       />
       <Stack.Screen
         name="add-card"
-        options={{ headerShown: true, title: "Add Card" }}
+        options={{ headerShown: true, title: "Link Your Card" }}
       />
     </Stack>
   );

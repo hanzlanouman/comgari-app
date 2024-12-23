@@ -48,11 +48,8 @@ const ResetPassword = () => {
     <AppContainer isError={isError} message={error?.message}>
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
-          <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
-            Reset Your Password
-          </Text>
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Password must be different than before.
+            Enter your new password below to reset your account password. Use strong password that include numbers, letters, and punctuation marks.
           </Text>
           <View className="mt-6">
             <InputField

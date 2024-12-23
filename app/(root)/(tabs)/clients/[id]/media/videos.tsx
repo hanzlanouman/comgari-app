@@ -25,6 +25,8 @@ type MediaItem = {
   clientId: number;
   ownerId: number;
   ownerType: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 const VideosMediaDetailScreen = () => {
@@ -33,47 +35,81 @@ const VideosMediaDetailScreen = () => {
     items: string;
   }>();
 
-  const [parsedItems, setParsedItems] = useState<MediaItem[]>(
-    JSON.parse(items || "[]")
-  );
-
-  useEffect(() => {
-    setParsedItems(JSON.parse(items || "[]"));
-  }, [items]);
-  // const parsedItems: MediaItem[] = JSON.parse(items || '[]');
+  const [parsedItems, setParsedItems] = useState<MediaItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [videoStatus, setVideoStatus] = useState({});
   const clientRepo = ClientRepository.getInstance();
 
+  useEffect(() => {
+    const parsed = JSON.parse(items || "[]");
+    setParsedItems(parsed);
+  }, [items]);
 
   const windowWidth = Dimensions.get("window").width;
   const spacingBetweenVideos = 16;
   const sidePadding = 16;
   const videoWidth =
     (windowWidth - sidePadding * 2 - spacingBetweenVideos * 2) / 3;
-  const handleDelete = async (item) => {
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return "Today";
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
+
+  const groupByDate = (items: MediaItem[]) => {
+    // Sort by date in descending order (latest first)
+    const sortedItems = [...items].sort((a, b) => {
+      const dateA = new Date(a.createdAt || "").getTime();
+      const dateB = new Date(b.createdAt || "").getTime();
+      return dateB - dateA;
+    });
+
+    // Group by formatted date
+    return sortedItems.reduce((acc, item) => {
+      const dateKey = formatDate(item.createdAt || "");
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(item);
+      return acc;
+    }, {} as Record<string, MediaItem[]>);
+  };
+
+  const groupedItems = groupByDate(parsedItems);
+
+  const handleDelete = async (item: MediaItem) => {
     try {
       Alert.alert(
         "Delete Video",
         "Are you sure you want to delete this video?",
         [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
+          { text: "Cancel", style: "cancel" },
           {
             text: "Delete",
             style: "destructive",
             onPress: async () => {
               try {
-                // Prepare payload for deletion
                 const deletePayload = {
                   media: [
                     {
                       prev_media_id: item.id,
                       client_id: Number(id),
-                      owner_type: item.owner_type || "Client",
+                      owner_type: item.ownerType || "Client",
                       owner_id: Number(id),
                       action: Action.REMOVE,
                       mimeType: item.mimeType,
@@ -81,15 +117,13 @@ const VideosMediaDetailScreen = () => {
                   ],
                 };
 
-                // Call update client media API for deletion
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
 
-                // Update local state to remove the deleted video
-                const updatedItems = parsedItems.filter(i => i.id !== item.id);
-                setParsedItems(updatedItems);                
-                                // Close the modal
-                                setModalVisible(false);
-                                setSelectedItem(null);
+                const updatedItems = parsedItems.filter((i) => i.id !== item.id);
+                setParsedItems(updatedItems);
+                setModalVisible(false);
+                setSelectedItem(null);
+
                 Alert.alert("Success", "Video deleted successfully");
               } catch (apiError) {
                 console.error("Delete API Error:", apiError);
@@ -104,36 +138,35 @@ const VideosMediaDetailScreen = () => {
       Alert.alert("Delete Failed", "Could not delete the video");
     }
   };
-  const renderVideoItem = (item: MediaItem, index: number) => {
-    console.log(item, "Item" + index);
-    return (
-      <TouchableOpacity
-        key={index}
-        style={{
-          width: videoWidth,
-          height: videoWidth,
-          marginRight: index % 3 === 2 ? 0 : spacingBetweenVideos,
-          marginBottom: spacingBetweenVideos,
-        }}
-        onPress={() => {
-          setSelectedItem(item);
-          setModalVisible(true);
-        }}>
-        <Video
-          source={{ uri: getImageUrl(item.url) }}
-          style={{ width: "100%", height: "100%" }}
-          className="rounded-[20px]"
-          resizeMode={ResizeMode.COVER}
-          isLooping
-          shouldPlay={false}
-          isMuted
-        />
-        <View style={{ position: "absolute", bottom: 10, right: 10 }}>
-          <Play size={24} color="#ffffff" />
-        </View>
-      </TouchableOpacity>
-    );
-  };
+
+  const renderVideoItem = (item: MediaItem, index: number) => (
+    <TouchableOpacity
+      key={index}
+      style={{
+        width: videoWidth,
+        height: videoWidth,
+        marginRight: index % 3 === 2 ? 0 : spacingBetweenVideos,
+        marginBottom: spacingBetweenVideos,
+      }}
+      onPress={() => {
+        setSelectedItem(item);
+        setModalVisible(true);
+      }}
+    >
+      <Video
+        source={{ uri: getImageUrl(item.url) }}
+        style={{ width: "100%", height: "100%" }}
+        className="rounded-[20px]"
+        resizeMode={ResizeMode.COVER}
+        isLooping
+        shouldPlay={false}
+        isMuted
+      />
+      <View style={{ position: "absolute", bottom: 10, right: 10 }}>
+        <Play size={24} color="#ffffff" />
+      </View>
+    </TouchableOpacity>
+  );
 
   const renderVideoModal = () => {
     if (!selectedItem) return null;
@@ -143,13 +176,15 @@ const VideosMediaDetailScreen = () => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        statusBarTranslucent={true}>
+        statusBarTranslucent={true}
+      >
         <Pressable
           style={{
             flex: 1,
             backgroundColor: "rgba(0,0,0,0.8)",
           }}
-          onPress={() => setModalVisible(false)}>
+          onPress={() => setModalVisible(false)}
+        >
           <SafeAreaView style={{ flex: 1 }}>
             <View
               style={{
@@ -160,7 +195,8 @@ const VideosMediaDetailScreen = () => {
                 zIndex: 10,
                 flexDirection: "row",
                 justifyContent: "space-between",
-              }}>
+              }}
+            >
               <TouchableOpacity
                 onPress={() => selectedItem && handleDelete(selectedItem)}
                 style={{
@@ -170,7 +206,8 @@ const VideosMediaDetailScreen = () => {
                   borderRadius: 20,
                   justifyContent: "center",
                   alignItems: "center",
-                }}>
+                }}
+              >
                 <Trash2 size={16} color="#ffffff" />
               </TouchableOpacity>
               <TouchableOpacity
@@ -182,7 +219,8 @@ const VideosMediaDetailScreen = () => {
                   borderRadius: 20,
                   justifyContent: "center",
                   alignItems: "center",
-                }}>
+                }}
+              >
                 <X size={16} color="#ffffff" />
               </TouchableOpacity>
             </View>
@@ -191,7 +229,8 @@ const VideosMediaDetailScreen = () => {
                 flex: 1,
                 justifyContent: "center",
                 alignItems: "center",
-              }}>
+              }}
+            >
               <Video
                 source={{ uri: getImageUrl(selectedItem.url) }}
                 style={{ width: "90%", height: "90%" }}
@@ -212,12 +251,26 @@ const VideosMediaDetailScreen = () => {
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
-        className="px-4">
-        <View>
-          <View className="flex flex-row flex-wrap mt-4">
-            {parsedItems.map(renderVideoItem)}
+        className="px-4"
+      >
+        {Object.keys(groupedItems).map((date, index) => (
+          <View key={index}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                marginTop: 16,
+                marginBottom: 8,
+                color: "#333",
+              }}
+            >
+              {date}
+            </Text>
+            <View className="flex flex-row flex-wrap mt-2">
+              {groupedItems[date].map(renderVideoItem)}
+            </View>
           </View>
-        </View>
+        ))}
       </ScrollView>
 
       {renderVideoModal()}
