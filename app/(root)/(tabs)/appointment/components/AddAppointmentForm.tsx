@@ -11,8 +11,13 @@ import { format } from "date-fns";
 
 import { CalendarDays } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { OptionType } from '@/common/types';
-import { CustomButton, InputField, MultiSelectDropdown, DropdownSelect } from "@/common/components";
+import { OptionType } from "@/common/types";
+import {
+  CustomButton,
+  InputField,
+  MultiSelectDropdown,
+  DropdownSelect,
+} from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
 
@@ -23,15 +28,17 @@ interface AddAppointmentFormProps {
   isClientsLoading: boolean;
   isMembersLoading: boolean;
   onSubmitSuccess?: () => void;
+  setAppointmentAdded: (isAppointmentAdded: boolean) => void;
 }
 
-export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({ 
-  clientOptions, 
-  memberOptions, 
+export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
+  clientOptions,
+  memberOptions,
   statusOptions,
   isClientsLoading,
   isMembersLoading,
-  onSubmitSuccess 
+  onSubmitSuccess,
+  setAppointmentAdded,
 }) => {
   const clientRepo = ClientRepository.getInstance();
 
@@ -51,17 +58,17 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleValueChange = (field: string, value: string) => {
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   // Handle member selection
   const handleMemberSelection = (field: string, selectedMembers: string[]) => {
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [field]: selectedMembers
+      [field]: selectedMembers,
     }));
   };
 
@@ -109,7 +116,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         status: values.status,
         date: selectedDate.toISOString(),
         startTime: selectedDate.toISOString(),
-        endTime: new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString(),
+        endTime: new Date(
+          selectedDate.getTime() + 60 * 60 * 1000
+        ).toISOString(),
         notes: values.notes || "No notes",
         projectId: parseInt(values.selectedClient, 10),
       };
@@ -117,6 +126,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
       await clientRepo.createAppointment(payload);
 
       Alert.alert("Success", "Appointment added successfully");
+      setAppointmentAdded(true);
       onSubmitSuccess && onSubmitSuccess();
     } catch (error) {
       console.error("Appointment creation error:", error);
@@ -132,11 +142,11 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         <InputField
           label=""
           value={values.titleOfMeeting}
-          onChangeText={(value) => handleValueChange('titleOfMeeting', value)}
+          onChangeText={(value) => handleValueChange("titleOfMeeting", value)}
           placeholder="Title of meeting"
         />
       </View>
-      
+
       <View className="mt-3">
         <DropdownSelect
           placeholder="Select Client"
@@ -146,7 +156,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           fieldName="selectedClient"
         />
       </View>
-      
+
       <View className="mt-3">
         <MultiSelectDropdown
           placeholder="Assign Members"
@@ -156,7 +166,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           fieldName="selectedMembers"
         />
       </View>
-      
+
       <View className="mt-3">
         <DropdownSelect
           placeholder="Status"
@@ -166,7 +176,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           fieldName="status"
         />
       </View>
-      
+
       <TouchableOpacity
         activeOpacity={1}
         onPress={showDatePicker}
@@ -180,14 +190,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         </Text>
         <CalendarDays size={16} className="text-dark-100" />
       </TouchableOpacity>
-      
+
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-      
+
       <View className="mt-3">
         <TextInput
           className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] text-left"
@@ -196,10 +206,10 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           multiline
           placeholderTextColor="#1C1C1C"
           placeholder="Notes"
-          onChangeText={(value) => handleValueChange('notes', value)}
+          onChangeText={(value) => handleValueChange("notes", value)}
         />
       </View>
-      
+
       <View className="mt-3">
         <CustomButton
           title="Add Appointment"

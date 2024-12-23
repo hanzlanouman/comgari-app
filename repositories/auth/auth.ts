@@ -46,6 +46,7 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async login(payload: LoginPayload): Promise<TLoginResponse> {
+    console.log(`${BaseUrl + END_POINTS.AUTH.LOGIN.route}`, "ss");
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.LOGIN.route}`,

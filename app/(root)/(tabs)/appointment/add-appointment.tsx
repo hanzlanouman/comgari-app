@@ -5,7 +5,8 @@ import { AddAppointmentForm } from "./components/AddAppointmentForm";
 import { ClientRepository } from "@/repositories/client/client";
 import { MemberRepository } from "@/repositories/member/member";
 import { useAppSelector } from "@/hooks/redux";
-import { OptionType } from '@/common/types';
+import { OptionType } from "@/common/types";
+import { AppContainer } from "@/common/components";
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -25,7 +26,7 @@ const AddAppointment = () => {
 
   const [isClientsLoading, setIsClientsLoading] = useState(false);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
-
+  const [appointmentAdded, setAppointmentAdded] = useState(false);
   const fetchClients = async () => {
     setIsClientsLoading(true);
     try {
@@ -74,14 +75,20 @@ const AddAppointment = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AddAppointmentForm 
-        clientOptions={clientOptions}
-        memberOptions={memberOptions}
-        statusOptions={STATUS_OPTIONS}
-        isClientsLoading={isClientsLoading}
-        isMembersLoading={isMembersLoading}
-        onSubmitSuccess={handleSubmitSuccess}
-      />
+      <AppContainer
+        confirmationMessage="Do you want to add the appointment in Google Calendar"
+        isConfirm={true}
+        title="Add Appointment">
+        <AddAppointmentForm
+          clientOptions={clientOptions}
+          memberOptions={memberOptions}
+          statusOptions={STATUS_OPTIONS}
+          isClientsLoading={isClientsLoading}
+          isMembersLoading={isMembersLoading}
+          onSubmitSuccess={handleSubmitSuccess}
+          setAppointmentAdded={setAppointmentAdded}
+        />
+      </AppContainer>
     </SafeAreaView>
   );
 };
