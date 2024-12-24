@@ -12,3 +12,16 @@ export const getErrorMessage = (error: AxiosError | any): string => {
 
   return error?.message || "Unknown error";
 };
+
+export const getCustomErrorMessage = (error: AxiosError | any): string => {
+  console.log("custom Error", error);
+  if (
+    error?.response &&
+    error?.response?.data &&
+    error?.response?.data?.message
+  ) {
+    return error.response.data.message;
+  }
+
+  return error?.message || "Unknown error";
+};

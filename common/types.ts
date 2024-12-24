@@ -15,3 +15,20 @@ export type OptionType = {
   key: string | any | number | boolean;
   value: string;
 };
+
+export type ClientType = "Construction" | "Building" | "LandMark" ;
+
+export const CLIENT_TYPES: ClientType[] = [
+  "Construction",
+  "Building",
+  "LandMark",
+];
+
+export enum ClientStatus {
+  Active = "Active",
+  Inactive = "Inactive"
+}
+export const CLIENT_STATUS: ClientStatus[] = [
+  ClientStatus.Active,
+  ClientStatus.Inactive
+];

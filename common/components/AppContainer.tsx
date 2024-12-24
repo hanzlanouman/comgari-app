@@ -90,6 +90,7 @@ export const AppContainer = (props: Props) => {
           <View style={styles.modal}>
             <Text style={styles.heading}>{title}</Text>
             <Text style={styles.textStyle}>{props.message}</Text>
+
             <CustomButton onPress={handleClose} title="Ok" />
           </View>
         </View>
@@ -136,7 +137,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: Colors.dark.modalBg,
-    paddingHorizontal: ms(20),
   },
   modal: {
     width: "80%",
@@ -144,11 +144,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.text,
     borderRadius: ms(10),
     padding: ms(20),
-    alignItems: "center",
+    // alignItems: "center",
+    // justifyContent: "center",
     shadowColor: Colors.dark.shadowColor,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
+    textAlign: "center",
     elevation: 5,
   },
   heading: {

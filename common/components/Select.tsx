@@ -14,7 +14,7 @@ interface DropdownSelectProps {
   fieldName: string;
 }
 
-const DropdownSelect: React.FC<DropdownSelectProps> = ({
+export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   label,
   placeholder,
   data,

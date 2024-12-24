@@ -1,13 +1,16 @@
 /* eslint-disable prettier/prettier */
-import { post, put } from "@/common/api";
+import { get, post, put, del as httpDelete, postForm } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
 import { ApiReponse, AuthReponse } from "@/common/types";
-import { getErrorMessage } from "@/common/utils";
+import { getCustomErrorMessage, getErrorMessage } from "@/common/utils";
 import {
   forgotPasswordPayload,
   LoginPayload,
   OtpPayload,
+  ChangePasswordPayload,
+  UpdateProfilePayload,
+  UpdateProfilePicPayload,
   ResetPasswordPayload,
   SignupPayload,
 } from "@/repositories/auth/schemas";
@@ -44,18 +47,56 @@ export class AuthRepository implements IAuthRepository {
     }
     return AuthRepository.instance;
   }
-
-  async login(payload: LoginPayload): Promise<TLoginResponse> {
-    console.log(BaseUrl + END_POINTS.AUTH.LOGIN.route, "Route is");
+  async changePassword(
+    payload: ChangePasswordPayload
+  ): Promise<{ message: string }> {
     try {
-      const res: ApiReponse<TLoginResponse> = await post(
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.CHANGE_PASSWORD.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+
+  async updateProfile(payload: UpdateProfilePayload): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+
+  async updateProfilePic(payload: UpdateProfilePicPayload): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE_PIC.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async login(payload: LoginPayload): Promise<TLoginResponse> {
+    try {
+      const res = await post(
         `${BaseUrl + END_POINTS.AUTH.LOGIN.route}`,
         payload,
         { show_loader: true }
       );
-      return res;
+      return res.data;
     } catch (e: AxiosError | any) {
-      throw new Error(getErrorMessage(e));
+      throw new Error(getCustomErrorMessage(e));
     }
   }
 
@@ -68,7 +109,6 @@ export class AuthRepository implements IAuthRepository {
   async register(
     signupPayLoad: Partial<SignupPayload>
   ): Promise<TLoginResponse> {
-    console.log(END_POINTS.AUTH.REGISTER);
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.REGISTER.route}`,
@@ -79,7 +119,6 @@ export class AuthRepository implements IAuthRepository {
 
       return res?.data;
     } catch (e: AxiosError | any) {
-      console.log(e, "Error");
       throw new Error(getErrorMessage(e));
     }
   }
@@ -101,11 +140,9 @@ export class AuthRepository implements IAuthRepository {
     otpPayLoad: TVerifyCredPayload,
     authResponse: TLoginResponse
   ): Promise<TReponse> {
-    console.log(authResponse, "Auth Response");
     try {
-      const res = await put(END_POINTS.AUTH.VERFY_CRED.route, otpPayLoad, {
+      const res = await put(END_POINTS.AUTH.VERIFY_CRED.route, otpPayLoad, {
         show_loader: true,
-        headers: { Authorization: `Bearer ${authResponse.access_token}` },
       });
 
       return res;
@@ -115,7 +152,6 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async resetPassword(resetPayLoad: ResetPasswordPayload): Promise<TReponse> {
-    console.log("eee");
     try {
       const res: ApiReponse<any> = await post(
         `${BaseUrl + END_POINTS.AUTH.RESET_PASSWORD.route}`,

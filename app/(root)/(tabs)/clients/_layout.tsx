@@ -1,7 +1,9 @@
-import { router, Stack } from "expo-router";
+//app\(root)\(tabs)\clients\_layout.tsx
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Text, TouchableOpacity } from "react-native";
+import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Plus } from "lucide-react-native";
+import { Pencil, Plus, Upload } from "lucide-react-native";
 
 const Layout = () => {
   return (
@@ -30,7 +32,7 @@ const Layout = () => {
               start={[0, 0]}
               end={[1, 1]}>
               <TouchableOpacity
-                onPress={() => router.push("/(root)/(tabs)/clients")}
+                onPress={() => router.push("/(root)/(tabs)/clients/add-client")}
                 className="w-full h-full rounded-full flex flex-row justify-center items-center">
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
@@ -41,6 +43,12 @@ const Layout = () => {
       <Stack.Screen
         name="add-client"
         options={{ headerShown: true, title: "Add Client" }}
+      />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          headerShown: false,
+        }}
       />
     </Stack>
   );
