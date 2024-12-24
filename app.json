@@ -13,7 +13,9 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "uk.co.comgari",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,9 +29,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": [],
     "experiments": {
       "typedRoutes": true
     },
@@ -38,7 +38,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "6d9fb44e-ec82-4c7c-99b7-8fdf3268733d"
+        "projectId": "0cf8cfe0-03d3-4ce7-b753-57557a5bba8c"
       }
     }
   }
