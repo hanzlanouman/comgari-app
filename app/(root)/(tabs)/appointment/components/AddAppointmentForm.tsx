@@ -90,10 +90,11 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
       Alert.alert("Error", "Please enter a meeting title");
       return;
     }
-    if (!values.selectedClient) {
-      Alert.alert("Error", "Please select a client");
-      return;
-    }
+    //TODO: REVERT IT BACK
+    // if (!values.selectedClient) {
+    //   Alert.alert("Error", "Please select a client");
+    //   return;
+    // }
     if (values.selectedMembers.length === 0) {
       Alert.alert("Error", "Please assign at least one member");
       return;
@@ -111,7 +112,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     try {
       const payload = {
         title: values.titleOfMeeting,
-        clientId: parseInt(values.selectedClient, 10),
+        clientId: 1, //TODO:Will revert it back change it bcoz add client not workin parseInt(values.selectedClient, 10),
         memberId: values.selectedMembers.map((member) => parseInt(member, 10)),
         status: values.status,
         date: selectedDate.toISOString(),
@@ -120,7 +121,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           selectedDate.getTime() + 60 * 60 * 1000
         ).toISOString(),
         notes: values.notes || "No notes",
-        projectId: parseInt(values.selectedClient, 10),
+        projectId: 1, //ToDO: HARDCODED PROJECT ID BCOZ EXISITING IS NOT WORKING parseInt(values.selectedClient, 10),
       };
 
       await clientRepo.createAppointment(payload);

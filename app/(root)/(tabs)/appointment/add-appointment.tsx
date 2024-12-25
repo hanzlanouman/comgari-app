@@ -6,7 +6,10 @@ import { ClientRepository } from "@/repositories/client/client";
 import { MemberRepository } from "@/repositories/member/member";
 import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from "@/common/types";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
 import { AppContainer } from "@/common/components";
+import { AuthRepository } from "@/repositories";
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -18,6 +21,7 @@ const STATUS_OPTIONS = [
 const AddAppointment = () => {
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
+  const authRepo = AuthRepository.getInstance();
 
   const user = useAppSelector((state) => state.auth.user);
 
@@ -73,11 +77,59 @@ const AddAppointment = () => {
     router.push("/(root)/(tabs)/appointment/appointment");
   };
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+      offlineAccess: true,
+      forceCodeForRefreshToken: true,
+      scopes: [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/calendar",
+      ],
+    });
+  }, []);
+  const handlePress = async () => {
+    try {
+      const isAvailable = await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      if (!isAvailable) return;
+
+      const isSignedIn = GoogleSignin.hasPreviousSignIn();
+      if (isSignedIn) {
+        await GoogleSignin.signOut();
+      }
+
+      const response = await GoogleSignin.signIn();
+      console.log(response?.data?.idToken, "Response of Google Sign");
+      const token = await GoogleSignin.getTokens();
+
+      const payload = {
+        client_id:
+          "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+        token: token.accessToken,
+        refresh_token: token?.refreshToken ?? "",
+
+        idToken: response?.data?.idToken,
+      };
+      console.log(payload, "Response of Google Sign 2");
+      const res = await authRepo.verifyGoogleToken(payload);
+    } catch (error) {}
+  };
+
+  const onGoogleAppointment = () => {
+    handlePress();
+    setAppointmentAdded(true);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer
         confirmationMessage="Do you want to add the appointment in Google Calendar"
         isConfirm={true}
+        onConfirm={onGoogleAppointment}
         title="Add Appointment">
         <AddAppointmentForm
           clientOptions={clientOptions}

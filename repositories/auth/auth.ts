@@ -29,6 +29,7 @@ interface IAuthRepository {
     otpPayLoad: TVerifyCredPayload,
     authResponse: TLoginResponse
   ): Promise<TReponse>;
+  verifyGoogleToken(payload: any): Promise<TReponse>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -44,7 +45,19 @@ export class AuthRepository implements IAuthRepository {
     }
     return AuthRepository.instance;
   }
-
+  async verifyGoogleToken(payload: any): Promise<TReponse> {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.GOOGLE_LOGIN.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res;
+    } catch (e: AxiosError | any) {
+      console.log(e, "Error in Google Signin");
+      throw getErrorMessage(e);
+    }
+  }
   async login(payload: LoginPayload): Promise<TLoginResponse> {
     console.log(`${BaseUrl + END_POINTS.AUTH.LOGIN.route}`, "ss");
     try {

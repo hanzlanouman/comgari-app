@@ -14,7 +14,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "es.comgari"
+      "bundleIdentifier": "es.comgari",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+            ]
+          }
+        ]
+       
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +39,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+        }
+      ],
       "expo-router"
+      
+      
     ],
     "experiments": {
       "typedRoutes": true
