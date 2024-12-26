@@ -72,7 +72,7 @@ const SignUp = () => {
       <AppContainer isError={isError} message={error?.message}>
         <View className="flex-1 px-5 py-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Please complete all information to create your account on Comgari.
+            Fill in the details below to set up your Comgari account.{"\n"}Already have an account? <Text className="text-blue" onPress={() => router.push("/(auth)/sign-in")}>Log in here</Text>
           </Text>
           <View className="mt-6">
             <InputField

@@ -5,8 +5,11 @@ import onboarding3 from "@/assets/images/onboarding3.jpg";
 import welcome from "@/assets/images/welcome.jpg";
 import logo from "@/assets/images/logo.png";
 import login from "@/assets/images/login.jpg";
+import pdf from "@/assets/images/pdf.png";
+import doc from "@/assets/images/doc.png";
 
 import user from "@/assets/images/user.jpg";
+import member from "@/assets/images/member.png";
 
 
 export const images = {
@@ -16,8 +19,10 @@ export const images = {
   welcome,
   logo,
   login,
-
+  member,
   user,
+  pdf,
+  doc,
 };
 
 export const onboarding = [

@@ -8,6 +8,7 @@ import { ProgressBar } from "@/common/components";
 type ClientCardProps = {
   client: {
     id: number;
+    createdAt: string;
     name: string;
     description?: string;
     category?: string;
@@ -50,7 +51,16 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
 
   const categoryClasses = getCategoryClasses(client.category || "");
   const statusClasses = getStatusClasses(client.status || "");
-
+  const formatDate = (dateString) => {
+    if (!dateString) return "Oct 05 2021"; // Default fallback date
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    }).format(date);
+  };
+  
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -105,17 +115,18 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
         </Text>
       </View>
 
-      <View className="mt-3.5">
+      {/* <View className="mt-3.5">
         <ProgressBar progress={client.progress || 0} />
-      </View>
+      </View> */}
 
       <View className="flex-row items-center justify-between mt-3.5">
         <View className="flex-row items-center">
-          <Text className="text-sm font-ManropeMedium text-dark">Due on:</Text>
+          {/* <Text className="text-sm font-ManropeMedium text-dark">Due on:</Text> */}
           <View className="flex-row items-center ml-2">
             <CalendarDays size={18} color="#1C1C1C" />
             <Text className="text-sm font-ManropeMedium text-dark ml-2">
-              Oct 05 2021
+            {formatDate(client.createdAt) || "Oct 05 2021"}
+           
             </Text>
           </View>
         </View>

@@ -46,12 +46,9 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 p-4">
-        <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
-          Forgot Password
-        </Text>
+      
         <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-          Enter the email address with your account and we'll send an email with
-          confirmation to reset your password.
+        No problem. Please enter your email address below, and we will send you a link to reset your password.
         </Text>
         <View className="mt-6">
           <InputField

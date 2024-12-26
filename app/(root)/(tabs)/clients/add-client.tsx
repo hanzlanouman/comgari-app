@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, View, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, View, Alert, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useFormik } from 'formik';
 import { useAppSelector } from '@/hooks/redux';
@@ -157,6 +157,10 @@ const AddClient = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer>
+      <Text className="text-sm mb-6 px-4">
+          Add new team clients to collaborate effectively!{"\n"}
+          Simply fill out their details below to get them onboarded into your system.
+        </Text>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
           <AddClientForm
             formik={formik}

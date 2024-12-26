@@ -215,7 +215,7 @@ export default function AddClientForm({
         </TouchableOpacity>
       </View>
 
-      <View className="mt-5">
+      <View className="mt-3">
         <InputField
           label=""
           value={formik.values.name}

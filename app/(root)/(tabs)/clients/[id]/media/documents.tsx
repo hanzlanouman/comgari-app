@@ -12,8 +12,8 @@ import { icons } from "@/constants";
 import { ChevronRight, PencilLine, Trash2, Upload } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as FileSystem from 'expo-file-system';
-import { ClientRepository } from "@/repositories/client/client";
-import * as Sharing from 'expo-sharing';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
 
 import {
@@ -48,37 +48,48 @@ const MediaDocuments = () => {
   );
 
   const handleDownload = async (doc) => {
+    if (!doc?.url) {
+      Alert.alert('Error', 'Document URL is missing.');
+      return;
+    }
+  
     try {
-      // Validate document URL
-      if (!doc.url) {
-        Alert.alert('Error', 'No document URL provided');
+      // Validate and prepare the URL
+      const fileUrl = getImageUrl(doc.url);
+      const filename = `${Date.now()}_${fileUrl.split('/').pop()}`;
+      const fileUri = `${FileSystem.documentDirectory}${filename}`;
+  
+      // Show feedback to the user
+      Alert.alert('Download Started', 'Your file is being downloaded.');
+  
+      // Download the file
+      const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
+  
+      if (downloadResult.status !== 200) {
+        throw new Error(`Download failed with status ${downloadResult.status}`);
+      }
+  
+      // Request Media Library permission
+      const { granted } = await MediaLibrary.requestPermissionsAsync();
+      if (!granted) {
+        Alert.alert(
+          'Permission Denied',
+          'Please grant media library access to save files.'
+        );
         return;
       }
-
-      // Get the full URL for the document
-      const fileUrl = getImageUrl(doc.url);
-
-      // Generate a unique filename to prevent conflicts
-      const filename = `${Date.now()}_${fileUrl.split('/').pop()}`;
-
-      // Download the file
-      const downloadResult = await FileSystem.downloadAsync(
-        fileUrl, 
-        `${FileSystem.documentDirectory}${filename}`
-      );
-
-      // Check if sharing is available
-      if (await Sharing.isAvailableAsync()) {
-        // Share the downloaded file
-        await Sharing.shareAsync(downloadResult.uri);
-      } else {
-        Alert.alert('Download Complete', `File saved to ${downloadResult.uri}`);
-      }
+  
+      // Save the file
+      const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
+      await MediaLibrary.createAlbumAsync('Downloads', asset, false);
+  
+      Alert.alert('Download Complete', 'Your file has been saved.');
     } catch (error) {
-      console.error('Error downloading document:', error);
-      Alert.alert('Download Failed', 'Could not download the document');
+      console.error('Error downloading file:', error);
+      Alert.alert('Download Failed', `Could not download the file: ${error.message}`);
     }
   };
+  
 
   const handleDelete = async (doc) => {
     try {

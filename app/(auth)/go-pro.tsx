@@ -80,11 +80,8 @@ const GoPro = () => {
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView>
         <View className="flex-1 px-4 py-4 relative z-10">
-          <Text className="text-dark text-2xl sm:text-3xl font-ManropeBold">
-            Go Pro today
-          </Text>
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Please select a package to access the full Comgari features. You can{" "}
+            Choose a plan to unlock all of Comgari’s premium features. You can{" "}
             <Text className="text-red">cancel</Text> at any time.
           </Text>
 
@@ -129,7 +126,7 @@ const GoPro = () => {
 
           <View className="mt-4">
             <CustomButton
-              title="Buy Now"
+              title="Upgrade Now"
               onPress={handleBuyNow} // Use the new handleBuyNow function
             />
           </View>

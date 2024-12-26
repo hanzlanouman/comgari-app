@@ -57,9 +57,7 @@ const Tasks = () => {
   } = useQuery({
     queryKey: ["tasks", projectId],
     queryFn: () => {
-      // Fetch tasks from the repository
       return clientRepo.getTask(Number(projectId)).then(tasks => 
-        // Sort tasks by creation date in descending order (latest first)
         tasks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       );
     },

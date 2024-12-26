@@ -149,11 +149,14 @@ export default function Paymentmethod() {
     refetch();
   };
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white p-4">
       <StripeProvider
         publishableKey={STRIPE_PUBLIC_KEY}
         merchantIdentifier="Comgari"
         urlScheme="comgari">
+        <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
+        Select one of your saved cards or add a new card below.
+    </Text>
         <Cards
           cards={cards?.data || []}
           onAddCard={onAddCard}
