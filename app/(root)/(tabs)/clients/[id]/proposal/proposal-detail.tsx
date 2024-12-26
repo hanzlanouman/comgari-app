@@ -23,6 +23,10 @@ import { useNavigation,router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -37,7 +41,89 @@ const formatDate = (dateString: string) => {
     year: 'numeric' 
   });
 };
+// Create HTML template for the PDF
+const createProposalTemplate = (data: any) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 40px;
+            color: #1C1C1C;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          .project-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+          }
+          .project-type {
+            color: #1B78B9;
+            margin-bottom: 20px;
+          }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #E5E5E5;
+          }
+          .label {
+            color: #666;
+          }
+          .value {
+            font-weight: 500;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="project-title">${data.jobName || 'Unnamed Project'}</div>
+          <div class="project-type">${data.clientType || 'Construction'}</div>
+          <div>Date: ${formatDate(data.date?.toString() || new Date().toString())}</div>
+        </div>
 
+        <div class="info-row">
+          <span class="label">Client Name:</span>
+          <span class="value">${data.clientName || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Project Director:</span>
+          <span class="value">${data.projectDirector || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Job Phone:</span>
+          <span class="value">${data.jobPhone || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Address:</span>
+          <span class="value">${data.address || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">City:</span>
+          <span class="value">${data.city || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Zip:</span>
+          <span class="value">${data.zip || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Estimated Days:</span>
+          <span class="value">${data.estimatedDays || 'Not Specified'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Estimated Cost:</span>
+          <span class="value">$${data.estimatedCost || 'Not Specified'}</span>
+        </div>
+      </body>
+    </html>
+  `;
+};
 const Proposal = () => {
   // Get params from route
   const { 
@@ -140,14 +226,92 @@ const Proposal = () => {
     );
   };
 
-  const handleDownloadProposal = () => {
-    // Implement download functionality
-    Alert.alert('Download', 'Proposal download functionality to be implemented');
+  const [pdfUri, setPdfUri] = useState<string>('');
+
+  // Generate PDF function
+  const generatePDF = async () => {
+    try {
+      const proposalData = {
+        jobName,
+        jobPhone,
+        city,
+        zip,
+        estimatedDays,
+        clientName,
+        clientType,
+        address,
+        date,
+        estimatedCost,
+        projectDirector
+      };
+
+      const html = createProposalTemplate(proposalData);
+      const { uri } = await Print.printToFileAsync({
+        html,
+        base64: false
+      });
+      setPdfUri(uri);
+      return uri;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      Alert.alert('Error', 'Failed to generate PDF');
+      return null;
+    }
   };
 
-  const handleShareProposal = () => {
-    // Implement share functionality
-    Alert.alert('Share', 'Proposal share functionality to be implemented');
+  const handleDownloadProposal = async () => {
+    try {
+      // Step 1: Generate the PDF file
+      const uri = await generatePDF();
+      if (!uri) return; // Exit if PDF generation fails
+  
+      // Step 2: Get Media Library permissions
+      const { granted } = await MediaLibrary.requestPermissionsAsync();
+      if (!granted) {
+        Alert.alert(
+          'Permission Denied',
+          'Media library access is required to save the proposal.'
+        );
+        return;
+      }
+  
+      // Step 3: Move the file to Media Library
+      const filename = `${Date.now()}_Proposal.pdf`;
+      const destinationUri = `${FileSystem.documentDirectory}${filename}`;
+      await FileSystem.moveAsync({
+        from: uri,
+        to: destinationUri,
+      });
+  
+      // Step 4: Save to Media Library
+      const asset = await MediaLibrary.createAssetAsync(destinationUri);
+      await MediaLibrary.createAlbumAsync('Proposals', asset, false);
+  
+      // Step 5: Notify the user
+      Alert.alert('Success', 'Proposal downloaded successfully to your device.');
+      bottomSheetModalRef.current?.close();
+    } catch (error) {
+      console.error('Error downloading proposal:', error);
+      Alert.alert('Error', 'Failed to download proposal. Please try again.');
+    }
+  };
+  const handleShareProposal = async () => {
+    try {
+      const uri = await generatePDF();
+      if (uri) {
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Share Proposal',
+            UTI: 'com.adobe.pdf'
+          });
+          bottomSheetModalRef.current?.close();
+        }
+      }
+    } catch (error) {
+      console.error('Error sharing proposal:', error);
+      Alert.alert('Error', 'Failed to share proposal');
+    }
   };
 
   return (
@@ -274,15 +438,15 @@ const Proposal = () => {
           }}>
           <BottomSheetView>
             <View className="p-4 pt-2">
-              <TouchableOpacity className="flex-row items-center justify-between border border-light rounded-xl p-2.5">
+              <TouchableOpacity onPress={handleDownloadProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5">
                 <View className="flex-row items-center">
                   <LinearGradient
                     colors={["#1B78B9", "#63348F"]}
                     className="rounded-full w-8 h-8"
-                    start={[0, 0]}
+                    start={[0, 0]} 
                     end={[1, 1]}>
                     <TouchableOpacity
-                      onPress={() => {}}
+                      
                       className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
                       <ArrowDownToLine size={16} color="#ffffff" />
                     </TouchableOpacity>
@@ -293,7 +457,7 @@ const Proposal = () => {
                 </View>
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {}} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+              <TouchableOpacity onPress={handleShareProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
                 <View className="flex-row items-center">
                   <TouchableOpacity
                     

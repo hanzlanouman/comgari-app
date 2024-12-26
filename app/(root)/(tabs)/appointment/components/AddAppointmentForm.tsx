@@ -165,11 +165,10 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           notes: values.notes || undefined,
           status: values.status || "Scheduled",
           projectId: parseInt(values.selectedClient, 10),
-          ...(memberActions.length > 0 && {
-            appointment_member: memberActions
-          }),
+          appointment_member: memberActions.length > 0 ? memberActions : [], 
+          is_add_in_google_calendar: false,
         };
-
+        console.log("updating:", updatePayload)
         await clientRepo.updateAppointment(Number(appointmentId), updatePayload);
         Alert.alert("Success", "Appointment updated successfully");
       } else {
@@ -183,6 +182,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           endTime: new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString(),
           notes: values.notes || "No notes",
           projectId: parseInt(values.selectedClient, 10),
+          is_add_in_google_calendar: false,
         };
 
         await clientRepo.createAppointment(createPayload);

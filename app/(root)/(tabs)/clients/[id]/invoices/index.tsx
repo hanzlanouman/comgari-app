@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   SafeAreaView,
@@ -10,12 +10,98 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { ChevronDown, ChevronUp } from "lucide-react-native";
+import { ChevronDown, ChevronUp, Download } from "lucide-react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { CustomButton } from "@/common/components";
 import { images } from "@/constants";
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric' 
+  });
+};
+
+// Create HTML template for the invoice PDF
+const createInvoiceTemplate = (data) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 40px;
+            color: #1C1C1C;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+          }
+          .invoice-number {
+            color: #1B78B9;
+            margin-bottom: 20px;
+          }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #E5E5E5;
+          }
+          .label {
+            color: #666;
+          }
+          .value {
+            font-weight: 500;
+          }
+          .amount {
+            font-size: 20px;
+            color: #1B78B9;
+            font-weight: bold;
+          }
+          .status-paid {
+            color: #22C55E;
+          }
+          .status-pending {
+            color: #EAB308;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="invoice-title">${data.job_name}</div>
+          <div class="invoice-number">Invoice #${data.invoiceNumber}</div>
+          <div>Date: ${formatDate(data.date)}</div>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <span class="value ${data.status.toLowerCase() === 'paid' ? 'status-paid' : 'status-pending'}">
+            ${data.status}
+          </span>
+        </div>
+        
+        <div class="info-row">
+          <span class="label">Total Amount:</span>
+          <span class="value amount">€${Number(data.total_amount).toFixed(2)}</span>
+        </div>
+      </body>
+    </html>
+  `;
+};
 const clientRepo = ClientRepository.getInstance();
 
 type Invoice = {
@@ -58,7 +144,6 @@ const InvoicesScreen = () => {
     router.push({
       pathname: "/(root)/clients/[id]/invoices/add-invoice",
       params: {
-
         mode: "edit",
         job_name: invoice.job_name,
         total_amount: invoice.total_amount,
@@ -82,6 +167,59 @@ const InvoicesScreen = () => {
       );
     }
   };
+// Generate PDF function
+const generateInvoicePDF = async (invoiceData) => {
+  try {
+    const html = createInvoiceTemplate(invoiceData);
+    const { uri } = await Print.printToFileAsync({
+      html,
+      base64: false
+    });
+    return uri;
+  } catch (error) {
+    console.error('Error generating invoice PDF:', error);
+    throw new Error('Failed to generate invoice PDF');
+  }
+};
+
+// Download invoice function
+const handleDownloadInvoice = async (invoice) => {
+  try {
+    // Step 1: Generate the PDF file
+    const uri = await generateInvoicePDF(invoice);
+    
+    // Step 2: Get Media Library permissions
+    const { granted } = await MediaLibrary.requestPermissionsAsync();
+    if (!granted) {
+      Alert.alert(
+        'Permission Denied',
+        'Media library access is required to save the invoice.'
+      );
+      return;
+    }
+  
+    // Step 3: Move the file to Media Library
+    const filename = `Invoice_${invoice.invoiceNumber}_${Date.now()}.pdf`;
+    const destinationUri = `${FileSystem.documentDirectory}${filename}`;
+    await FileSystem.moveAsync({
+      from: uri,
+      to: destinationUri,
+    });
+  
+    // Step 4: Save to Media Library
+    const asset = await MediaLibrary.createAssetAsync(destinationUri);
+    await MediaLibrary.createAlbumAsync('Invoices', asset, false);
+  
+    // Step 5: Notify the user
+    Alert.alert('Success', 'Invoice downloaded successfully to your device.');
+    
+    return destinationUri;
+  } catch (error) {
+    console.error('Error downloading invoice:', error);
+    Alert.alert('Error', 'Failed to download invoice. Please try again.');
+    throw error;
+  }
+};
 
   useFocusEffect(
     React.useCallback(() => {
@@ -102,7 +240,7 @@ const InvoicesScreen = () => {
   const renderInvoiceItem = (invoice: Invoice) => (
     <View key={invoice.id} className="border border-light rounded-xl mt-4">
       <TouchableOpacity onPress={() => toggleInvoiceDetails(invoice.id)}>
-        <View className="flex-row items-center justify-between p-2.5 pr-6">
+        <View className="flex-row items-center justify-between p-2.5 pr-6  ">
           <View className="flex-row items-center">
             <View className="w-11 h-11 rounded-full bg-blue-200 flex-row items-center justify-center">
               <Image
@@ -111,7 +249,7 @@ const InvoicesScreen = () => {
                 className="w-[24px] h-[28px]"
               />
             </View>
-            <View className="pl-2.5 flex-1 pr-4">
+            <View className="pl-4 flex-1 pr-4">
               <Text
                 className="text-base font-ManropeSemibold text-dark"
                 numberOfLines={1}
@@ -134,14 +272,22 @@ const InvoicesScreen = () => {
       {expandedInvoiceId === invoice.id && (
         <View className="border-t border-light p-2.5">
           {/* Invoice Details */}
-          <View>
-            <Text className="text-sm text-dark-100 font-ManropeRegular">
-              Invoice Number
-            </Text>
-            <Text className="text-base text-dark font-ManropeMedium">
-              {invoice.invoiceNumber}
-            </Text>
+          <View className="flex-row justify-between items-center">
+            <View>
+              <Text className="text-sm text-dark-100 font-ManropeRegular">
+                Invoice Number
+              </Text>
+              <Text className="text-base text-dark font-ManropeMedium">
+                {invoice.invoiceNumber}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => handleDownloadInvoice(invoice)}
+              className="p-2">
+              <Download size={23} className="text-blue" />
+            </TouchableOpacity>
           </View>
+
           <View className="mt-2.5">
             <Text className="text-sm text-dark-100 font-ManropeRegular">
               Status
