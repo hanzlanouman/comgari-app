@@ -142,10 +142,6 @@ export default function Paymentmethod() {
     }
   }, [card]);
   const onAddCard = async () => {
-    if (Platform.OS === "ios") {
-      //setModal(true);
-      return;
-    }
     refetch();
   };
   return (
@@ -155,8 +151,8 @@ export default function Paymentmethod() {
         merchantIdentifier="Comgari"
         urlScheme="comgari">
         <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-        Select one of your saved cards or add a new card below.
-    </Text>
+          Select one of your saved cards or add a new card below.
+        </Text>
         <Cards
           cards={cards?.data || []}
           onAddCard={onAddCard}
