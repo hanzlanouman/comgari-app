@@ -12,6 +12,7 @@ import {
 } from "lucide-react-native";
 import { NavigationState, useNavigationState } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
+import { useNotification } from "@/hooks/use-notification";
 
 const hide = ["job-details", "specifications", "review"];
 
@@ -131,6 +132,7 @@ const Layout = () => {
       };
     });
   }, [getPermission, user]);
+  useNotification(isAuthenticated);
 
   // Only render <Redirect> after all hooks are called
   if (!isAuthenticated) {

@@ -6,6 +6,7 @@ import { ClientRepository } from "@/repositories/client/client";
 import { MemberRepository } from "@/repositories/member/member";
 import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from "@/common/types";
+
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 import { AppContainer } from "@/common/components";
@@ -19,6 +20,7 @@ const STATUS_OPTIONS = [
 ];
 
 const AddAppointment = () => {
+  
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
   const authRepo = AuthRepository.getInstance();

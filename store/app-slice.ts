@@ -5,12 +5,14 @@ type AppSlice = {
   isloading: boolean;
   loadingArray: string[];
   isOnline: boolean;
+  notificationTokenSent: boolean;
 };
 
 const initialState: AppSlice = {
   isloading: false,
   loadingArray: [],
   isOnline: true,
+  notificationTokenSent: false,
 };
 
 const appSlice = createSlice({
@@ -33,9 +35,13 @@ const appSlice = createSlice({
     setOnline(state, action) {
       state.isOnline = action.payload;
     },
+    setNotificationTokenSent(state, action) {
+      state.notificationTokenSent = action.payload;
+    },
   },
 });
 
-export const { setLoading, stopLoading, setOnline } = appSlice.actions;
+export const { setLoading, stopLoading, setOnline, setNotificationTokenSent } =
+  appSlice.actions;
 
 export default appSlice;
