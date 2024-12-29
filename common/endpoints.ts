@@ -255,4 +255,11 @@ export const END_POINTS = {
         route: UserUrl + "/invoice"
       }
   },
+  Dashboard: {
+    GET_DASHBOARD: {
+      route: UserUrl + "/dashboard",
+      method: "GET",
+      description: "Create dashboard details"
+    },
+  },
 };

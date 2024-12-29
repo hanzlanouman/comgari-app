@@ -164,7 +164,7 @@ const AddNote = () => {
           notes: payload.notes,
           project_id: payload.project_id,
           client_note_media: payload.client_note_media,
-        })
+        });
         // Create new note with media
         return await clientRepo.createNote({
           notes: payload.notes,
@@ -176,48 +176,47 @@ const AddNote = () => {
   });
 
   useEffect(() => {
-    if (isEditMode && parsedNoteDetails?.media) {
-      const initialMedia = parsedNoteDetails.media.map((media) => ({
-        id: media.id,
-        url: media.url,
-        mimeType: media.mimeType,
-        localUri: getImageUrl(media.url),
-        clientId: projectId,
-        ownerId: media.ownerId,
-        ownerType: media.ownerType,
-      }));
-  
-      // Initialize only if `uploadedMedia` is empty
-      setUploadedMedia((prevMedia) => {
-        if (prevMedia.length === 0) {
-          return initialMedia;
-        }
-        return prevMedia;
-      });
+    if (isEditMode) {
+      // Initialize media state only once when component mounts
+      setUploadedMedia(
+        parsedNoteDetails?.media && parsedNoteDetails.media.length > 0
+          ? parsedNoteDetails.media.map((media) => ({
+              id: media.id,
+              url: media.url,
+              mimeType: media.mimeType,
+              localUri: getImageUrl(media.url),
+              clientId: projectId,
+              ownerId: media.ownerId,
+              ownerType: media.ownerType,
+            }))
+          : [] // Set empty array if no media
+      );
     }
-  }, [isEditMode, parsedNoteDetails?.media, projectId]);
+  }, [isEditMode, projectId]);
   
-
-  // Formik form management
   const formik = useFormik({
     initialValues: {
-      notes: isEditMode ? parsedNoteDetails.notes.replace(/<[^>]*>/g, "") : "",
+      notes: isEditMode && parsedNoteDetails?.notes
+        ? parsedNoteDetails.notes.replace(/<[^>]*>/g, "")
+        : "",
       project_id: projectId,
     },
     onSubmit: async (values) => {
       try {
+        const mediaUpdates = [];
         if (isEditMode) {
-          // Prepare media updates
-          const mediaUpdates: MediaUpdatePayload[] = [
-            // Removed media
+          // Prepare removed and new media updates
+          mediaUpdates.push(
             ...Array.from(new Set(removedMediaIds)).map((mediaId) => ({
               prev_media_id: mediaId,
               client_id: projectId,
               owner_type: "note",
               owner_id: parsedNoteDetails.id,
-              action: "Remove" as const,
-            })),
-
+              action: "Remove",
+            }))
+          );
+  
+          mediaUpdates.push(
             ...uploadedMedia
               .filter((media) => !media.id)
               .map((media) => ({
@@ -226,30 +225,24 @@ const AddNote = () => {
                 owner_id: parsedNoteDetails.id,
                 new_url: media.url,
                 mimeType: media.mimeType,
-                action: "Add" as const,
-              })),
-          ];
-
-          // Log the mediaUpdates to verify
-          console.log("Media Updates:", mediaUpdates);
-
-          // Update notes and media
+                action: "Add",
+              }))
+          );
+  
           await noteMutation.mutateAsync({
             notes: values.notes,
             project_id: values.project_id,
             media: mediaUpdates.length > 0 ? mediaUpdates : undefined,
           });
         } else {
-          // Create new note with media
+          // Handle creating new note
           await noteMutation.mutateAsync({
             notes: values.notes,
             project_id: values.project_id,
-            client_note_media: uploadedMedia.map(
-              ({ localUri, ...rest }) => rest
-            ),
+            client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest),
           });
         }
-
+  
         Alert.alert(
           "Success",
           isEditMode ? "Note updated successfully" : "Note created successfully"
@@ -260,14 +253,13 @@ const AddNote = () => {
       }
     },
   });
-
+  
   const pickMedia = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
         multiple: true,
       });
-      //await DocumentPicker.getDocumentAsync({ type: "*/*" });
 
       if (result.canceled) {
         return;
@@ -319,8 +311,6 @@ const AddNote = () => {
             url: response?.data[0]?.filename,
             mimeType: file.mimeType!,
             clientId: Number(id),
-            // ownerId: Number(parsedNoteDetails.id),
-            // ownerType: 'note',
             localUri: file.uri,
           };
 
@@ -329,7 +319,6 @@ const AddNote = () => {
           Alert.alert("Error", `Failed to upload media: ${error.message}`);
         }
       }
-
 
       // Update state with new media items
       setUploadedMedia((prevMedia) => {
@@ -346,17 +335,16 @@ const AddNote = () => {
   const removeMedia = (index: number) => {
     setUploadedMedia((prevMedia) => {
       const updatedMedia = prevMedia.filter((_, i) => i !== index);
-  
+
       // Track removed media IDs if they exist
       const mediaToRemove = prevMedia[index];
       if (mediaToRemove?.id) {
         setRemovedMediaIds((prevRemovedIds) => [...prevRemovedIds, mediaToRemove.id]);
       }
-  
+
       return updatedMedia; // Return the updated list
     });
   };
-  
 
   // Upload button component
   const UploadButton = () => (
@@ -391,6 +379,7 @@ const AddNote = () => {
       headerRight: () => <UploadButton />,
     });
   }, [navigation, isUploading, isEditMode]);
+
   const handleInsertLink = () => {
     if (linkURL.trim() && linkText.trim()) {
       const linkHTML = `<a href="${linkURL}" target="_blank">${linkText}</a>`;
@@ -407,6 +396,7 @@ const AddNote = () => {
   const handleContentChange = (content) => {
     formik.setFieldValue("notes", content);
   };
+
   const openLinkModal = () => {
     setIsLinkModalVisible(true);
   };
@@ -416,6 +406,7 @@ const AddNote = () => {
     setLinkURL("");
     setLinkText("");
   };
+
   const renderMediaPreview = (media: MediaItem, index: number) => {
     const previewSource = getMediaPreview(media.mimeType, media.localUri || media.url);
     const isImage = media.mimeType?.includes("image");

@@ -49,6 +49,7 @@ const Media: React.FC = () => {
   const { clientId } = useLocalSearchParams();
   const navigation = useNavigation();
   const id = Number(clientId);
+
   const fetchClientMedia = useCallback(async () => {
     try {
       const response = await clientRepo.getClientMedia({
@@ -56,14 +57,13 @@ const Media: React.FC = () => {
         owner_id: id,
         owner_type: "client",
       });
-      console.log(response, "Response is this");
       setMediaItems(response || []);
     } catch (error: any) {
-      Alert.alert("Error", `Failed to fetch media: ${error.message}`);
+      Alert.alert("Error", "Failed to fetch media. Please try again later.");
+      console.error("Fetch Media Error:", error);
     }
   }, [id]);
 
-  // Refetch data when the screen gains focus
   useFocusEffect(
     useCallback(() => {
       fetchClientMedia();
@@ -77,6 +77,7 @@ const Media: React.FC = () => {
       headerRight: () => <UploadButton />,
     });
   }, [navigation]);
+
   const groupedMediaItems = mediaItems.reduce(
     (acc, item) => {
       if (item.mimeType.startsWith("image/")) {
@@ -91,137 +92,85 @@ const Media: React.FC = () => {
     { images: [], videos: [], documents: [] }
   );
 
-  const uploadMediaMutation = useMutation({
-    mutationFn: async (file: {
-      uri: string;
-      type: string;
-      fileName?: string;
-    }) => {
-      const formData = new FormData();
-      const fileToUpload = {
-        uri: file.fileName,
-        type: file.type || "image/jpeg",
-        name: file.fileName || "file.jpg",
-      } as any;
-      formData.append("files", fileToUpload);
-      const response = await clientRepo.uploadMedia(formData);
-      console.log(response, "Response of upload Media");
-      return {
-        url: response.data[0]?.filename,
-        mimeType: file.type || "image/jpeg",
-        localUri: file.uri,
-      };
-    },
+  const uploadMediaMutation = useMutation(async (file: { uri: string; type: string; name?: string }) => {
+    const formData = new FormData();
+    formData.append("files", {
+      uri: file.uri,
+      type: file.type,
+      name: file.name,
+    } as any);
+    const response = await clientRepo.uploadMedia(formData);
+
+    if (!response.data || response.data.length === 0) {
+      throw new Error("Upload failed: Server returned no data.");
+    }
+
+    return {
+      url: response.data[0].filename,
+      mimeType: file.type,
+    };
   });
 
-  const saveMediaMutation = useMutation({
-    mutationFn: async (mediaItems: MediaItem[]) => {
-      try {
-        // Save media using the new saveClientMedia method
-        const payload = {
-          files: mediaItems.map((item) => ({
-            url: item.url,
-            mimeType: item.mimeType,
-            clientId: item.clientId,
-            ownerId: item.ownerId,
-            ownerType: item.ownerType,
-          })),
-        };
-
-        return await clientRepo.saveClientMedia(payload);
-      } catch (error: any) {
-        throw new Error(`Validation or saving failed: ${error.message}`);
-      }
-    },
+  const saveMediaMutation = useMutation(async (mediaItems: MediaItem[]) => {
+    const payload = {
+      files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
+        url,
+        mimeType,
+        clientId,
+        ownerId,
+        ownerType,
+      })),
+    };
+    return await clientRepo.saveClientMedia(payload);
   });
 
   const pickMedia = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-        multiple: true,
-        copyToCacheDirectory: false,
-      });
+      const result = await DocumentPicker.getDocumentAsync({ type: "*/*", multiple: true });
 
-      // Type guard to check if result is a successful pick
-      if (result.canceled) {
-        return;
-      }
-      if (!result.assets) {
-        return;
-      }
+      if (result.canceled || !result.assets) return;
 
-      const validFiles = result.assets || [];
-
-      // Rest of the existing filtering and upload logic remains the same
-      const filteredFiles = validFiles.filter((file) => {
+      const validFiles = result.assets.filter((file) => {
         const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
-        const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
-          file.name.toLowerCase().endsWith(ext)
-        );
-        return mimeTypeAllowed || extensionAllowed;
+        const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) => file.name?.toLowerCase().endsWith(ext));
+        return mimeTypeAllowed && extensionAllowed;
       });
 
-      if (filteredFiles.length === 0) {
-        Alert.alert(
-          "Invalid File",
-          "Only images, videos, PDFs, and text files are allowed."
-        );
+      if (validFiles.length === 0) {
+        Alert.alert("Invalid File", "Only supported images, videos, PDFs, and text files are allowed.");
         return;
       }
 
-      // Uploading files
       setIsUploading(true);
 
-      const uploadedMediaItems: MediaItem[] = [];
-      for (const file of filteredFiles) {
-        try {
-          //     const formdata=new FormData()
-          //     formdata.append()
-          //   const uploadResult = await uploadMediaMutation.mutateAsync({
-          //     uri: file.uri,
-          //     type: file.mimeType || "application/octet-stream",
-          //     fileName: file.name,
-          //   });
-          const formData = new FormData();
-          if (!file.uri && file.mimeType && file.name) {
-            return;
-          }
-          const fileToUpload = {
+      const uploadedMediaItems = await Promise.all(
+        validFiles.map(async (file) => {
+          const response = await uploadMediaMutation.mutateAsync({
             uri: file.uri,
-            type: file.mimeType || "image/jpeg",
-            name: file.name || "file.jpg",
-          } as any;
-          formData.append("files", fileToUpload);
-          const response = await clientRepo.uploadMedia(formData);
-          console.log(response, "Response is this of upload");
-          if (!response) {
-            return;
+            type: file.mimeType || "application/octet-stream",
+            name: file.name,
+          });
+
+          if (!response || !response.url) {
+            console.warn("Invalid upload response for file:", file.name);
+            throw new Error("Upload failed for file: " + file.name);
           }
-          const mediaItem: MediaItem = {
-            url: response?.data[0]?.filename,
+
+          return {
+            url: response.url,
             mimeType: file.mimeType!,
-            clientId: Number(id),
-            ownerId: Number(id),
+            clientId: id,
+            ownerId: id,
             ownerType: "client",
           };
+        })
+      );
 
-          uploadedMediaItems.push(mediaItem);
-          setUploadedMedia((prev) => [...prev, mediaItem]);
-        } catch (error: any) {
-          Alert.alert("Error", `Failed to upload media: ${error.message}`);
-        }
-      }
-
-      try {
-        await saveMediaMutation.mutateAsync(uploadedMediaItems);
-
-        await fetchClientMedia();
-      } catch (error: any) {
-        Alert.alert("Error", `Failed to save media: ${error.message}`);
-      }
+      await saveMediaMutation.mutateAsync(uploadedMediaItems);
+      fetchClientMedia();
     } catch (error: any) {
-      Alert.alert("Error", "Failed to pick media");
+      Alert.alert("Error", error.message || "Failed to upload media. Please try again.");
+      console.error("Upload Media Error:", error);
     } finally {
       setIsUploading(false);
     }
@@ -252,7 +201,6 @@ const Media: React.FC = () => {
   );
 
   const navigateToCategory = (id: number, type: string, items: MediaItem[]) => {
-    console.log(items, "Items is this");
     router.push({
       pathname: `/clients/${id}/media/${type}`,
       params: { id, items: JSON.stringify(items) },

@@ -81,11 +81,11 @@ const Notes = () => {
   const hasData =
     clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
 
-    const processNoteText = (html: string) => {
-      if (!html) return "";
-      const strippedText = html.replace(/<[^>]*>/g, ''); // Remove HTML tags
-      return strippedText.length > 30 ? `${strippedText.slice(0, 30)}...` : strippedText;
-    };
+  const processNoteText = (html: string) => {
+    if (!html) return "";
+    const strippedText = html.replace(/<[^>]*>/g, ''); // Remove HTML tags
+    return strippedText.length > 30 ? `${strippedText.slice(0, 30)}...` : strippedText;
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -93,6 +93,7 @@ const Notes = () => {
         {hasData ? (
           <View className="pb-4">
             {clientNotes?.map((note) => (
+
               <TouchableOpacity
                 key={note.id}
                 onPress={() => router.push({
@@ -103,19 +104,22 @@ const Notes = () => {
                     noteDetails: JSON.stringify(note)
                   }
                 })}
-                className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
+                className="border border-light p-3.5 rounded-[20px] mt-2.5"
               >
                 <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
                   {processNoteText(note?.notes)}
                 </Text>
                 <View className="flex-row items-center justify-between mt-2.5">
+
                   <View className="flex-row items-center">
                     <Image
-                      source={note.project?.created_by?.user[0]?.avatar
-                        ? getImageUrl(note.project.created_by.user[0].avatar)
-                        : images.user}
+                      source={
+                        note.project?.created_by?.user[0]?.avatar
+                          ? { uri: getImageUrl(note.project.created_by.user[0].avatar) }
+                          : images.user
+                      }
                       resizeMode="cover"
-                      className="rounded-full border-2 border-white"
+                      className="rounded-full"
                       style={{ width: vs(30), height: vs(30) }}
                     />
                     <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
@@ -141,11 +145,12 @@ const Notes = () => {
             />
             <View className="mt-8">
               <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                No Notes found, please
+                Oops! It seems there are no notes here. Start creating now!
+
+             
+                
               </Text>
-              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                create notes
-              </Text>
+
               <View className="w-[180px] mx-auto mt-5">
                 <CustomButton
                   title="Create Note"

@@ -1,3 +1,4 @@
+//repositories\member\member.ts
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
 import { getErrorMessage } from "@/common/utils";
@@ -13,7 +14,7 @@ interface IMemberRepository {
   getMember(): Promise<TReponse>;
   deleteMember(id: number): Promise<TReponse>;
   updateMember(id:number , payload: UpdateMemberPayload ): Promise<TReponse>;
-
+  getDashboard(): Promise<TReponse>;
 }
 export class MemberRepository implements IMemberRepository {
   private static instance: MemberRepository;
@@ -78,6 +79,16 @@ export class MemberRepository implements IMemberRepository {
       return res.data;
     } catch (e) {
      
+      throw getErrorMessage(e);
+    }
+  }
+  async getDashboard(): Promise<TReponse> {
+    try {
+      const res = await get(`${BaseUrl + END_POINTS.Dashboard.GET_DASHBOARD.route}`, {
+        show_loader: true,
+      });
+      return res.data;
+    } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
     }
   }

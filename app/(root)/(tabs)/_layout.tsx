@@ -59,7 +59,7 @@ const Layout = () => {
     const screens = [
       {
         name: "home",
-        title: "Home",
+        title: "Dashboard",
         icon: House,
         permissionRequired: null,
         headerShown: true,
