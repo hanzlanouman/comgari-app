@@ -6,7 +6,7 @@ export const environment = process.env.NODE_ENV;
 const isDev = environment === "development";
 
 const SERVER_HOST = isDev
-  ? "http://192.168.1.3"
+  ? "http://192.168.1.4"
   : "https://comgari-api.devjunction.xyz";
 
 export const SERVER_URL = `${SERVER_HOST}`;

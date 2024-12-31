@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { post, put } from "@/common/api";
+import { get, post, put } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
 import { ApiReponse, AuthReponse } from "@/common/types";
@@ -58,6 +58,14 @@ export class AuthRepository implements IAuthRepository {
       throw getErrorMessage(e);
     }
   }
+  async checkOAuth(): Promise<TReponse> {
+    try {
+      const res = await get(`${BaseUrl + END_POINTS.AUTH.CHECK_O_AUTH.route}`);
+      return res;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
   async login(payload: LoginPayload): Promise<TLoginResponse> {
     console.log(`${BaseUrl + END_POINTS.AUTH.LOGIN.route}`, "ss");
     try {
@@ -90,6 +98,18 @@ export class AuthRepository implements IAuthRepository {
       await this.sendOtp({ username: signupPayLoad.email! });
 
       return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async addToken(token: string) {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.NOTIFICATIONTOKEN.route}`,
+        { token },
+        { show_loader: true }
+      );
+      return res;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
     }
@@ -151,3 +171,4 @@ export class AuthRepository implements IAuthRepository {
     }
   }
 }
+export const AuthRepo = AuthRepository.getInstance();

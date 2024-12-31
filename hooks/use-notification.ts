@@ -11,7 +11,7 @@ import * as Notifications from "expo-notifications";
 import { useAppSelector, useAppDispatch } from "./redux";
 
 import { useMutation } from "react-query";
-import { AuthRepository } from "@/repositories";
+import { AuthRepo, AuthRepository } from "@/repositories";
 import { setNotificationTokenSent } from "@/store";
 
 Notifications.setNotificationHandler({
@@ -26,7 +26,9 @@ export function useNotification(isAuthenticated: boolean) {
   const dispatch = useAppDispatch();
   const { notificationTokenSent } = useAppSelector((app) => app.app);
   const { mutate: saveToken } = useMutation({
-    mutationFn: async (token: string) => {},
+    mutationFn: async (token: string) => {
+      AuthRepo.addToken(token);
+    },
     onError: (error) => {
       Alert.alert("Error Updating Notifications token", error?.message);
     },
@@ -83,6 +85,7 @@ export function useNotification(isAuthenticated: boolean) {
             projectId,
           })
         ).data;
+
         console.log(token, "Notification");
         // eslint-disable-next-line
       } catch (e: any) {

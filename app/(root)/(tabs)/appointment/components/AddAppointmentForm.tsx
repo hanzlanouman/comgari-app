@@ -28,6 +28,7 @@ interface AddAppointmentFormProps {
   isClientsLoading: boolean;
   isMembersLoading: boolean;
   onSubmitSuccess?: () => void;
+  isAppointmentAdded?: boolean;
   setAppointmentAdded: (isAppointmentAdded: boolean) => void;
 }
 
@@ -38,6 +39,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   isClientsLoading,
   isMembersLoading,
   onSubmitSuccess,
+  isAppointmentAdded,
   setAppointmentAdded,
 }) => {
   const clientRepo = ClientRepository.getInstance();
@@ -122,6 +124,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         ).toISOString(),
         notes: values.notes || "No notes",
         projectId: 1, //ToDO: HARDCODED PROJECT ID BCOZ EXISITING IS NOT WORKING parseInt(values.selectedClient, 10),
+        is_add_in_google_calendar: isAppointmentAdded,
       };
 
       await clientRepo.createAppointment(payload);

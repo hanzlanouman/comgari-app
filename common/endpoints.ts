@@ -36,6 +36,11 @@ export const END_POINTS = {
       method: "POST",
       description: "User registration",
     },
+    NOTIFICATIONTOKEN: {
+      route: AuthUrl + "/notification-token",
+      method: "POST",
+      description: "Notification Token",
+    },
     OTP: {
       route: AuthUrl + "/otp",
       method: "POST",
@@ -60,6 +65,11 @@ export const END_POINTS = {
       route: AuthUrl + "/change-password",
       method: "POST",
       description: "Change password",
+    },
+    CHECK_O_AUTH: {
+      route: AuthUrl + "/check-oauth",
+      method: "GET",
+      description: "Check o-auth",
     },
   },
   Member: {

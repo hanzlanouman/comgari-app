@@ -20,7 +20,6 @@ const STATUS_OPTIONS = [
 ];
 
 const AddAppointment = () => {
-  
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
   const authRepo = AuthRepository.getInstance();
@@ -83,6 +82,7 @@ const AddAppointment = () => {
     GoogleSignin.configure({
       webClientId:
         "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+
       offlineAccess: true,
       forceCodeForRefreshToken: true,
       scopes: [
@@ -105,7 +105,7 @@ const AddAppointment = () => {
       }
 
       const response = await GoogleSignin.signIn();
-      console.log(response?.data?.idToken, "Response of Google Sign");
+
       const token = await GoogleSignin.getTokens();
 
       const payload = {
@@ -121,8 +121,17 @@ const AddAppointment = () => {
     } catch (error) {}
   };
 
-  const onGoogleAppointment = () => {
-    handlePress();
+  const checkOAuth = async () => {
+    const checkOAuth = await authRepo.checkOAuth();
+    console.log(checkOAuth, "check");
+    return checkOAuth.data;
+  };
+  const onGoogleAppointment = async () => {
+    const exisit = await checkOAuth();
+    console.log(exisit, "check");
+    if (!exisit) {
+      handlePress();
+    }
     setAppointmentAdded(true);
   };
 
@@ -141,6 +150,7 @@ const AddAppointment = () => {
           isMembersLoading={isMembersLoading}
           onSubmitSuccess={handleSubmitSuccess}
           setAppointmentAdded={setAppointmentAdded}
+          isAppointmentAdded={appointmentAdded}
         />
       </AppContainer>
     </SafeAreaView>
