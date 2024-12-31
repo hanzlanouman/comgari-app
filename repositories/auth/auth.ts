@@ -48,6 +48,34 @@ export class AuthRepository implements IAuthRepository {
     }
     return AuthRepository.instance;
   }
+  async updateProfile(
+    payload: UpdateProfilePayload
+  ): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async updateProfilePic(
+    payload: UpdateProfilePicPayload
+  ): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE_PIC.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
   async verifyGoogleToken(payload: any): Promise<TReponse> {
     try {
       const res = await post(
@@ -61,9 +89,25 @@ export class AuthRepository implements IAuthRepository {
       throw getErrorMessage(e);
     }
   }
+  async changePassword(
+    payload: ChangePasswordPayload
+  ): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.CHANGE_PASSWORD.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
   async checkOAuth(): Promise<TReponse> {
     try {
-      const res = await get(`${BaseUrl + END_POINTS.AUTH.CHECK_O_AUTH.route}`);
+      const res = await get(`${BaseUrl + END_POINTS.AUTH.CHECK_O_AUTH.route}`, {
+        show_loader: true,
+      });
       return res;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));

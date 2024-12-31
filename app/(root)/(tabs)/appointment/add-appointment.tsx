@@ -43,6 +43,7 @@ const AddAppointment = () => {
   const parsedDate = date ? new Date(date as string) : null; // Convert date string to Date object
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
+  const authRepo = AuthRepository.getInstance();
   const user = useAppSelector((state) => state.auth.user);
 
   const [clientOptions, setClientOptions] = useState<OptionType[]>([]);
@@ -130,6 +131,7 @@ const AddAppointment = () => {
       const payload = {
         client_id:
           "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+
         token: token.accessToken,
         refresh_token: token?.refreshToken ?? "",
 
@@ -137,7 +139,9 @@ const AddAppointment = () => {
       };
       console.log(payload, "Response of Google Sign 2");
       const res = await authRepo.verifyGoogleToken(payload);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error, "Google");
+    }
   };
 
   const checkOAuth = async () => {
@@ -148,9 +152,10 @@ const AddAppointment = () => {
   const onGoogleAppointment = async () => {
     const exisit = await checkOAuth();
     console.log(exisit, "check");
-    if (!exisit) {
-      handlePress();
-    }
+    handlePress();
+    // if (!exisit) {
+
+    // }
     setAppointmentAdded(true);
   };
 
