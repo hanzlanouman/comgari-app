@@ -8,7 +8,12 @@ import { useLocalSearchParams } from "expo-router";
 
 import { MemberRepository } from "@/repositories/member/member";
 import { useAppSelector } from "@/hooks/redux";
-import { OptionType } from '@/common/types';
+import { OptionType } from "@/common/types";
+
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
+import { AppContainer } from "@/common/components";
+import { AuthRepository } from "@/repositories";
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -45,7 +50,7 @@ const AddAppointment = () => {
 
   const [isClientsLoading, setIsClientsLoading] = useState(false);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
-
+  const [appointmentAdded, setAppointmentAdded] = useState(false);
   const fetchClients = async () => {
     setIsClientsLoading(true);
     try {
@@ -92,27 +97,81 @@ const AddAppointment = () => {
     router.push("/(root)/(tabs)/appointment/appointment");
   };
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+
+      offlineAccess: true,
+      forceCodeForRefreshToken: true,
+      scopes: [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/calendar",
+      ],
+    });
+  }, []);
+  const handlePress = async () => {
+    try {
+      const isAvailable = await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      if (!isAvailable) return;
+
+      const isSignedIn = GoogleSignin.hasPreviousSignIn();
+      if (isSignedIn) {
+        await GoogleSignin.signOut();
+      }
+
+      const response = await GoogleSignin.signIn();
+
+      const token = await GoogleSignin.getTokens();
+
+      const payload = {
+        client_id:
+          "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+        token: token.accessToken,
+        refresh_token: token?.refreshToken ?? "",
+
+        idToken: response?.data?.idToken,
+      };
+      console.log(payload, "Response of Google Sign 2");
+      const res = await authRepo.verifyGoogleToken(payload);
+    } catch (error) {}
+  };
+
+  const checkOAuth = async () => {
+    const checkOAuth = await authRepo.checkOAuth();
+    console.log(checkOAuth, "check");
+    return checkOAuth.data;
+  };
+  const onGoogleAppointment = async () => {
+    const exisit = await checkOAuth();
+    console.log(exisit, "check");
+    if (!exisit) {
+      handlePress();
+    }
+    setAppointmentAdded(true);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-     <AddAppointmentForm
-        clientOptions={clientOptions}
-        memberOptions={memberOptions}
-        statusOptions={STATUS_OPTIONS}
-        isClientsLoading={isClientsLoading}
-        isMembersLoading={isMembersLoading}
-        onSubmitSuccess={handleSubmitSuccess}
-        isEditing={!!isEditing}
-        editingAppointmentId={appointmentId as string}
-        initialData={{
-          titleOfMeeting: title as string,
-          selectedClient: clientId as string,
-          status: status as string,
-          selectedDate: parsedDate,
-          notes: notes as string,
-          selectedMembers: parsedMembers, 
-        }}
-      />
+      <AppContainer
+        confirmationMessage="Do you want to add the appointment in Google Calendar"
+        isConfirm={true}
+        onConfirm={onGoogleAppointment}
+        title="Add Appointment">
+        <AddAppointmentForm
+          clientOptions={clientOptions}
+          memberOptions={memberOptions}
+          statusOptions={STATUS_OPTIONS}
+          isClientsLoading={isClientsLoading}
+          isMembersLoading={isMembersLoading}
+          onSubmitSuccess={handleSubmitSuccess}
+          setAppointmentAdded={setAppointmentAdded}
+          isAppointmentAdded={appointmentAdded}
+        />
+      </AppContainer>
     </SafeAreaView>
   );
 };

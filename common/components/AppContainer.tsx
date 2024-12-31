@@ -105,16 +105,8 @@ export const AppContainer = (props: Props) => {
           <View style={styles.modal}>
             <Text style={styles.heading}>Confirm</Text>
             <Text style={styles.textStyle}>{props.confirmationMessage}</Text>
-            <ThemeButton
-              onPress={handleConfirm}
-              className="mt-2.5 bg-black border border-stone-300 text-white"
-              title="Yes"
-            />
-            <ThemeButton
-              onPress={handleCancel}
-              className="mt-2.5 bg-black border border-stone-300 text-white"
-              title="No"
-            />
+            <CustomButton onPress={handleConfirm} title="Yes" />
+            <CustomButton onPress={handleConfirm} title="No" />
           </View>
         </View>
       </Modal>

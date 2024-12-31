@@ -12,7 +12,6 @@ import { format } from "date-fns";
 import { CalendarDays } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { OptionType } from "@/common/types";
-
 import {
   CustomButton,
   InputField,
@@ -45,6 +44,8 @@ interface AddAppointmentFormProps {
   isEditing?: boolean;
   editingAppointmentId?: string;
   initialData?: InitialData;
+  isAppointmentAdded:boolean,
+  setAppointmentAdded: (isAppointmentAdded: boolean) => void,
 }
 
 export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
@@ -57,6 +58,8 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   isEditing = false,
   editingAppointmentId,
   initialData,
+  isAppointmentAdded,
+  setAppointmentAdded,
 }) => {
   // State for form values
   const [values, setValues] = useState({
