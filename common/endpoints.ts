@@ -64,8 +64,6 @@ export const END_POINTS = {
     CHANGE_PASSWORD: {
       route: AuthUrl + "/change-password",
       method: "PUT",
-      description: "Change password"
-      method: "POST",
       description: "Change password",
     },
     CHECK_O_AUTH: {
@@ -73,9 +71,11 @@ export const END_POINTS = {
       method: "GET",
       description: "Check o-auth",
     },
-    UPDATE_PROFILE: { route:AuthUrl + "/update-profile",       method: "PUT"
+    UPDATE_PROFILE: { route: AuthUrl + "/update-profile", method: "PUT" },
+    UPDATE_PROFILE_PIC: {
+      route: AuthUrl + "/update-profile-pic",
+      method: "PUT",
     },
-    UPDATE_PROFILE_PIC: { route: AuthUrl +"/update-profile-pic",       method: "PUT"    },
   },
   Member: {
     GET_ROLE: {
@@ -258,50 +258,49 @@ export const END_POINTS = {
     DELETE_PROPOSAL: {
       route: UserUrl + "/proposal",
     },
-    UPDATE_CLIENT_MEDIA:
-      { route: UserUrl + "/client/client-media" },
-      CREATE_APPOINTMENT: {
-        route: UserUrl + "/appointment"
-      },
-       GET_APPOINTMENT: {
-        route: UserUrl + "/appointment"
-      },
-       UPDATE_APPOINTMENT: {
-        route: UserUrl + "/appointment"
-      },
-      DELETE_APPOINTMENT: {
-        route: UserUrl + "/appointment"
-      },
-      CREATE_PROPOSAL: {
-        route: UserUrl + "/proposal"
-      },
-       GET_PROPOSAL: {
-        route: UserUrl + "/proposal"
-      },
-       UPDATE_PROPOSAL: {
-        route: UserUrl + "/proposal"
-      },
-      DELETE_PROPOSAL: {
-        route: UserUrl + "/proposal"
-      },
-      CREATE_INVOICE: {
-        route: UserUrl + "/invoice"
-      },
-      GET_INVOICES: {
-        route: UserUrl + "/invoice"
-      },
-      UPDATE_INVOICE: {
-        route: UserUrl + "/invoice"
-      },
-      DELETE_INVOICE: {
-        route: UserUrl + "/invoice"
-      }
+    UPDATE_CLIENT_MEDIA: { route: UserUrl + "/client/client-media" },
+    CREATE_APPOINTMENT: {
+      route: UserUrl + "/appointment",
+    },
+    GET_APPOINTMENT: {
+      route: UserUrl + "/appointment",
+    },
+    UPDATE_APPOINTMENT: {
+      route: UserUrl + "/appointment",
+    },
+    DELETE_APPOINTMENT: {
+      route: UserUrl + "/appointment",
+    },
+    CREATE_PROPOSAL: {
+      route: UserUrl + "/proposal",
+    },
+    GET_PROPOSAL: {
+      route: UserUrl + "/proposal",
+    },
+    UPDATE_PROPOSAL: {
+      route: UserUrl + "/proposal",
+    },
+    DELETE_PROPOSAL: {
+      route: UserUrl + "/proposal",
+    },
+    CREATE_INVOICE: {
+      route: UserUrl + "/invoice",
+    },
+    GET_INVOICES: {
+      route: UserUrl + "/invoice",
+    },
+    UPDATE_INVOICE: {
+      route: UserUrl + "/invoice",
+    },
+    DELETE_INVOICE: {
+      route: UserUrl + "/invoice",
+    },
   },
   Dashboard: {
     GET_DASHBOARD: {
       route: UserUrl + "/dashboard",
       method: "GET",
-      description: "Create dashboard details"
+      description: "Create dashboard details",
     },
   },
 };
