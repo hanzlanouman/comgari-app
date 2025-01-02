@@ -150,10 +150,14 @@ export class AuthRepository implements IAuthRepository {
     }
   }
   async addToken(token: string) {
+    const notificationToken = {
+      token: token,
+    };
+    console.log(token, notificationToken, "is this");
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.NOTIFICATIONTOKEN.route}`,
-        { token },
+        notificationToken,
         { show_loader: true }
       );
       return res;

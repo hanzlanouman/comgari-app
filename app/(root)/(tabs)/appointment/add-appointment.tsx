@@ -105,6 +105,7 @@ const AddAppointment = () => {
 
       offlineAccess: true,
       forceCodeForRefreshToken: true,
+
       scopes: [
         "https://www.googleapis.com/auth/userinfo.email",
         "https://www.googleapis.com/auth/userinfo.profile",
@@ -114,6 +115,13 @@ const AddAppointment = () => {
   }, []);
   const handlePress = async () => {
     try {
+      setAppointmentAdded(true);
+      const exisit = await checkOAuth();
+
+      if (exisit) {
+        return;
+      }
+
       const isAvailable = await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
@@ -133,11 +141,11 @@ const AddAppointment = () => {
           "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
 
         token: token.accessToken,
-        refresh_token: token?.refreshToken ?? "",
 
+        server_auth_code: response?.data?.serverAuthCode,
         idToken: response?.data?.idToken,
       };
-      console.log(payload, "Response of Google Sign 2");
+      console.log(response, token, "Response of Google Sign 2");
       const res = await authRepo.verifyGoogleToken(payload);
     } catch (error) {
       console.log(error, "Google");
@@ -150,13 +158,7 @@ const AddAppointment = () => {
     return checkOAuth.data;
   };
   const onGoogleAppointment = async () => {
-    const exisit = await checkOAuth();
-    console.log(exisit, "check");
     handlePress();
-    // if (!exisit) {
-
-    // }
-    setAppointmentAdded(true);
   };
 
   return (

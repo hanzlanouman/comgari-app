@@ -44,8 +44,8 @@ interface AddAppointmentFormProps {
   isEditing?: boolean;
   editingAppointmentId?: string;
   initialData?: InitialData;
-  isAppointmentAdded:boolean,
-  setAppointmentAdded: (isAppointmentAdded: boolean) => void,
+  isAppointmentAdded: boolean;
+  setAppointmentAdded: (isAppointmentAdded: boolean) => void;
 }
 
 export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
@@ -66,11 +66,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     titleOfMeeting: initialData?.titleOfMeeting || "",
     notes: initialData?.notes || "",
     selectedClient: initialData?.selectedClient || "",
-    selectedMembers: initialData?.selectedMembers?.map((member) => member.id) || [],
+    selectedMembers:
+      initialData?.selectedMembers?.map((member) => member.id) || [],
     status: initialData?.status || "",
   });
   // State for handling date
-  const [selectedDate, setSelectedDate] = useState<Date | null>(initialData?.selectedDate || null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    initialData?.selectedDate || null
+  );
 
   // Track initial selected members for comparison
   const [initialSelectedMembers] = useState(
@@ -98,11 +101,13 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     const initialMemberIds = [...new Set(initialSelectedMembers.map(Number))];
 
     return (
-      values.titleOfMeeting.trim() !== (initialData?.titleOfMeeting || "").trim() ||
+      values.titleOfMeeting.trim() !==
+        (initialData?.titleOfMeeting || "").trim() ||
       values.notes.trim() !== (initialData?.notes || "").trim() ||
       values.selectedClient !== initialData?.selectedClient ||
       values.status !== initialData?.status ||
-      selectedDate?.toISOString() !== initialData?.selectedDate?.toISOString() ||
+      selectedDate?.toISOString() !==
+        initialData?.selectedDate?.toISOString() ||
       currentMemberIds.length !== initialMemberIds.length ||
       !currentMemberIds.every((id) => initialMemberIds.includes(id))
     );
@@ -138,41 +143,59 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           onSubmitSuccess?.();
 
           return;
-
         }
         // Convert to numbers and remove invalid IDs
-        const currentMemberIds = [...new Set(
-          values.selectedMembers.map(id => Number(id)).filter(id => !isNaN(id))
-        )];
-        const initialMemberIds = [...new Set(
-          initialSelectedMembers.map(id => Number(id)).filter(id => !isNaN(id))
-        )];
+        const currentMemberIds = [
+          ...new Set(
+            values.selectedMembers
+              .map((id) => Number(id))
+              .filter((id) => !isNaN(id))
+          ),
+        ];
+        const initialMemberIds = [
+          ...new Set(
+            initialSelectedMembers
+              .map((id) => Number(id))
+              .filter((id) => !isNaN(id))
+          ),
+        ];
 
         // Calculate member actions
-        const membersToAdd = currentMemberIds.filter(id => !initialMemberIds.includes(id));
-        const membersToRemove = initialMemberIds.filter(id => !currentMemberIds.includes(id));
+        const membersToAdd = currentMemberIds.filter(
+          (id) => !initialMemberIds.includes(id)
+        );
+        const membersToRemove = initialMemberIds.filter(
+          (id) => !currentMemberIds.includes(id)
+        );
 
         // Generate member actions
         const memberActions = [
-          ...membersToAdd.map(staff_id => ({ staff_id, action: Action.ADD })),
-          ...membersToRemove.map(staff_id => ({ staff_id, action: Action.REMOVE })),
+          ...membersToAdd.map((staff_id) => ({ staff_id, action: Action.ADD })),
+          ...membersToRemove.map((staff_id) => ({
+            staff_id,
+            action: Action.REMOVE,
+          })),
         ];
-
 
         const updatePayload = {
           title: values.titleOfMeeting || undefined,
           clientId: parseInt(values.selectedClient, 10),
           date: selectedDate?.toISOString(),
           startTime: selectedDate?.toISOString(),
-          endTime: new Date(selectedDate?.getTime() + 60 * 60 * 1000).toISOString(),
+          endTime: new Date(
+            selectedDate?.getTime() + 60 * 60 * 1000
+          ).toISOString(),
           notes: values.notes || undefined,
           status: values.status || "Scheduled",
           projectId: parseInt(values.selectedClient, 10),
-          appointment_member: memberActions.length > 0 ? memberActions : [], 
-          is_add_in_google_calendar: false,
+          appointment_member: memberActions.length > 0 ? memberActions : [],
+          is_add_in_google_calendar: isAppointmentAdded,
         };
-        console.log("updating:", updatePayload)
-        await clientRepo.updateAppointment(Number(appointmentId), updatePayload);
+        console.log("updating:", updatePayload);
+        await clientRepo.updateAppointment(
+          Number(appointmentId),
+          updatePayload
+        );
         Alert.alert("Success", "Appointment updated successfully");
       } else {
         const createPayload = {
@@ -182,7 +205,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           date: selectedDate.toISOString(),
           status: values.status || "Scheduled",
           startTime: selectedDate.toISOString(),
-          endTime: new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString(),
+          endTime: new Date(
+            selectedDate.getTime() + 60 * 60 * 1000
+          ).toISOString(),
           notes: values.notes || "No notes",
           projectId: parseInt(values.selectedClient, 10),
           is_add_in_google_calendar: false,
@@ -195,7 +220,10 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
       onSubmitSuccess?.();
     } catch (error) {
       console.error("Appointment submission error:", error);
-      Alert.alert("Error", `Failed to ${isEditing ? "update" : "create"} appointment`);
+      Alert.alert(
+        "Error",
+        `Failed to ${isEditing ? "update" : "create"} appointment`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -214,7 +242,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         <InputField
           label=""
           value={values.titleOfMeeting}
-          onChangeText={(value) => setValues((prev) => ({ ...prev, titleOfMeeting: value }))}
+          onChangeText={(value) =>
+            setValues((prev) => ({ ...prev, titleOfMeeting: value }))
+          }
           placeholder="Title of meeting"
         />
       </View>
@@ -225,7 +255,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           placeholder="Select Client"
           data={clientOptions}
           selectedValue={values.selectedClient}
-          setFieldValue={(field, value) => setValues((prev) => ({ ...prev, selectedClient: value }))}
+          setFieldValue={(field, value) =>
+            setValues((prev) => ({ ...prev, selectedClient: value }))
+          }
           fieldName="selectedClient"
         />
       </View>
@@ -247,7 +279,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           placeholder="Status"
           data={statusOptions}
           selectedValue={values.status}
-          setFieldValue={(field, value) => setValues((prev) => ({ ...prev, status: value }))}
+          setFieldValue={(field, value) =>
+            setValues((prev) => ({ ...prev, status: value }))
+          }
           fieldName="status"
         />
       </View>
@@ -258,7 +292,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         onPress={() => setDatePickerVisibility(true)}
         className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
         <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
-          {selectedDate ? format(selectedDate, "MMM dd, yyyy hh:mm a") : "Date/Time"}
+          {selectedDate
+            ? format(selectedDate, "MMM dd, yyyy hh:mm a")
+            : "Date/Time"}
         </Text>
         <CalendarDays size={16} className="text-dark-100" />
       </TouchableOpacity>
@@ -279,7 +315,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           multiline
           placeholderTextColor="#1C1C1C"
           placeholder="Notes"
-          onChangeText={(value) => setValues((prev) => ({ ...prev, notes: value }))}
+          onChangeText={(value) =>
+            setValues((prev) => ({ ...prev, notes: value }))
+          }
         />
       </View>
 
