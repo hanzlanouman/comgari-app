@@ -16,12 +16,20 @@ import { ClientRepository } from "@/repositories/client/client";
 
 import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from "@/common/types";
+
+
+const getStartOfToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
 const ProposalSchema = Yup.object().shape({
   client_id: Yup.number()
     .integer('Client ID must be an integer')
     .required('Client ID is required'),
-  date: Yup.date().required('Date is required'),
-  address: Yup.string().required('Address is required'),
+  date: Yup.date()
+    .min(getStartOfToday(), 'Past dates are not allowed')
+    .required('Date is required'), address: Yup.string().required('Address is required'),
   city: Yup.string().required('City is required'),
   zip_code: Yup.number()
     .integer('Zip Code must be an integer')
@@ -32,13 +40,13 @@ const ProposalSchema = Yup.object().shape({
   estimated_days: Yup.number()
     .integer('Estimated Days must be an integer')
     .required('Estimated Days is required'),
-    estimated_cost: Yup.string()
+  estimated_cost: Yup.string()
     .matches(
       /^\d+(\.\d{1,2})?$/,
       "Estimated cost must be a valid decimal number (e.g., 100.00)"
     )
     .required("Estimated cost is required"),
-      project_id: Yup.number()
+  project_id: Yup.number()
     .integer('Project ID must be an integer')
     .required('Project ID is required'),
 });
@@ -99,6 +107,10 @@ const JobDetails = ({ initialData, onNext }: {
   };
 
   const hideDatePicker = () => setDatePickerVisibility(false);
+  const isValidDate = (date: Date): boolean => {
+    const today = getStartOfToday();
+    return date >= today;
+  };
   return (
     <Formik<JobDetailsFormValues>
       innerRef={formikRef}
@@ -119,7 +131,7 @@ const JobDetails = ({ initialData, onNext }: {
         estimated_cost: initialData.estimated_cost?.toString() || "",
       }}
       onSubmit={(values) => {
-        
+
         const estimatedCostNumber = Number(values.estimated_cost);
         const formattedEstimatedCost = parseFloat((estimatedCostNumber).toFixed(2));
 
@@ -189,9 +201,14 @@ const JobDetails = ({ initialData, onNext }: {
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="date"
+                minimumDate={getStartOfToday()}
                 onConfirm={(date) => {
-                  formikProps.setFieldValue("date", date);
-                  hideDatePicker();
+                  if (isValidDate(date)) {
+                    formikProps.setFieldValue("date", date);
+                    hideDatePicker();
+                  } else {
+                    Alert.alert("Invalid Date", "Please select today or a future date");
+                  }
                 }}
                 onCancel={hideDatePicker}
               />

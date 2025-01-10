@@ -59,12 +59,11 @@ const Proposal = () => {
     () => clientRepo.getProposalsByProject(Number(projectId)),
     {
       enabled: !!projectId,
-      refetchOnWindowFocus: true, // Refetch whenever the window is focused
+      refetchOnWindowFocus: true,
       staleTime: 5000,
-      cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
+      cacheTime: 30 * 60 * 1000,
     }
   );
-  
 
   const AddButton = React.useMemo(() => () => (
     <LinearGradient
@@ -135,7 +134,11 @@ const Proposal = () => {
     );
   }
 
-  const proposals = data?.data || [];
+  // Sort proposals by date in descending order (latest first)
+  const proposals = [...(data?.data || [])].sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   if (proposals.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-white">
@@ -234,7 +237,7 @@ const Proposal = () => {
                       numberOfLines={1}
                       ellipsizeMode="tail"
                     >
-                      {proposal.address || 'No Address'}
+                      {proposal.city || 'No city'}
                     </Text>
                   </View>
                 </View>

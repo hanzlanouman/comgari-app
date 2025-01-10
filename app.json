@@ -14,22 +14,42 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "uk.co.comgari",
-      "buildNumber": "1.0.1"
+      "bundleIdentifier": "es.comgari",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+            ]
+          }
+        ]
+       
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.devjunction.io.comgari"
+      "package": "es.comgari",
+       "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [],
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+        }
+      ],
+      "expo-router"
+      
+      
+    ],
     "experiments": {
       "typedRoutes": true
     },
@@ -38,7 +58,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "0cf8cfe0-03d3-4ce7-b753-57557a5bba8c"
+        "projectId": "cff15db0-8721-4e25-92d8-4a1a981d8552"
       }
     }
   }

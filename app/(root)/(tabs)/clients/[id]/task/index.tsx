@@ -208,8 +208,8 @@ const Tasks = () => {
     title: task.title,
     assignedTo: task.task_member.map((member) => Number(member.member_id)),
     dueDate: task.dueDate,
-    priority: task.priority.toLowerCase(),
-    status: task.status.toLowerCase(),
+    priority: task.priority,
+    status: task.status,
   });
 
   return (

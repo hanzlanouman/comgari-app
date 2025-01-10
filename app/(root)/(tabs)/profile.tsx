@@ -39,7 +39,6 @@ const Profile = () => {
     file: ImagePicker.ImagePickerAsset
   ): Promise<string> => {
     try {
-
       const formData = new FormData();
       const fileToUpload = {
         uri: file.uri,
@@ -65,7 +64,8 @@ const Profile = () => {
 
   const handleImageUpload = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
           "Permission required",
@@ -107,7 +107,9 @@ const Profile = () => {
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to update profile picture."
+        error instanceof Error
+          ? error.message
+          : "Failed to update profile picture."
       );
     }
   };
@@ -166,15 +168,13 @@ const Profile = () => {
                 <Upload size={16} color="#ffffff" />
               </TouchableOpacity>
             </View>
-            <View className="w-34">           
-            <CustomButton
-            title="Update Profile Pic"
-            onPress={handleUpdateProfilePic}
-          />
+            <View className="w-34">
+              <CustomButton
+                title="Update Profile Pic"
+                onPress={handleUpdateProfilePic}
+              />
+            </View>
           </View>
-          </View>
-
-
         </View>
 
         {/* Update Profile Section */}
@@ -200,10 +200,7 @@ const Profile = () => {
                   placeholder="Enter your full name"
                 />
               </View>
-              <CustomButton
-                title="Update Name"
-                onPress={handleUpdateProfile}
-              />
+              <CustomButton title="Update Name" onPress={handleUpdateProfile} />
             </View>
           )}
         </View>
@@ -225,7 +222,6 @@ const Profile = () => {
           {expandedSection === "password" && (
             <View className="border-t border-light p-4">
               <View className="pb-4">
-
                 <InputField
                   value={oldPassword}
                   onChangeText={setOldPassword}
@@ -234,7 +230,6 @@ const Profile = () => {
                 />
               </View>
               <View className="pb-4">
-
                 <InputField
                   value={newPassword}
                   onChangeText={setNewPassword}

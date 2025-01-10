@@ -129,7 +129,11 @@ const InvoicesScreen = () => {
     try {
       setIsLoading(true);
       const response = await clientRepo.getInvoices(Number(projectId));
-      setInvoices(response.data || []);
+      const fetchedInvoices = response.data || [];
+      const sortedInvoices = fetchedInvoices.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setInvoices(sortedInvoices);
     } catch (error) {
       Alert.alert(
         "Error",
@@ -139,6 +143,7 @@ const InvoicesScreen = () => {
       setIsLoading(false);
     }
   };
+  
 
   const handleEditInvoice = (invoice: Invoice) => {
     router.push({
@@ -287,7 +292,22 @@ const handleDownloadInvoice = async (invoice) => {
               <Download size={23} className="text-blue" />
             </TouchableOpacity>
           </View>
-
+            <View className="mt-2.5">
+              <Text className="text-sm text-dark-100 font-ManropeRegular">
+                Created
+              </Text>
+              <Text className="text-base text-dark font-ManropeMedium">
+                {formatDate(invoice.createdAt)}
+              </Text>
+            </View>
+            <View className="mt-2.5">
+              <Text className="text-sm text-dark-100 font-ManropeRegular">
+                Due Date
+              </Text>
+              <Text className="text-base text-dark font-ManropeMedium">
+                {formatDate(invoice.date)}
+              </Text>
+            </View>
           <View className="mt-2.5">
             <Text className="text-sm text-dark-100 font-ManropeRegular">
               Status

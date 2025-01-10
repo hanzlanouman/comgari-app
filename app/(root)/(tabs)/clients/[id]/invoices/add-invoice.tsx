@@ -16,6 +16,11 @@ import { CalendarDays, Euro } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ClientRepository } from "@/repositories/client/client";
 
+const getStartOfToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
 // Enum for Invoice Status
 enum InvoiceStatus {
   DRAFT = "DRAFT",
@@ -148,6 +153,7 @@ const AddInvoiceScreen = () => {
               </TouchableOpacity>
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
+                minimumDate={getStartOfToday()}
                 mode="date"
                 onConfirm={(date) => {
                   handleDateConfirm(date);

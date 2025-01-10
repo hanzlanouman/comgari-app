@@ -1,22 +1,66 @@
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
   View,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
+import { MemberRepository } from "@/repositories/member/member";
 
 const Home = () => {
-  const barData = [
-    { value: 50, label: "50" },
-    { value: 100, label: "100", frontColor: "#63348F" },
-    { value: 150, label: "150", frontColor: "#63348F" },
-    { value: 200, label: "200" },
-    { value: 250, label: "250", frontColor: "#63348F" },
-    { value: 300, label: "300" },
-    { value: 350, label: "350" },
-  ];
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const fetchDashboardData = async () => {
+    try {
+      const repo = MemberRepository.getInstance();
+      const response = await repo.getDashboard();
+
+      // Extract and transform the data for bar chart
+      const leadConversion = response?.data?.leadConversion || [];
+      const barData = leadConversion.map((item: any, index: number) => ({
+        value: parseFloat(item.conversionRate) || 0,
+        label: `Week ${index + 1}`,
+        frontColor: index % 2 === 0 ? "#63348F" : "lightgray",
+      }));
+
+      setDashboardData({
+        barData,
+        conversionRate:
+          leadConversion.length > 0
+            ? parseFloat(leadConversion[0].conversionRate).toFixed(2)
+            : "0.00",
+      });
+    } catch (error) {
+      Alert.alert("Error", error?.message || "Failed to fetch data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#63348F" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <Text className="text-dark font-ManropeBold">No data available.</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -28,7 +72,7 @@ const Home = () => {
                 Lead Conversion Rate
               </Text>
               <Text className="text-xl sm:text-lg text-green font-ManropeBold mt-1">
-                68.95%
+                {dashboardData.conversionRate}%
               </Text>
               <Text className="text-xs text-dark-100 font-ManropeMedium mt-1">
                 Since last week
@@ -86,7 +130,7 @@ const Home = () => {
               barBorderWidth={0}
               barBorderRadius={4}
               frontColor="lightgray"
-              data={barData}
+              data={dashboardData.barData}
               yAxisThickness={0}
               xAxisThickness={0}
             />

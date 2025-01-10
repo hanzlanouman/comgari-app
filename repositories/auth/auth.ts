@@ -32,6 +32,7 @@ interface IAuthRepository {
     otpPayLoad: TVerifyCredPayload,
     authResponse: TLoginResponse
   ): Promise<TReponse>;
+  verifyGoogleToken(payload: any): Promise<TReponse>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -47,6 +48,47 @@ export class AuthRepository implements IAuthRepository {
     }
     return AuthRepository.instance;
   }
+  async updateProfile(
+    payload: UpdateProfilePayload
+  ): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async updateProfilePic(
+    payload: UpdateProfilePicPayload
+  ): Promise<{ message: string }> {
+    try {
+      const res = await put(
+        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE_PIC.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async verifyGoogleToken(payload: any): Promise<TReponse> {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.GOOGLE_LOGIN.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res;
+    } catch (e: AxiosError | any) {
+      console.log(e, "Error in Google Signin");
+      throw getErrorMessage(e);
+    }
+  }
   async changePassword(
     payload: ChangePasswordPayload
   ): Promise<{ message: string }> {
@@ -61,33 +103,18 @@ export class AuthRepository implements IAuthRepository {
       throw new Error(getErrorMessage(e));
     }
   }
-
-  async updateProfile(payload: UpdateProfilePayload): Promise<{ message: string }> {
+  async checkOAuth(): Promise<TReponse> {
     try {
-      const res = await put(
-        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE.route}`,
-        payload,
-        { show_loader: true }
-      );
-      return res?.data;
-    } catch (e: AxiosError | any) {
-      throw new Error(getErrorMessage(e));
-    }
-  }
-
-  async updateProfilePic(payload: UpdateProfilePicPayload): Promise<{ message: string }> {
-    try {
-      const res = await put(
-        `${BaseUrl + END_POINTS.AUTH.UPDATE_PROFILE_PIC.route}`,
-        payload,
-        { show_loader: true }
-      );
-      return res?.data;
+      const res = await get(`${BaseUrl + END_POINTS.AUTH.CHECK_O_AUTH.route}`, {
+        show_loader: true,
+      });
+      return res;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
     }
   }
   async login(payload: LoginPayload): Promise<TLoginResponse> {
+    console.log(`${BaseUrl + END_POINTS.AUTH.LOGIN.route}`, "ss");
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.LOGIN.route}`,
@@ -118,6 +145,22 @@ export class AuthRepository implements IAuthRepository {
       await this.sendOtp({ username: signupPayLoad.email! });
 
       return res?.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+  async addToken(token: string) {
+    const notificationToken = {
+      token: token,
+    };
+    console.log(token, notificationToken, "is this");
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.NOTIFICATIONTOKEN.route}`,
+        notificationToken,
+        { show_loader: true }
+      );
+      return res;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
     }
@@ -179,3 +222,4 @@ export class AuthRepository implements IAuthRepository {
     }
   }
 }
+export const AuthRepo = AuthRepository.getInstance();
