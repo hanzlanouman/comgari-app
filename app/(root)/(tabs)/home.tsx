@@ -20,20 +20,25 @@ const Home = () => {
       const repo = MemberRepository.getInstance();
       const response = await repo.getDashboard();
 
-      // Extract and transform the data for bar chart
-      const leadConversion = response?.data?.leadConversion || [];
-      const barData = leadConversion.map((item: any, index: number) => ({
-        value: parseFloat(item.conversionRate) || 0,
-        label: `Week ${index + 1}`,
-        frontColor: index % 2 === 0 ? "#63348F" : "lightgray",
+      const leadConversion = response?.data?.leadConversion?.[0] || {};
+      const invoiceConversion = response?.data?.invoiceConversion?.[0] || {};
+
+      // Bar chart data for weekly lead conversion
+      const barData = leadConversion.dailyLeads?.map((item: any) => ({
+        value: item.leads,
+        label: new Date(item.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        frontColor: item.leads > 0 ? "#63348F" : "lightgray",
       }));
 
       setDashboardData({
         barData,
-        conversionRate:
-          leadConversion.length > 0
-            ? parseFloat(leadConversion[0].conversionRate).toFixed(2)
-            : "0.00",
+        conversionRate: leadConversion.conversionRate || "0.00",
+        totalLeads: leadConversion.totalLeads || 0,
+        receivedAmount: invoiceConversion.recivedAmount || 0,
+        pendingAmount: invoiceConversion.pendingAmount || 0,
       });
     } catch (error) {
       Alert.alert("Error", error?.message || "Failed to fetch data.");
@@ -74,54 +79,42 @@ const Home = () => {
               <Text className="text-xl sm:text-lg text-green font-ManropeBold mt-1">
                 {dashboardData.conversionRate}%
               </Text>
-              <Text className="text-xs text-dark-100 font-ManropeMedium mt-1">
-                Since last week
-              </Text>
             </TouchableOpacity>
           </View>
           <View className="w-1/2 px-1.5 mt-3">
             <TouchableOpacity className="bg-[#FFF1ED] rounded-[16px] p-3">
               <Text className="text-xs text-dark font-ManropeMedium">
-                Revenue Tracking
+                Total Leads
               </Text>
               <Text className="text-xl sm:text-lg text-red font-ManropeBold mt-1">
-                €10,00
-              </Text>
-              <Text className="text-xs text-dark-100 font-ManropeMedium mt-1">
-                Since last week
+                {dashboardData.totalLeads}
               </Text>
             </TouchableOpacity>
           </View>
           <View className="w-1/2 px-1.5 mt-3">
             <TouchableOpacity className="bg-[#FFF6E0] rounded-[16px] p-3">
               <Text className="text-xs text-dark font-ManropeMedium">
-                Sales Performance
+                Received Amount
               </Text>
               <Text className="text-xl sm:text-lg text-yellow font-ManropeBold mt-1">
-                €10,00
-              </Text>
-              <Text className="text-xs text-dark-100 font-ManropeMedium mt-1">
-                Since last week
+                €{dashboardData.receivedAmount}
               </Text>
             </TouchableOpacity>
           </View>
           <View className="w-1/2 px-1.5 mt-3">
             <TouchableOpacity className="bg-[#D0ECFF] rounded-[16px] p-3">
               <Text className="text-xs text-dark font-ManropeMedium">
-                Payment Collection Rate
+                Pending Amount
               </Text>
               <Text className="text-xl sm:text-lg text-blue font-ManropeBold mt-1">
-                €10,00
-              </Text>
-              <Text className="text-xs text-dark-100 font-ManropeMedium mt-1">
-                Since last week
+                €{dashboardData.pendingAmount}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
         <View className="mt-4">
           <Text className="text-sm sm:text-base text-dark font-ManropeBold">
-            Lead Conversion Rate
+            Weekly Leads
           </Text>
           <View className="w-full mt-4">
             <BarChart
