@@ -232,7 +232,7 @@ export default function AddClientForm({
       <View className="mt-3">
         <InputField
           label=""
-          value={formik.values.email}
+          value={formik.values.email.toLowerCase()}
           onChangeText={formik.handleChange("email")}
           placeholder="Email"
           error={

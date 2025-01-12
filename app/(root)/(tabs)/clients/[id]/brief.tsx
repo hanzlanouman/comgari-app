@@ -53,10 +53,12 @@ const Brief = () => {
         setIsLoading(true);
 
         const response = await clientRepo.getBrief(Number(id));
+        console.log("res", response)
+
         if (response.brief) {
           const briefText = response.brief;
           const plainText = briefText.replace(/<[^>]+>/g, "");
-
+          console.log("this",plainText)
           setContent(briefText);
           setInitialContent(plainText);
 
@@ -141,13 +143,13 @@ const Brief = () => {
     setLinkText("");
   };
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center">
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
+  // }
 
   if (isMutating) {
     return (

@@ -117,49 +117,61 @@ const AddMember = () => {
             action: Action.ADD
           }
         ];
-
+  
         const initialPermissionIds = initialMemberData.permission_ids || [];
         const currentPermissionIds = values.permission_ids || [];
-
+  
         const permissionsToRemove = initialPermissionIds.filter(
           pid => !currentPermissionIds.includes(pid)
         ).map(pid => ({
           permission_id: pid,
           action: Action.REMOVE
         }));
-
+  
         const permissionsToAdd = currentPermissionIds.filter(
           pid => !initialPermissionIds.includes(pid)
         ).map(pid => ({
           permission_id: pid,
           action: Action.ADD
         }));
-
+  
         if (permissionsToRemove.length > 0 || permissionsToAdd.length > 0) {
           updatePayload.permission = [
             ...permissionsToRemove,
             ...permissionsToAdd
           ];
         }
-
+  
         updatePayload.user_name = values.user_name;
-
         updatePayload.full_name = values.full_name;
-
-        updatePayload.phone = values.phone;
-
+  
+        if (values.phone?.trim()) {
+          updatePayload.phone = values.phone;
+        }
+  
         updatePayload.status = values.status;
-
-
+  
         updateMutation.mutate(updatePayload, {
-
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");
           },
         });
       } else {
-
-        mutate(values, {
+        const createPayload: MemberPayload = {
+          user_name: values.user_name,
+          email: values.email,
+          password: values.password,
+          full_name: values.full_name,
+          permission_ids: values.permission_ids,
+          status: values.status,
+          role_id: values.role_id,
+        };
+  
+        if (values.phone?.trim()) {
+          createPayload.phone = values.phone;
+        }
+  
+        mutate(createPayload, {
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");
           },

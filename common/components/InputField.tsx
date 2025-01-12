@@ -54,7 +54,7 @@ export const InputField = ({
             className={`flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}>
             {icon && <View className={`ml-4 ${iconStyle}`}>{icon}</View>}
             <TextInput
-              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 lowercase ${inputStyle} text-left`}
+              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 ${inputStyle} text-left`}
               secureTextEntry={isPasswordVisible}
               value={inputValue}
               onChangeText={setInputValue}

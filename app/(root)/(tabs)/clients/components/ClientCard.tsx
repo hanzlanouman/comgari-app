@@ -31,7 +31,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
         return { bg: "bg-blue-100", dot: "bg-blue", text: "text-blue" };
       case "Building":
         return { bg: "bg-green-100", dot: "bg-green", text: "text-green" };
-      case "Landmark":
+      case "LandMark":
         return { bg: "bg-yellow-100", dot: "bg-yellow", text: "text-yellow" };
       default:
         return { bg: "bg-gray-100", dot: "bg-gray", text: "text-gray" };

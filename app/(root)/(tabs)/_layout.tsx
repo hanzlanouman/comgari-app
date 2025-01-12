@@ -119,7 +119,7 @@ const Layout = () => {
       }
       if (screen.permissionRequired) {
         const { user, permission, resource } = screen.permissionRequired;
-        console.log(user, "USer in screen");
+        console.log(user, "User in screen");
         const hasPermission = getPermission(user!, permission, resource);
         return {
           ...screen,
