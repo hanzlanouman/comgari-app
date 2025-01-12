@@ -217,12 +217,7 @@ const Tasks = () => {
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-            {isFetching ? (
-              <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text className="mt-2 text-gray-600">Loading tasks...</Text>
-              </View>
-            ) : error ? (
+            { error ? (
               <View className="flex-1 justify-center items-center">
                 <Text className="text-red-500 text-center">
                   Failed to load tasks. Please try again later.
@@ -253,11 +248,9 @@ const Tasks = () => {
                 />
                 <View className="mt-8">
                   <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                    No Task found, please
+                  No task found, you can create new tasks here!
                   </Text>
-                  <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                    create task
-                  </Text>
+                  
                   <View className="w-[158px] mx-auto mt-5">
                     <CustomButton
                       title="Add Task"

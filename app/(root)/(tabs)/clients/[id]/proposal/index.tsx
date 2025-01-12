@@ -112,13 +112,13 @@ const Proposal = () => {
     });
   };
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading proposals...</Text>
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View className="flex-1 items-center justify-center">
+  //       <Text>Loading proposals...</Text>
+  //     </View>
+  //   );
+  // }
 
   if (isError) {
     return (

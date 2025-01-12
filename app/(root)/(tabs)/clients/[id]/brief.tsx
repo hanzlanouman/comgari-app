@@ -53,7 +53,6 @@ const Brief = () => {
         setIsLoading(true);
 
         const response = await clientRepo.getBrief(Number(id));
-        console.log("res", response)
 
         if (response.brief) {
           const briefText = response.brief;
@@ -151,14 +150,14 @@ const Brief = () => {
   //   );
   // }
 
-  if (isMutating) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <Text>Saving brief...</Text>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // if (isMutating) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center">
+  //       <Text>Saving brief...</Text>
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
+  // }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
