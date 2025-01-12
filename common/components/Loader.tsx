@@ -9,7 +9,6 @@ export function SimpleActivityIndicator() {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#fff" />
-      <Text style={styles.text}>Loading</Text>
     </View>
   );
 }

@@ -51,21 +51,6 @@ const Home = () => {
     fetchDashboardData();
   }, []);
 
-  if (loading) {
-    return (
-      <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#63348F" />
-      </SafeAreaView>
-    );
-  }
-
-  if (!dashboardData) {
-    return (
-      <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <Text className="text-dark font-ManropeBold">No data available.</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">

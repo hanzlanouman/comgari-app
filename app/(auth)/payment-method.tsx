@@ -157,7 +157,7 @@ export default function Paymentmethod() {
         merchantIdentifier="Comgari"
         urlScheme="comgari">
         <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-        Select one of your saved cards or add a new card below.
+        Choose a saved card or add a new one below.
     </Text>
         <Cards
           cards={cards?.data || []}
