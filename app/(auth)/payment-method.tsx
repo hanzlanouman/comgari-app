@@ -61,13 +61,11 @@ export default function Paymentmethod() {
         dispatch(login(parsedAuthResponse));
       },
       onError: (error) => {
-        // Optionally handle errors
         console.error("Payment failed:", error);
       },
     }
   );
 
-  // Call this function to trigger the payment mutation
   const handlePaymentConfirmation = () => {
     mutate();
   };
@@ -144,10 +142,6 @@ export default function Paymentmethod() {
     }
   }, [card]);
   const onAddCard = async () => {
-    if (Platform.OS === "ios") {
-      //setModal(true);
-      return;
-    }
     refetch();
   };
   return (
@@ -159,6 +153,7 @@ export default function Paymentmethod() {
         <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
         Choose a saved card or add a new one below.
     </Text>
+
         <Cards
           cards={cards?.data || []}
           onAddCard={onAddCard}
