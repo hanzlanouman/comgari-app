@@ -80,7 +80,7 @@ const Layout = () => {
       }} />
       <Stack.Screen name="brief" options={{
         headerShown: true,
-        title: "Briefing",
+        title: "Client Briefing",
       }} />
       <Stack.Screen name="notes/add-note" options={{ headerShown: false }} />
       <Stack.Screen name="media/images" options={{ headerShown: true, title: "Images", }} />

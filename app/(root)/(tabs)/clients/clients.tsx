@@ -141,8 +141,7 @@ const Clients: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer
-        isError={isError}
-        isLoading={isLoading}
+        isError={isError} 
       >
         <ScrollView
           className="flex-1 px-5"
@@ -152,8 +151,7 @@ const Clients: React.FC = () => {
           onEndReachedThreshold={0.5}
         >
           <Text className="text-sm  text-dark-100 mt-3">
-            Welcome to your client overview! Here, you can track all your client interactions, manage leads, and monitor project statuses. Assignments, property details, and due dates are easily visible for each client.
-
+          Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
           </Text>
           {clients.length > 0 ? renderClientsList() : renderEmptyState()}
         </ScrollView>

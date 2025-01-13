@@ -68,11 +68,11 @@ const SignUp = () => {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
       <AppContainer isError={isError} message={error?.message}>
         <View className="flex-1 px-5 py-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Fill in the details below to set up your Comgari account.{"\n"}Already have an account? <Text className="text-blue" onPress={() => router.push("/(auth)/sign-in")}>Log in here</Text>
+          Set up your Comgari account by filling in the details below.{"\n"}Already have an account? <Text className="text-blue" onPress={() => router.push("/(auth)/sign-in")}>Log in here</Text>
           </Text>
           <View className="mt-6">
             <InputField
@@ -153,7 +153,7 @@ const SignUp = () => {
         </View>
       </AppContainer>
 
-      <View className="px-4 pt-4 bg-white">
+      <View className="px-4 py-4 bg-white">
         <CustomButton
           title="Sign Up"
           onPress={() => {

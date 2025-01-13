@@ -30,7 +30,7 @@ const Layout = () => {
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />
       <Stack.Screen
         name="forgot-password"
-        options={{ headerShown: true, title: "Forgot Password?", headerBackTitle: "Sign In" }}
+        options={{ headerShown: true, title: "Forgot Your Password?", headerBackTitle: "Sign In" }}
       />
       <Stack.Screen name="otp" options={{ headerShown: true, title: "Enter OTP Code!" }} />
       <Stack.Screen
@@ -52,7 +52,7 @@ const Layout = () => {
           ),
         }}
       />
-      <Stack.Screen name="go-pro" options={{ headerShown: true, title: "Upgrade to Pro with Comgari!" }} />
+      <Stack.Screen name="go-pro" options={{ headerShown: true, title: "Upgrade to Pro!" }} />
 
       <Stack.Screen
         name="payment-method"

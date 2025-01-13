@@ -49,7 +49,8 @@ const ResetPassword = () => {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Enter your new password below to reset your account password. Use strong password that include numbers, letters, and punctuation marks.
+          Set a new password.
+          Create a strong password with numbers, letters, and symbols.
           </Text>
           <View className="mt-6">
             <InputField

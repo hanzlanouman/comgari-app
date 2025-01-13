@@ -152,7 +152,7 @@ const Members = () => {
               />
               <View>
                 <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                Oops!  It looks like no team members have been added yet. Start growing your team by adding new members who can help manage clients and properties. 
+                No team members added yet. Start growing your team by adding members to manage clients and properties. 
                 </Text>
                 <View className="w-[158px] mx-auto mt-5">
                   <CustomButton

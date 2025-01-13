@@ -1,4 +1,6 @@
-import { View, Text, SafeAreaView } from "react-native";
+import { View, Text } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
 import { useState } from "react";
 import InputField from "@/common/components/InputField";
 import { router, useRouter } from "expo-router";
@@ -44,12 +46,12 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaProvider>
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
       <View className="flex-1 p-4">
       
         <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-        No problem. Please enter your email address below, and we will send you a link to reset your password.
-        </Text>
+        Enter your email below to receive a password reset link.        </Text>
         <View className="mt-6">
           <InputField
             label=""
@@ -60,7 +62,7 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
           />
         </View>
       </View>
-      <View className="px-4">
+      <View className="px-4 pb-4">
         <CustomButton
           title="Send Code"
           onPress={() => {
@@ -69,6 +71,7 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
         />
       </View>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

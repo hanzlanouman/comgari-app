@@ -69,13 +69,13 @@ const Notes = () => {
     enabled: !!clientId,
   });
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#000" />
-      </SafeAreaView>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <SafeAreaView className="flex-1 bg-white justify-center items-center">
+  //       <ActivityIndicator size="large" color="#000" />
+  //     </SafeAreaView>
+  //   );
+  // }
   // console.log(clientNotes)
   // Check if we have valid data
   const hasData =

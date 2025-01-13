@@ -92,7 +92,7 @@ export const createClientSchema = Yup.object().shape({
     .required("Email is required."),
   phone: Yup.string()
     .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
-    .required("Phone number is required."),
+    .optional(),
 });
 
 export const updateClientSchema = Yup.object().shape({
@@ -102,7 +102,7 @@ export const updateClientSchema = Yup.object().shape({
   logo: Yup.string(),
   type: Yup.mixed().oneOf(Object.values(CLIENT_TYPES)),
   email: Yup.string().email('Email is invalid'),
-  phone: Yup.string(),
+  phone: Yup.string().optional(),
   status: Yup.string().required('Status is required'),
   client_Staff: Yup.array().of(Yup.object().shape({
     staff_id: Yup.number(),

@@ -14,7 +14,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 import { AppContainer } from "@/common/components";
 import { AuthRepository } from "@/repositories";
-
+import {GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment"
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
   { key: "PendingConfirmation", value: "PendingConfirmation" },
@@ -100,9 +100,8 @@ const AddAppointment = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
-
+      webClientId: GoogleWebClientID,
+      iosClientId: GoogleIOSClientID,
       offlineAccess: true,
       forceCodeForRefreshToken: true,
 

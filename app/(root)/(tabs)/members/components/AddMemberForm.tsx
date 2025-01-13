@@ -34,10 +34,8 @@ export default function AddMemberForm({
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        {/* Instructions Section */}
         <Text className="text-sm  text-dark-100 mb-6">
-          Add new team members to collaborate effectively!{"\n"}
-          Simply fill out their details below to get them onboarded into your system.
+        Add new team members by filling in their details below.
         </Text>
 
         <View>
@@ -71,7 +69,7 @@ export default function AddMemberForm({
           <View className="mt-3">
             <InputField
               label=""
-              value={formik.values.email}
+              value={formik.values.email.toLowerCase()}
               onChangeText={formik.handleChange("email")}
               placeholder="Email"
               keyboardType="email-address"
@@ -157,10 +155,9 @@ export default function AddMemberForm({
               />
             </View>
           )}
-          {/* Instructions Section */}
-          <Text className="text-sm  text-dark-100 mt-3">
+          {/* <Text className="text-sm  text-dark-100 mt-3">
             They will receive an invitation to set up their account and access their dashboard.
-          </Text>
+          </Text> */}
           <View className="p-4 bg-white">
             <CustomButton
               title={isEditing ? "Update Member" : "Add Member"}

@@ -127,8 +127,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-          We have sent the verification code to your registered contact number and email. Please check your SMS or email to retrieve the code.
-          </Text>
+          Verification code sent to your contact number and email. Please check your SMS or email.          </Text>
           <View className="flex-row -mx-2 mt-5">
             {formik.values.otp.map((_, index) => (
               <OtpField

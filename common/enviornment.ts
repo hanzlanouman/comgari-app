@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+//common\enviornment.ts
 import { APP_NAMES } from "./enum";
 
 export const environment = process.env.NODE_ENV;
@@ -6,7 +7,7 @@ export const environment = process.env.NODE_ENV;
 const isDev = environment === "development";
 
 const SERVER_HOST = isDev
-  ? "http://172.20.10.2"
+  ? "http://192.168.100.7"
   : "https://comgari-api.devjunction.xyz";
 
 export const SERVER_URL = `${SERVER_HOST}`;
@@ -29,6 +30,8 @@ export type TRoute =
     };
 
 export type TEndpoint = { [controller: string]: { [route: string]: TRoute } };
+export const GoogleWebClientID = "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com";
+export const GoogleIOSClientID = "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com";
 
 const AppDevConfigs: Record<APP_NAMES, TAppConfig> = {
   [APP_NAMES.USER]: {

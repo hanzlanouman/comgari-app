@@ -81,8 +81,8 @@ const GoPro = () => {
       <ScrollView>
         <View className="flex-1 px-4 py-4 relative z-10">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Choose a plan to unlock all of Comgari’s premium features. You can{" "}
-            <Text className="text-red">cancel</Text> at any time.
+            Choose a plan to unlock all of Comgari’s premium features.{"\n"}
+            <Text className="text-red">Cancel</Text> at any time.
           </Text>
 
           {/* Error message display */}

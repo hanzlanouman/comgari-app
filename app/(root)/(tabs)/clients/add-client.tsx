@@ -74,11 +74,7 @@ const AddClient = () => {
     }
   }, [isAuthenticated, clientId]);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/(auth)/sign-in');
-    }
-  }, [isAuthenticated]);
+
 
   const clientTypeOptions: OptionType[] = CLIENT_TYPES.map((type) => ({
     key: type,
@@ -158,8 +154,8 @@ const AddClient = () => {
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer>
       <Text className="text-sm mb-6 px-4">
-          Add new team clients to collaborate effectively!{"\n"}
-          Simply fill out their details below to get them onboarded into your system.
+      Add new team clients by filling out their details below to onboard them.
+
         </Text>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
           <AddClientForm
