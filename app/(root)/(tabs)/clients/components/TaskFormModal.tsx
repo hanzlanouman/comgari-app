@@ -11,12 +11,17 @@ import { TaskPayload, UpdateTaskPayload, Action, MemberAction } from "@/reposito
 import { PRIORITY_OPTIONS,STATUS_OPTIONS  } from "@/repositories/client/constants";
 import * as Yup from "yup";
 
+const getStartOfToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required."),
   dueDate: Yup.date().required("Due date is required."),
   priority: Yup.string().required("Priority is required."),
   status: Yup.string().required("Status is required."),
-  // selectedMembers is optional, so no validation for it
 });
 interface TaskFormModalProps {
   bottomSheetRef: React.RefObject<BottomSheetModal>;
@@ -244,6 +249,7 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
         date={values.dueDate ? new Date(values.dueDate) : new Date()}
+        minimumDate={getStartOfToday()}
       />
     </BottomSheetScrollView>
   )}

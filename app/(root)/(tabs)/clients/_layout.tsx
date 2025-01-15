@@ -4,8 +4,12 @@ import { Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pencil, Plus, Upload } from "lucide-react-native";
+import WithRole from "@/common/components/withRole";
+import { useAppSelector } from "@/hooks/redux";
 
 const Layout = () => {
+  const { user } = useAppSelector((state) => state.auth);
+
   return (
     <Stack
       screenOptions={{
@@ -26,17 +30,19 @@ const Layout = () => {
           headerShown: true,
           title: "Clients",
           headerRight: () => (
-            <LinearGradient
-              colors={["#1B78B9", "#63348F"]}
-              className="rounded-full w-8 h-8"
-              start={[0, 0]}
-              end={[1, 1]}>
-              <TouchableOpacity
-                onPress={() => router.push("/(root)/(tabs)/clients/add-client")}
-                className="w-full h-full rounded-full flex flex-row justify-center items-center">
-                <Plus size={18} color="#ffffff" />
-              </TouchableOpacity>
-            </LinearGradient>
+            <WithRole permission="Post" resource="client" user={user!}>
+              <LinearGradient
+                colors={["#1B78B9", "#63348F"]}
+                className="rounded-full w-8 h-8"
+                start={[0, 0]}
+                end={[1, 1]}>
+                <TouchableOpacity
+                  onPress={() => router.push("/(root)/(tabs)/clients/add-client")}
+                  className="w-full h-full rounded-full flex flex-row justify-center items-center">
+                  <Plus size={18} color="#ffffff" />
+                </TouchableOpacity>
+              </LinearGradient>
+            </WithRole>
           ),
         }}
       />
