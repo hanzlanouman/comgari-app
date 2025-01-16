@@ -23,4 +23,3 @@ export default function WithRole({
   }, [getPermission, permission, resource, user]);
   return allow ? children : null;
 }
-///
