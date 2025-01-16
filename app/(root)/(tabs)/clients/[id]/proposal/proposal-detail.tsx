@@ -32,6 +32,8 @@ import {
   BottomSheetView,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
+import {  Platform } from 'react-native';
+
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -125,7 +127,6 @@ const createProposalTemplate = (data: any) => {
   `;
 };
 const Proposal = () => {
-  // Get params from route
   const { 
     id, 
     jobName, 
@@ -262,32 +263,47 @@ const Proposal = () => {
   const handleDownloadProposal = async () => {
     try {
       const uri = await generatePDF();
-      if (!uri) return; 
+      if (!uri) return;
   
-      const { granted } = await MediaLibrary.requestPermissionsAsync();
-      if (!granted) {
-        Alert.alert(
-          'Permission Denied',
-          'Media library access is required to save the proposal.'
-        );
-        return;
+      // For iOS use sharing
+      if (Platform.OS === 'ios') {
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save Proposal',
+            UTI: 'com.adobe.pdf'
+          });
+          bottomSheetModalRef.current?.close();
+          return;
+        }
       }
   
-      const filename = `${Date.now()}_Proposal.pdf`;
-      console.log(filename)
-      const destinationUri = `${FileSystem.documentDirectory}${filename}`;
-      console.log(destinationUri)
-      await FileSystem.moveAsync({
-        from: uri,
-        to: destinationUri,
-      });
+      const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+          
+      if (permissions.granted) {
+        const base64 = await FileSystem.readAsStringAsync(uri, { 
+          encoding: FileSystem.EncodingType.Base64 
+        });
+        
+        const fileName = `proposal_${Date.now()}.pdf`;
+        const mimeType = 'application/pdf';
   
-      const asset = await MediaLibrary.createAssetAsync(destinationUri);
-      console.log(asset)
-      await MediaLibrary.createAlbumAsync('Proposals', asset, false);
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          permissions.directoryUri, 
+          fileName, 
+          mimeType
+        ).then(async (newUri) => {
+          await FileSystem.writeAsStringAsync(newUri, base64, { 
+            encoding: FileSystem.EncodingType.Base64 
+          });
+          Alert.alert('Success', 'Proposal saved successfully!');
+          bottomSheetModalRef.current?.close();
+        });
+      } else {
+        await Sharing.shareAsync(uri);
+        bottomSheetModalRef.current?.close();
+      }
   
-      Alert.alert('Success', 'Proposal downloaded successfully to your device.');
-      bottomSheetModalRef.current?.close();
     } catch (error) {
       console.error('Error downloading proposal:', error);
       Alert.alert('Error', 'Failed to download proposal. Please try again.');
