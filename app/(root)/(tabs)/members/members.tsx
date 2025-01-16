@@ -20,6 +20,9 @@ import { MemberRepository } from "@/repositories";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
+import WithRole from "@/common/components/withRole";
+import { useAppSelector } from "@/hooks/redux";
+
 import {
   BottomSheetModal,
 } from "@gorhom/bottom-sheet";
@@ -45,6 +48,7 @@ const Members = () => {
   const [member, setMembers] = useState<TMember[]>([]);
   const queryClient = useQueryClient();
   const [selectedMember, setSelectedMember] = useState<TMember | null>(null);
+  const { user } = useAppSelector((state) => state.auth);
 
   const actionModalRef = useRef<BottomSheetModal>(null);
 
@@ -155,10 +159,12 @@ const Members = () => {
                 No team members added yet. Start growing your team by adding members to manage clients and properties. 
                 </Text>
                 <View className="w-[158px] mx-auto mt-5">
+                  <WithRole permission="Post" resource="member" user={user!}>
                   <CustomButton
                     title="Add Member"
                     onPress={() => router.push("/(root)/(tabs)/members/add-member")}
                   />
+                  </WithRole>
                 </View>
               </View>
             </View>

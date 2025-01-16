@@ -63,8 +63,7 @@ const AddAppointment = () => {
         key: client.id,
         value: client.name,
       }));
-
-      setClientOptions(options);
+      setClientOptions(options.length ? options : []); // Default to empty array if no clients
     } catch (err) {
       Alert.alert("Error", "Failed to fetch clients");
     } finally {
@@ -81,7 +80,7 @@ const AddAppointment = () => {
         key: member.Auth.id,
         value: member.Auth?.username,
       }));
-      setMemberOptions(options);
+      setMemberOptions(options.length ? options : []); 
     } catch (err) {
       Alert.alert("Error", "Failed to fetch members");
     } finally {
@@ -100,8 +99,10 @@ const AddAppointment = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: GoogleWebClientID,
-      iosClientId: GoogleIOSClientID,
+      webClientId:
+        "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+      iosClientId: 
+      "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com",
       offlineAccess: true,
       forceCodeForRefreshToken: true,
 

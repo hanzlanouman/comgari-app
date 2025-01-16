@@ -261,11 +261,9 @@ const Proposal = () => {
 
   const handleDownloadProposal = async () => {
     try {
-      // Step 1: Generate the PDF file
       const uri = await generatePDF();
-      if (!uri) return; // Exit if PDF generation fails
+      if (!uri) return; 
   
-      // Step 2: Get Media Library permissions
       const { granted } = await MediaLibrary.requestPermissionsAsync();
       if (!granted) {
         Alert.alert(
@@ -275,19 +273,19 @@ const Proposal = () => {
         return;
       }
   
-      // Step 3: Move the file to Media Library
       const filename = `${Date.now()}_Proposal.pdf`;
+      console.log(filename)
       const destinationUri = `${FileSystem.documentDirectory}${filename}`;
+      console.log(destinationUri)
       await FileSystem.moveAsync({
         from: uri,
         to: destinationUri,
       });
   
-      // Step 4: Save to Media Library
       const asset = await MediaLibrary.createAssetAsync(destinationUri);
+      console.log(asset)
       await MediaLibrary.createAlbumAsync('Proposals', asset, false);
   
-      // Step 5: Notify the user
       Alert.alert('Success', 'Proposal downloaded successfully to your device.');
       bottomSheetModalRef.current?.close();
     } catch (error) {
