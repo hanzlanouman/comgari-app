@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "es.comgari",
+      "bundleIdentifier": "uk.co.comgari",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
@@ -23,7 +23,6 @@
             ]
           }
         ]
-       
       }
     },
     "android": {
@@ -31,8 +30,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "es.comgari",
-       "googleServicesFile": "./google-services.json"
+      "package": "uk.co.comgari",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -47,8 +46,6 @@
         }
       ],
       "expo-router"
-      
-      
     ],
     "experiments": {
       "typedRoutes": true
@@ -56,9 +53,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "cff15db0-8721-4e25-92d8-4a1a981d8552"
       }
     }
   }
