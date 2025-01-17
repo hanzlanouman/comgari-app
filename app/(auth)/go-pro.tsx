@@ -24,7 +24,7 @@ type TPlanProps = {
 
 const GoPro = () => {
   const { authResponse } = useLocalSearchParams<TPlanProps>();
-
+  console.log(authResponse)
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);

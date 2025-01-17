@@ -19,6 +19,7 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import {  Platform } from 'react-native';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -187,45 +188,52 @@ const generateInvoicePDF = async (invoiceData) => {
   }
 };
 
-// Download invoice function
 const handleDownloadInvoice = async (invoice) => {
   try {
-    // Step 1: Generate the PDF file
     const uri = await generateInvoicePDF(invoice);
-    
-    // Step 2: Get Media Library permissions
-    const { granted } = await MediaLibrary.requestPermissionsAsync();
-    if (!granted) {
-      Alert.alert(
-        'Permission Denied',
-        'Media library access is required to save the invoice.'
-      );
-      return;
+    if (!uri) return;
+
+    // For iOS use sharing
+    if (Platform.OS === 'ios') {
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Save Proposal',
+          UTI: 'com.adobe.pdf'
+        });
+        return;
+      }
     }
-  
-    // Step 3: Move the file to Media Library
-    const filename = `Invoice_${invoice.invoiceNumber}_${Date.now()}.pdf`;
-    const destinationUri = `${FileSystem.documentDirectory}${filename}`;
-    await FileSystem.moveAsync({
-      from: uri,
-      to: destinationUri,
-    });
-  
-    // Step 4: Save to Media Library
-    const asset = await MediaLibrary.createAssetAsync(destinationUri);
-    await MediaLibrary.createAlbumAsync('Invoices', asset, false);
-  
-    // Step 5: Notify the user
-    Alert.alert('Success', 'Invoice downloaded successfully to your device.');
-    
-    return destinationUri;
+
+    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+        
+    if (permissions.granted) {
+      const base64 = await FileSystem.readAsStringAsync(uri, { 
+        encoding: FileSystem.EncodingType.Base64 
+      });
+      
+      const fileName = `invoice_${Date.now()}.pdf`;
+      const mimeType = 'application/pdf';
+
+      await FileSystem.StorageAccessFramework.createFileAsync(
+        permissions.directoryUri, 
+        fileName, 
+        mimeType
+      ).then(async (newUri) => {
+        await FileSystem.writeAsStringAsync(newUri, base64, { 
+          encoding: FileSystem.EncodingType.Base64 
+        });
+        Alert.alert('Success', 'Invoice saved successfully!');
+      });
+    } else {
+      await Sharing.shareAsync(uri);
+    }
+
   } catch (error) {
     console.error('Error downloading invoice:', error);
     Alert.alert('Error', 'Failed to download invoice. Please try again.');
-    throw error;
   }
 };
-
   useFocusEffect(
     React.useCallback(() => {
       fetchInvoices();

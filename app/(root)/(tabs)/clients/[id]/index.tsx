@@ -14,6 +14,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { vs } from "react-native-size-matters";
 import { useLocalSearchParams } from "expo-router";
 import { useRef, useEffect } from "react";
+import WithRole from "@/common/components/withRole";
+
 import { LinearGradient } from "expo-linear-gradient";
 import {
   BottomSheetModal,
@@ -136,28 +138,31 @@ const ClientDetailPage: React.FC = () => {
     },
   };
   const EditButton = () => (
-    <LinearGradient
-      colors={["#1B78B9", "#63348F"]}
-      style={{
-        borderRadius: 999,
-        width: 32,
-        height: 32,
-      }}
-      start={[0, 0]}
-      end={[1, 1]}>
-      <TouchableOpacity
-        onPress={() => {
-          bottomSheetRef.current?.present();
-        }}
+    <WithRole permission="Put" resource="client" user={user!}>
+      <LinearGradient
+        colors={["#1B78B9", "#63348F"]}
         style={{
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}>
-        <Pencil size={18} color="#ffffff" />
-      </TouchableOpacity>
-    </LinearGradient>
+          borderRadius: 999,
+          width: 32,
+          height: 32,
+        }}
+        start={[0, 0]}
+        end={[1, 1]}>
+        <TouchableOpacity
+          onPress={() => {
+            bottomSheetRef.current?.present();
+          }}
+          style={{
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+          <Pencil size={18} color="#ffffff" />
+        </TouchableOpacity>
+
+      </LinearGradient>
+    </WithRole>
   );
 
   useEffect(() => {

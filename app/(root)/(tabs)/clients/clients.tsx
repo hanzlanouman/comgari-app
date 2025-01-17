@@ -46,6 +46,7 @@ const Clients: React.FC = () => {
   const [limit] = useState(10);
 
   const user = useAppSelector((state) => state.auth.user);
+  console.log(user)
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(

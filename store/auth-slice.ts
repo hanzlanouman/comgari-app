@@ -6,6 +6,7 @@ interface AuthSlice {
   isAuthenticated: boolean;
   token: string | null;
   user: TUSER | null;
+  isSubscribed: boolean;
 }
 
 export interface LoginPayload {
@@ -21,6 +22,7 @@ const initialState: AuthSlice = {
   isAuthenticated: false,
   token: null,
   user: null,
+  isSubscribed: false,
 };
 
 const authSlice = createSlice({
@@ -43,9 +45,12 @@ const authSlice = createSlice({
     updateUserData(state, action: PayloadAction<TUSER>) {
       state.user = action.payload;
     },
+    setSubscribed(state, action: PayloadAction<boolean>) {
+      state.isSubscribed = action.payload;
+    }
   },
 });
 
-export const { login, logout, setToken, updateUserData } = authSlice.actions;
+export const { login, logout, setToken, updateUserData, setSubscribed } = authSlice.actions;
 
 export default authSlice;
