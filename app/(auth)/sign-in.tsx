@@ -14,7 +14,7 @@ import { AuthRepository } from "@/repositories/auth/auth";
 import { useMutation } from "react-query";
 import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
-import { login } from "@/store";
+import { login, setSubscribed } from "@/store";
 import { OTP_TYPE } from "@/common/enum";
 
 const SignIn = () => {
@@ -54,6 +54,7 @@ const SignIn = () => {
       mutate(values, {
         onSuccess: (data) => {
           dispatch(login(data));
+          // dispatch(setSubscribed(data.user.subscription));
         },
         onError: (error) => {
           // Specific error handling for account verification

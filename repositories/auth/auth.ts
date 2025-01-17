@@ -121,6 +121,7 @@ export class AuthRepository implements IAuthRepository {
         payload,
         { show_loader: true }
       );
+      console.log("auth response", res.data)
       return res.data;
     } catch (e: AxiosError | any) {
       throw new Error(getCustomErrorMessage(e));

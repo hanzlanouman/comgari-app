@@ -42,6 +42,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
   const dispatch = useAppDispatch();
   const AuthRepo = AuthRepository.getInstance();
   const { username, authResponse, type } = useLocalSearchParams<TOtpProps>();
+  console.log("this is auth response",authResponse)
   const parsedAuthResponse: TLoginResponse = authResponse
     ? JSON.parse(authResponse)
     : undefined;

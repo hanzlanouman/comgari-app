@@ -21,4 +21,5 @@ export type TUSER = {
   avatar: string;
   authId: string;
   user_roles: TRole[];
+  subscription: boolean;
 };

@@ -1,3 +1,4 @@
+//app\(auth)\payment-method.tsx
 import { View, Text, ScrollView, SafeAreaView, Platform } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
@@ -10,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocalSearchParams } from "expo-router";
 import { TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
-import { login } from "@/store";
+import { login, setSubscribed  } from "@/store";
 type TPlanProps = {
   authResponse?: string;
   selectedPlanPrice: any;
@@ -59,6 +60,7 @@ export default function Paymentmethod() {
         console.log("Payment successful!", data);
 
         dispatch(login(parsedAuthResponse));
+        dispatch(setSubscribed(true));
       },
       onError: (error) => {
         // Optionally handle errors
