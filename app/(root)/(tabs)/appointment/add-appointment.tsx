@@ -135,7 +135,7 @@ const AddAppointment = () => {
       const response = await GoogleSignin.signIn();
 
       const token = await GoogleSignin.getTokens();
-
+      console.log("auth code", response?.data?.serverAuthCode)
       const payload = {
         client_id:
           "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",

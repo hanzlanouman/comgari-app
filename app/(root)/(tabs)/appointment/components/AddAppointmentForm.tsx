@@ -303,6 +303,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={handleConfirm}
+        minimumDate={new Date()}
         onCancel={() => setDatePickerVisibility(false)}
       />
 
