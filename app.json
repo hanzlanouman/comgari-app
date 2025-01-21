@@ -7,6 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "comgari",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "cover",
@@ -45,7 +46,8 @@
           "iosUrlScheme": "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
@@ -53,6 +55,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "cff15db0-8721-4e25-92d8-4a1a981d8552"
       }
     }
   }
