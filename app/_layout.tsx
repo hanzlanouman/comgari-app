@@ -12,6 +12,7 @@ import { SimpleActivityIndicator } from "@/common/components/Loader";
 import { AuthorizationProvider } from "@/context/PermissionContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { NavigationContainer } from '@react-navigation/native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,11 +38,17 @@ export default function RootLayout() {
   }
   const queryClient = new QueryClient();
   return (
+
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <LayoutWrapper />
+        <NavigationContainer>
+
+          <LayoutWrapper />
+        </NavigationContainer>
+
       </Provider>
     </QueryClientProvider>
+
   );
 }
 

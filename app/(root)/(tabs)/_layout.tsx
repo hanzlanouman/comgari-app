@@ -10,7 +10,7 @@ import {
   Users,
   UsersRound,
 } from "lucide-react-native";
-import { NavigationState, useNavigationState } from "@react-navigation/native";
+import { NavigationState, useNavigationState, } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
 import { useNotification } from "@/hooks/use-notification";
 
