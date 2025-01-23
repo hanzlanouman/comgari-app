@@ -143,8 +143,6 @@ export class AuthRepository implements IAuthRepository {
         signupPayLoad,
         { show_loader: true }
       );
-      await this.sendOtp({ username: signupPayLoad.email! });
-
       return res?.data;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));

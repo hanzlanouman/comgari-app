@@ -23,15 +23,15 @@ const Appointment = () => {
         const response = await clientRepo.getAppointment();
         const transformedItems = response.data.reduce((acc, appointment) => {
           const formattedDate = new Date(appointment.date).toISOString().split('T')[0];
-
+  
           if (!acc[formattedDate]) {
             acc[formattedDate] = [];
           }
-
+  
           const memberNames = appointment.appointment_member
             .map(member => member.Auth.user[0]?.full_name || 'Unknown')
             .join(', ');
-
+  
           const appointmentItem = {
             id: appointment.id,
             name: appointment.title,
@@ -43,18 +43,22 @@ const Appointment = () => {
             memberNames: memberNames,
             fullAppointmentData: appointment
           };
-
+  
           acc[formattedDate].push(appointmentItem);
           return acc;
         }, {});
-
-        // Sort appointments by date and time within each date
+  
+        // Filter out appointments in the past
+        const today = new Date().toISOString().split('T')[0];
         Object.keys(transformedItems).forEach(date => {
-          transformedItems[date].sort((a, b) => 
-            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-          );
+          if (date < today) {
+            delete transformedItems[date];  // Remove past appointments
+          } else {
+            // Sort appointments by time
+            transformedItems[date].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+          }
         });
-
+  
         setAllAppointments(transformedItems);
         setItems(transformedItems);
       } catch (error) {
@@ -63,9 +67,10 @@ const Appointment = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchAppointments();
   }, []);
+  
 
   const handleAppointmentPress = (item) => {
     setSelectedAppointment(item);
@@ -136,11 +141,22 @@ const Appointment = () => {
       }
     }
   };
-
-  // Modified to always show all appointments
   const loadItems = (day) => {
-    setItems(allAppointments);
+    const selectedDate = day.dateString;
+    const today = new Date().toISOString().split('T')[0];
+  
+    // Include all future appointments, prioritizing selected date and future dates
+    const filteredAppointments = Object.keys(allAppointments)
+      .filter(date => date >= today)
+      .reduce((acc, date) => {
+        acc[date] = allAppointments[date];
+        return acc;
+      }, {});
+  
+    setItems(filteredAppointments);
+    setSelectedDate(selectedDate);
   };
+  
 
   const renderAgendaItem = (item) => (
     <TouchableOpacity 

@@ -60,9 +60,6 @@ const SignIn = () => {
             
             router.push({
               pathname: "/(auth)/go-pro",
-              params: {
-                authResponse: JSON.stringify(data)
-              }
             });
           }
           

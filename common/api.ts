@@ -12,11 +12,15 @@ const axiosApi = axios.create();
 const getHeader = (headers: AxiosHeaders) => {
   const token = store.getState().auth.token;
   const newheaders: Partial<AxiosHeaders> = {};
-
+  console.log("Token from Redux store:", token);
+  console.log("Existing headers:", headers);
   if (token && !headers["Authorization"]) {
     newheaders["Authorization"] = `Bearer ${token}`;
   }
-
+  // Ensure Content-Type is set to application/json for all requests
+  if (!headers["Content-Type"]) {
+    newheaders["Content-Type"] = "application/json";
+  }
   if (!Object.prototype.hasOwnProperty.call(headers, "Content-Type")) {
     newheaders["Content-Type"] = "application/json";
   }
@@ -28,6 +32,8 @@ const getHeader = (headers: AxiosHeaders) => {
 axiosApi.interceptors.request.use(
   (config: any) => {
     const headers = getHeader(config.headers);
+    console.log("Final headers:", { ...config.headers, ...headers });
+
     let showLoader = false;
 
     if (Object.prototype.hasOwnProperty.call(config, "show_loader")) {
