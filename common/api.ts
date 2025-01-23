@@ -4,6 +4,7 @@
 import axios, { AxiosHeaders, AxiosRequestConfig } from "axios";
 import { BaseUrl } from "@/common";
 import { store, logout, setLoading, stopLoading } from "@/store";
+import { Token } from "@stripe/stripe-react-native";
 
 const axiosApi = axios.create();
 
