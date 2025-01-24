@@ -7,19 +7,25 @@ import { route } from "@/common";
 import { useEffect } from "react";
 
 const Layout = () => {
-  const { isAuthenticated, isSubscribed } = useAppSelector((state) => state.auth);
-  console.log("isAuthenticated", isAuthenticated)
-  console.log("isSubscribed", isSubscribed)
-  
+  const { 
+    isAuthenticated = false, 
+    isSubscribed = false 
+  } = useAppSelector((state) => state.auth ?? {});
+
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/welcome");
+      return;
+    }
     if (isAuthenticated && !isSubscribed) {
-      router.push("/(auth)/go-pro");
+      router.replace("/(auth)/go-pro");
+      return;
+    }
+
+    if (isAuthenticated && isSubscribed) {
+      router.replace(route.root.home as unknown as Href);
     }
   }, [isAuthenticated, isSubscribed]);
-
-  if (isAuthenticated && isSubscribed) {
-    return <Redirect href={route.root.home as unknown as Href} />;
-  }
 
   return (
     <Stack

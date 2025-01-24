@@ -15,20 +15,6 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
 
 const Welcome = () => {
-  const { isAuthenticated, isSubscribed } = useAppSelector((state) => state.auth);
-  console.log("isAuthenticated", isAuthenticated)
-  console.log("isSubscribed", isSubscribed)
-  
-  useEffect(() => {
-    if (isAuthenticated && !isSubscribed) {
-      router.push("/(auth)/go-pro");
-    }
-  }, [isAuthenticated, isSubscribed]);
-
-  if (isAuthenticated && isSubscribed) {
-    return <Redirect href={route.root.home as unknown as Href} />;
-  }
-
   return (
     <SafeAreaProvider>
 

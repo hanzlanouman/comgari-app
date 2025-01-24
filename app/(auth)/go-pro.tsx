@@ -24,7 +24,9 @@ type TPlanProps = {
 
 const GoPro = () => {
   const { authResponse } = useLocalSearchParams<TPlanProps>();
-  console.log("authResponse in go pro params:", authResponse);
+  // console.log("authResponse in go pro params:", authResponse);
+  // console.log("authResponse.access_token:", JSON.parse(authResponse).access_token);
+
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
@@ -36,6 +38,7 @@ const GoPro = () => {
     "subscription",
     async () => {
       if (authResponse) {
+        console.log("correct function")
         return await paymentRepo.getSubscription(authResponse);
       } else {
         return await paymentRepo.getSubscription();

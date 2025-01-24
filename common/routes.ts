@@ -9,6 +9,7 @@ export const route = {
     resetPassword: `${baseAuthPath}reset-password` as const,
     Otp: `${baseAuthPath}otp` as const,
     OnBoarding: `${baseAuthPath}onboarding` as const,
+    GoPro: `${baseAuthPath}go-pro` as const,
     Welcome: `${baseAuthPath}welcome` as const,
   },
   root: {

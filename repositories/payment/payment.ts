@@ -44,17 +44,13 @@ export class PaymentRepository implements IPaymentRepository {
   }
 
   async getSubscription(authResponse?: TLoginResponse): Promise<TReponse> {
-    console.log("authResponse in API call:", authResponse);
-    console.log("Type of authResponse in API call:", typeof authResponse);
-
-    // console.log("access_token from authResponse: ", JSON.parse(authResponse)?.access_token);
     try {
       const res = await get(
         `${BaseUrl + END_POINTS.PAYMENT.GET_SUBSCRIPTION.route}`,
         {
           show_loader: true,
           headers: authResponse
-            ? { Authorization: `Bearer ${authResponse.access_token}` }
+            ? { Authorization: `Bearer ${JSON.parse(authResponse).access_token}` }
             : undefined,
         }
       );
