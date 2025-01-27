@@ -2,7 +2,6 @@ import { router, Stack } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plus } from "lucide-react-native";
-import WithRole from "@/common/components/withRole";
 import { useAppSelector } from "@/hooks/redux";
 const Layout = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -27,7 +26,7 @@ const Layout = () => {
           headerShown: true,
           title: "Appointments",
           headerRight: () => (
-            <WithRole permission="Post" resource="appointment" user={user!}>
+          
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
               className="rounded-full w-8 h-8"
@@ -41,7 +40,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
-            </WithRole>
+           
           ),
         }}
       />

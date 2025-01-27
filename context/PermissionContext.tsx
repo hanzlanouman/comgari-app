@@ -63,10 +63,17 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
     const isAdmin = user?.user_roles?.some(
       (item) => item.role.name === "Admin"
     );
+    const isSecretary = user?.user_roles?.some(
+      (item) => item.role.name === "Secretary"
+    );
     let hasPermission = false;
     if (isAdmin) {
       return true;
     }
+    if (isSecretary) {
+      return true; 
+    }
+  
     if (permission.length > 0) {
       hasPermission = permissions?.some((item) => {
         return (
