@@ -52,9 +52,17 @@ const SignIn = () => {
 
       // Proceed with login if validation passes
       mutate(values, {
+
         onSuccess: (data) => {
           dispatch(login(data));
-          // dispatch(setSubscribed(data.user.subscription));
+          dispatch(setSubscribed(data.user.subscription));
+          if (!data.user.subscription) {
+            
+            router.push({
+              pathname: "/(auth)/go-pro",
+            });
+          }
+          
         },
         onError: (error) => {
           // Specific error handling for account verification

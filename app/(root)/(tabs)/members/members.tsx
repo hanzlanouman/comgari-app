@@ -20,7 +20,7 @@ import { MemberRepository } from "@/repositories";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
-import WithRole from "@/common/components/withRole";
+// import WithRole from "@/common/components/withRole";
 import { useAppSelector } from "@/hooks/redux";
 
 import {
@@ -159,12 +159,12 @@ const Members = () => {
                 No team members added yet. Start growing your team by adding members to manage clients and properties. 
                 </Text>
                 <View className="w-[158px] mx-auto mt-5">
-                  <WithRole permission="Post" resource="member" user={user!}>
+                  {/* <WithRole permission="Post" resource="member" user={user!}> */}
                   <CustomButton
                     title="Add Member"
                     onPress={() => router.push("/(root)/(tabs)/members/add-member")}
                   />
-                  </WithRole>
+                  {/* </WithRole> */}
                 </View>
               </View>
             </View>

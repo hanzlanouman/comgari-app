@@ -4,12 +4,28 @@ import { Href, Redirect, router, Stack } from "expo-router";
 import "react-native-reanimated";
 import { useAppSelector } from "@/hooks/redux";
 import { route } from "@/common";
+import { useEffect } from "react";
 
 const Layout = () => {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  if (isAuthenticated) {
-    return <Redirect href={route.root.home as unknown as Href} />;
-  }
+  const { 
+    isAuthenticated = false, 
+    isSubscribed = false 
+  } = useAppSelector((state) => state.auth ?? {});
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/welcome");
+      return;
+    }
+    if (isAuthenticated && !isSubscribed) {
+      router.replace("/(auth)/go-pro");
+      return;
+    }
+
+    if (isAuthenticated && isSubscribed) {
+      router.replace(route.root.home as unknown as Href);
+    }
+  }, [isAuthenticated, isSubscribed]);
 
   return (
     <Stack

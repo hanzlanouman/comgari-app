@@ -12,7 +12,7 @@ import {
 } from "lucide-react-native";
 import { NavigationState, useNavigationState, } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
-import { useNotification } from "@/hooks/use-notification";
+import { useNotification } from "@/hooks/use-notification"; 
 
 const hide = ["job-details", "specifications", "review"];
 
@@ -25,7 +25,6 @@ const getFocusedRouteName = (
 
   const route = state.routes[state.index];
 
-  // Check if the route has nested state or params with screen
   if (route.state) {
     return getFocusedRouteName(route.state as Partial<NavigationState>);
   }
@@ -44,7 +43,7 @@ const getFocusedRouteName = (
 
 const Layout = () => {
   const { getPermission } = useAuthorization();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isSubscribed, user } = useAppSelector((state) => state.auth);
 
   const focusedRouteName = useNavigationState(getFocusedRouteName);
 

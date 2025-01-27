@@ -58,6 +58,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
+        console.log("auth response in OTP screen", authResponse)
         router.push({
           pathname: "/(auth)/go-pro",
           params: {
