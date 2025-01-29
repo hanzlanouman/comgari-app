@@ -4,6 +4,7 @@ import { Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plus } from "lucide-react-native";
+import WithRole from "@/common/components/withRole";
 
 const Layout = () => {
   const { id } = useLocalSearchParams();
@@ -29,11 +30,14 @@ const Layout = () => {
           headerShown: true,
           title: "Notes",
           headerRight: () => (
+            <WithRole permission="manage" resource="client" user={user!}>
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
               className="rounded-full w-8 h-8"
               start={[0, 0]}
               end={[1, 1]}>
+                                  
+
               <TouchableOpacity
                 onPress={() =>
                   router.push({
@@ -45,6 +49,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
+            </WithRole>
           ),
         }}
       />
@@ -54,6 +59,7 @@ const Layout = () => {
           headerShown: true,
           title: "Invoices",
           headerRight: () => (
+            <WithRole permission="manage" resource="client" user={user!}>
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
               className="rounded-full w-8 h-8"
@@ -71,6 +77,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
+            </WithRole>
           ),
         }}
       />

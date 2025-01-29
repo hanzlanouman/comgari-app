@@ -41,10 +41,10 @@ export default function RootLayout() {
 
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <NavigationContainer>
+        {/* <NavigationContainer> */}
 
           <LayoutWrapper />
-        </NavigationContainer>
+        {/* </NavigationContainer> */}
 
       </Provider>
     </QueryClientProvider>

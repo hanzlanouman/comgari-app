@@ -68,25 +68,25 @@ const SignIn = () => {
           // Specific error handling for account verification
           if (error.message === "Please Verify Your Account First") {
             setOtpScreen(true);
-            Alert.alert(
-              "Account Verification",
-              "Please verify your account before logging in.",
-              [
-                {
-                  text: "Verify Now",
-                  onPress: () => {
-                    router.push({
-                      pathname: route.auth.Otp,
-                      params: {
-                        username: values.email,
-                        type: OTP_TYPE.MEMBER_VERIFICATION,
-                      },
-                    });
-                  },
-                },
-                { text: "Cancel", style: "cancel" },
-              ]
-            );
+            // Alert.alert(
+            //   "Account Verification",
+            //   "Please verify your account before logging in.",
+            //   [
+            //     {
+            //       text: "Verify Now",
+            //       onPress: () => {
+            //         router.push({
+            //           pathname: route.auth.Otp,
+            //           params: {
+            //             username: values.email,
+            //             type: OTP_TYPE.MEMBER_VERIFICATION,
+            //           },
+            //         });
+            //       },
+            //     },
+            //     { text: "Cancel", style: "cancel" },
+            //   ]
+            // );
           } 
         },
       });
