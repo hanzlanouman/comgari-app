@@ -77,7 +77,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
-            </WithRole>
+              </WithRole>
           ),
         }}
       />

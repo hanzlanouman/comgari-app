@@ -75,6 +75,7 @@ const AddMember = () => {
   console.log("roles:", roles)
 
   const roleVisibilityMap = {
+    SuperAdmin: ["Admin", "Secretary", "Salesman"],
     Admin: ["Admin", "Secretary", "Salesman"],
     Secretary: ["Secretary", "Salesman"],
     Salesman: ["Salesman"],

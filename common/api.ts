@@ -17,7 +17,6 @@ const getHeader = (headers: AxiosHeaders) => {
   if (token && !headers["Authorization"]) {
     newheaders["Authorization"] = `Bearer ${token}`;
   }
-  // Ensure Content-Type is set to application/json for all requests
   if (!headers["Content-Type"]) {
     newheaders["Content-Type"] = "application/json";
   }

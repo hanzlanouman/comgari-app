@@ -11,7 +11,7 @@ const Layout = () => {
     isAuthenticated = false, 
     isSubscribed = false 
   } = useAppSelector((state) => state.auth ?? {});
-
+  console.log("isAuthenticated", isAuthenticated, "isSubscribed", isSubscribed)
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/welcome");

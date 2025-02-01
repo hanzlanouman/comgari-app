@@ -126,6 +126,7 @@ const AddClient = () => {
       if (isEditing && clientId) {
         await clientRepo.updateClient(String(clientId), payload as UpdateClientPayload);
       } else {
+        console.log("client add payload",payload)
         await clientRepo.createClient({ user: { id: user.id } }, payload as CreateClientPayload);
       }
 

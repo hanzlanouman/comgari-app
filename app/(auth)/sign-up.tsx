@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { SafeAreaView, ScrollView, View, Text } from "react-native";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -17,6 +16,17 @@ const SignUp = () => {
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: Partial<SignupPayload>) => authRepo.register(payload),
   });
+
+  // Custom test for unique values across fields
+  Yup.addMethod(Yup.string, 'notMatchOtherField', function (otherField, message) {
+    return this.test('not-match-other-field', message, function (value) {
+      const { path, createError } = this;
+      const otherValue = this.parent[otherField];
+      
+      return value !== otherValue || createError({ path, message });
+    });
+  });
+
   const formik = useFormik({
     initialValues: {
       user_name: "",
@@ -27,17 +37,33 @@ const SignUp = () => {
       password: "",
       confirmPassword: "",
     },
-    validationSchema: Yup.object({
-      user_name: Yup.string().required("User name is required"),
-      fullName: Yup.string().required("Full name is required"),
+    validateOnChange: true,
+    validateOnBlur: true,
+    validationSchema: Yup.object().shape({
+      user_name: Yup.string()
+        .required("User name is required")
+        .notMatchOtherField('phoneNumber', 'Username cannot be the same as phone number')
+        .min(3, "Username must be at least 3 characters"),
+      fullName: Yup.string()
+        .required("Full name is required")
+        .min(2, "Full name must be at least 2 characters"),
       email: Yup.string()
         .email("Invalid email format")
         .required("Email is required"),
-      businessName: Yup.string().required("Business name is required"),
-      phoneNumber: Yup.string().required("Contact number is required"),
+      businessName: Yup.string()
+        .required("Business name is required")
+        .min(2, "Business name must be at least 2 characters"),
+      phoneNumber: Yup.string()
+        .required("Contact number is required")
+        .notMatchOtherField('user_name', 'Phone number cannot be the same as username')
+        .matches(/^\+?[\d\s-]+$/, "Invalid phone number format"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
-        .required("Password is required"),
+        .required("Password is required")
+        .min(8, "Password must be at least 8 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password")], "Passwords must match")
         .required("Confirm password is required"),
@@ -70,10 +96,18 @@ const SignUp = () => {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
       <AppContainer isError={isError} message={error?.message}>
-        <View className="flex-1 px-5 py-4">
+        <ScrollView className="flex-1 px-5 py-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-          Set up your Comgari account by filling in the details below.{"\n"}Already have an account? <Text className="text-blue" onPress={() => router.push("/(auth)/sign-in")}>Log in here</Text>
+            Set up your Comgari account by filling in the details below.{"\n"}
+            Already have an account?{" "}
+            <Text 
+              className="text-blue" 
+              onPress={() => router.push("/(auth)/sign-in")}
+            >
+              Log in here
+            </Text>
           </Text>
+          
           <View className="mt-6">
             <InputField
               value={formik.values.user_name}
@@ -87,6 +121,7 @@ const SignUp = () => {
               placeholder="User Name"
             />
           </View>
+          
           <View className="mt-6">
             <InputField
               value={formik.values.fullName}
@@ -100,44 +135,49 @@ const SignUp = () => {
               placeholder="Full name"
             />
           </View>
+          
           <View className="mt-3">
             <InputField
               value={formik.values.email}
               onChangeText={formik.handleChange("email")}
               onBlur={formik.handleBlur("email")}
-              error={formik.touched.email && formik.errors.email} // Pass error message
+              error={formik.touched.email && formik.errors.email}
               placeholder="Email"
               keyboardType="email-address"
             />
           </View>
+          
           <View className="mt-3">
             <InputField
               value={formik.values.businessName}
               onChangeText={formik.handleChange("businessName")}
               onBlur={formik.handleBlur("businessName")}
-              error={formik.touched.businessName && formik.errors.businessName} // Pass error message
+              error={formik.touched.businessName && formik.errors.businessName}
               placeholder="Business name"
             />
           </View>
+          
           <View className="mt-3">
             <InputField
               value={formik.values.phoneNumber}
               onChangeText={formik.handleChange("phoneNumber")}
               onBlur={formik.handleBlur("phoneNumber")}
-              error={formik.touched.phoneNumber && formik.errors.phoneNumber} // Pass error message
+              error={formik.touched.phoneNumber && formik.errors.phoneNumber}
               placeholder="Contact number"
             />
           </View>
+          
           <View className="mt-3">
             <InputField
               value={formik.values.password}
               onChangeText={formik.handleChange("password")}
               onBlur={formik.handleBlur("password")}
-              error={formik.touched.password && formik.errors.password} // Pass error message
+              error={formik.touched.password && formik.errors.password}
               placeholder="Password"
               secureTextEntry={true}
             />
           </View>
+          
           <View className="mt-3">
             <InputField
               value={formik.values.confirmPassword}
@@ -150,14 +190,13 @@ const SignUp = () => {
               secureTextEntry={true}
             />
           </View>
-        </View>
+        </ScrollView>
       </AppContainer>
 
       <View className="px-4 py-4 bg-white">
         <CustomButton
           title="Sign Up"
           onPress={() => {
-            //router.push("/(auth)/go-pro");
             formik.handleSubmit();
           }}
         />
