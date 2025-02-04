@@ -1,28 +1,38 @@
-//app\(auth)\payment-method.tsx
-import { View, Text, ScrollView, SafeAreaView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  Platform,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@/constants";
-import PaymentMethods from "./Cards";
 import Cards from "./Cards";
-import CardSection from "./components/CardSection";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocalSearchParams } from "expo-router";
 import { TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
-import { login, setSubscribed  } from "@/store";
+import { login, setSubscribed } from "@/store";
+
 type TPlanProps = {
   authResponse?: string;
   selectedPlanPrice: any;
 };
+
 export default function Paymentmethod() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const dispatch = useAppDispatch();
 
-  const { authResponse, selectedPlanPrice } =
-    useLocalSearchParams<TPlanProps>();
-  const parsedAuthResponse = JSON.parse(authResponse!) as TLoginResponse;
+  const searchParams = useLocalSearchParams<TPlanProps>();
+  const authResponse = searchParams.authResponse;
+  const selectedPlanPrice = searchParams.selectedPlanPrice;
+
+  const parsedAuthResponse = React.useMemo(
+    () => (authResponse ? (JSON.parse(authResponse) as TLoginResponse) : null),
+    [authResponse]
+  );
 
   const paymentRepo = PaymentRepository.getInstance();
   const queryClient = useQueryClient();
@@ -31,16 +41,25 @@ export default function Paymentmethod() {
 
   const { data: cards } = useQuery(
     ["cards"],
-    async () => {
-      return await paymentRepo.getCards(parsedAuthResponse);
+    () =>
+      parsedAuthResponse
+        ? paymentRepo.getCards(parsedAuthResponse)
+        : paymentRepo.getCards(),
+    {
+      staleTime: Infinity,
+      cacheTime: Infinity,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     }
-    // {
-    //   staleTime: Infinity,
-    //   cacheTime: Infinity,
-    //   refetchOnWindowFocus: false,
-    //   refetchOnMount: false,
-    //   refetchOnReconnect: false,
-    // }
+  );
+
+  const { data: buyerResponse, refetch } = useQuery(
+    ["create-buyer"],
+    () =>
+      parsedAuthResponse
+        ? paymentRepo.createBuyer(parsedAuthResponse)
+        : paymentRepo.createBuyer(),
+    { enabled: false }
   );
 
   const onConfirmPayment = async () => {
@@ -49,17 +68,19 @@ export default function Paymentmethod() {
       paymentMethod_id: selectedCard,
       totalClient: 20,
     };
-
-    await paymentRepo.createSubscription(payload, parsedAuthResponse);
+    return parsedAuthResponse
+      ? await paymentRepo.createSubscription(payload, parsedAuthResponse)
+      : await paymentRepo.createSubscription(payload);
   };
 
-  const { mutate, isLoading, isError, isSuccess } = useMutation(
+  const { mutate: confirmPayment, isLoading, isError } = useMutation(
     onConfirmPayment,
     {
       onSuccess: (data) => {
         console.log("Payment successful!", data);
-
-        dispatch(login(parsedAuthResponse));
+        if (parsedAuthResponse) {
+          dispatch(login(parsedAuthResponse));
+        }
         dispatch(setSubscribed(true));
       },
       onError: (error) => {
@@ -68,53 +89,19 @@ export default function Paymentmethod() {
     }
   );
 
-  const handlePaymentConfirmation = () => {
-    mutate();
-  };
-  const handleSelectCard = (cardId: string) => {
-    setSelectedCard(cardId);
-  };
-  const {
-    data: res,
-
-    refetch,
-  } = useQuery(
-    ["create-buyer"],
-    async () => {
-      return await paymentRepo.createBuyer(parsedAuthResponse);
-    },
-    {
-      enabled: false,
-    }
-  );
-  const { data: card } = useQuery(
-    ["cards"],
-    async () => {
-      return await paymentRepo.getCards(parsedAuthResponse);
-    },
-    {
-      staleTime: Infinity,
-      cacheTime: Infinity,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    }
-  );
-
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
     if (error) {
-      console.log(error);
-    }
-    if (!error) {
+      console.error("Payment sheet error:", error);
+    } else {
       console.log("Payment Method added Successfully");
       queryClient.invalidateQueries(["cards"]);
     }
   };
+
   const paymentProcess = async (res: any) => {
     try {
       const { setupIntent, customer, ephemeralKeys } = res?.data;
-
       const { error } = await initPaymentSheet({
         customerId: customer,
         customerEphemeralKeySecret: ephemeralKeys,
@@ -122,46 +109,47 @@ export default function Paymentmethod() {
         merchantDisplayName: "Comgari",
       });
       if (error) {
-        console.log(error, "Error is this");
-        return;
-      }
-      if (!error) {
+        console.error("Payment sheet initialization error:", error);
+      } else {
         openPaymentSheet();
       }
-    } catch (e: any) {
-      console.log(e, "Error therre");
+    } catch (e) {
+      console.error("Payment process error:", e);
     }
   };
-  useEffect(() => {
-    if (res) {
-      paymentProcess(res);
-    }
-  }, [initPaymentSheet, res]);
 
   useEffect(() => {
-    if (card) {
-      console.log("Card is this", card);
+    if (buyerResponse) {
+      paymentProcess(buyerResponse);
     }
-  }, [card]);
-  const onAddCard = async () => {
+  }, [buyerResponse]);
+
+  const onAddCard = () => {
     refetch();
   };
+
+  const handleSelectCard = (cardId: string) => {
+    setSelectedCard(cardId);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
       <StripeProvider
         publishableKey={STRIPE_PUBLIC_KEY}
         merchantIdentifier="Comgari"
-        urlScheme="comgari">
-        <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-
-          Choose a saved card or add a new one below.
-        </Text>
+        urlScheme="comgari"
+      >
+        <View className="items-center">
+          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
+            Choose a saved card or add a new one below.
+          </Text>
+        </View>
 
         <Cards
           cards={cards?.data || []}
           onAddCard={onAddCard}
           handleSelectCard={handleSelectCard}
-          onConfirmPayment={handlePaymentConfirmation}
+          onConfirmPayment={confirmPayment}
           selectedCard={selectedCard}
         />
       </StripeProvider>

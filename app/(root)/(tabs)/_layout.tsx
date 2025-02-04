@@ -12,7 +12,7 @@ import {
 } from "lucide-react-native";
 import { NavigationState, useNavigationState, } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
-import { useNotification } from "@/hooks/use-notification";
+import { useNotification } from "@/hooks/use-notification"; 
 
 const hide = ["job-details", "specifications", "review"];
 
@@ -25,7 +25,6 @@ const getFocusedRouteName = (
 
   const route = state.routes[state.index];
 
-  // Check if the route has nested state or params with screen
   if (route.state) {
     return getFocusedRouteName(route.state as Partial<NavigationState>);
   }
@@ -44,8 +43,8 @@ const getFocusedRouteName = (
 
 const Layout = () => {
   const { getPermission } = useAuthorization();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-
+  const { isAuthenticated, isSubscribed, user } = useAppSelector((state) => state.auth);
+  console.log("user sign in : ", user)
   const focusedRouteName = useNavigationState(getFocusedRouteName);
 
   console.log(focusedRouteName, "Focused Route Name");
@@ -71,7 +70,7 @@ const Layout = () => {
         icon: Users,
         permissionRequired: {
           user: user,
-          permission: "Get",
+          permission: "manage",
           resource: "member",
         },
         headerShown: false,
@@ -80,22 +79,14 @@ const Layout = () => {
         name: "clients",
         title: "Clients",
         icon: UsersRound,
-        permissionRequired: {
-          user: user,
-          permission: "Get",
-          resource: "client",
-        },
+       
         headerShown: false,
       },
       {
         name: "appointment",
         title: "Appointment",
         icon: CalendarDays,
-        permissionRequired: {
-          user: user,
-          permission: "Get",
-          resource: "appointment",
-        },
+       
         headerShown: false,
       },
       {
@@ -117,10 +108,28 @@ const Layout = () => {
       if (screen.name === "proposal") {
         return { ...screen, href: null };
       }
+      if (screen.name === "clients") {
+        const hasPermission = screen.permissionRequired 
+          ? getPermission(
+              screen.permissionRequired.user!, 
+              screen.permissionRequired.permission, 
+              screen.permissionRequired.resource
+            )
+          : true;
+        
+        // Hide tab if no permission and no client data
+        const shouldHideTab = !hasPermission && (!clientData || clientData.length === 0);
+        
+        return {
+          ...screen,
+          href: shouldHideTab ? null : screen.name,
+        };
+      }
       if (screen.permissionRequired) {
         const { user, permission, resource } = screen.permissionRequired;
         console.log(user, "User in screen");
         const hasPermission = getPermission(user!, permission, resource);
+        console.log("per", hasPermission)
         return {
           ...screen,
           href: hasPermission ? screen.name : null,
@@ -179,3 +188,4 @@ const style = StyleSheet.create({
     display: "none",
   },
 });
+

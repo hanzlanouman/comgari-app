@@ -22,6 +22,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
 import WithRole from "@/common/components/withRole";
 import { useAppSelector } from "@/hooks/redux";
+import { useAuthorization } from "@/context/PermissionContext";
 
 import {
   BottomSheetModal,
@@ -49,9 +50,9 @@ const Members = () => {
   const queryClient = useQueryClient();
   const [selectedMember, setSelectedMember] = useState<TMember | null>(null);
   const { user } = useAppSelector((state) => state.auth);
-
+  const { getPermission } = useAuthorization();
   const actionModalRef = useRef<BottomSheetModal>(null);
-
+  const hasPermission = getPermission(user!, "manage", "member");
   const { data, isError, error, refetch } = useQuery(["member"], async () => {
     return await MemberRepo.getMember();
   });
@@ -132,7 +133,7 @@ const Members = () => {
       );
     }
   }, [data]);
-  
+
 
   return (
     <SafeAreaView>
@@ -140,7 +141,10 @@ const Members = () => {
         <FlatList
           data={member}
           keyExtractor={(item) => item?.id?.toString()}
-          renderItem={({ item }) => <TouchableOpacity onPress={() => handleMemberPress(item)}>
+          renderItem={({ item }) => <TouchableOpacity
+            onPress={() => hasPermission && handleMemberPress(item)}
+            disabled={!hasPermission}
+          >
             <MemberCard member={item} />
           </TouchableOpacity>}
           contentContainerStyle={{
@@ -156,14 +160,14 @@ const Members = () => {
               />
               <View>
                 <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                No team members added yet. Start growing your team by adding members to manage clients and properties. 
+                  No team members added yet. Start growing your team by adding members to manage clients and properties.
                 </Text>
                 <View className="w-[158px] mx-auto mt-5">
-                  <WithRole permission="Post" resource="member" user={user!}>
-                  <CustomButton
-                    title="Add Member"
-                    onPress={() => router.push("/(root)/(tabs)/members/add-member")}
-                  />
+                  <WithRole permission="manage" resource="member" user={user!}>
+                    <CustomButton
+                      title="Add Member"
+                      onPress={() => router.push("/(root)/(tabs)/members/add-member")}
+                    />
                   </WithRole>
                 </View>
               </View>

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
-import { images } from "@/constants";
+import { icons } from "@/constants";
 import TaskCard from "../../components/TaskCard";
 import { CustomButton } from "@/common/components";
 import { useQuery, useMutation, useQueryClient } from "react-query";
@@ -241,7 +241,7 @@ const Tasks = () => {
             ) : (
               <View className="flex-grow flex-col items-center justify-center px-4">
                 <Image
-                  source={images?.emptyList}
+                  source={icons.noTask}
                   resizeMode="contain"
                   style={{ width: scale(80), height: vs(80) }}
                   className="mx-auto"

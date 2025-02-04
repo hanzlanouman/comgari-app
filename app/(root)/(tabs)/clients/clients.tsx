@@ -17,8 +17,8 @@ import { ClientRepository } from "@/repositories/client/client";
 import { ClientListingPayload } from "@/repositories/client/schemas";
 import { useAppSelector } from "@/hooks/redux";
 import { ClientType, ClientStatus } from '@/common/types';
-import WithRole from "@/common/components/withRole";
 
+import WithRole from "@/common/components/withRole";
 
 interface Client {
   id: number;
@@ -110,14 +110,14 @@ const Clients: React.FC = () => {
         <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
           clients yet!
         </Text>
+        <WithRole permission="manage" resource="client" user={user!}>
         <View className="w-[158px] mx-auto mt-5">
-          <WithRole permission="Post" resource="client" user={user!}>
           <CustomButton
             title="Add Client"
             onPress={handleAddClient}
           />
-          </WithRole>
         </View>
+        </WithRole>
       </View>
     </View>
   );

@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
 import { Agenda } from "react-native-calendars";
-import { router } from "expo-router";
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ClientRepository } from "@/repositories/client/client";
-import  ActionModal from "../clients/components/ActionModal";
-
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { router } from "expo-router";
+import ActionModal from "../clients/components/ActionModal";
 const Appointment = () => {
   const [items, setItems] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  
   const clientRepo = ClientRepository.getInstance();
   const actionModalRef = useRef<BottomSheetModal>(null);
-
   useEffect(() => {
     const fetchAppointments = async () => {
-      setIsLoading(true);
       try {
         const response = await clientRepo.getAppointment();
+        console.log(response.data)
+        if (!response.data || response.data.length === 0) {
+          setItems({});
+          setIsLoading(false);
+          return;
+        }
         const transformedItems = response.data.reduce((acc, appointment) => {
           const formattedDate = new Date(appointment.date).toISOString().split('T')[0];
 
@@ -27,12 +29,14 @@ const Appointment = () => {
             acc[formattedDate] = [];
           }
 
+          // Extract member names
           const memberNames = appointment.appointment_member
             .map(member => member.Auth.user[0]?.full_name || 'Unknown')
             .join(', ');
 
-          const appointmentItem = {
+          acc[formattedDate].push({
             id: appointment.id,
+
             name: appointment.title,
             startTime: appointment.start_time,
             endTime: appointment.end_time,
@@ -41,9 +45,7 @@ const Appointment = () => {
             clientName: appointment.client.name,
             memberNames: memberNames,
             fullAppointmentData: appointment
-          };
-
-          acc[formattedDate].push(appointmentItem);
+          });
 
           return acc;
         }, {});
@@ -51,14 +53,14 @@ const Appointment = () => {
         setItems(transformedItems);
       } catch (error) {
         console.error('Failed to fetch appointments', error);
-      } finally {
+        setItems({});
+      }finally {
         setIsLoading(false);
       }
     };
 
     fetchAppointments();
   }, []);
-
   const handleAppointmentPress = (item) => {
     setSelectedAppointment(item);
     actionModalRef.current?.present();
@@ -69,7 +71,7 @@ const Appointment = () => {
       const members = selectedAppointment.fullAppointmentData.appointment_member.map(member => ({
         id: member.member_id,
         name: member.Auth.user[0]?.full_name || 'Unknown',
-      }));      
+      }));
       router.push({
         pathname: "/(root)/(tabs)/appointment/add-appointment",
         params: {
@@ -126,64 +128,69 @@ const Appointment = () => {
         setItems(transformedItems);
       } catch (error) {
         console.error('Failed to delete appointment', error);
-      }
+      } 
     }
   };
 
-  const renderAgendaItem = (item) => (
-    <TouchableOpacity 
-    onPress={() => handleAppointmentPress(item)}
-    className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md"
-  >
-    <View className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md">
-      <View className="flex-1">
-        <Text className="text-sm text-dark-100 font-ManropeMedium">
-          {new Date(item.startTime).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          })} - {new Date(item.endTime).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          })}
-        </Text>
-        <Text className="text-sm sm:text-base text-blue font-ManropeSemibold mt-1">
-          {item.clientName}
-        </Text>
-        <Text className="text-sm text-dark-100 font-ManropeRegular mt-1">
-          {item.name}
-        </Text>
-        <Text className="text-sm text-dark-100 font-ManropeRegular mt-1">
-          With {item.memberNames}
-        </Text>
-      </View>
-      <View className="bg-lightBlue h-10 w-10 rounded-full items-center justify-center ml-4">
-        <Text className="text-base text-white font-ManropeSemibold">
-          {item.clientName.split(' ').map(part => part[0]).join('').toUpperCase()}
-        </Text>
-      </View>
-    </View>
-    </TouchableOpacity>
-  );
+  const renderAgendaItem = (item) => {
+
+    const formatTime = (isoTime) => {
+      const date = new Date(isoTime);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    };
+
+    const getInitials = (name) => {
+      const nameParts = name.split(" ");
+      return nameParts.map(part => part[0]).join("").toUpperCase();
+    };
+
+    return (
+      <TouchableOpacity
+        onPress={() => handleAppointmentPress(item)} className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md">
+        {/* Appointment details */}
+        <View className="flex-1">
+          <Text className="text-sm text-dark-100 font-ManropeMedium">
+            {formatTime(item.startTime)} - {formatTime(item.endTime)}
+          </Text>
+          <Text className="text-sm sm:text-base text-blue font-ManropeSemibold mt-1">
+            {item.clientName}
+          </Text>
+          <Text className="text-sm text-dark-100 font-ManropeRegular mt-1">
+            {item.name}
+          </Text>
+          <Text className="text-sm text-dark-100 font-ManropeRegular mt-1">
+            With {item.memberNames}
+          </Text>
+        </View>
+
+        <View className="bg-lightBlue h-10 w-10 rounded-full items-center justify-center ml-4">
+          <Text className="text-base text-white font-ManropeSemibold">
+            {getInitials(item.clientName)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderEmptyDate = () => (
     <View className="mt-11 mr-4">
-      <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-        No appointments for today.
+      <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium text-center">
+        No appointments here!
       </Text>
     </View>
   );
 
-  const renderEmptyData = () => (
-    <View className="flex-1 items-center justify-center">
-      {isLoading ? (
-        <Text className="text-sm text-dark-100 font-ManropeMedium">Loading...</Text>
-      ) : (
-        <Text className="text-sm text-dark-100 font-ManropeMedium">No appointments available.</Text>
-      )}
-    </View>
-  );
+  const markedDates = Object.keys(items).reduce((acc, date) => {
+    acc[date] = {
+      marked: true,
+      dotColor: items[date].length > 0 ? '#1B78B9' : undefined
+    };
+    return acc;
+  }, {});
 
   return (
     <SafeAreaView className="flex-1">
@@ -192,9 +199,12 @@ const Appointment = () => {
           items={items}
           selected={selectedDate}
           renderItem={renderAgendaItem}
-          renderEmptyDate={renderEmptyDate}
-          renderEmptyData={renderEmptyData}
-          onDayPress={(day) => setSelectedDate(day.dateString)}
+          renderEmptyData={renderEmptyDate}
+          onDayPress={(day) => {
+            console.log("Day pressed", day);
+            setSelectedDate(day.dateString);
+          }}
+          markedDates={markedDates}
           theme={{
             selectedDayBackgroundColor: "#1B78B9",
             selectedDayTextColor: "#ffffff",
@@ -204,8 +214,12 @@ const Appointment = () => {
             agendaTodayColor: "#1C1C1C",
             agendaKnobColor: "#1C1C1C",
           }}
+          hideKnob={false}
+          renderKnob={() => (
+            <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
+          )}
         />
-         <ActionModal
+        <ActionModal
           ref={actionModalRef}
           onUpdate={handleUpdatePress}
           onDelete={handleDeletePress}

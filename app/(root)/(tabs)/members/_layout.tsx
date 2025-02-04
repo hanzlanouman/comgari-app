@@ -27,7 +27,7 @@ const Layout = () => {
           headerShown: true,
           title: "Members",
           headerRight: () => (
-            <WithRole permission="Post" resource="member" user={user!}>
+            <WithRole permission="manage" resource="member" user={user!}>
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
                 className="rounded-full w-8 h-8"

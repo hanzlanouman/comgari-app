@@ -21,7 +21,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as DocumentPicker from "expo-document-picker";
 
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
-import { Upload, Trash2 } from "lucide-react-native";
+import { Upload, Trash2, CloudCog } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
@@ -86,7 +86,6 @@ const getMediaPreview = (mimeType: string, url: string) => {
   }
 };
 const AddNote = () => {
-  // Refs and state management
   const richText = useRef();
   const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
   const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
@@ -94,26 +93,22 @@ const AddNote = () => {
   const [isLinkModalVisible, setIsLinkModalVisible] = useState(false);
   const [linkURL, setLinkURL] = useState("");
   const [linkText, setLinkText] = useState("");
-  // Route and navigation parameters
   const { id, noteId, noteDetails } = useLocalSearchParams();
   const projectId = parseInt(id as string);
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
 
-  // Parse note details for edit mode
   const parsedNoteDetails = noteDetails
     ? JSON.parse(noteDetails as string)
     : null;
   const isEditMode = !!parsedNoteDetails;
 
-  // Dimensions for image layout
   const windowWidth = Dimensions.get("window").width;
   const spacingBetweenImages = 16;
   const sidePadding = 16;
   const imageWidth =
     (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
-  // Media upload mutation
   const uploadMediaMutation = useMutation({
     mutationFn: async (file: {
       uri: string;
@@ -137,7 +132,6 @@ const AddNote = () => {
     },
   });
 
-  // Note and media mutation
   const noteMutation = useMutation({
     mutationFn: async (payload: {
       notes?: string;
@@ -146,7 +140,6 @@ const AddNote = () => {
       media?: MediaUpdatePayload[];
     }) => {
       if (isEditMode) {
-        // Update notes
         if (payload.notes || payload.project_id) {
           await clientRepo.updateNote(parsedNoteDetails.id, {
             notes: payload.notes,
@@ -165,7 +158,6 @@ const AddNote = () => {
           project_id: payload.project_id,
           client_note_media: payload.client_note_media,
         });
-        // Create new note with media
         return await clientRepo.createNote({
           notes: payload.notes,
           project_id: payload.project_id,
@@ -177,7 +169,6 @@ const AddNote = () => {
 
   useEffect(() => {
     if (isEditMode) {
-      // Initialize media state only once when component mounts
       setUploadedMedia(
         parsedNoteDetails?.media && parsedNoteDetails.media.length > 0
           ? parsedNoteDetails.media.map((media) => ({
@@ -189,7 +180,7 @@ const AddNote = () => {
               ownerId: media.ownerId,
               ownerType: media.ownerType,
             }))
-          : [] // Set empty array if no media
+          : [] 
       );
     }
   }, [isEditMode, projectId]);
@@ -205,7 +196,6 @@ const AddNote = () => {
       try {
         const mediaUpdates = [];
         if (isEditMode) {
-          // Prepare removed and new media updates
           mediaUpdates.push(
             ...Array.from(new Set(removedMediaIds)).map((mediaId) => ({
               prev_media_id: mediaId,
@@ -235,7 +225,6 @@ const AddNote = () => {
             media: mediaUpdates.length > 0 ? mediaUpdates : undefined,
           });
         } else {
-          // Handle creating new note
           await noteMutation.mutateAsync({
             notes: values.notes,
             project_id: values.project_id,
@@ -277,7 +266,7 @@ const AddNote = () => {
         );
         return mimeTypeAllowed || extensionAllowed;
       });
-
+      console.log("picked files",filteredFiles )
       if (filteredFiles.length === 0) {
         Alert.alert(
           "Invalid File",
@@ -301,7 +290,7 @@ const AddNote = () => {
             name: file.name || "file.jpg",
           } as any;
           formData.append("files", fileToUpload);
-
+          console.log("form data to be uploaded", formData)
           const response = await clientRepo.uploadMedia(formData);
           if (!response) {
             return;
@@ -320,7 +309,6 @@ const AddNote = () => {
         }
       }
 
-      // Update state with new media items
       setUploadedMedia((prevMedia) => {
         const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
         return updatedMedia;
@@ -336,13 +324,12 @@ const AddNote = () => {
     setUploadedMedia((prevMedia) => {
       const updatedMedia = prevMedia.filter((_, i) => i !== index);
 
-      // Track removed media IDs if they exist
       const mediaToRemove = prevMedia[index];
       if (mediaToRemove?.id) {
         setRemovedMediaIds((prevRemovedIds) => [...prevRemovedIds, mediaToRemove.id]);
       }
 
-      return updatedMedia; // Return the updated list
+      return updatedMedia; 
     });
   };
 

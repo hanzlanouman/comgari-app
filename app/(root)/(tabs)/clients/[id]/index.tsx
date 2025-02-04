@@ -14,7 +14,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { vs } from "react-native-size-matters";
 import { useLocalSearchParams } from "expo-router";
 import { useRef, useEffect } from "react";
-import WithRole from "@/common/components/withRole";
 
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -138,7 +137,6 @@ const ClientDetailPage: React.FC = () => {
     },
   };
   const EditButton = () => (
-    <WithRole permission="Put" resource="client" user={user!}>
       <LinearGradient
         colors={["#1B78B9", "#63348F"]}
         style={{
@@ -162,7 +160,6 @@ const ClientDetailPage: React.FC = () => {
         </TouchableOpacity>
 
       </LinearGradient>
-    </WithRole>
   );
 
   useEffect(() => {

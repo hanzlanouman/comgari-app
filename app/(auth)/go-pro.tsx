@@ -24,7 +24,9 @@ type TPlanProps = {
 
 const GoPro = () => {
   const { authResponse } = useLocalSearchParams<TPlanProps>();
-  console.log(authResponse)
+  // console.log("authResponse in go pro params:", authResponse);
+  // console.log("authResponse.access_token:", JSON.parse(authResponse).access_token);
+
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
@@ -35,15 +37,19 @@ const GoPro = () => {
   const { data: subscriptions } = useQuery(
     "subscription",
     async () => {
-      console.log("i am called");
-      const response = await paymentRepo.getSubscription(authResponse);
-      console.log(response, "Response is this");
-      return response.data;
+      if (authResponse) {
+        console.log("correct function")
+        return await paymentRepo.getSubscription(authResponse);
+      } else {
+        return await paymentRepo.getSubscription();
+      }
     },
     {
-      enabled: true,
+      enabled: true, // Keep the query enabled
     }
   );
+  
+  console.log("Subscriptions Data:", subscriptions);
 
   const handlePress = (plan: string, price: string) => {
     setSelectedPlan(plan);
@@ -52,7 +58,7 @@ const GoPro = () => {
   };
 
   // Filter plans based on active tab
-  const plans = subscriptions?.filter((subscription) =>
+  const plans = subscriptions?.data?.filter((subscription) =>
     activeTab === "monthly"
       ? subscription.pricing[0].paymentSchedule === "month"
       : subscription.pricing[0].paymentSchedule === "year"
@@ -67,10 +73,11 @@ const GoPro = () => {
     router.push({
       pathname: "/(auth)/payment-method",
       params: {
-        authResponse: authResponse,
+        ...(authResponse && { authResponse }),
         selectedPlanPrice: priceId,
       },
     });
+
   };
 
   console.log("Subscriptions:", subscriptions);

@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "uk.co.comgari",
+      "usesIcloudStorage": true,
       "infoPlist": {
         "CFBundleURLTypes": [
           {
@@ -47,7 +48,8 @@
         }
       ],
       "expo-router",
-      "expo-font"
+      "expo-font",
+      ["expo-document-picker"]
     ],
     "experiments": {
       "typedRoutes": true
@@ -57,7 +59,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "cff15db0-8721-4e25-92d8-4a1a981d8552"
+        "projectId": "c686959f-a3d3-4d31-bcb9-7627eea0836e"
       }
     }
   }

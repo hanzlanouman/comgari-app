@@ -14,7 +14,7 @@ import { MemberPayload, memberSchema, updateMemberSchema, UpdateMemberPayload } 
 import { useMutation, useQuery } from "react-query";
 import { MemberRepository } from "@/repositories";
 import { route } from "@/common";
-
+import { useAppSelector } from "@/hooks/redux";
 enum Action {
   ADD = 'Add',
   REMOVE = 'Remove'
@@ -66,28 +66,42 @@ const AddMember = () => {
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
+  const user = useAppSelector((state) => state.auth.user);
 
+  const userRole = user?.user_roles[0]?.role.name || "Salesman";
+  console.log("this is the role of signed in user", userRole)
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
   console.log("roles:", roles)
 
+  const roleVisibilityMap = {
+    SuperAdmin: ["Admin", "Secretary", "Salesman"],
+    Admin: ["Admin", "Secretary", "Salesman"],
+    Secretary: ["Secretary", "Salesman"],
+    Salesman: ["Salesman"],
+  };
+
   useEffect(() => {
     if (role) {
-      setRole(
-        role?.data?.map((item: any) => ({
+      const filteredRoles = role?.data
+        ?.filter((item: any) =>
+          roleVisibilityMap[userRole]?.includes(item?.name)
+        )
+        .map((item: any) => ({
           value: item?.name,
           key: Number(item?.id),
+        }));
+      setRole(filteredRoles);
+    }
+    if (permission) {
+      setPermission(
+        permission?.data?.map((item: any) => ({
+          key: item?.id,
+          value: `${item?.name} ${item?.resource}`,
         }))
       );
     }
-    if (permission) {
-      const formattedData = permission?.data?.map((item: any) => ({
-        key: item?.id,
-        value: `${item?.name} ${item?.resource}`,
-      }));
-      setPermission(formattedData);
-    }
-  }, [role, permission]);
+  }, [role, permission, userRole]);
 
   const formik = useFormik({
     initialValues: {

@@ -12,7 +12,9 @@ export const memberSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email address.")
     .required("Email is required."),
-  phone: Yup.string().optional(),
+  phone: Yup.string()
+    .matches(/^[0-9]{11}$/, "Phone number must be 11 digits")
+    .optional(),  
   password: Yup.string().required("Password is required."),
   full_name: Yup.string().required("Full name is required."),
   permission_ids: Yup.array()
@@ -28,8 +30,9 @@ export const memberSchema = Yup.object().shape({
 
 export const updateMemberSchema = Yup.object().shape({
   user_name: Yup.string().optional(),
-  phone: Yup.string().optional(),
-  full_name: Yup.string().optional(),
+  phone: Yup.string()
+    .matches(/^[0-9]{11}$/, "Phone number must be 11 digits")
+    .optional(),  full_name: Yup.string().optional(),
   status: Yup.mixed()
     .oneOf(Object.values(UserStatus), "Invalid status.")
     .optional(),

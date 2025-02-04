@@ -6,12 +6,12 @@ import { END_POINTS } from "@/common/endpoints";
 import { getErrorMessage } from "@/common/utils";
 
 interface IPaymentRepository {
-  createBuyer(authResponse: TLoginResponse): Promise<TReponse>;
-  getCards(authResponse: TLoginResponse): Promise<TReponse>;
-  getSubscription(authResponse: TLoginResponse): Promise<TReponse>;
+  createBuyer(authResponse?: TLoginResponse): Promise<TReponse>;
+  getCards(authResponse?: TLoginResponse): Promise<TReponse>;
+  getSubscription(authResponse?: TLoginResponse): Promise<TReponse>;
   createSubscription(
     payload: any,
-    authResponse: TLoginResponse
+    authResponse?: TLoginResponse
   ): Promise<TReponse>;
 }
 
@@ -21,9 +21,10 @@ export class PaymentRepository implements IPaymentRepository {
   private constructor() {
     // Private constructor to prevent direct instantiation
   }
+
   async createSubscription(
     payload: any,
-    authResponse: TLoginResponse
+    authResponse?: TLoginResponse
   ): Promise<TReponse> {
     try {
       const res = await post(
@@ -31,8 +32,9 @@ export class PaymentRepository implements IPaymentRepository {
         payload,
         {
           show_loader: true,
-
-          headers: { Authorization: `Bearer ${authResponse.access_token}` },
+          headers: authResponse
+            ? { Authorization: `Bearer ${authResponse.access_token}` }
+            : undefined,
         }
       );
       return res;
@@ -41,22 +43,15 @@ export class PaymentRepository implements IPaymentRepository {
     }
   }
 
-  async getSubscription(authResponse: any): Promise<TReponse> {
-    console.log(
-      authResponse,
-      authResponse?.access_token,
-      "Auth Response in repo"
-    );
+  async getSubscription(authResponse?: TLoginResponse): Promise<TReponse> {
     try {
-      const parsedAuthResponse = JSON.parse(authResponse);
       const res = await get(
         `${BaseUrl + END_POINTS.PAYMENT.GET_SUBSCRIPTION.route}`,
         {
           show_loader: true,
-
-          headers: {
-            Authorization: `Bearer ${parsedAuthResponse.access_token}`,
-          },
+          headers: authResponse
+            ? { Authorization: `Bearer ${JSON.parse(authResponse).access_token}` }
+            : undefined,
         }
       );
       return res;
@@ -64,16 +59,14 @@ export class PaymentRepository implements IPaymentRepository {
       throw getErrorMessage(e);
     }
   }
-  async getCards(authResponse: TLoginResponse): Promise<TReponse> {
+
+  async getCards(authResponse?: TLoginResponse): Promise<TReponse> {
     try {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImZ1bGxfbmFtZSI6IkFkbWluIiwicm9sZXMiOlt7ImlkIjoxLCJyb2xlX2lkIjoxLCJ1c2VyX2lkIjoxLCJjcmVhdGVkX2F0IjoiMjAyNC0xMS0wNVQxMDoxNToyMi4xODdaIiwidXBkYXRlZF9hdCI6IjIwMjQtMTEtMDVUMTA6MTU6MjIuMTg3WiIsInJvbGUiOnsiaWQiOjEsIm5hbWUiOiJBZG1pbiIsImNyZWF0ZWRfYXQiOiIyMDI0LTExLTA1VDEwOjE1OjIyLjAyMloiLCJ1cGRhdGVkX2F0IjoiMjAyNC0xMS0wNVQxMDoxNToyMi4wMjJaIiwicm9sZV9ncm91cF9pZCI6MX19XSwiYXV0aF9pZCI6MSwiaWF0IjoxNzMwODgxNDk1LCJleHAiOjE3MzEwNTQyOTV9.RPVQGMpe6Jfg5MFa5qp1JlPZ850rD0Y1SYuVWyEk4eY";
       const res = await get(`${BaseUrl + END_POINTS.PAYMENT.GET_CARD.route}`, {
         show_loader: true,
-
-        headers: {
-          Authorization: `Bearer ${authResponse.access_token}`,
-        },
+        headers: authResponse
+          ? { Authorization: `Bearer ${authResponse.access_token}` }
+          : undefined,
       });
       return res;
     } catch (e: AxiosError | any) {
@@ -87,16 +80,16 @@ export class PaymentRepository implements IPaymentRepository {
     }
     return PaymentRepository.instance;
   }
-  async createBuyer(authResponse: TLoginResponse): Promise<TReponse> {
+
+  async createBuyer(authResponse?: TLoginResponse): Promise<TReponse> {
     try {
       const res = await get(
         `${BaseUrl + END_POINTS.PAYMENT.CREATE_BUYER.route}`,
         {
           show_loader: true,
-
-          headers: {
-            Authorization: `Bearer ${authResponse.access_token}`,
-          },
+          headers: authResponse
+            ? { Authorization: `Bearer ${authResponse.access_token}` }
+            : undefined,
         }
       );
       return res;

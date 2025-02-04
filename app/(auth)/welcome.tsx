@@ -12,12 +12,9 @@ import { Href, Redirect, router } from "expo-router";
 import { route } from "@/common";
 import { useAppSelector } from "@/hooks/redux";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { useEffect } from "react";
 
 const Welcome = () => {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  if (isAuthenticated) {
-    return <Redirect href={route.root.home as unknown as Href} />;
-  }
   return (
     <SafeAreaProvider>
 

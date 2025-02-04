@@ -91,7 +91,7 @@ export const createClientSchema = Yup.object().shape({
     .email("Invalid email format")
     .required("Email is required."),
   phone: Yup.string()
-    .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
+    .matches(/^[0-9]{11}$/, "Phone number must be 11 digits")
     .optional(),
 });
 

@@ -30,7 +30,7 @@ const Layout = () => {
           headerShown: true,
           title: "Clients",
           headerRight: () => (
-            <WithRole permission="Post" resource="client" user={user!}>
+            <WithRole permission="manage" resource="client" user={user!}>
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
                 className="rounded-full w-8 h-8"

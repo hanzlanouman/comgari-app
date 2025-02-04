@@ -60,13 +60,27 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
   }, [authenticated, userRepo]);
 
   const getPermission = (user: TUSER, permission: string, resource: string) => {
+    console.log("User Roles:", user?.user_roles?.map((item) => item.role.name));
     const isAdmin = user?.user_roles?.some(
       (item) => item.role.name === "Admin"
+    );
+    const isSecretary = user?.user_roles?.some(
+      (item) => item.role.name === "Secretary"
+    );
+    const isSuperAdmin = user?.user_roles?.some(
+      (item) => item.role.name === "SuperAdmin"
     );
     let hasPermission = false;
     if (isAdmin) {
       return true;
     }
+    if (isSecretary) {
+      return true;
+    }
+    if (isSuperAdmin) {
+      return true; 
+    }
+  
     if (permission.length > 0) {
       hasPermission = permissions?.some((item) => {
         return (
@@ -76,6 +90,7 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
         );
       });
     }
+    console.log("hasPermission:", hasPermission);
 
     return hasPermission;
   };

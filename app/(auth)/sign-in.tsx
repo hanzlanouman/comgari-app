@@ -50,35 +50,43 @@ const SignIn = () => {
         return;
       }
 
-      // Proceed with login if validation passes
       mutate(values, {
+
         onSuccess: (data) => {
           dispatch(login(data));
-          // dispatch(setSubscribed(data.user.subscription));
+          dispatch(setSubscribed(data.user.subscription));
+          console.log("data.user.subscription", data.user.subscription)
+          if (!data.user.subscription) {
+            
+            router.push({
+              pathname: "/(auth)/go-pro",
+            });
+          }
+          
         },
         onError: (error) => {
           // Specific error handling for account verification
           if (error.message === "Please Verify Your Account First") {
             setOtpScreen(true);
-            Alert.alert(
-              "Account Verification",
-              "Please verify your account before logging in.",
-              [
-                {
-                  text: "Verify Now",
-                  onPress: () => {
-                    router.push({
-                      pathname: route.auth.Otp,
-                      params: {
-                        username: values.email,
-                        type: OTP_TYPE.MEMBER_VERIFICATION,
-                      },
-                    });
-                  },
-                },
-                { text: "Cancel", style: "cancel" },
-              ]
-            );
+            // Alert.alert(
+            //   "Account Verification",
+            //   "Please verify your account before logging in.",
+            //   [
+            //     {
+            //       text: "Verify Now",
+            //       onPress: () => {
+            //         router.push({
+            //           pathname: route.auth.Otp,
+            //           params: {
+            //             username: values.email,
+            //             type: OTP_TYPE.MEMBER_VERIFICATION,
+            //           },
+            //         });
+            //       },
+            //     },
+            //     { text: "Cancel", style: "cancel" },
+            //   ]
+            // );
           } 
         },
       });

@@ -109,7 +109,7 @@ export default function AddMemberForm({
               fieldName="role_id"
             />
           </View>
-
+          {formik.values.role_id === 4 && (
           <View className="mt-3" >
             <MultiSelectDropdown
               placeholder="Permissions"
@@ -124,7 +124,7 @@ export default function AddMemberForm({
               fieldName="permission_ids"
             />
           </View>
-
+  )}
           <View className="mt-2.5">
             <DropdownSelect
               placeholder="Status"

@@ -26,9 +26,15 @@ export const CLIENT_TYPES: ClientType[] = [
 
 export enum ClientStatus {
   Active = "Active",
-  Inactive = "Inactive"
+  Inactive = "Inactive",
+  Lead = 'Lead',
+  Pending = 'Pending',
+  Completed = 'Completed'
 }
 export const CLIENT_STATUS: ClientStatus[] = [
   ClientStatus.Active,
-  ClientStatus.Inactive
+  ClientStatus.Inactive,
+  ClientStatus.Lead,
+  ClientStatus.Pending,
+  ClientStatus.Completed
 ];
