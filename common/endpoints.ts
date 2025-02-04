@@ -148,7 +148,7 @@ export const END_POINTS = {
       description: "Get all clients with pagination",
     },
     GET_SINGLE_CLIENT: {
-      route: UserUrl + "/client",
+      route: UserUrl + "/client/single-client",
       method: "GET",
       description: "Get details of a single client by ID",
     },

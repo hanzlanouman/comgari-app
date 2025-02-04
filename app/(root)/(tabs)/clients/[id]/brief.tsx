@@ -5,6 +5,8 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   View,
+  TouchableWithoutFeedback,
+  Keyboard,
   StyleSheet,
   Text,
   Alert,
@@ -160,6 +162,8 @@ const Brief = () => {
   // }
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView>
         <RichToolbar
@@ -205,6 +209,7 @@ const Brief = () => {
             initialContentHTML={content}
             placeholder="Start typing here..."
             onChange={handleContentChange}
+            onBlur={() => Keyboard.dismiss()}
           />
         </KeyboardAvoidingView>
       </ScrollView>
@@ -230,7 +235,8 @@ const Brief = () => {
         linkText={linkText}
         setLinkText={setLinkText}
       />
-    </SafeAreaView>
+    </SafeAreaView></TouchableWithoutFeedback>
+
   );
 };
 

@@ -39,8 +39,8 @@ const AddAppointment = () => {
     members,
   } = useLocalSearchParams();
 
-  const parsedMembers = members ? JSON.parse(members as string) : []; // Parse members JSON string
-  const parsedDate = date ? new Date(date as string) : null; // Convert date string to Date object
+  const parsedMembers = members ? JSON.parse(members as string) : [];
+  const parsedDate = date ? new Date(date as string) : null; 
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
   const authRepo = AuthRepository.getInstance();

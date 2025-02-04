@@ -30,7 +30,7 @@ const Layout = () => {
           headerShown: true,
           title: "Notes",
           headerRight: () => (
-            <WithRole permission="manage" resource="client" user={user!}>
+            // <WithRole permission="manage" resource="client" user={user!}>
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
               className="rounded-full w-8 h-8"
@@ -49,7 +49,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
-            </WithRole>
+            // </WithRole>
           ),
         }}
       />
@@ -59,7 +59,7 @@ const Layout = () => {
           headerShown: true,
           title: "Invoices",
           headerRight: () => (
-            <WithRole permission="manage" resource="client" user={user!}>
+            // <WithRole permission="manage" resource="client" user={user!}>
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
               className="rounded-full w-8 h-8"
@@ -77,7 +77,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
-              </WithRole>
+              // </WithRole>
           ),
         }}
       />

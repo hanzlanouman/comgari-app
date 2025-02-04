@@ -74,7 +74,7 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
     if (isAdmin) {
       return true;
     }
-    if (isAdmin) {
+    if (isSecretary) {
       return true;
     }
     if (isSuperAdmin) {
@@ -90,6 +90,8 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
         );
       });
     }
+    console.log("hasPermission:", hasPermission);
+
     return hasPermission;
   };
 
