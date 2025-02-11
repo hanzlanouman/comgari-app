@@ -7,3 +7,5 @@ export * from "./Backdrop";
 export * from "./OtpField";
 export * from "./Select";
 export * from "./MultiSelect";
+export * from "./AppImage";
+export * from "./AlertBox";

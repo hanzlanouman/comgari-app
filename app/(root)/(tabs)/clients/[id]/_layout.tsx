@@ -36,7 +36,7 @@ const Layout = () => {
               className="rounded-full w-8 h-8"
               start={[0, 0]}
               end={[1, 1]}>
-                                  
+
 
               <TouchableOpacity
                 onPress={() =>
@@ -69,7 +69,8 @@ const Layout = () => {
                 onPress={() =>
                   router.push({
                     pathname: "/(root)/clients/[id]/invoices/add-invoice",
-                    params: { id: clientId,             mode: 'create' 
+                    params: {
+                      id: clientId, mode: 'create'
                     },
                   })
                 }
@@ -77,7 +78,7 @@ const Layout = () => {
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
-              // </WithRole>
+            // </WithRole>
           ),
         }}
       />

@@ -1,10 +1,9 @@
-/* eslint-disable prettier/prettier */ 
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import axios, { AxiosHeaders, AxiosRequestConfig } from "axios";
 import { BaseUrl } from "@/common";
 import { store, logout, setLoading, stopLoading } from "@/store";
-import { Token } from "@stripe/stripe-react-native";
 
 const axiosApi = axios.create();
 
@@ -12,8 +11,6 @@ const axiosApi = axios.create();
 const getHeader = (headers: AxiosHeaders) => {
   const token = store.getState().auth.token;
   const newheaders: Partial<AxiosHeaders> = {};
-  console.log("Token from Redux store:", token);
-  console.log("Existing headers:", headers);
   if (token && !headers["Authorization"]) {
     newheaders["Authorization"] = `Bearer ${token}`;
   }
@@ -31,7 +28,6 @@ const getHeader = (headers: AxiosHeaders) => {
 axiosApi.interceptors.request.use(
   (config: any) => {
     const headers = getHeader(config.headers);
-    console.log("Final headers:", { ...config.headers, ...headers });
 
     let showLoader = false;
 

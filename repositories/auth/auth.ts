@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { get, post, put, del as httpDelete, postForm } from "@/common/api";
+import { get, post, put } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
-import { ApiReponse, AuthReponse } from "@/common/types";
+import { ApiReponse } from "@/common/types";
 import { getCustomErrorMessage, getErrorMessage } from "@/common/utils";
 import {
   forgotPasswordPayload,
   LoginPayload,
-  OtpPayload,
   ChangePasswordPayload,
   UpdateProfilePayload,
   UpdateProfilePicPayload,
@@ -114,14 +113,12 @@ export class AuthRepository implements IAuthRepository {
     }
   }
   async login(payload: LoginPayload): Promise<TLoginResponse> {
-    console.log(`${BaseUrl + END_POINTS.AUTH.LOGIN.route}`, "ss");
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.LOGIN.route}`,
         payload,
         { show_loader: true }
       );
-      console.log("auth response", res.data)
       return res.data;
     } catch (e: AxiosError | any) {
       throw new Error(getCustomErrorMessage(e));
@@ -152,7 +149,6 @@ export class AuthRepository implements IAuthRepository {
     const notificationToken = {
       token: token,
     };
-    console.log(token, notificationToken, "is this");
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.NOTIFICATIONTOKEN.route}`,

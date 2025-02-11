@@ -18,10 +18,9 @@ import {
   RichToolbar,
 } from "react-native-pell-rich-editor";
 import { LinearGradient } from "expo-linear-gradient";
-import * as DocumentPicker from "expo-document-picker";
 
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
-import { Upload, Trash2, CloudCog } from "lucide-react-native";
+import { Upload, Trash2 } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
@@ -30,26 +29,8 @@ import { CustomButton } from "@/common/components";
 import { getImageUrl, images } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
-
-// Constants for file validation
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "video/mp4",
-  "application/pdf",
-  "text/plain",
-];
-
-const ALLOWED_EXTENSIONS = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".gif",
-  ".mp4",
-  ".pdf",
-  ".txt",
-];
+import { getExtFromUri, pickDocument, showErrorAlert } from "@/utils";
+import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {
   id?: number;
@@ -97,6 +78,8 @@ const AddNote = () => {
   const projectId = parseInt(id as string);
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
+
+  const { uploadMultiple } = useUpload()
 
   const parsedNoteDetails = noteDetails
     ? JSON.parse(noteDetails as string)
@@ -172,19 +155,19 @@ const AddNote = () => {
       setUploadedMedia(
         parsedNoteDetails?.media && parsedNoteDetails.media.length > 0
           ? parsedNoteDetails.media.map((media) => ({
-              id: media.id,
-              url: media.url,
-              mimeType: media.mimeType,
-              localUri: getImageUrl(media.url),
-              clientId: projectId,
-              ownerId: media.ownerId,
-              ownerType: media.ownerType,
-            }))
-          : [] 
+            id: media.id,
+            url: media.url,
+            mimeType: media.mimeType,
+            localUri: getImageUrl(media.url),
+            clientId: projectId,
+            ownerId: media.ownerId,
+            ownerType: media.ownerType,
+          }))
+          : []
       );
     }
   }, [isEditMode, projectId]);
-  
+
   const formik = useFormik({
     initialValues: {
       notes: isEditMode && parsedNoteDetails?.notes
@@ -205,7 +188,7 @@ const AddNote = () => {
               action: "Remove",
             }))
           );
-  
+
           mediaUpdates.push(
             ...uploadedMedia
               .filter((media) => !media.id)
@@ -218,7 +201,7 @@ const AddNote = () => {
                 action: "Add",
               }))
           );
-  
+
           await noteMutation.mutateAsync({
             notes: values.notes,
             project_id: values.project_id,
@@ -231,7 +214,7 @@ const AddNote = () => {
             client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest),
           });
         }
-  
+
         Alert.alert(
           "Success",
           isEditMode ? "Note updated successfully" : "Note created successfully"
@@ -242,81 +225,34 @@ const AddNote = () => {
       }
     },
   });
-  
+
   const pickMedia = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-        multiple: true,
-      });
-
-      if (result.canceled) {
-        return;
-      }
-      if (!result.assets) {
-        return;
-      }
-
-      const validFiles = result.assets || [];
-
-      const filteredFiles = validFiles.filter((file) => {
-        const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
-        const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
-          file.name.toLowerCase().endsWith(ext)
-        );
-        return mimeTypeAllowed || extensionAllowed;
-      });
-      console.log("picked files",filteredFiles )
-      if (filteredFiles.length === 0) {
-        Alert.alert(
-          "Invalid File",
-          "Only images, videos, PDFs, and text files are allowed."
-        );
-        return;
+      const resp = await pickDocument(true, { type: "*/*" })
+      if (!resp.isSuccess) {
+        showErrorAlert(resp.error)
+        return
       }
 
       setIsUploading(true);
-
-      const newUploadedMediaItems: MediaItem[] = [];
-      for (const file of filteredFiles) {
-        try {
-          const formData = new FormData();
-          if (!file.uri && file.mimeType && file.name) {
-            return;
-          }
-          const fileToUpload = {
-            uri: file.uri,
-            type: file.mimeType || "image/jpeg",
-            name: file.name || "file.jpg",
-          } as any;
-          formData.append("files", fileToUpload);
-          console.log("form data to be uploaded", formData)
-          const response = await clientRepo.uploadMedia(formData);
-          if (!response) {
-            return;
-          }
-
-          const mediaItem: MediaItem = {
-            url: response?.data[0]?.filename,
-            mimeType: file.mimeType!,
+      uploadMultiple(resp.result, async (urls: string[]) => {
+        const newUploadedMediaItems: MediaItem[] = [];
+        urls.forEach(url => {
+          newUploadedMediaItems.push({
+            url: url,
+            mimeType: getExtFromUri(url),
             clientId: Number(id),
-            localUri: file.uri,
-          };
-
-          newUploadedMediaItems.push(mediaItem);
-        } catch (error: any) {
-          Alert.alert("Error", `Failed to upload media: ${error.message}`);
-        }
-      }
-
-      setUploadedMedia((prevMedia) => {
-        const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
-        return updatedMedia;
-      });
+            localUri: getImageUrl(url),
+          })
+        })
+        setIsUploading(false);
+        setUploadedMedia((prevMedia: any) => {
+          const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
+          return updatedMedia;
+        });
+      })
     } catch (error: any) {
-      Alert.alert("Error", "Failed to pick media");
-    } finally {
-      setIsUploading(false);
+      showErrorAlert(error?.message)
     }
   };
 
@@ -329,7 +265,7 @@ const AddNote = () => {
         setRemovedMediaIds((prevRemovedIds) => [...prevRemovedIds, mediaToRemove.id]);
       }
 
-      return updatedMedia; 
+      return updatedMedia;
     });
   };
 

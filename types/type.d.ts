@@ -6,7 +6,7 @@ declare interface ButtonProps extends TouchableOpacityProps {
 }
 
 declare interface InputFieldProps extends TextInputProps {
-  label: string;
+  label?: string;
   icon?: any;
   secureTextEntry?: boolean;
   labelStyle?: string;
@@ -14,7 +14,7 @@ declare interface InputFieldProps extends TextInputProps {
   inputStyle?: string;
   iconStyle?: string;
   className?: string;
-  error?: string;
+  error?: string | false;
   errorStyle?: string;
   className?: string;
   ref?: any;

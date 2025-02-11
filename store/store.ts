@@ -15,16 +15,18 @@ import {
 } from "redux-persist";
 import authSlice from "./auth-slice";
 import appSlice from "./app-slice";
+import { alertSlice } from "./alert-slice";
 
 const appReducer = combineReducers({
   auth: authSlice.reducer,
   app: appSlice.reducer,
+  alert: alertSlice.reducer,
 });
 
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  blacklist: ["app"],
+  blacklist: ["app", "alert"],
 };
 
 const persistedReducer = persistReducer(persistConfig, appReducer);

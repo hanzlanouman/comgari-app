@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-//common\enviornment.ts
 import { APP_NAMES } from "./enum";
 
 export const environment = process.env.NODE_ENV;
@@ -7,7 +5,7 @@ export const environment = process.env.NODE_ENV;
 const isDev = environment === "development";
 
 const SERVER_HOST = isDev
-  ? "http://172.20.10.2"
+  ? "http://192.168.1.3"
   : "https://comgari-api.devjunction.xyz";
 
 export const SERVER_URL = `${SERVER_HOST}`;
@@ -17,19 +15,6 @@ export type TAppConfig = {
   PREFIX: string;
 };
 
-export type TRoute =
-  | string
-  | {
-      route: string;
-      description: string;
-    }
-  | {
-      prefix: string;
-      postfix: string;
-      description: string;
-    };
-
-export type TEndpoint = { [controller: string]: { [route: string]: TRoute } };
 export const GoogleWebClientID = "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com";
 export const GoogleIOSClientID = "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com";
 
@@ -60,27 +45,22 @@ const AppProdConfigs: Record<APP_NAMES, TAppConfig> = {
   },
 };
 
-const AuthApp =
-  environment === "development"
-    ? AppDevConfigs[APP_NAMES.AUTH]
-    : AppProdConfigs[APP_NAMES.AUTH];
-const UserApp =
-  environment === "development"
-    ? AppDevConfigs[APP_NAMES.USER]
-    : AppProdConfigs[APP_NAMES.USER];
-const PaymentApp =
-  environment === "development"
-    ? AppDevConfigs[APP_NAMES.PAYMENT]
-    : AppProdConfigs[APP_NAMES.PAYMENT];
-const AuthUrl = AuthApp?.PORT
-  ? `:${AuthApp?.PORT}${AuthApp.PREFIX}`
-  : AuthApp.PREFIX;
-const UserUrl = UserApp?.PORT
-  ? `:${UserApp?.PORT}${UserApp.PREFIX}`
-  : UserApp.PREFIX;
-const PaymentUrl = PaymentApp?.PORT
-  ? `:${PaymentApp?.PORT}${PaymentApp.PREFIX}`
-  : PaymentApp.PREFIX;
+const getAppConfig = (appName: APP_NAMES) => {
+  return isDev ? AppDevConfigs[appName] : AppProdConfigs[appName];
+};
+
+const getUrl = (config: TAppConfig) => {
+  return config.PORT ? `:${config.PORT}${config.PREFIX}` : config.PREFIX;
+};
+
+const AuthApp = getAppConfig(APP_NAMES.AUTH);
+const UserApp = getAppConfig(APP_NAMES.USER);
+const PaymentApp = getAppConfig(APP_NAMES.PAYMENT);
+
+const AuthUrl = getUrl(AuthApp);
+const UserUrl = getUrl(UserApp);
+const PaymentUrl = getUrl(PaymentApp);
+
 export const BaseUrl = `${SERVER_URL}`;
 
 export { AuthUrl, UserUrl, PaymentUrl };

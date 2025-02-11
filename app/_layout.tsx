@@ -4,7 +4,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { Fragment, useEffect } from "react";
 import "react-native-reanimated";
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { store } from "@/store";
 import { useAppSelector } from "@/hooks/redux";
@@ -12,7 +12,7 @@ import { SimpleActivityIndicator } from "@/common/components/Loader";
 import { AuthorizationProvider } from "@/context/PermissionContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { NavigationContainer } from '@react-navigation/native';
+import { AlertBox } from "@/common/components";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,18 +37,13 @@ export default function RootLayout() {
     return null;
   }
   const queryClient = new QueryClient();
-  return (
 
+  return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        {/* <NavigationContainer> */}
-
-          <LayoutWrapper />
-        {/* </NavigationContainer> */}
-
+        <LayoutWrapper />
       </Provider>
     </QueryClientProvider>
-
   );
 }
 
@@ -57,6 +52,7 @@ function LayoutWrapper() {
   return (
     <Fragment>
       {isLoading && <SimpleActivityIndicator />}
+      <AlertBox/>
       <AuthorizationProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>

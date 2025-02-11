@@ -12,7 +12,7 @@ import {
 } from "lucide-react-native";
 import { NavigationState, useNavigationState, } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
-import { useNotification } from "@/hooks/use-notification"; 
+import { useNotification } from "@/hooks/use-notification";
 
 const hide = ["job-details", "specifications", "review"];
 
@@ -43,8 +43,7 @@ const getFocusedRouteName = (
 
 const Layout = () => {
   const { getPermission } = useAuthorization();
-  const { isAuthenticated, isSubscribed, user } = useAppSelector((state) => state.auth);
-  console.log("user sign in : ", user)
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const focusedRouteName = useNavigationState(getFocusedRouteName);
 
   console.log(focusedRouteName, "Focused Route Name");
@@ -52,8 +51,8 @@ const Layout = () => {
   const tabBarStyle = hide.includes(focusedRouteName || "")
     ? style.hide
     : {
-        backgroundColor: "#ffffff",
-      };
+      backgroundColor: "#ffffff",
+    };
 
   const tabScreens = useMemo(() => {
     const screens = [
@@ -79,14 +78,14 @@ const Layout = () => {
         name: "clients",
         title: "Clients",
         icon: UsersRound,
-       
+
         headerShown: false,
       },
       {
         name: "appointment",
         title: "Appointment",
         icon: CalendarDays,
-       
+
         headerShown: false,
       },
       {
@@ -109,17 +108,17 @@ const Layout = () => {
         return { ...screen, href: null };
       }
       if (screen.name === "clients") {
-        const hasPermission = screen.permissionRequired 
+        const hasPermission = screen.permissionRequired
           ? getPermission(
-              screen.permissionRequired.user!, 
-              screen.permissionRequired.permission, 
-              screen.permissionRequired.resource
-            )
+            screen.permissionRequired.user!,
+            screen.permissionRequired.permission,
+            screen.permissionRequired.resource
+          )
           : true;
-        
+
         // Hide tab if no permission and no client data
         const shouldHideTab = !hasPermission && (!clientData || clientData.length === 0);
-        
+
         return {
           ...screen,
           href: shouldHideTab ? null : screen.name,
@@ -127,9 +126,8 @@ const Layout = () => {
       }
       if (screen.permissionRequired) {
         const { user, permission, resource } = screen.permissionRequired;
-        console.log(user, "User in screen");
         const hasPermission = getPermission(user!, permission, resource);
-        console.log("per", hasPermission)
+
         return {
           ...screen,
           href: hasPermission ? screen.name : null,

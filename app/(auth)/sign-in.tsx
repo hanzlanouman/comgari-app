@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, ImageBackground, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
 import { images } from "@/constants";
 import InputField from "@/common/components/InputField";
 import { router } from "expo-router";
@@ -57,12 +57,12 @@ const SignIn = () => {
           dispatch(setSubscribed(data.user.subscription));
           console.log("data.user.subscription", data.user.subscription)
           if (!data.user.subscription) {
-            
+
             router.push({
               pathname: "/(auth)/go-pro",
             });
           }
-          
+
         },
         onError: (error) => {
           // Specific error handling for account verification
@@ -87,7 +87,7 @@ const SignIn = () => {
             //     { text: "Cancel", style: "cancel" },
             //   ]
             // );
-          } 
+          }
         },
       });
     },

@@ -1,29 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
   Text,
-  Image,
-  TextInput,
   TouchableOpacity,
   Alert,
   ScrollView,
 } from "react-native";
-import { CustomButton, InputField } from "@/common/components";
-import { useAuthorization } from "@/context/PermissionContext";
-import { useAppDispatch } from "@/hooks/redux";
+import { AppImage, CustomButton, InputField } from "@/common/components";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { logout } from "@/store";
 import { Upload, ChevronDown, ChevronUp } from "lucide-react-native";
-import * as ImagePicker from "expo-image-picker";
 import { AuthRepository } from "@/repositories/auth/auth";
-import { images, getImageUrl } from "@/constants";
-import { ClientRepository } from "@/repositories/client/client";
+import { images } from "@/constants";
+import { pickImage, showErrorAlert, updateUserProperty } from "@/utils";
+import { useUpload } from "@/hooks/use-upload";
+const authRepo = AuthRepository.getInstance();
 
 const Profile = () => {
   const dispatch = useAppDispatch();
-  const authRepo = AuthRepository.getInstance();
-  const { getPermission } = useAuthorization();
-  const clientRepo = ClientRepository.getInstance();
+  const { user } = useAppSelector(state => state.auth)
+  const { upload } = useUpload()
 
   const [fullName, setFullName] = useState("");
   const [oldPassword, setOldPassword] = useState("");
@@ -35,118 +32,60 @@ const Profile = () => {
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
-  const uploadMedia = async (
-    file: ImagePicker.ImagePickerAsset
-  ): Promise<string> => {
-    try {
-      const formData = new FormData();
-      const fileToUpload = {
-        uri: file.uri,
-        type: file.mimeType || "image/jpeg",
-        name: file.uri.split("/").pop() || "image.jpg",
-      } as any;
-      formData.append("files", fileToUpload);
-      console.log(file, "File is this");
-      const response = await clientRepo.uploadMedia(formData);
 
-      if (response?.data?.length > 0) {
-        return response.data[0].filename;
-      } else if (Array.isArray(response) && response.length > 0) {
-        return response[0].filename;
-      }
-
-      throw new Error("No file data received from server");
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatar(user?.avatar)
     }
-  };
+    //@ts-ignore
+    setFullName(user?.full_name)
+  }, [user])
 
-  const handleImageUpload = async () => {
+  const updateProfilePic = async () => {
     try {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permission required",
-          "Permission to access media library is required!"
-        );
+      const { isSuccess, error, result } = await pickImage(false, { quality: 1, aspect: [1, 1] })
+      if (!isSuccess) {
+        showErrorAlert(error);
         return;
       }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
-        allowsEditing: true,
-        aspect: [1, 1],
-      });
-      const imageUrl = await uploadMedia(result.assets?.[0]);
-      if (!imageUrl) {
-        throw new Error("No image URL returned");
-      }
-
-      if (!result.canceled && result.assets?.[0]) {
-        setAvatar(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.error("Image picker error:", error);
-      Alert.alert("Error", "Failed to access image picker.");
+      upload(result, async (url: string) => {
+        await authRepo.updateProfilePic({ avatar: url });
+        updateUserProperty('avatar', url)
+      })
+    } catch (e: any) {
+      showErrorAlert(e?.message)
     }
-  };
-
-  const handleUpdateProfilePic = async () => {
-    try {
-      if (!avatar) {
-        Alert.alert("Error", "Please select an image first.");
-        return;
-      }
-
-      const payload = { avatar };
-      await authRepo.updateProfilePic(payload);
-      Alert.alert("Success", "Profile picture updated successfully.");
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error
-          ? error.message
-          : "Failed to update profile picture."
-      );
-    }
-  };
+  }
 
   const handleUpdateProfile = async () => {
     try {
       if (!fullName) {
-        Alert.alert("Error", "Full name is required.");
+        showErrorAlert("Full name is required.");
         return;
       }
 
       const payload = { full_name: fullName };
       await authRepo.updateProfile(payload);
-      Alert.alert("Success", "Profile updated successfully.");
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to update profile."
-      );
+      // @ts-ignore
+      updateUserProperty('full_name', fullName)
+      toggleSection("name")
+    } catch (error: any) {
+      showErrorAlert(error?.message)
     }
   };
 
   const handleChangePassword = async () => {
     try {
       if (!oldPassword || !newPassword) {
-        Alert.alert("Error", "Both old and new passwords are required.");
+        showErrorAlert("Both old and new passwords are required.");
         return;
       }
 
       const payload = { oldpassword: oldPassword, password: newPassword };
       await authRepo.changePassword(payload);
-      Alert.alert("Success", "Password changed successfully.");
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to change password."
-      );
+      toggleSection("password")
+    } catch (error: any) {
+      showErrorAlert(error?.message)
     }
   };
 
@@ -156,23 +95,18 @@ const Profile = () => {
         {/* Profile Picture */}
         <View className=" mt-4">
           <View className="items-center text-center">
-            <View className="relative w-24 h-24 mb-4">
-              <Image
-                source={avatar ? { uri: avatar } : images.user}
-                resizeMode="cover"
+            <View className="relative w-24 h-24 mb-4 mt-4">
+              <AppImage
+                remote={avatar}
+                fallback={images.user}
                 className="w-full h-full rounded-full"
+                resizeMode="cover"
               />
               <TouchableOpacity
-                onPress={handleImageUpload}
+                onPress={updateProfilePic}
                 className="absolute bg-blue bottom-0 right-0 bg-blue-500 w-7 h-7 rounded-full items-center justify-center">
                 <Upload size={16} color="#ffffff" />
               </TouchableOpacity>
-            </View>
-            <View className="w-34">
-              <CustomButton
-                title="Update Profile Pic"
-                onPress={handleUpdateProfilePic}
-              />
             </View>
           </View>
         </View>
