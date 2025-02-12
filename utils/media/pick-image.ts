@@ -29,7 +29,7 @@ export async function pickImage(mutliple: boolean, options?: ImagePickerOptions)
             }
         }
 
-        if (result.assets.length === 1) {
+        if (result.assets.length === 1 && !mutliple) {
             return {
                 isSuccess: true,
                 error: undefined,

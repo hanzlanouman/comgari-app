@@ -16,7 +16,6 @@ const Appointment = () => {
     const fetchAppointments = async () => {
       try {
         const response = await clientRepo.getAppointment();
-        console.log(response.data)
         if (!response.data || response.data.length === 0) {
           setItems({});
           setIsLoading(false);
@@ -54,7 +53,7 @@ const Appointment = () => {
       } catch (error) {
         console.error('Failed to fetch appointments', error);
         setItems({});
-      }finally {
+      } finally {
         setIsLoading(false);
       }
     };
@@ -128,7 +127,7 @@ const Appointment = () => {
         setItems(transformedItems);
       } catch (error) {
         console.error('Failed to delete appointment', error);
-      } 
+      }
     }
   };
 
@@ -201,7 +200,6 @@ const Appointment = () => {
           renderItem={renderAgendaItem}
           renderEmptyData={renderEmptyDate}
           onDayPress={(day) => {
-            console.log("Day pressed", day);
             setSelectedDate(day.dateString);
           }}
           markedDates={markedDates}

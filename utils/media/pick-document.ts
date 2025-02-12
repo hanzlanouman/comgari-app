@@ -38,7 +38,7 @@ export async function pickDocument(mutliple: boolean, options?: DocumentPickerOp
         }
         const result = await DocumentPicker.getDocumentAsync(options);
 
-        const assets = result.assets || []
+        let assets: DocumentPicker.DocumentPickerAsset[] = []
 
         if (result.assets && result.assets.length > 0) {
             const validFiles = result.assets.filter((file) => {
@@ -46,7 +46,7 @@ export async function pickDocument(mutliple: boolean, options?: DocumentPickerOp
                 const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) => file.name?.toLowerCase().endsWith(ext));
                 return mimeTypeAllowed && extensionAllowed;
             });
-            assets.push(...validFiles)
+            assets = validFiles;
         }
 
         if (result.canceled || assets.length === 0) {
@@ -58,7 +58,7 @@ export async function pickDocument(mutliple: boolean, options?: DocumentPickerOp
             }
         }
 
-        if (result.assets.length === 1) {
+        if (result.assets.length === 1 && !mutliple) {
             return {
                 isSuccess: true,
                 error: undefined,

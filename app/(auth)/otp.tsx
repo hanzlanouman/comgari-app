@@ -42,7 +42,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
   const dispatch = useAppDispatch();
   const AuthRepo = AuthRepository.getInstance();
   const { username, authResponse, type } = useLocalSearchParams<TOtpProps>();
-  console.log("this is auth response",authResponse)
+
   const parsedAuthResponse: TLoginResponse = authResponse
     ? JSON.parse(authResponse)
     : undefined;
@@ -54,11 +54,9 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     mutationFn: async (payload: TVerifyCredPayload) =>
       await AuthRepo.verifyCred(payload, authResponse),
     onSuccess: () => {
-      console.log(type, "Type is this");
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
-        console.log("auth response in OTP screen", authResponse)
         router.push({
           pathname: "/(auth)/go-pro",
           params: {
@@ -129,7 +127,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-          Verification code sent to your contact number and email. Please check your SMS or email.          </Text>
+            Verification code sent to your contact number and email. Please check your SMS or email.          </Text>
           <View className="flex-row -mx-2 mt-5">
             {formik.values.otp.map((_, index) => (
               <OtpField

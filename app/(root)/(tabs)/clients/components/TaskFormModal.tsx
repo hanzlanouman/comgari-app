@@ -8,7 +8,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { MultiSelectDropdown, DropdownSelect } from '@/common/components';
 import { MemberRepository } from "@/repositories/member/member";
 import { TaskPayload, UpdateTaskPayload, Action, MemberAction } from "@/repositories/client/types";
-import { PRIORITY_OPTIONS,STATUS_OPTIONS  } from "@/repositories/client/constants";
+import { PRIORITY_OPTIONS, STATUS_OPTIONS } from "@/repositories/client/constants";
 import * as Yup from "yup";
 
 const getStartOfToday = () => {
@@ -73,51 +73,50 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
     return {
       title: initialValues.title || "",
       selectedMembers: isEditMode ? currentMembers : [],
-      assignedTo: !isEditMode ? currentMembers : undefined, 
+      assignedTo: !isEditMode ? currentMembers : undefined,
       assingedTo: isEditMode
         ? currentMembers.map((memberId) => ({
-            member_id: memberId,
-            action: "Add" as Action,
-          }))
-        : undefined, 
+          member_id: memberId,
+          action: "Add" as Action,
+        }))
+        : undefined,
       projectId: initialValues.projectId || "",
       dueDate: initialValues.dueDate || new Date().toISOString(),
       priority: initialValues.priority || "medium",
       status: initialValues.status || "TO_DO",
     };
   };
-  
 
-const handleMemberSelection = (name: string, selectedValues: string[]) => {
-  const newMembers = selectedValues.map(Number);
 
-  if (mode === "edit") {
-    const memberActions: MemberAction[] = [];
+  const handleMemberSelection = (name: string, selectedValues: string[]) => {
+    const newMembers = selectedValues.map(Number);
 
-    newMembers.forEach((memberId) => {
-      if (!currentMembers.includes(memberId)) {
-        memberActions.push({ member_id: memberId, action: "Add" });
-      }
-    });
+    if (mode === "edit") {
+      const memberActions: MemberAction[] = [];
 
-    currentMembers.forEach((memberId) => {
-      if (!newMembers.includes(memberId)) {
-        memberActions.push({ member_id: memberId, action: "Remove" });
-      }
-    });
+      newMembers.forEach((memberId) => {
+        if (!currentMembers.includes(memberId)) {
+          memberActions.push({ member_id: memberId, action: "Add" });
+        }
+      });
 
-    formikRef.current?.setFieldValue("assingedTo", memberActions);
-    formikRef.current?.setFieldValue("selectedMembers", newMembers);
-  } else {
-    formikRef.current?.setFieldValue("assignedTo", newMembers);
-    formikRef.current?.setFieldValue("selectedMembers", newMembers);
-  }
-};
+      currentMembers.forEach((memberId) => {
+        if (!newMembers.includes(memberId)) {
+          memberActions.push({ member_id: memberId, action: "Remove" });
+        }
+      });
+
+      formikRef.current?.setFieldValue("assingedTo", memberActions);
+      formikRef.current?.setFieldValue("selectedMembers", newMembers);
+    } else {
+      formikRef.current?.setFieldValue("assignedTo", newMembers);
+      formikRef.current?.setFieldValue("selectedMembers", newMembers);
+    }
+  };
 
 
   const handleFormSubmit = async (values: TaskPayload | UpdateTaskPayload) => {
     try {
-      console.log("values:",values)
       await onSubmit(values);
       bottomSheetRef.current?.dismiss();
     } catch (error) {
@@ -152,108 +151,108 @@ const handleMemberSelection = (name: string, selectedValues: string[]) => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-<Formik
-  innerRef={formikRef}
-  initialValues={getInitialFormValues()}
-  validationSchema={validationSchema} // Add validation schema
-  onSubmit={handleFormSubmit}
->
-  {({ handleChange, handleSubmit, values, setFieldValue, errors, touched }) => (
-    <BottomSheetScrollView
-      className="flex-1"
-      contentContainerStyle={{
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: Platform.OS === "ios" ? 34 : 24,
-      }}
-    >
-      <View className="space-y-4">
-        <View>
-          <InputField
-            value={values.title}
-            onChangeText={handleChange("title")}
-            placeholder="Title"
-            className="bg-white"
-          />
-          {errors.title && touched.title && (
-            <Text className="text-red">{errors.title}</Text>
+        <Formik
+          innerRef={formikRef}
+          initialValues={getInitialFormValues()}
+          validationSchema={validationSchema} // Add validation schema
+          onSubmit={handleFormSubmit}
+        >
+          {({ handleChange, handleSubmit, values, setFieldValue, errors, touched }) => (
+            <BottomSheetScrollView
+              className="flex-1"
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingTop: 16,
+                paddingBottom: Platform.OS === "ios" ? 34 : 24,
+              }}
+            >
+              <View className="space-y-4">
+                <View>
+                  <InputField
+                    value={values.title}
+                    onChangeText={handleChange("title")}
+                    placeholder="Title"
+                    className="bg-white"
+                  />
+                  {errors.title && touched.title && (
+                    <Text className="text-red">{errors.title}</Text>
+                  )}
+                </View>
+
+                <View>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => setDatePickerVisible(true)}
+                    className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl flex-row items-center"
+                  >
+                    <Text className="flex-1 text-black font-ManropeMedium">
+                      {values.dueDate ? new Date(values.dueDate).toLocaleDateString() : "Date"}
+                    </Text>
+                    <CalendarDays size={16} color="#4A4A4A" />
+                  </TouchableOpacity>
+                  {errors.dueDate && touched.dueDate && (
+                    <Text className="text-red">{errors.dueDate}</Text>
+                  )}
+                </View>
+
+                <View>
+                  <MultiSelectDropdown
+                    placeholder="Assignment"
+                    data={memberOptions || []}
+                    selectedValues={(values.selectedMembers || []).map(String)}
+                    setFieldValue={handleMemberSelection}
+                    fieldName="selectedMembers"
+                  />
+                </View>
+
+                <View>
+                  <DropdownSelect
+                    placeholder="Priority"
+                    data={PRIORITY_OPTIONS}
+                    selectedValue={values.priority}
+                    setFieldValue={setFieldValue}
+                    fieldName="priority"
+                  />
+                  {errors.priority && touched.priority && (
+                    <Text className="text-red">{errors.priority}</Text>
+                  )}
+                </View>
+
+                <View>
+                  <DropdownSelect
+                    placeholder="Status"
+                    data={STATUS_OPTIONS}
+                    selectedValue={values.status}
+                    setFieldValue={setFieldValue}
+                    fieldName="status"
+                  />
+                  {errors.status && touched.status && (
+                    <Text className="text-red">{errors.status}</Text>
+                  )}
+                </View>
+
+                <View className="flex-row pt-4">
+                  <View className={`flex-1 ${mode === "edit" ? "mr-2" : ""}`}>
+                    <CustomButton
+                      title={isLoading ? `${mode === "add" ? "Adding" : "Updating"}` : `${mode === "add" ? "Add Task" : "Update Task"}`}
+                      onPress={() => handleSubmit()}
+                      disabled={isLoading}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={handleConfirm}
+                onCancel={hideDatePicker}
+                date={values.dueDate ? new Date(values.dueDate) : new Date()}
+                minimumDate={getStartOfToday()}
+              />
+            </BottomSheetScrollView>
           )}
-        </View>
-
-        <View>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => setDatePickerVisible(true)}
-            className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl flex-row items-center"
-          >
-            <Text className="flex-1 text-black font-ManropeMedium">
-              {values.dueDate ? new Date(values.dueDate).toLocaleDateString() : "Date"}
-            </Text>
-            <CalendarDays size={16} color="#4A4A4A" />
-          </TouchableOpacity>
-          {errors.dueDate && touched.dueDate && (
-            <Text className="text-red">{errors.dueDate}</Text>
-          )}
-        </View>
-
-        <View>
-          <MultiSelectDropdown
-            placeholder="Assignment"
-            data={memberOptions || []}
-            selectedValues={(values.selectedMembers || []).map(String)}
-            setFieldValue={handleMemberSelection}
-            fieldName="selectedMembers"
-          />
-        </View>
-
-        <View>
-          <DropdownSelect
-            placeholder="Priority"
-            data={PRIORITY_OPTIONS}
-            selectedValue={values.priority}
-            setFieldValue={setFieldValue}
-            fieldName="priority"
-          />
-          {errors.priority && touched.priority && (
-            <Text className="text-red">{errors.priority}</Text>
-          )}
-        </View>
-
-        <View>
-          <DropdownSelect
-            placeholder="Status"
-            data={STATUS_OPTIONS}
-            selectedValue={values.status}
-            setFieldValue={setFieldValue}
-            fieldName="status"
-          />
-          {errors.status && touched.status && (
-            <Text className="text-red">{errors.status}</Text>
-          )}
-        </View>
-
-        <View className="flex-row pt-4">
-          <View className={`flex-1 ${mode === "edit" ? "mr-2" : ""}`}>
-            <CustomButton
-              title={isLoading ? `${mode === "add" ? "Adding" : "Updating"}` : `${mode === "add" ? "Add Task" : "Update Task"}`}
-              onPress={() => handleSubmit()}
-              disabled={isLoading}
-            />
-          </View>
-        </View>
-      </View>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        date={values.dueDate ? new Date(values.dueDate) : new Date()}
-        minimumDate={getStartOfToday()}
-      />
-    </BottomSheetScrollView>
-  )}
-</Formik>
+        </Formik>
       </KeyboardAvoidingView>
     </BottomSheetModal>
   );

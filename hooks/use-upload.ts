@@ -2,7 +2,7 @@ import { Media, showErrorAlert, uploadMedia } from "@/utils"
 import { useMutation } from "react-query"
 
 export const useUpload = () => {
-    const { mutate, reset } = useMutation({
+    const { mutate, reset, mutateAsync } = useMutation({
         mutationFn: async (media: Media) => uploadMedia(media, undefined, true),
         retry: 3,
         retryDelay: 500,
@@ -10,7 +10,7 @@ export const useUpload = () => {
             showErrorAlert(error?.message)
         },
     })
-    const { mutate: mutateMultiple, reset: resetMultiple } = useMutation({
+    const { mutate: mutateMultiple, reset: resetMultiple, mutateAsync: mutateMutlipleAsync } = useMutation({
         mutationFn: async (media: Media[]) => uploadMedia(media, undefined, true),
         retry: 3,
         retryDelay: 500,
@@ -45,5 +45,21 @@ export const useUpload = () => {
         })
     }
 
-    return { upload, uploadMultiple }
+    const uploadAsync = async (media: Media) => {
+        const resp = await mutateAsync(media)
+        if (!resp.isSuccess) {
+            showErrorAlert(resp.error)
+        }
+        return resp
+    }
+
+    const uploadMutlipleAsync = async (media: Media[]) => {
+        const resp = await mutateMutlipleAsync(media)
+        if (!resp.isSuccess) {
+            showErrorAlert(resp.error)
+        }
+        return resp
+    }
+
+    return { upload, uploadMultiple, uploadAsync, uploadMutlipleAsync }
 }

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { ErrorBoundaryProps, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { Fragment, useEffect } from "react";
 import "react-native-reanimated";
@@ -12,9 +12,26 @@ import { SimpleActivityIndicator } from "@/common/components/Loader";
 import { AuthorizationProvider } from "@/context/PermissionContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { AlertBox } from "@/common/components";
+import { AlertBox, CustomButton } from "@/common/components";
+import { Text, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <View style={{
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+    }}>
+      <Text style={{
+        marginBottom: 10
+      }}>{error.message}</Text>
+      <CustomButton title="Try Again" onPress={retry} />
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -52,7 +69,7 @@ function LayoutWrapper() {
   return (
     <Fragment>
       {isLoading && <SimpleActivityIndicator />}
-      <AlertBox/>
+      <AlertBox />
       <AuthorizationProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>

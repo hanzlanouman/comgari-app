@@ -69,10 +69,8 @@ const AddMember = () => {
   const user = useAppSelector((state) => state.auth.user);
 
   const userRole = user?.user_roles[0]?.role.name || "Salesman";
-  console.log("this is the role of signed in user", userRole)
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
-  console.log("roles:", roles)
 
   const roleVisibilityMap = {
     SuperAdmin: ["Admin", "Secretary", "Salesman"],
@@ -131,40 +129,40 @@ const AddMember = () => {
             action: Action.ADD
           }
         ];
-  
+
         const initialPermissionIds = initialMemberData.permission_ids || [];
         const currentPermissionIds = values.permission_ids || [];
-  
+
         const permissionsToRemove = initialPermissionIds.filter(
           pid => !currentPermissionIds.includes(pid)
         ).map(pid => ({
           permission_id: pid,
           action: Action.REMOVE
         }));
-  
+
         const permissionsToAdd = currentPermissionIds.filter(
           pid => !initialPermissionIds.includes(pid)
         ).map(pid => ({
           permission_id: pid,
           action: Action.ADD
         }));
-  
+
         if (permissionsToRemove.length > 0 || permissionsToAdd.length > 0) {
           updatePayload.permission = [
             ...permissionsToRemove,
             ...permissionsToAdd
           ];
         }
-  
+
         updatePayload.user_name = values.user_name;
         updatePayload.full_name = values.full_name;
-  
+
         if (values.phone?.trim()) {
           updatePayload.phone = values.phone;
         }
-  
+
         updatePayload.status = values.status;
-  
+
         updateMutation.mutate(updatePayload, {
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");
@@ -180,11 +178,11 @@ const AddMember = () => {
           status: values.status,
           role_id: values.role_id,
         };
-  
+
         if (values.phone?.trim()) {
           createPayload.phone = values.phone;
         }
-  
+
         mutate(createPayload, {
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");

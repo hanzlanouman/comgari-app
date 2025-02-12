@@ -1,8 +1,8 @@
-import { UserUrl } from '@/common'
+import { BaseUrl, UserUrl } from '@/common'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 import { M, Media, TUploadMediaResponse } from '@/utils/media/types'
 
-const postUrl = UserUrl + '/upload'
+const postUrl = BaseUrl + UserUrl + '/upload'
 
 export default async function uploadMedia<TMedia extends M>(media: TMedia, fieldName?: string): Promise<TUploadMediaResponse<TMedia>>
 

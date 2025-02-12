@@ -14,7 +14,6 @@ export const getErrorMessage = (error: AxiosError | any): string => {
 };
 
 export const getCustomErrorMessage = (error: AxiosError | any): string => {
-  console.log("custom Error", error);
   if (
     error?.response &&
     error?.response?.data &&

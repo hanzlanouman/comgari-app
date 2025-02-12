@@ -28,7 +28,6 @@ const getFocusedRouteName = (
   if (route.state) {
     return getFocusedRouteName(route.state as Partial<NavigationState>);
   }
-  console.log(route.params, "Route params");
   if (
     route.params &&
     typeof route.params === "object" &&
@@ -45,8 +44,6 @@ const Layout = () => {
   const { getPermission } = useAuthorization();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const focusedRouteName = useNavigationState(getFocusedRouteName);
-
-  console.log(focusedRouteName, "Focused Route Name");
 
   const tabBarStyle = hide.includes(focusedRouteName || "")
     ? style.hide

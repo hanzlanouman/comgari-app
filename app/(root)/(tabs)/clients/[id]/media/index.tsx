@@ -31,7 +31,7 @@ const Media: React.FC = () => {
   const navigation = useNavigation();
   const id = Number(clientId);
 
-  const { uploadMultiple } = useUpload()
+  const { uploadAsync } = useUpload()
 
   const fetchClientMedia = useCallback(async () => {
     try {
@@ -95,20 +95,23 @@ const Media: React.FC = () => {
         showErrorAlert(resp.error)
         return
       }
-
       setIsUploading(true);
-      uploadMultiple(resp.result, async (url: string[]) => {
-        const uploadedMediaItems = url.map(url => ({
-          url: url,
-          mimeType: getExtFromUri(url),
-          clientId: id,
-          ownerId: id,
-          ownerType: "client",
-        }));
-        await saveMediaMutation.mutateAsync(uploadedMediaItems);
-        fetchClientMedia();
-        setIsUploading(false);
-      })
+      const uploadedMediaItems = []
+      for (const file of resp.result) {
+        const res = await uploadAsync(file)
+        if (res.isSuccess) {
+          uploadedMediaItems.push({
+            url: res.result,
+            mimeType: file.type,
+            clientId: id,
+            ownerId: id,
+            ownerType: "client",
+          })
+        }
+      }
+      await saveMediaMutation.mutateAsync(uploadedMediaItems);
+      fetchClientMedia();
+      setIsUploading(false);
     } catch (error: any) {
       showErrorAlert(error?.message)
       setIsUploading(false);

@@ -151,7 +151,6 @@ const JobDetails = ({ initialData, onNext }: {
 
         };
 
-        console.log(submitData)
         onNext(submitData);
       }}
     >
@@ -160,9 +159,6 @@ const JobDetails = ({ initialData, onNext }: {
 
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4">
-              {/* Client Dropdown */}
-              {console.log("Current form values:", formikProps.values)}
-              {console.log("Validation errors:", formikProps.errors)}
               <View className="mt-4">
                 <DropdownSelect
                   placeholder="Select Client"

@@ -84,7 +84,6 @@ export class AuthRepository implements IAuthRepository {
       );
       return res;
     } catch (e: AxiosError | any) {
-      console.log(e, "Error in Google Signin");
       throw getErrorMessage(e);
     }
   }

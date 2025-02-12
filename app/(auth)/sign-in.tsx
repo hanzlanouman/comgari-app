@@ -55,7 +55,6 @@ const SignIn = () => {
         onSuccess: (data) => {
           dispatch(login(data));
           dispatch(setSubscribed(data.user.subscription));
-          console.log("data.user.subscription", data.user.subscription)
           if (!data.user.subscription) {
 
             router.push({

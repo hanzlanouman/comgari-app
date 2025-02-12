@@ -108,7 +108,7 @@ export default function AddClientForm({
       }
       upload(rep.result, async (url: string) => {
         formik.setFieldValue("logo", url)
-        setImagePreview(url)
+        setImagePreview(getImageUrl(url))
       })
     } catch (error: any) {
       showErrorAlert(error?.message)

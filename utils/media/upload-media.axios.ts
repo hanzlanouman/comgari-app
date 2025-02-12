@@ -2,7 +2,7 @@ import { BaseUrl, UserUrl } from '@/common'
 import axios from 'axios'
 import { M, Media, TUploadMediaResponse } from '@/utils/media/types'
 
-const postUrl = UserUrl + '/upload'
+const postUrl = BaseUrl + UserUrl + '/upload'
 
 export default async function uploadMedia<TMedia extends M>(media: TMedia, fieldName?: string): Promise<TUploadMediaResponse<TMedia>>
 
@@ -17,7 +17,7 @@ export default async function uploadMedia(media: M, fieldName = 'files'): Promis
     // @ts-ignore
     mediaPayload.forEach(m => formData.append(fieldName, m))
 
-    const json = await axios.post(BaseUrl + postUrl, formData, {
+    const json = await axios.post(postUrl, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },

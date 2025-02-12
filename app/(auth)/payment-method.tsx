@@ -77,7 +77,6 @@ export default function Paymentmethod() {
     onConfirmPayment,
     {
       onSuccess: (data) => {
-        console.log("Payment successful!", data);
         if (parsedAuthResponse) {
           dispatch(login(parsedAuthResponse));
         }
@@ -94,7 +93,6 @@ export default function Paymentmethod() {
     if (error) {
       console.error("Payment sheet error:", error);
     } else {
-      console.log("Payment Method added Successfully");
       queryClient.invalidateQueries(["cards"]);
     }
   };
