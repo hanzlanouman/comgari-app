@@ -7,19 +7,33 @@
     "icon": "./assets/images/icon.png",
     "scheme": "comgari",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.comgari",
+      "usesIcloudStorage": true,
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.comgari",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -27,11 +41,29 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+        }
+      ],
       "expo-router",
-      "expo-video"
+      "expo-font",
+      [
+        "expo-document-picker"
+      ],
+      "@config-plugins/react-native-blob-util"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "aceacd83-9f20-4549-a495-bb267de1ca07"
+      }
     }
   }
 }

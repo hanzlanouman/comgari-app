@@ -7,7 +7,8 @@ import { router } from "expo-router";
 
 // Components
 import { onboarding } from "@/constants";
-import CustomButton from "@/components/CustomButton";
+import CustomButton from "@/common/components/CustomButton";
+import { route } from "@/common";
 
 const Onboarding = () => {
   const swiperRef = useRef<Swiper>(null);
@@ -23,8 +24,7 @@ const Onboarding = () => {
         activeDot={
           <View className="w-6 h-[3px] bg-purple rounded-full mx-2"></View>
         }
-        onIndexChanged={(index) => setActiveIndex(index)}
-      >
+        onIndexChanged={(index) => setActiveIndex(index)}>
         {onboarding.map((item) => (
           <View key={item.id} className="flex items-center justify-center">
             <Image
@@ -42,7 +42,7 @@ const Onboarding = () => {
         ))}
       </Swiper>
       <View className="w-full flex-row items-center justify-between px-4 mt-10">
-        <TouchableOpacity onPress={() => router.push("/(auth)/welcome")}>
+        <TouchableOpacity onPress={() => router.push(route.auth.register)}>
           <Text className="text-sm sm:text-base text-dark font-ManropeSemibold">
             Skip
           </Text>
@@ -51,7 +51,7 @@ const Onboarding = () => {
           title={isLastSlide ? "Finish" : "Next"}
           onPress={() =>
             isLastSlide
-              ? router.replace("/(auth)/sign-up")
+              ? router.replace(route.auth.register)
               : swiperRef.current?.scrollBy(1)
           }
           className="w-24"

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,262 +7,157 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { useQuery } from "react-query";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/constants";
-import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
-import { useState } from "react";
-import { CalendarDays } from "lucide-react-native";
-import ProgressBar from "@/components/ProgressBar";
+import { CustomButton, AppContainer } from "@/common/components";
+import ClientCard from "./components/ClientCard";
+import { ClientRepository } from "@/repositories/client/client";
+import { ClientListingPayload } from "@/repositories/client/schemas";
+import { useAppSelector } from "@/hooks/redux";
+import { ClientType, ClientStatus } from '@/common/types';
 
-const Clients = () => {
-  const hasData = true;
+import WithRole from "@/common/components/withRole";
 
-  const [progress, setProgress] = useState(50);
+interface Client {
+  id: number;
+  name: string;
+  description: string;
+  logo: string | null;
+  status: ClientStatus;
+  type: ClientType;
+  createdAt: string;
+  updatedAt: string;
+  brief: string;
+  agencyId: number;
+  createdById: number;
+  client_user: Array<{
+    id: number;
+    member_id: number;
+    client_id: number;
+  }>;
+}
+
+const Clients: React.FC = () => {
+  const clientRepo = ClientRepository.getInstance();
+  const [clients, setClients] = useState<Client[]>([]);
+  const [start, setStart] = useState(0);
+  const [limit] = useState(10);
+
+  const user = useAppSelector((state) => state.auth.user);
+
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
+    ["clients", start],
+    async () => {
+
+      const clientListingPayload: ClientListingPayload = {
+        start,
+        limit,
+      };
+
+      const response = await clientRepo.getClients(clientListingPayload, {
+        user,
+      });
+      return response;
+    },
+    {
+      keepPreviousData: true,
+      enabled: !!user && isAuthenticated,
+    }
+  );
+
+  useEffect(() => {
+    if (data) {
+      setClients(start === 0 ? data : (prevClients) => [...prevClients, ...data]);
+    }
+  }, [data, start]);
+
+  const handleRefresh = async () => {
+    setStart(0);
+    setClients([]);
+    await refetch();
+  };
+
+  const handleLoadMore = () => {
+    if (!isFetching && data?.length === limit) {
+      setStart((prevStart) => prevStart + limit);
+    }
+  };
+
+  const handleAddClient = () => {
+    router.push("/(root)/(tabs)/clients/add-client");
+  };
+
+  const handleClientPress = (clientId: number) => {
+    router.push(`/clients/${clientId}`);
+  };
+
+  const renderEmptyState = () => (
+    <View className="flex-grow flex-col items-center justify-center px-4">
+      <Image
+        source={images.member}
+        resizeMode="contain"
+        style={{ width: scale(150), height: vs(150) }}
+        className="mx-auto"
+      />
+      <View>
+        <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+          We can't find any
+        </Text>
+        <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+          clients yet!
+        </Text>
+        <WithRole permission="manage" resource="client" user={user!}>
+          <View className="w-[158px] mx-auto mt-5">
+            <CustomButton
+              title="Add Client"
+              onPress={handleAddClient}
+            />
+          </View>
+        </WithRole>
+      </View>
+    </View>
+  );
+
+  const renderClientsList = () => (
+    <View className="pb-20">
+      {clients.map((client) => (
+        <ClientCard
+          key={client.id}
+          client={{
+            ...client,
+            description: client.description,
+            category: client.type,
+            status: client.status,
+            progress: 75,
+          }}
+          onPress={() => handleClientPress(client.id)}
+        />
+      ))}
+    </View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        {hasData ? (
-          <View className="pb-4">
-            <TouchableOpacity
-              onPress={() => {
-                router.push("/(root)/(tabs)/clients/client-detail");
-              }}
-              className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5"
-            >
-              <View className="flex-row items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-2xl"
-                  style={{ width: vs(50), height: vs(50) }}
-                />
-                <View className="pl-3.5 flex-grow">
-                  <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                    Guy Hawkins
-                  </Text>
-                  <View className="flex-row items-center mt-2">
-                    <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-                      <View className="bg-blue w-1.5 h-1.5" />
-                    </View>
-                    <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                      Construction
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                Lorem Ipsum is simply dummy text of the printing.
-              </Text>
-              <View className="flex-row items-center mt-3.5">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full border-2 border-white"
-                  style={{ width: vs(35), height: vs(35) }}
-                />
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full border-2 border-white relative -ml-3.5"
-                  style={{ width: vs(35), height: vs(35) }}
-                />
-                <Text className="text-base font-ManropeMedium text-dark ml-3.5">
-                  Members
-                </Text>
-              </View>
-              <View className="mt-3.5">
-                <ProgressBar progress={progress} />
-              </View>
-              <View className="flex-row items-center justify-between mt-3.5">
-                <View className="flex-row items-center">
-                  <Text className="text-sm font-ManropeMedium text-dark">
-                    Due on:
-                  </Text>
-                  <View className="flex-row items-center ml-2">
-                    <CalendarDays size={18} color="#1C1C1C" />
-                    <Text className="text-sm font-ManropeMedium text-dark ml-2">
-                      Oct 05 2021
-                    </Text>
-                  </View>
-                </View>
-                <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                  <Text className="text-sm font-ManropeMedium text-green text-center">
-                    Completed
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                router.push("/(root)/(tabs)/clients/client-detail");
-              }}
-              className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5"
-            >
-              <View className="flex-row items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-2xl"
-                  style={{ width: vs(50), height: vs(50) }}
-                />
-                <View className="pl-3.5 flex-grow">
-                  <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                    Guy Hawkins
-                  </Text>
-                  <View className="flex-row items-center mt-2">
-                    <View className="bg-green-100 flex-row items-center justify-center w-3.5 h-3.5">
-                      <View className="bg-green w-1.5 h-1.5" />
-                    </View>
-                    <Text className="text-sm font-ManropeMedium text-green ml-2">
-                      Building
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                Lorem Ipsum is simply dummy text of the printing.
-              </Text>
-              <View className="flex-row items-center mt-3.5">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full border-2 border-white"
-                  style={{ width: vs(35), height: vs(35) }}
-                />
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full border-2 border-white relative -ml-3.5"
-                  style={{ width: vs(35), height: vs(35) }}
-                />
-                <Text className="text-base font-ManropeMedium text-dark ml-3.5">
-                  Members
-                </Text>
-              </View>
-              <View className="mt-3.5">
-                <ProgressBar progress={progress} />
-              </View>
-              <View className="flex-row items-center justify-between mt-3.5">
-                <View className="flex-row items-center">
-                  <Text className="text-sm font-ManropeMedium text-dark">
-                    Due on:
-                  </Text>
-                  <View className="flex-row items-center ml-2">
-                    <CalendarDays size={18} color="#1C1C1C" />
-                    <Text className="text-sm font-ManropeMedium text-dark ml-2">
-                      Oct 05 2021
-                    </Text>
-                  </View>
-                </View>
-                <View className="bg-yellow-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                  <Text className="text-sm font-ManropeMedium text-yellow text-center">
-                    Completed
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                router.push("/(root)/(tabs)/clients/client-detail");
-              }}
-              className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5"
-            >
-              <View className="flex-row items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-2xl"
-                  style={{ width: vs(50), height: vs(50) }}
-                />
-                <View className="pl-3.5 flex-grow">
-                  <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                    Guy Hawkins
-                  </Text>
-                  <View className="flex-row items-center mt-2">
-                    <View className="bg-yellow-100 flex-row items-center justify-center w-3.5 h-3.5">
-                      <View className="bg-yellow w-1.5 h-1.5" />
-                    </View>
-                    <Text className="text-sm font-ManropeMedium text-yellow ml-2">
-                      Landmark
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                Lorem Ipsum is simply dummy text of the printing.
-              </Text>
-              <View className="flex-row items-center mt-3.5">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full border-2 border-white"
-                  style={{ width: vs(35), height: vs(35) }}
-                />
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full border-2 border-white relative -ml-3.5"
-                  style={{ width: vs(35), height: vs(35) }}
-                />
-                <Text className="text-base font-ManropeMedium text-dark ml-3.5">
-                  Members
-                </Text>
-              </View>
-              <View className="mt-3.5">
-                <ProgressBar progress={progress} />
-              </View>
-              <View className="flex-row items-center justify-between mt-3.5">
-                <View className="flex-row items-center">
-                  <Text className="text-sm font-ManropeMedium text-dark">
-                    Due on:
-                  </Text>
-                  <View className="flex-row items-center ml-2">
-                    <CalendarDays size={18} color="#1C1C1C" />
-                    <Text className="text-sm font-ManropeMedium text-dark ml-2">
-                      Oct 05 2021
-                    </Text>
-                  </View>
-                </View>
-                <View className="bg-blue-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                  <Text className="text-sm font-ManropeMedium text-blue text-center">
-                    Completed
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View className="flex-grow flex-col items-center justify-center px-4">
-            <Image
-              source={images.member}
-              resizeMode="contain"
-              style={{ width: scale(150), height: vs(150) }}
-              className="mx-auto"
-            />
-            <View>
-              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                We can’t find any
-              </Text>
-              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                client yet!
-              </Text>
-              <View className="w-[158px] mx-auto mt-5">
-                <CustomButton
-                  title="Add Client"
-                  onPress={() =>
-                    router.push("/(root)/(tabs)/members/add-client")
-                  }
-                />
-              </View>
-            </View>
-          </View>
-        )}
-      </ScrollView>
+      <AppContainer
+        isError={isError}
+      >
+        <ScrollView
+          className="flex-1 px-5"
+          onRefresh={handleRefresh}
+          refreshing={isLoading}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+        >
+          <Text className="text-sm  text-dark-100 mt-3">
+            Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
+          </Text>
+          {clients.length > 0 ? renderClientsList() : renderEmptyState()}
+        </ScrollView>
+      </AppContainer>
     </SafeAreaView>
   );
 };

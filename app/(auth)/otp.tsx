@@ -1,92 +1,175 @@
-import { SafeAreaView, View, Text } from "react-native";
-import InputField from "@/components/InputField";
-import { useState } from "react";
-import CustomButton from "@/components/CustomButton";
-import { Link, router } from "expo-router";
+/* eslint-disable prettier/prettier */
+import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
+import InputField from "@/common/components/InputField";
+import { useRef, useState } from "react";
+import CustomButton from "@/common/components/CustomButton";
+import { Link, router, useLocalSearchParams } from "expo-router";
+import { OTP_TYPE } from "@/common/enum";
+import { useRouter } from "expo-router";
+import { useAppDispatch } from "@/hooks/redux";
+import { TLoginResponse, TVerifyCredPayload } from "@/repositories/auth/types";
+import { useFormik } from "formik";
+import { OtpSchema } from "@/repositories/auth/schemas";
+import { useMutation } from "react-query";
+import { login } from "@/store";
+import { AuthRepository } from "@/repositories/auth/auth";
+import { TextInput } from "react-native-gesture-handler";
+import OtpField from "@/common/components/OtpField";
+import { route } from "@/common";
+import { AppContainer } from "@/common/components";
+export type TOtpProps =
+  | {
+    username: string;
+    authResponse: string;
+    type: OTP_TYPE.VIERIFICATION;
+  }
+  | {
+    username: string;
+    type: OTP_TYPE.PASSWORD_RESET;
+    authResponse?: string;
+  }
+  | {
+    username: string;
+    type: OTP_TYPE.MEMBER_VERIFICATION;
+    authResponse?: string;
+  };
+export type TOtpComponentProps = {
+  afterVerifyRoute: string;
+  resetPassworRoute: string;
+};
+const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const AuthRepo = AuthRepository.getInstance();
+  const { username, authResponse, type } = useLocalSearchParams<TOtpProps>();
 
-const Otp = () => {
-  const [form, setForm] = useState({
-    codeOne: "",
-    codeTwo: "",
-    codeThree: "",
-    codeFour: "",
+  const parsedAuthResponse: TLoginResponse = authResponse
+    ? JSON.parse(authResponse)
+    : undefined;
+  const {
+    mutate: verfifyCred,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: async (payload: TVerifyCredPayload) =>
+      await AuthRepo.verifyCred(payload, authResponse),
+    onSuccess: () => {
+      if (type === OTP_TYPE.MEMBER_VERIFICATION) {
+        router.push(route.auth.login);
+      } else {
+        router.push({
+          pathname: "/(auth)/go-pro",
+          params: {
+            authResponse: authResponse,
+          },
+        });
+      }
+    },
   });
 
+  const formik = useFormik({
+    initialValues: {
+      otp: ["", "", "", ""],
+    },
+    validationSchema: OtpSchema,
+    onSubmit: () => {
+      handleSubmit(formik.values.otp.join(""));
+    },
+  });
+  const inputRefs = useRef<(TextInput | null)[]>(Array(4).fill(null));
+
+  const handleChange = (text: string, index: number) => {
+    const newOtp = [...formik.values.otp];
+    newOtp[index] = text;
+    formik.setFieldValue("otp", newOtp);
+
+    if (newOtp[index].length > 0) {
+      inputRefs.current[index + 1]?.focus();
+    } else {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+  const resendOtp = async () => {
+    try {
+      await AuthRepo.sendOtp({ username });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleSubmit = async (otp: string) => {
+    switch (type) {
+      case OTP_TYPE.VIERIFICATION:
+        verfifyCred({
+          username,
+          otp,
+        });
+
+        break;
+
+      case OTP_TYPE.PASSWORD_RESET:
+        router.push({
+          pathname: route.auth.resetPassword,
+          params: { username: username, otp: formik.values.otp.join("") },
+        });
+        break;
+      case OTP_TYPE.MEMBER_VERIFICATION:
+        verfifyCred({
+          username,
+          otp,
+        });
+
+      default:
+        break;
+    }
+  };
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 p-4">
-        <Text className="text-dark font-ManropeBold text-xl sm:text-2xl">
-          Enter OTP Code!
-        </Text>
-        <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-          We have send the code to{" "}
-          <Text className="font-ManropeMedium text-blue">+92 3410566466</Text>,
-          and
-          <Text className="font-ManropeMedium text-blue">
-            {" "}
-            info@comgari.com
+    <AppContainer isError={isError} message={error?.message}>
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 p-4">
+          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
+            Verification code sent to your contact number and email. Please check your SMS or email.          </Text>
+          <View className="flex-row -mx-2 mt-5">
+            {formik.values.otp.map((_, index) => (
+              <OtpField
+                key={index}
+                title=""
+                value={formik.values.otp[index]}
+                handleChangeText={(text) => handleChange(text, index)}
+                placeholder="0"
+                otherStyles="mt-8 w-3/12 px-2"
+                inputStyles="text-center"
+                type="text"
+                index={index}
+                inputRef={inputRefs}
+                error={
+                  formik.touched.otp && formik.errors.otp
+                    ? formik.errors.otp
+                    : ""
+                }
+              />
+            ))}
+          </View>
+          <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
+            Don’t receive OTP:{" "}
+            <Text
+              className="text-blue underline font-ManropeSemibold"
+              onPress={resendOtp}
+            >
+              Resend code
+            </Text>
           </Text>
-        </Text>
-        <View className="flex-row -mx-2 mt-8">
-          <View className="w-3/12 px-2">
-            <InputField
-              label=""
-              value={form.codeOne}
-              onChangeText={(value: string) =>
-                setForm({ ...form, codeOne: value })
-              }
-              placeholder=""
-              className="text-center"
-            />
-          </View>
-          <View className="w-3/12 px-2">
-            <InputField
-              label=""
-              value={form.codeTwo}
-              onChangeText={(value: string) =>
-                setForm({ ...form, codeTwo: value })
-              }
-              placeholder=""
-              className="text-center"
-            />
-          </View>
-          <View className="w-3/12 px-2">
-            <InputField
-              label=""
-              value={form.codeThree}
-              onChangeText={(value: string) =>
-                setForm({ ...form, codeThree: value })
-              }
-              placeholder=""
-              className="text-center"
-            />
-          </View>
-          <View className="w-3/12 px-2">
-            <InputField
-              label=""
-              value={form.codeFour}
-              onChangeText={(value: string) =>
-                setForm({ ...form, codeFour: value })
-              }
-              placeholder=""
-              className="text-center"
-            />
-          </View>
+
         </View>
-        <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
-          Don’t receive OTP:{" "}
-          <Link href="" className="text-blue underline font-ManropeSemibold">
-            Resend code
-          </Link>
-        </Text>
-      </View>
-      <View className="px-4">
-        <CustomButton
-          title="Verify Now"
-          onPress={() => router.push("/(auth)/reset-password")}
-        />
-      </View>
-    </SafeAreaView>
+        <View className="px-4">
+          <CustomButton
+            title="Verify Now"
+            onPress={() => {
+              formik.handleSubmit();
+            }}
+          />
+        </View>
+      </SafeAreaView>
+    </AppContainer>
   );
 };
 

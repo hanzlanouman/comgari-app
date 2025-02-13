@@ -1,3 +1,4 @@
+//app\(root)\(tabs)\members\members.tsx
 import {
   SafeAreaView,
   ScrollView,
@@ -6,264 +7,179 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  FlatList,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
-import { images } from "@/constants";
-import CustomButton from "@/components/CustomButton";
+import { images } from "@/common";
+import ActionModal from "./components/ActionModal";
 import { router } from "expo-router";
+import { AppContainer, CustomButton } from "@/common/components";
+import MemberCard from "./components/MemberCard";
+import { useQuery, useMutation, useQueryClient } from "react-query";
+import { MemberRepository } from "@/repositories";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React from "react";
+import WithRole from "@/common/components/withRole";
+import { useAppSelector } from "@/hooks/redux";
+import { useAuthorization } from "@/context/PermissionContext";
+
+import {
+  BottomSheetModal,
+} from "@gorhom/bottom-sheet";
+enum UserStatus {
+  ACTIVE,
+  INACTIVE,
+  SUSPENDED,
+}
+export type TMember = {
+  id: number;
+  user_name: string;
+  full_name: string;
+  image?: string;
+  role_id: number;
+  email: string;
+  phone?: string;
+  status: UserStatus;
+  permission_ids?: number[];
+};
 
 const Members = () => {
-  const hasData = true;
+  const MemberRepo = MemberRepository.getInstance();
+  const [member, setMembers] = useState<TMember[]>([]);
+  const queryClient = useQueryClient();
+  const [selectedMember, setSelectedMember] = useState<TMember | null>(null);
+  const { user } = useAppSelector((state) => state.auth);
+  const { getPermission } = useAuthorization();
+  const actionModalRef = useRef<BottomSheetModal>(null);
+  const hasPermission = getPermission(user!, "manage", "member");
+  const { data, isError, error, refetch } = useQuery(["member"], async () => {
+    return await MemberRepo.getMember();
+  });
+
+  const deleteMemberMutation = useMutation({
+    mutationFn: () => {
+      if (!selectedMember) throw new Error("No member selected");
+      return MemberRepo.deleteMember(selectedMember.id);
+    },
+    onSuccess: async () => {
+      queryClient.setQueryData(["member"], (oldMembers: TMember[] = []) =>
+        oldMembers.filter((member) => member.id !== selectedMember?.id)
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: ["member"],
+      });
+
+      actionModalRef.current?.dismiss();
+    },
+    onError: (error) => {
+      console.error("Error deleting member:", error);
+      queryClient.invalidateQueries({
+        queryKey: ["member"],
+      });
+    },
+  });
+
+  const handleMemberPress = useCallback((member: TMember) => {
+    setSelectedMember(member);
+    actionModalRef.current?.present();
+  }, []);
+
+  const handleUpdatePress = useCallback(() => {
+    actionModalRef.current?.dismiss();
+    if (selectedMember) {
+      router.push({
+        pathname: "/(root)/(tabs)/members/add-member",
+        params: {
+          isEditing: 'true',
+          memberId: selectedMember.id.toString(),
+          memberData: JSON.stringify(selectedMember)
+        }
+      });
+    }
+  }, [selectedMember]);
+
+  const handleDeletePress = useCallback(() => {
+    if (selectedMember) {
+      deleteMemberMutation.mutate();
+    }
+  }, [selectedMember, deleteMemberMutation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
+  useEffect(() => {
+    if (data) {
+      setMembers(
+        data?.data
+          ?.map((item: any) => ({
+            id: item?.Auth?.user[0]?.id,
+            user_name: item?.Auth?.username,
+            full_name: item?.Auth?.user[0]?.full_name,
+            image: item?.Auth?.user[0]?.avatar,
+            phone: item?.Auth?.phone || undefined,
+            email: item?.Auth?.email || '',
+            role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
+            status: item?.Auth?.status,
+            permission_ids: item?.Auth?.user?.[0]?.permission_by_user
+              ?.map((p: any) => p?.permission?.id || p?.permissionId)
+              ?.filter((id: any) => id !== undefined) || [],
+          }))
+          ?.sort((a, b) => b.id - a.id) // Sort members by descending order of `id`
+      );
+    }
+  }, [data]);
+
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        {hasData ? (
-          <View className="pb-4">
-            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
-              <View className="relative items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(70), height: vs(70) }}
-                />
-                <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2.5">
-                  <Text
-                    className="text-white text-sm text-center font-ManropeMedium"
-                    style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
-                  >
-                    Admin
-                  </Text>
-                </View>
-              </View>
-              <View className="pl-3 flex-grow">
-                <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                  Guy Hawkins
+    <SafeAreaView>
+      <AppContainer isError={isError} message={error}>
+        <FlatList
+          data={member}
+          keyExtractor={(item) => item?.id?.toString()}
+          renderItem={({ item }) => <TouchableOpacity
+            onPress={() => hasPermission && handleMemberPress(item)}
+            disabled={!hasPermission}
+          >
+            <MemberCard member={item} />
+          </TouchableOpacity>}
+          contentContainerStyle={{
+            paddingBottom: vs(10),
+          }}
+          ListEmptyComponent={
+            <View className="flex-grow flex-col items-center justify-center px-4">
+              <Image
+                source={images.member}
+                resizeMode="contain"
+                style={{ width: scale(150), height: vs(150) }}
+                className="mx-auto"
+              />
+              <View>
+                <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+                  No team members added yet. Start growing your team by adding members to manage clients and properties.
                 </Text>
-                <Text className="text-sm font-ManropeMedium text-dark-100">
-                  guy.hawkins@comgari.com
-                </Text>
-                <View className="flex-row items-center justify-between mt-3">
-                  <Text className="text-sm font-ManropeMedium text-dark-100">
-                    +92 341 056 6466
-                  </Text>
-                  <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                    <Text className="text-sm font-ManropeMedium text-green text-center">
-                      Active
-                    </Text>
-                  </View>
+                <View className="w-[158px] mx-auto mt-5">
+                  <WithRole permission="manage" resource="member" user={user!}>
+                    <CustomButton
+                      title="Add Member"
+                      onPress={() => router.push("/(root)/(tabs)/members/add-member")}
+                    />
+                  </WithRole>
                 </View>
               </View>
             </View>
-            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
-              <View className="relative items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(70), height: vs(70) }}
-                />
-                <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2.5">
-                  <Text
-                    className="text-white text-center font-ManropeMedium"
-                    style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
-                  >
-                    Secretary
-                  </Text>
-                </View>
-              </View>
-              <View className="pl-3 flex-grow">
-                <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                  Guy Hawkins
-                </Text>
-                <Text className="text-sm font-ManropeMedium text-dark-100">
-                  guy.hawkins@comgari.com
-                </Text>
-                <View className="flex-row items-center justify-between mt-3">
-                  <Text className="text-sm font-ManropeMedium text-dark-100">
-                    +92 341 056 6466
-                  </Text>
-                  <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                    <Text className="text-sm font-ManropeMedium text-green text-center">
-                      Active
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
-              <View className="relative items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(70), height: vs(70) }}
-                />
-                <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2.5">
-                  <Text
-                    className="text-white text-center font-ManropeMedium"
-                    style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
-                  >
-                    Salesman
-                  </Text>
-                </View>
-              </View>
-              <View className="pl-3 flex-grow">
-                <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                  Guy Hawkins
-                </Text>
-                <Text className="text-sm font-ManropeMedium text-dark-100">
-                  guy.hawkins@comgari.com
-                </Text>
-                <View className="flex-row items-center justify-between mt-3">
-                  <Text className="text-sm font-ManropeMedium text-dark-100">
-                    +92 341 056 6466
-                  </Text>
-                  <View className="bg-gray rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                    <Text className="text-sm font-ManropeMedium text-dark-100 text-center">
-                      In-Active
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
-              <View className="relative items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(70), height: vs(70) }}
-                />
-                <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2.5">
-                  <Text
-                    className="text-white text-center font-ManropeMedium"
-                    style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
-                  >
-                    Secretary
-                  </Text>
-                </View>
-              </View>
-              <View className="pl-3 flex-grow">
-                <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                  Guy Hawkins
-                </Text>
-                <Text className="text-sm font-ManropeMedium text-dark-100">
-                  guy.hawkins@comgari.com
-                </Text>
-                <View className="flex-row items-center justify-between mt-3">
-                  <Text className="text-sm font-ManropeMedium text-dark-100">
-                    +92 341 056 6466
-                  </Text>
-                  <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                    <Text className="text-sm font-ManropeMedium text-green text-center">
-                      Active
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
-              <View className="relative items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(70), height: vs(70) }}
-                />
-                <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2.5">
-                  <Text
-                    className="text-white text-center font-ManropeMedium"
-                    style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
-                  >
-                    Secretary
-                  </Text>
-                </View>
-              </View>
-              <View className="pl-3 flex-grow">
-                <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                  Guy Hawkins
-                </Text>
-                <Text className="text-sm font-ManropeMedium text-dark-100">
-                  guy.hawkins@comgari.com
-                </Text>
-                <View className="flex-row items-center justify-between mt-3">
-                  <Text className="text-sm font-ManropeMedium text-dark-100">
-                    +92 341 056 6466
-                  </Text>
-                  <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                    <Text className="text-sm font-ManropeMedium text-green text-center">
-                      Active
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
-              <View className="relative items-center">
-                <Image
-                  source={images.user}
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(70), height: vs(70) }}
-                />
-                <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2.5">
-                  <Text
-                    className="text-white text-center font-ManropeMedium"
-                    style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
-                  >
-                    Secretary
-                  </Text>
-                </View>
-              </View>
-              <View className="pl-3 flex-grow">
-                <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                  Guy Hawkins
-                </Text>
-                <Text className="text-sm font-ManropeMedium text-dark-100">
-                  guy.hawkins@comgari.com
-                </Text>
-                <View className="flex-row items-center justify-between mt-3">
-                  <Text className="text-sm font-ManropeMedium text-dark-100">
-                    +92 341 056 6466
-                  </Text>
-                  <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                    <Text className="text-sm font-ManropeMedium text-green text-center">
-                      Active
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-        ) : (
-          <View className="flex-grow flex-col items-center justify-center px-4">
-            <Image
-              source={images.member}
-              resizeMode="contain"
-              style={{ width: scale(150), height: vs(150) }}
-              className="mx-auto"
-            />
-            <View>
-              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                We can’t find any
-              </Text>
-              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                member yet!
-              </Text>
-              <View className="w-[158px] mx-auto mt-5">
-                <CustomButton
-                  title="Add Member"
-                  onPress={() =>
-                    router.push("/(root)/(tabs)/members/add-member")
-                  }
-                />
-              </View>
-            </View>
-          </View>
-        )}
-      </ScrollView>
+          }
+        />
+        <ActionModal
+          ref={actionModalRef}
+          onUpdate={handleUpdatePress}
+          onDelete={handleDeletePress}
+        />
+      </AppContainer>
     </SafeAreaView>
   );
 };

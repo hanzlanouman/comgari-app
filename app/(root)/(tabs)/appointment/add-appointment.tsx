@@ -1,243 +1,182 @@
-import {
-  Image,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import CustomButton from "@/components/CustomButton";
+//app\(root)\(tabs)\appointment\add-appointment.tsx
+import React, { useState, useEffect } from "react";
+import { SafeAreaView, Alert } from "react-native";
 import { router } from "expo-router";
-import InputField from "@/components/InputField";
-import React, { useState } from "react";
-import {
-  SelectList,
-  MultipleSelectList,
-} from "react-native-dropdown-select-list";
-import { CalendarDays, ChevronDown, Search, X } from "lucide-react-native";
-import { format } from "date-fns";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { AddAppointmentForm } from "./components/AddAppointmentForm";
+import { ClientRepository } from "@/repositories/client/client";
+import { useLocalSearchParams } from "expo-router";
 
-const client = [
-  { key: "1", value: "Super Admin" },
-  { key: "2", value: "Admin" },
-  { key: "3", value: "User" },
-  { key: "4", value: "Contractor" },
-  { key: "5", value: "Dealor" },
-];
+import { MemberRepository } from "@/repositories/member/member";
+import { useAppSelector } from "@/hooks/redux";
+import { OptionType } from "@/common/types";
 
-const member = [
-  { key: "1", value: "Super Admin" },
-  { key: "2", value: "Admin" },
-  { key: "3", value: "User" },
-  { key: "4", value: "Contractor" },
-  { key: "5", value: "Dealor" },
-];
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
-const status = [
-  { key: "1", value: "Super Admin" },
-  { key: "2", value: "Admin" },
-  { key: "3", value: "User" },
-  { key: "4", value: "Contractor" },
-  { key: "5", value: "Dealor" },
+import { AppContainer } from "@/common/components";
+import { AuthRepository } from "@/repositories";
+import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment"
+const STATUS_OPTIONS = [
+  { key: "Scheduled", value: "Scheduled" },
+  { key: "PendingConfirmation", value: "PendingConfirmation" },
+  { key: "Completed", value: "Completed" },
+  { key: "Cancelled", value: "Cancelled" },
+  { key: "Confirmed", value: "Confirmed" },
+  { key: "Rescheduled", value: "Rescheduled" },
+  { key: "InProgress", value: "InProgress" },
+  { key: "NoShow", value: "NoShow" },
+  { key: "Expired", value: "Expired" },
 ];
 
 const AddAppointment = () => {
-  const [selectedClient, setSelectedClient] = useState("");
-  const [selectedMember, setSelectedMember] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const {
+    isEditing,
+    appointmentId,
+    title,
+    clientId,
+    status,
+    date,
+    notes,
+    members,
+  } = useLocalSearchParams();
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
+  const parsedMembers = members ? JSON.parse(members as string) : [];
+  const parsedDate = date ? new Date(date as string) : null;
+  const clientRepo = ClientRepository.getInstance();
+  const memberRepo = MemberRepository.getInstance();
+  const authRepo = AuthRepository.getInstance();
+  const user = useAppSelector((state) => state.auth.user);
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
+  const [clientOptions, setClientOptions] = useState<OptionType[]>([]);
+  const [memberOptions, setMemberOptions] = useState<OptionType[]>([]);
+
+  const [isClientsLoading, setIsClientsLoading] = useState(false);
+  const [isMembersLoading, setIsMembersLoading] = useState(false);
+  const [appointmentAdded, setAppointmentAdded] = useState(false);
+  const fetchClients = async () => {
+    setIsClientsLoading(true);
+    try {
+      const clients = await clientRepo.getClients(
+        { start: 0, limit: 10 },
+        { user }
+      );
+      const options: OptionType[] = clients.map((client) => ({
+        key: client.id,
+        value: client.name,
+      }));
+      setClientOptions(options.length ? options : []); // Default to empty array if no clients
+    } catch (err) {
+      Alert.alert("Error", "Failed to fetch clients");
+    } finally {
+      setIsClientsLoading(false);
+    }
   };
 
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
+  const fetchMembers = async () => {
+    setIsMembersLoading(true);
+    try {
+      const response = await memberRepo.getMember();
+      const members = response.data;
+      const options: OptionType[] = members.map((member) => ({
+        key: member.Auth.id,
+        value: member.Auth?.username,
+      }));
+      setMemberOptions(options.length ? options : []);
+    } catch (err) {
+      Alert.alert("Error", "Failed to fetch members");
+    } finally {
+      setIsMembersLoading(false);
+    }
   };
 
-  const handleConfirm = (date) => {
-    const formattedDate = format(date, "MMM dd, yyyy hh:mm a");
-    setSelectedDate(formattedDate);
-    hideDatePicker();
+  useEffect(() => {
+    fetchClients();
+    fetchMembers();
+  }, []);
+
+  const handleSubmitSuccess = () => {
+    router.push("/(root)/(tabs)/appointment/appointment");
   };
 
-  const [form, setForm] = useState({
-    titleOfMeeting: "",
-    notes: "",
-  });
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+      iosClientId:
+        "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com",
+      offlineAccess: true,
+      forceCodeForRefreshToken: true,
+
+      scopes: [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/calendar",
+      ],
+    });
+  }, []);
+  const handlePress = async () => {
+    try {
+      setAppointmentAdded(true);
+      const exisit = await checkOAuth();
+
+      if (exisit) {
+        return;
+      }
+
+      const isAvailable = await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      if (!isAvailable) return;
+
+      const isSignedIn = GoogleSignin.hasPreviousSignIn();
+      if (isSignedIn) {
+        await GoogleSignin.signOut();
+      }
+
+      const response = await GoogleSignin.signIn();
+
+      const token = await GoogleSignin.getTokens();
+      const payload = {
+        client_id:
+          "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
+
+        token: token.accessToken,
+
+        server_auth_code: response?.data?.serverAuthCode,
+        idToken: response?.data?.idToken,
+      };
+      const res = await authRepo.verifyGoogleToken(payload);
+    } catch (error) {
+      console.error(error, "Google");
+    }
+  };
+
+  const checkOAuth = async () => {
+    const checkOAuth = await authRepo.checkOAuth();
+    return checkOAuth.data;
+  };
+
+  const onGoogleAppointment = async () => {
+    handlePress();
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        <View className="mt-5">
-          <InputField
-            label=""
-            value={form.titleOfMeeting}
-            onChangeText={(value) =>
-              setForm({ ...form, titleOfMeeting: value })
-            }
-            placeholder="Title of meeting"
-          />
-        </View>
-        <View className="mt-3">
-          <SelectList
-            setSelected={(val) => setSelectedClient(val)}
-            data={client}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Select client"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              backgroundColor: "#fff",
-            }}
-          />
-        </View>
-        <View className="mt-3">
-          <MultipleSelectList
-            setSelected={(val) => setSelectedMember(val)}
-            data={member}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Assign member"
-            search={false}
-            searchPlaceholder="Search..."
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            searchicon={<Search size={16} color="#1C1C1C" />}
-            closeicon={<X size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            onSelect={() => {}}
-            label="Member"
-            boxStyles={{
-              backgroundColor: "#fff",
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 15 : 13,
-              paddingBottom: Platform.OS === "ios" ? 16 : 16,
-              alignItems: "center",
-              marginBottom: 2,
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              transition: "all 0.1s ease",
-            }}
-            badgeStyles={{
-              backgroundColor: "#1B78B9",
-              paddingHorizontal: 12,
-              paddingBottom: 6.5,
-              borderWidth: 0,
-            }}
-          />
-        </View>
-        <View className="mt-3">
-          <SelectList
-            setSelected={(val) => setSelectedStatus(val)}
-            data={status}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Status"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              backgroundColor: "#fff",
-            }}
-          />
-        </View>
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={showDatePicker}
-          className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative"
-        >
-          <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
-            {selectedDate ? (
-              selectedDate
-            ) : (
-              <Text className="text-[#4A4A4A] pb-[2px]">Date/Time</Text>
-            )}
-          </Text>
-          <CalendarDays size={16} className="text-dark-100" />
-        </TouchableOpacity>
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="datetime"
-          onConfirm={handleConfirm}
-          onCancel={hideDatePicker}
+      <AppContainer
+        confirmationMessage="Do you want to add the appointment in Google Calendar"
+        isConfirm={true}
+        onConfirm={onGoogleAppointment}
+        title="Add Appointment">
+        <AddAppointmentForm
+          clientOptions={clientOptions}
+          memberOptions={memberOptions}
+          statusOptions={STATUS_OPTIONS}
+          isClientsLoading={isClientsLoading}
+          isMembersLoading={isMembersLoading}
+          onSubmitSuccess={handleSubmitSuccess}
+          setAppointmentAdded={setAppointmentAdded}
+          isAppointmentAdded={appointmentAdded}
         />
-        <View className="mt-3">
-          <TextInput
-            className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] lowercase text-left"
-            value={form.notes}
-            editable
-            multiline
-            placeholderTextColor="#1C1C1C"
-            placeholder="Notes"
-            onChangeText={(value) => setForm({ ...form, notes: value })}
-          />
-        </View>
-      </ScrollView>
-      <View className="p-4 bg-white">
-        <CustomButton
-          title="Add Appointment"
-          onPress={() => router.push("/")}
-        />
-      </View>
+      </AppContainer>
     </SafeAreaView>
   );
 };

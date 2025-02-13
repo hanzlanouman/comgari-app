@@ -1,219 +1,177 @@
-import {
-  Image,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import CustomButton from "@/components/CustomButton";
-import { router } from "expo-router";
-import InputField from "@/components/InputField";
-import React, { useState } from "react";
-import {
-  SelectList,
-  MultipleSelectList,
-} from "react-native-dropdown-select-list";
-import { ChevronDown, Search, Upload, X } from "lucide-react-native";
-import { images } from "@/constants";
-import { vs } from "react-native-size-matters";
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, View, Alert, Text } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useFormik } from 'formik';
+import { useAppSelector } from '@/hooks/redux';
+import { CustomButton, AppContainer } from '@/common/components';
+import AddClientForm from './components/AddClientForm';
+import { createClientSchema, updateClientSchema } from '@/repositories/client/schemas';
+import { OptionType, ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } from '@/common/types';
+import { ClientRepository } from '@/repositories/client/client';
+import { MemberRepository } from '@/repositories/member/member';
+import { useQueryClient } from 'react-query';
+import { Action } from '@/common/enum';
 
-const role = [
-  { key: "1", value: "Super Admin" },
-  { key: "2", value: "Admin" },
-  { key: "3", value: "User" },
-  { key: "4", value: "Contractor" },
-  { key: "5", value: "Dealor" },
-];
+import { CreateClientPayload, UpdateClientPayload } from '@/repositories/client/schemas';
+
+
+interface MemberAction {
+  staff_id: number;
+  action: Action;
+}
 
 const AddClient = () => {
-  const [selectedRole, setSelectedRole] = useState("");
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const clientRepo = ClientRepository.getInstance();
+  const memberRepo = MemberRepository.getInstance();
+  const queryClient = useQueryClient();
+  const [memberOptions, setMemberOptions] = useState<OptionType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [existingMemberIds, setExistingMemberIds] = useState<number[]>([]);
+  const user = useAppSelector((state) => state.auth.user);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phoneNumber: "",
-    description: "",
+  const params = useLocalSearchParams();
+  const parseIds = (ids: string | string[] | undefined): number[] => {
+    if (!ids) return [];
+    if (Array.isArray(ids)) return ids.map(Number);
+    return ids.split(',').map(Number);
+  };
+  const clientUserIds = parseIds(params.clientUserIds)
+
+  const clientId = params.isEditing === 'true' ? Number(params.clientId) : undefined;
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch members
+        const { data: membersData } = await memberRepo.getMember();
+        const members = membersData || [];
+        const options: OptionType[] = members.map((member) => ({
+          key: member.Auth.id,
+          value: member.Auth.username || 'Unknown',
+        }));
+        setMemberOptions(options);
+
+        if (params.isEditing === 'true' && clientId) {
+          setIsEditing(true);
+          if (params?.clientUserIds) {
+            setExistingMemberIds(clientUserIds);
+            formik.setFieldValue('member_ids', clientUserIds);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+        Alert.alert('Error', 'Failed to load initial data. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchInitialData();
+    }
+  }, [isAuthenticated, clientId]);
+
+  const clientTypeOptions: OptionType[] = CLIENT_TYPES.map((type) => ({
+    key: type,
+    value: type.charAt(0).toUpperCase() + type.slice(1).toLowerCase().replace('_', ' '),
+  }));
+
+  const statusOptions: OptionType[] = CLIENT_STATUS.map((status) => ({
+    key: status,
+    value: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace('_', ' '),
+  }));
+
+  const initialValues = {
+    name: String(params.name || ''),
+    description: String(params.description || ''),
+    logo: String(params.logo || ''),
+    type: params.type as ClientType || 'Construction',
+    status: (params.status as ClientStatus) || ClientStatus.Active,
+    member_ids: clientUserIds
+      ? Array.isArray(clientUserIds)
+        ? clientUserIds.map(Number)
+        : [Number(clientUserIds)]
+      : [],
+    email: String(params.email || ''),
+    phone: String(params.phone || ''),
+    client_Staff: [] as MemberAction[],
+  };
+  const handleSubmit = async (values: typeof initialValues) => {
+    try {
+      setIsLoading(true);
+
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      // Prepare member actions by comparing with existing members
+      const addedMembers = values.member_ids.filter(id => !existingMemberIds.includes(id));
+      const removedMembers = existingMemberIds.filter(id => !values.member_ids.includes(id));
+
+      const memberActions: MemberAction[] = [
+        ...addedMembers.map(id => ({ staff_id: id, action: Action.ADD })),
+        ...removedMembers.map(id => ({ staff_id: id, action: Action.REMOVE }))
+      ];
+
+      const payload = {
+        ...values,
+        client_Staff: memberActions,
+      };
+
+      if (isEditing && clientId) {
+        await clientRepo.updateClient(String(clientId), payload as UpdateClientPayload);
+      } else {
+        await clientRepo.createClient({ user: { id: user.id } }, payload as CreateClientPayload);
+      }
+
+      await queryClient.invalidateQueries('clients');
+      router.replace('/(root)/(tabs)/clients/clients');
+    } catch (error) {
+      console.error('Error saving client:', error);
+      Alert.alert('Error', 'Failed to save client. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true,
+    validationSchema: isEditing ? updateClientSchema : createClientSchema,
+    onSubmit: handleSubmit,
   });
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        <View
-          className="mt-2.5 relative mx-auto"
-          style={{ width: vs(80), height: vs(80) }}
-        >
-          <Image
-            source={images.user}
-            resizeMode="cover"
-            className="rounded-full mx-auto w-full h-full"
+      <AppContainer>
+        <Text className="text-sm mb-6 px-4">
+          Add new team clients by filling out their details below to onboard them.
+
+        </Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+          <AddClientForm
+            formik={formik}
+            typeOptions={clientTypeOptions}
+            statusOptions={statusOptions}
+            memberOptions={memberOptions}
+            isEditing={isEditing}
           />
-          <TouchableOpacity
-            onPress={() => {}}
-            className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px"
-          >
-            <Upload size={13} color="#ffffff" />
-          </TouchableOpacity>
-        </View>
-        <View className="mt-5">
-          <InputField
-            label=""
-            value={form.fullName}
-            onChangeText={(value) => setForm({ ...form, fullName: value })}
-            placeholder="Full name"
+        </ScrollView>
+        <View className="p-4 bg-white">
+          <CustomButton
+            title={isEditing ? 'Update Client' : 'Add Client'}
+            onPress={() => formik.handleSubmit()}
+            disabled={isLoading}
           />
         </View>
-        <View className="mt-3">
-          <InputField
-            label=""
-            value={form.email}
-            onChangeText={(value) => setForm({ ...form, email: value })}
-            placeholder="Email"
-            keyboardType="email-address"
-          />
-        </View>
-        <View className="mt-3">
-          <InputField
-            label=""
-            value={form.phoneNumber}
-            onChangeText={(value) => setForm({ ...form, phoneNumber: value })}
-            placeholder="Contact number"
-          />
-        </View>
-        <View className="mt-3">
-          <MultipleSelectList
-            setSelected={(val) => setSelectedPermissions(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Assign member"
-            search={false}
-            searchPlaceholder="Search..."
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            searchicon={<Search size={16} color="#1C1C1C" />}
-            closeicon={<X size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            onSelect={() => {}}
-            label="Permissions"
-            boxStyles={{
-              backgroundColor: "#fff",
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 15 : 13,
-              paddingBottom: Platform.OS === "ios" ? 16 : 16,
-              alignItems: "center",
-              marginBottom: 2,
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              transition: "all 0.1s ease",
-            }}
-            badgeStyles={{
-              backgroundColor: "#1B78B9",
-              paddingHorizontal: 12,
-              paddingBottom: 6.5,
-              borderWidth: 0,
-            }}
-          />
-        </View>
-        <View className="mt-3">
-          <SelectList
-            setSelected={(val) => setSelectedRole(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Select Type"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              backgroundColor: "#fff",
-            }}
-          />
-        </View>
-        <View className="mt-2.5">
-          <SelectList
-            setSelected={(val) => setSelectedStatus(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Status"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              transition: "all 0.1s ease",
-            }}
-          />
-        </View>
-        <View className="mt-3">
-          <TextInput
-            className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] lowercase text-left"
-            value={form.description}
-            editable
-            multiline
-            placeholderTextColor="#1C1C1C"
-            placeholder="Description"
-            onChangeText={(value) => setForm({ ...form, description: value })}
-          />
-        </View>
-      </ScrollView>
-      <View className="p-4 bg-white">
-        <CustomButton title="Add Client" onPress={() => router.push("/")} />
-      </View>
+      </AppContainer>
     </SafeAreaView>
   );
 };

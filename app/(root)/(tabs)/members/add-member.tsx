@@ -1,181 +1,216 @@
+//app\(root)\(tabs)\members\add-member.tsx
 import { Platform, SafeAreaView, ScrollView, View } from "react-native";
-import CustomButton from "@/components/CustomButton";
-import { router } from "expo-router";
-import InputField from "@/components/InputField";
-import { useState } from "react";
-import {
-  SelectList,
-  MultipleSelectList,
-} from "react-native-dropdown-select-list";
-import { ChevronDown, Search, X } from "lucide-react-native";
 
-const role = [
-  { key: "1", value: "Super Admin" },
-  { key: "2", value: "Admin" },
-  { key: "3", value: "User" },
-  { key: "4", value: "Contractor" },
-  { key: "5", value: "Dealor" },
+import { Href, router } from "expo-router";
+import * as Yup from "yup";
+import { useLocalSearchParams } from 'expo-router';
+
+import { useEffect, useState } from "react";
+import { AppContainer, CustomButton, InputField } from "@/common/components";
+import AddMemberForm from "./components/AddMemberForm";
+import { useFormik } from "formik";
+import { OptionType } from "@/common/types";
+import { MemberPayload, memberSchema, updateMemberSchema, UpdateMemberPayload } from "@/repositories/member/schemas";
+import { useMutation, useQuery } from "react-query";
+import { MemberRepository } from "@/repositories";
+import { route } from "@/common";
+import { useAppSelector } from "@/hooks/redux";
+enum Action {
+  ADD = 'Add',
+  REMOVE = 'Remove'
+}
+
+enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+}
+
+const status = [
+  { key: UserStatus.ACTIVE, value: UserStatus.ACTIVE },
+  { key: UserStatus.INACTIVE, value: UserStatus.INACTIVE },
+  { key: UserStatus.SUSPENDED, value: UserStatus.SUSPENDED },
 ];
 
 const AddMember = () => {
-  const [selectedRole, setSelectedRole] = useState("");
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const MemberRepo = MemberRepository.getInstance();
+  const getRole = () => MemberRepo.getAllRoles();
+  const getPermission = () => MemberRepo.getPermissions();
+  const { isEditing, memberId, memberData } = useLocalSearchParams();
+  const initialMemberData: MemberPayload | null = memberData
+    ? JSON.parse(memberData as string)
+    : null;
 
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phoneNumber: "",
+  const { mutate, isError, error } = useMutation({
+    mutationFn: (payload: MemberPayload) => MemberRepo.createMember(payload),
+  });
+
+  // Create mutation for updating a member
+  const updateMutation = useMutation({
+    mutationFn: (payload: UpdateMemberPayload) =>
+      MemberRepo.updateMember(Number(memberId), payload),
+  });
+
+  const { data: role } = useQuery(["roles"], getRole, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+
+  const { data: permission } = useQuery(["permission"], getPermission, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+  const user = useAppSelector((state) => state.auth.user);
+
+  const userRole = user?.user_roles[0]?.role.name || "Salesman";
+  const [roles, setRole] = useState<OptionType[]>([]);
+  const [permissions, setPermission] = useState<OptionType[]>([]);
+
+  const roleVisibilityMap = {
+    SuperAdmin: ["Admin", "Secretary", "Salesman"],
+    Admin: ["Admin", "Secretary", "Salesman"],
+    Secretary: ["Secretary", "Salesman"],
+    Salesman: ["Salesman"],
+  };
+
+  useEffect(() => {
+    if (role) {
+      const filteredRoles = role?.data
+        ?.filter((item: any) =>
+          roleVisibilityMap[userRole]?.includes(item?.name)
+        )
+        .map((item: any) => ({
+          value: item?.name,
+          key: Number(item?.id),
+        }));
+      setRole(filteredRoles);
+    }
+    if (permission) {
+      setPermission(
+        permission?.data?.map((item: any) => ({
+          key: item?.id,
+          value: `${item?.name} ${item?.resource}`,
+        }))
+      );
+    }
+  }, [role, permission, userRole]);
+
+  const formik = useFormik({
+    initialValues: {
+      user_name: initialMemberData?.user_name || '',
+      email: initialMemberData?.email || '',
+      phone: initialMemberData?.phone || '',
+      password: '',
+      full_name: initialMemberData?.full_name || '',
+      permission_ids: initialMemberData?.permission_ids || [],
+      status: initialMemberData?.status || UserStatus.ACTIVE,
+      role_id: initialMemberData?.role_id
+        ? Number(initialMemberData.role_id)
+        : 0,
+    },
+    enableReinitialize: true,
+    validationSchema: isEditing === 'true' ? updateMemberSchema : memberSchema,
+    onSubmit: (values) => {
+      if (isEditing === 'true' && initialMemberData) {
+        const updatePayload: UpdateMemberPayload = {};
+        updatePayload.role = [
+          ...(initialMemberData.role_id ? [{
+            role_id: initialMemberData.role_id,
+            action: Action.REMOVE
+          }] : []),
+          {
+            role_id: Number(values.role_id),
+            action: Action.ADD
+          }
+        ];
+
+        const initialPermissionIds = initialMemberData.permission_ids || [];
+        const currentPermissionIds = values.permission_ids || [];
+
+        const permissionsToRemove = initialPermissionIds.filter(
+          pid => !currentPermissionIds.includes(pid)
+        ).map(pid => ({
+          permission_id: pid,
+          action: Action.REMOVE
+        }));
+
+        const permissionsToAdd = currentPermissionIds.filter(
+          pid => !initialPermissionIds.includes(pid)
+        ).map(pid => ({
+          permission_id: pid,
+          action: Action.ADD
+        }));
+
+        if (permissionsToRemove.length > 0 || permissionsToAdd.length > 0) {
+          updatePayload.permission = [
+            ...permissionsToRemove,
+            ...permissionsToAdd
+          ];
+        }
+
+        updatePayload.user_name = values.user_name;
+        updatePayload.full_name = values.full_name;
+
+        if (values.phone?.trim()) {
+          updatePayload.phone = values.phone;
+        }
+
+        updatePayload.status = values.status;
+
+        updateMutation.mutate(updatePayload, {
+          onSuccess: () => {
+            router.push("/(root)/(tabs)/members/members");
+          },
+        });
+      } else {
+        const createPayload: MemberPayload = {
+          user_name: values.user_name,
+          email: values.email,
+          password: values.password,
+          full_name: values.full_name,
+          permission_ids: values.permission_ids,
+          status: values.status,
+          role_id: values.role_id,
+        };
+
+        if (values.phone?.trim()) {
+          createPayload.phone = values.phone;
+        }
+
+        mutate(createPayload, {
+          onSuccess: () => {
+            router.push("/(root)/(tabs)/members/members");
+          },
+        });
+      }
+    },
   });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        <View className="mt-2.5">
-          <InputField
-            label=""
-            value={form.fullName}
-            onChangeText={(value) => setForm({ ...form, fullName: value })}
-            placeholder="Full name"
+      <AppContainer
+        isError={isError || updateMutation.isError}
+        message={error || updateMutation.error}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          className="px-4"
+        >
+          <AddMemberForm
+            formik={formik}
+            roleOptions={roles}
+            permissionOptions={permissions}
+            statusOptions={status}
+            isEditing={isEditing === 'true'}
           />
-        </View>
-        <View className="mt-3">
-          <InputField
-            label=""
-            value={form.email}
-            onChangeText={(value) => setForm({ ...form, email: value })}
-            placeholder="Email"
-            keyboardType="email-address"
-          />
-        </View>
-        <View className="mt-3">
-          <InputField
-            label=""
-            value={form.phoneNumber}
-            onChangeText={(value) => setForm({ ...form, phoneNumber: value })}
-            placeholder="Contact number"
-          />
-        </View>
-        <View className="mt-3">
-          <SelectList
-            setSelected={(val) => setSelectedRole(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Select Role"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              backgroundColor: "#fff",
-            }}
-          />
-        </View>
-        <View className="mt-3">
-          <MultipleSelectList
-            setSelected={(val) => setSelectedPermissions(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Permissions"
-            search={false}
-            searchPlaceholder="Search..."
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            searchicon={<Search size={16} color="#1C1C1C" />}
-            closeicon={<X size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            onSelect={() => {}}
-            label="Permissions"
-            boxStyles={{
-              backgroundColor: "#fff",
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 15 : 13,
-              paddingBottom: Platform.OS === "ios" ? 16 : 16,
-              alignItems: "center",
-              marginBottom: 2,
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              transition: "all 0.1s ease",
-            }}
-            badgeStyles={{
-              backgroundColor: "#1B78B9",
-              paddingHorizontal: 12,
-              paddingBottom: 6.5,
-              borderWidth: 0,
-            }}
-          />
-        </View>
-        <View className="mt-2.5">
-          <SelectList
-            setSelected={(val) => setSelectedStatus(val)}
-            data={role}
-            save="value"
-            fontFamily="Manrope-Medium"
-            placeholder="Status"
-            search={false}
-            arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
-            placeholderTextColor="#1B78B9"
-            boxStyles={{
-              backgroundColor: "#fff",
-              height: 54,
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingTop: Platform.OS === "ios" ? 12 : 10,
-              alignItems: "center",
-            }}
-            inputStyles={{
-              color: "#1C1C1C",
-              paddingHorizontal: 0,
-              fontSize: 15,
-            }}
-            dropdownStyles={{
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderColor: "#EDEDED",
-              borderRadius: 12,
-              transition: "all 0.1s ease",
-            }}
-          />
-        </View>
-      </ScrollView>
-      <View className="p-4 bg-white">
-        <CustomButton title="Add Member" onPress={() => router.push("/")} />
-      </View>
+        </ScrollView>
+      </AppContainer>
     </SafeAreaView>
   );
 };
