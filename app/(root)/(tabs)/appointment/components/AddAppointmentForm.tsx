@@ -102,12 +102,12 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
 
     return (
       values.titleOfMeeting.trim() !==
-        (initialData?.titleOfMeeting || "").trim() ||
+      (initialData?.titleOfMeeting || "").trim() ||
       values.notes.trim() !== (initialData?.notes || "").trim() ||
       values.selectedClient !== initialData?.selectedClient ||
       values.status !== initialData?.status ||
       selectedDate?.toISOString() !==
-        initialData?.selectedDate?.toISOString() ||
+      initialData?.selectedDate?.toISOString() ||
       currentMemberIds.length !== initialMemberIds.length ||
       !currentMemberIds.every((id) => initialMemberIds.includes(id))
     );
@@ -191,7 +191,6 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           appointment_member: memberActions.length > 0 ? memberActions : [],
           is_add_in_google_calendar: isAppointmentAdded,
         };
-        console.log("updating:", updatePayload);
         await clientRepo.updateAppointment(
           Number(appointmentId),
           updatePayload

@@ -5,30 +5,12 @@ import { SafeAreaView, ScrollView } from "react-native";
 import { vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
-import * as DocumentPicker from "expo-document-picker";
-import { Accessibility, Upload } from "lucide-react-native";
+import { Upload } from "lucide-react-native";
 import { useMutation } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
 import { useFocusEffect } from "@react-navigation/native";
-
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "video/mp4",
-  "application/pdf",
-  "text/plain",
-];
-
-const ALLOWED_EXTENSIONS = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".gif",
-  ".mp4",
-  ".pdf",
-  ".txt",
-];
+import { getExtFromUri, pickDocument, showErrorAlert } from "@/utils";
+import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {
   id?: number;
@@ -43,12 +25,13 @@ type MediaItem = {
 
 const Media: React.FC = () => {
   const clientRepo = ClientRepository.getInstance();
-  const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const { clientId } = useLocalSearchParams();
   const navigation = useNavigation();
   const id = Number(clientId);
+
+  const { uploadAsync } = useUpload()
 
   const fetchClientMedia = useCallback(async () => {
     try {
@@ -92,25 +75,6 @@ const Media: React.FC = () => {
     { images: [], videos: [], documents: [] }
   );
 
-  const uploadMediaMutation = useMutation(async (file: { uri: string; type: string; name?: string }) => {
-    const formData = new FormData();
-    formData.append("files", {
-      uri: file.uri,
-      type: file.type,
-      name: file.name,
-    } as any);
-    const response = await clientRepo.uploadMedia(formData);
-
-    if (!response.data || response.data.length === 0) {
-      throw new Error("Upload failed: Server returned no data.");
-    }
-
-    return {
-      url: response.data[0].filename,
-      mimeType: file.type,
-    };
-  });
-
   const saveMediaMutation = useMutation(async (mediaItems: MediaItem[]) => {
     const payload = {
       files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
@@ -126,52 +90,30 @@ const Media: React.FC = () => {
 
   const pickMedia = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({ type: "*/*", multiple: true });
-
-      if (result.canceled || !result.assets) return;
-
-      const validFiles = result.assets.filter((file) => {
-        const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
-        const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) => file.name?.toLowerCase().endsWith(ext));
-        return mimeTypeAllowed && extensionAllowed;
-      });
-
-      if (validFiles.length === 0) {
-        Alert.alert("Invalid File", "Only supported images, videos, PDFs, and text files are allowed.");
-        return;
+      const resp = await pickDocument(true, { type: "*/*" })
+      if (!resp.isSuccess) {
+        showErrorAlert(resp.error)
+        return
       }
-
       setIsUploading(true);
-
-      const uploadedMediaItems = await Promise.all(
-        validFiles.map(async (file) => {
-          const response = await uploadMediaMutation.mutateAsync({
-            uri: file.uri,
-            type: file.mimeType || "application/octet-stream",
-            name: file.name,
-          });
-
-          if (!response || !response.url) {
-            console.warn("Invalid upload response for file:", file.name);
-            throw new Error("Upload failed for file: " + file.name);
-          }
-
-          return {
-            url: response.url,
-            mimeType: file.mimeType!,
+      const uploadedMediaItems = []
+      for (const file of resp.result) {
+        const res = await uploadAsync(file)
+        if (res.isSuccess) {
+          uploadedMediaItems.push({
+            url: res.result,
+            mimeType: file.type,
             clientId: id,
             ownerId: id,
             ownerType: "client",
-          };
-        })
-      );
-
+          })
+        }
+      }
       await saveMediaMutation.mutateAsync(uploadedMediaItems);
       fetchClientMedia();
+      setIsUploading(false);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to upload media. Please try again.");
-      console.error("Upload Media Error:", error);
-    } finally {
+      showErrorAlert(error?.message)
       setIsUploading(false);
     }
   };

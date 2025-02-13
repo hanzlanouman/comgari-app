@@ -7,12 +7,8 @@ import {
   View,
   TouchableWithoutFeedback,
   Keyboard,
-  StyleSheet,
   Text,
   Alert,
-  ActivityIndicator,
-  Modal,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import {
@@ -23,9 +19,9 @@ import {
 import { CustomButton } from "@/common/components";
 import { router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
-import { InsertLinkModal}  from "../components/InsertLinkModal";
+import { InsertLinkModal } from "../components/InsertLinkModal";
 
-const handleHead = ({ tintColor }) => (
+const handleHead = ({ tintColor }: { tintColor: string }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
 
@@ -34,8 +30,6 @@ const Brief = () => {
   const richText = useRef(null);
 
   const [content, setContent] = useState<string>("");
-  const [initialContent, setInitialContent] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMutating, setIsMutating] = useState<boolean>(false);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(true);
   const [isLinkModalVisible, setIsLinkModalVisible] = useState(false);
@@ -47,26 +41,18 @@ const Brief = () => {
   useEffect(() => {
     const fetchBrief = async () => {
       if (!id) {
-        setIsLoading(false);
         return;
       }
 
       try {
-        setIsLoading(true);
-
         const response = await clientRepo.getBrief(Number(id));
 
         if (response.brief) {
           const briefText = response.brief;
-          const plainText = briefText.replace(/<[^>]+>/g, "");
-          console.log("this",plainText)
           setContent(briefText);
-          setInitialContent(plainText);
-
           setIsCreateMode(false);
         } else {
           setContent("");
-          setInitialContent(null);
           setIsCreateMode(true);
         }
       } catch (error) {
@@ -75,10 +61,7 @@ const Brief = () => {
           error.message || "Unable to fetch brief"
         );
         setContent("");
-        setInitialContent(null);
         setIsCreateMode(true);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -103,12 +86,10 @@ const Brief = () => {
         await clientRepo.createBrief(payload);
         router.push(`/(root)/(tabs)/clients/${id}`);
       } else {
-        console.log("brief update payload", payload);
         await clientRepo.createBrief(payload);
         router.push(`/(root)/(tabs)/clients/${id}`);
       }
 
-      setInitialContent(content);
       setIsCreateMode(false);
       Alert.alert("Success", "Brief saved successfully");
     } catch (error) {
@@ -144,28 +125,12 @@ const Brief = () => {
     setLinkText("");
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center">
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   );
-  // }
-
-  // if (isMutating) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center">
-  //       <Text>Saving brief...</Text>
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   );
-  // }
-
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
         <RichToolbar
           editor={richText}
           actions={[
@@ -195,9 +160,7 @@ const Brief = () => {
             }
           }}
         />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <RichEditor
             ref={richText}
             initialHeight={45}
@@ -211,22 +174,16 @@ const Brief = () => {
             onChange={handleContentChange}
             onBlur={() => Keyboard.dismiss()}
           />
-        </KeyboardAvoidingView>
-      </ScrollView>
-
-
-
-
-      <View className="p-4 bg-white flex-row gap-2">
-        <View className="flex-1">
-          <CustomButton
-            title={isCreateMode ? "Create" : "Update"}
-            onPress={handleSave}
-            disabled={isMutating}
-          />
-        </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <View className="p-4 bg-white">
+        <CustomButton
+          title={isCreateMode ? "Create" : "Update"}
+          onPress={handleSave}
+          disabled={isMutating}
+        />
       </View>
-            <InsertLinkModal
+      <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}
         onInsert={handleInsertLink}
@@ -235,8 +192,7 @@ const Brief = () => {
         linkText={linkText}
         setLinkText={setLinkText}
       />
-    </SafeAreaView></TouchableWithoutFeedback>
-
+    </SafeAreaView>
   );
 };
 

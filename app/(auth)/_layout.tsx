@@ -7,11 +7,11 @@ import { route } from "@/common";
 import { useEffect } from "react";
 
 const Layout = () => {
-  const { 
-    isAuthenticated = false, 
-    isSubscribed = false 
+  const {
+    isAuthenticated = false,
+    isSubscribed = false
   } = useAppSelector((state) => state.auth ?? {});
-  console.log("isAuthenticated", isAuthenticated, "isSubscribed", isSubscribed)
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/welcome");

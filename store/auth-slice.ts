@@ -30,18 +30,15 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login(state, action: PayloadAction<LoginPayload>) {
-      console.log("Dispatching login action with payload:", action.payload);
       state.isAuthenticated = true;
       state.token = action.payload.access_token;
       state.user = action.payload.user;
     },
-
     logout(state) {
-
       state.isAuthenticated = false;
       state.token = null;
       state.user = null;
-      state.isSubscribed= false
+      state.isSubscribed = false
     },
     setToken(state, action: PayloadAction<SetTokenPayload>) {
       state.token = action.payload.access_token;
@@ -51,10 +48,21 @@ const authSlice = createSlice({
     },
     setSubscribed(state, action: PayloadAction<boolean>) {
       state.isSubscribed = action.payload;
-    }
+    },
+    updateUserProperty(state, action: PayloadAction<{
+      property: keyof TUSER;
+      value: any;
+    }>) {
+      const user = state.user
+      if (!user) {
+        return;
+      }
+      (user as any)[action.payload.property] = action.payload.value;
+      state.user = user;
+    },
   },
 });
 
-export const { login, logout, setToken, updateUserData, setSubscribed } = authSlice.actions;
+export const { login, logout, setToken, updateUserData, setSubscribed, updateUserProperty } = authSlice.actions;
 
 export default authSlice;

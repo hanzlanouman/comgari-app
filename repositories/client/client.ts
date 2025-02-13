@@ -52,7 +52,7 @@ interface IClientRepository {
   createNote(payload: CreateNotePayload): Promise<TReponse>;
   createAppointment(payload: CreateAppointmentPayload): Promise<TReponse>;
   getNotes(projectId: number): Promise<TReponse>;
-  getAppointment(): Promise<TReponse>; 
+  getAppointment(): Promise<TReponse>;
   updateAppointment(appointmentId: number, payload: UpdateAppointmentPayload): Promise<TReponse>;
   deleteAppointment(appointmentId: number): Promise<TReponse>;
   deleteNote(noteId: number): Promise<TReponse>;
@@ -61,7 +61,7 @@ interface IClientRepository {
   createProposal(payload: CreateProposalPayload): Promise<string>;
   getProposalsByProject(projectId: number): Promise<TReponse[]>;
   updateProposal(
-    proposalId: number, 
+    proposalId: number,
     payload: CreateProposalPayload
   ): Promise<string>;
   deleteProposal(proposalId: number): Promise<string>;
@@ -74,7 +74,7 @@ interface IClientRepository {
 export class ClientRepository implements IClientRepository {
   private static instance: ClientRepository;
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): ClientRepository {
     if (!ClientRepository.instance) {
@@ -95,7 +95,7 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
-  
+
   async getInvoices(project_id: number): Promise<any> {
     try {
       const res = await get(
@@ -107,7 +107,7 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
-  
+
   async deleteInvoice(invoice_id: number): Promise<string> {
     try {
       const res = await httpDelete(
@@ -119,7 +119,7 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
-  
+
   async updateInvoice(id: number, payload: CreateInvoicePayload): Promise<string> {
     try {
       const res = await put(
@@ -132,12 +132,12 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
-  
-   async createProposal(payload: CreateProposalPayload): Promise<string> {
+
+  async createProposal(payload: CreateProposalPayload): Promise<string> {
     try {
       const res = await post(
         `${BaseUrl}${END_POINTS.Client.CREATE_PROPOSAL.route}`,
-        payload, 
+        payload,
         { show_loader: true }
       );
       return res;
@@ -146,7 +146,7 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
-   async getProposalsByProject(projectId: number): Promise<TReponse[]> {
+  async getProposalsByProject(projectId: number): Promise<TReponse[]> {
     try {
       const res = await get(
         `${BaseUrl}${END_POINTS.Client.GET_PROPOSAL.route}/${projectId}`,
@@ -158,14 +158,14 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
-   async updateProposal(
-    proposalId: number, 
+  async updateProposal(
+    proposalId: number,
     payload: CreateProposalPayload
   ): Promise<string> {
     try {
       const res = await put(
         `${BaseUrl}${END_POINTS.Client.UPDATE_PROPOSAL.route}/${proposalId}`,
-        payload, 
+        payload,
         { show_loader: true }
       );
       return res;
@@ -174,7 +174,7 @@ export class ClientRepository implements IClientRepository {
     }
   }
 
-   async deleteProposal(proposalId: number): Promise<string> {
+  async deleteProposal(proposalId: number): Promise<string> {
     try {
       const res = await httpDelete(
         `${BaseUrl}${END_POINTS.Client.DELETE_PROPOSAL.route}/${proposalId}`,
@@ -201,7 +201,7 @@ export class ClientRepository implements IClientRepository {
   async getAppointment(): Promise<TReponse> {
     try {
       const res = await get(`${BaseUrl + END_POINTS.Client.GET_APPOINTMENT.route}`)
-      
+
       return res
     } catch (e) {
       throw getErrorMessage(e)
@@ -210,17 +210,17 @@ export class ClientRepository implements IClientRepository {
   async updateAppointment(appointmentId: number, payload: UpdateAppointmentPayload): Promise<TReponse> {
     try {
       const res: any = await put(
-        `${BaseUrl + END_POINTS.Client.UPDATE_APPOINTMENT.route}/${appointmentId}`, 
-          payload,
+        `${BaseUrl + END_POINTS.Client.UPDATE_APPOINTMENT.route}/${appointmentId}`,
+        payload,
         { show_loader: true }
       );
       return res;
     } catch (e) {
-      throw getErrorMessage(e); 
+      throw getErrorMessage(e);
     }
   }
-  
-  
+
+
   async deleteAppointment(appointmentId: number): Promise<TReponse> {
     try {
       const res: any = await httpDelete(
@@ -234,18 +234,16 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
-  
-  
-  
+
+
+
   async uploadMedia(formData: FormData): Promise<any> {
-    console.log(`${BaseUrl + END_POINTS.Client.UPLOAD.route}`, "Issue");
     try {
       const res = await postForm(
         `${BaseUrl + END_POINTS.Client.UPLOAD.route}`,
         formData
       );
 
-      console.log(res, "Response of upload Media");
       if (res?.data?.data) {
         return res.data;
       } else if (Array.isArray(res?.data)) {
@@ -287,7 +285,6 @@ export class ClientRepository implements IClientRepository {
     clientId: string,
     payload: UpdateClientPayload
   ): Promise<TReponse> {
-    console.log("Updating client payload", payload);
     try {
       const res: any = await put(
         `${BaseUrl + END_POINTS.Client.UPDATE_CLIENT.route}/${clientId}`,
@@ -437,7 +434,6 @@ export class ClientRepository implements IClientRepository {
       const res = await get(
         `${BaseUrl}${END_POINTS.Client.GET_NOTES.route}/${projectId}`
       );
-      console.log("notes fetched", res.data);
       return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);

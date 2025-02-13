@@ -10,6 +10,7 @@ import doc from "@/assets/images/doc.png";
 
 import user from "@/assets/images/user.jpg";
 import member from "@/assets/images/member.png";
+import missingImage from "@/assets/images/missing-image.jpg";
 
 
 export const images = {
@@ -23,6 +24,7 @@ export const images = {
   user,
   pdf,
   doc,
+  missingImage
 };
 
 export const onboarding = [

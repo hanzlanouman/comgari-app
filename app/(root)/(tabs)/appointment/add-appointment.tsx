@@ -14,7 +14,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 import { AppContainer } from "@/common/components";
 import { AuthRepository } from "@/repositories";
-import {GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment"
+import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment"
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
   { key: "PendingConfirmation", value: "PendingConfirmation" },
@@ -40,7 +40,7 @@ const AddAppointment = () => {
   } = useLocalSearchParams();
 
   const parsedMembers = members ? JSON.parse(members as string) : [];
-  const parsedDate = date ? new Date(date as string) : null; 
+  const parsedDate = date ? new Date(date as string) : null;
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
   const authRepo = AuthRepository.getInstance();
@@ -80,7 +80,7 @@ const AddAppointment = () => {
         key: member.Auth.id,
         value: member.Auth?.username,
       }));
-      setMemberOptions(options.length ? options : []); 
+      setMemberOptions(options.length ? options : []);
     } catch (err) {
       Alert.alert("Error", "Failed to fetch members");
     } finally {
@@ -101,8 +101,8 @@ const AddAppointment = () => {
     GoogleSignin.configure({
       webClientId:
         "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
-      iosClientId: 
-      "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com",
+      iosClientId:
+        "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com",
       offlineAccess: true,
       forceCodeForRefreshToken: true,
 
@@ -135,7 +135,6 @@ const AddAppointment = () => {
       const response = await GoogleSignin.signIn();
 
       const token = await GoogleSignin.getTokens();
-      console.log("auth code", response?.data?.serverAuthCode)
       const payload = {
         client_id:
           "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com",
@@ -145,16 +144,14 @@ const AddAppointment = () => {
         server_auth_code: response?.data?.serverAuthCode,
         idToken: response?.data?.idToken,
       };
-      console.log(response, token, "Response of Google Sign 2");
       const res = await authRepo.verifyGoogleToken(payload);
     } catch (error) {
-      console.log(error, "Google");
+      console.error(error, "Google");
     }
   };
 
   const checkOAuth = async () => {
     const checkOAuth = await authRepo.checkOAuth();
-    console.log(checkOAuth, "check");
     return checkOAuth.data;
   };
 

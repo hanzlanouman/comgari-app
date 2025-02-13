@@ -22,7 +22,7 @@ const SignUp = () => {
     return this.test('not-match-other-field', message, function (value) {
       const { path, createError } = this;
       const otherValue = this.parent[otherField];
-      
+
       return value !== otherValue || createError({ path, message });
     });
   });
@@ -100,14 +100,14 @@ const SignUp = () => {
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
             Set up your Comgari account by filling in the details below.{"\n"}
             Already have an account?{" "}
-            <Text 
-              className="text-blue" 
+            <Text
+              className="text-blue"
               onPress={() => router.push("/(auth)/sign-in")}
             >
               Log in here
             </Text>
           </Text>
-          
+
           <View className="mt-6">
             <InputField
               value={formik.values.user_name}
@@ -121,7 +121,7 @@ const SignUp = () => {
               placeholder="User Name"
             />
           </View>
-          
+
           <View className="mt-6">
             <InputField
               value={formik.values.fullName}
@@ -135,7 +135,7 @@ const SignUp = () => {
               placeholder="Full name"
             />
           </View>
-          
+
           <View className="mt-3">
             <InputField
               value={formik.values.email}
@@ -146,7 +146,7 @@ const SignUp = () => {
               keyboardType="email-address"
             />
           </View>
-          
+
           <View className="mt-3">
             <InputField
               value={formik.values.businessName}
@@ -156,7 +156,7 @@ const SignUp = () => {
               placeholder="Business name"
             />
           </View>
-          
+
           <View className="mt-3">
             <InputField
               value={formik.values.phoneNumber}
@@ -166,7 +166,7 @@ const SignUp = () => {
               placeholder="Contact number"
             />
           </View>
-          
+
           <View className="mt-3">
             <InputField
               value={formik.values.password}
@@ -177,7 +177,7 @@ const SignUp = () => {
               secureTextEntry={true}
             />
           </View>
-          
+
           <View className="mt-3">
             <InputField
               value={formik.values.confirmPassword}

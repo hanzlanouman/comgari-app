@@ -46,7 +46,7 @@ const Clients: React.FC = () => {
   const [limit] = useState(10);
 
   const user = useAppSelector((state) => state.auth.user);
-  console.log(user)
+
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
@@ -111,18 +111,16 @@ const Clients: React.FC = () => {
           clients yet!
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>
-        <View className="w-[158px] mx-auto mt-5">
-          <CustomButton
-            title="Add Client"
-            onPress={handleAddClient}
-          />
-        </View>
+          <View className="w-[158px] mx-auto mt-5">
+            <CustomButton
+              title="Add Client"
+              onPress={handleAddClient}
+            />
+          </View>
         </WithRole>
       </View>
     </View>
   );
-
-  console.log(clients)
 
   const renderClientsList = () => (
     <View className="pb-20">
@@ -145,7 +143,7 @@ const Clients: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer
-        isError={isError} 
+        isError={isError}
       >
         <ScrollView
           className="flex-1 px-5"
@@ -155,7 +153,7 @@ const Clients: React.FC = () => {
           onEndReachedThreshold={0.5}
         >
           <Text className="text-sm  text-dark-100 mt-3">
-          Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
+            Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
           </Text>
           {clients.length > 0 ? renderClientsList() : renderEmptyState()}
         </ScrollView>

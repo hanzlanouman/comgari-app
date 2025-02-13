@@ -7,7 +7,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { images, icons, getImageUrl } from "@/constants";
@@ -18,12 +17,13 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { useQuery } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
+const clientRepo = ClientRepository.getInstance();
 
 const Notes = () => {
   const { id } = useLocalSearchParams();
-  const clientId = typeof id === "string" ? parseInt(id, 10) : id;
-  const clientRepo = ClientRepository.getInstance();
+  const clientId = typeof id === "string" ? parseInt(id, 10) : id as unknown as number;
   const navigation = useNavigation();
+
   const AddButton = () => (
     <LinearGradient
       colors={["#1B78B9", "#63348F"]}
@@ -57,27 +57,17 @@ const Notes = () => {
       title: "Notes",
       headerRight: () => <AddButton />,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
+
   const {
     data: clientNotes,
-    isLoading,
-    isError,
-    error,
   } = useQuery({
     queryKey: ["clientNotes", clientId],
     queryFn: () => clientRepo.getNotes(clientId),
     enabled: !!clientId,
   });
 
-  // if (isLoading) {
-  //   return (
-  //     <SafeAreaView className="flex-1 bg-white justify-center items-center">
-  //       <ActivityIndicator size="large" color="#000" />
-  //     </SafeAreaView>
-  //   );
-  // }
-  // console.log(clientNotes)
-  // Check if we have valid data
   const hasData =
     clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
 
@@ -146,11 +136,7 @@ const Notes = () => {
             <View className="mt-8">
               <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
                 Oops! It seems there are no notes here. Start creating now!
-
-             
-                
               </Text>
-
               <View className="w-[180px] mx-auto mt-5">
                 <CustomButton
                   title="Create Note"

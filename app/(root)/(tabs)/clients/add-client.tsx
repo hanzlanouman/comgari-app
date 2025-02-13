@@ -10,7 +10,7 @@ import { OptionType, ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } fro
 import { ClientRepository } from '@/repositories/client/client';
 import { MemberRepository } from '@/repositories/member/member';
 import { useQueryClient } from 'react-query';
-import { Action} from '@/common/enum';
+import { Action } from '@/common/enum';
 
 import { CreateClientPayload, UpdateClientPayload } from '@/repositories/client/schemas';
 
@@ -38,7 +38,7 @@ const AddClient = () => {
     return ids.split(',').map(Number);
   };
   const clientUserIds = parseIds(params.clientUserIds)
-  
+
   const clientId = params.isEditing === 'true' ? Number(params.clientId) : undefined;
 
   useEffect(() => {
@@ -73,8 +73,6 @@ const AddClient = () => {
       fetchInitialData();
     }
   }, [isAuthenticated, clientId]);
-
-
 
   const clientTypeOptions: OptionType[] = CLIENT_TYPES.map((type) => ({
     key: type,
@@ -126,7 +124,6 @@ const AddClient = () => {
       if (isEditing && clientId) {
         await clientRepo.updateClient(String(clientId), payload as UpdateClientPayload);
       } else {
-        console.log("client add payload",payload)
         await clientRepo.createClient({ user: { id: user.id } }, payload as CreateClientPayload);
       }
 
@@ -154,8 +151,8 @@ const AddClient = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer>
-      <Text className="text-sm mb-6 px-4">
-      Add new team clients by filling out their details below to onboard them.
+        <Text className="text-sm mb-6 px-4">
+          Add new team clients by filling out their details below to onboard them.
 
         </Text>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">

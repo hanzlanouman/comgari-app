@@ -13,7 +13,7 @@ interface IMemberRepository {
   createMember(payload: MemberPayload): Promise<TReponse>;
   getMember(): Promise<TReponse>;
   deleteMember(id: number): Promise<TReponse>;
-  updateMember(id:number , payload: UpdateMemberPayload ): Promise<TReponse>;
+  updateMember(id: number, payload: UpdateMemberPayload): Promise<TReponse>;
   getDashboard(): Promise<TReponse>;
 }
 export class MemberRepository implements IMemberRepository {
@@ -52,33 +52,31 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
-  async deleteMember(id: number): Promise<TReponse>
-  {
+  async deleteMember(id: number): Promise<TReponse> {
     try {
       const res: any = await del(
         `${BaseUrl + END_POINTS.Member.DELETE_MEMBER.route}/${id}`,
         { show_loader: true }
       );
-            
+
       return res.data;
     } catch (e) {
-     
+
       throw getErrorMessage(e);
     }
   }
 
-  async updateMember(id:number , payload: UpdateMemberPayload ): Promise<TReponse>
-  {
+  async updateMember(id: number, payload: UpdateMemberPayload): Promise<TReponse> {
     try {
       const res: any = await put(
         `${BaseUrl + END_POINTS.Member.DELETE_MEMBER.route}/${id}`,
         payload,
         { show_loader: true }
       );
-            
+
       return res.data;
     } catch (e) {
-     
+
       throw getErrorMessage(e);
     }
   }
@@ -101,10 +99,6 @@ export class MemberRepository implements IMemberRepository {
     }
   }
   async getPermissions(): Promise<TReponse> {
-    console.log(
-      `${BaseUrl + UserUrl + END_POINTS.Member.GET_PERMISSION.route}`,
-      "Permission is"
-    );
     try {
       const res = await get(
         `${BaseUrl + END_POINTS.Member.GET_PERMISSION.route}`
@@ -115,10 +109,6 @@ export class MemberRepository implements IMemberRepository {
     }
   }
   async getUserPermissions(): Promise<TReponse> {
-    console.log(
-      `${BaseUrl + UserUrl + END_POINTS.Member.GET_USER_PERMISSION.route}`,
-      "Permission is"
-    );
     try {
       const res = await get(
         `${BaseUrl + END_POINTS.Member.GET_USER_PERMISSION.route}`

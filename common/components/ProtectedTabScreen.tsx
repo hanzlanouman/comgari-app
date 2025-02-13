@@ -16,7 +16,6 @@ const ProtectedTabScreen: React.FC<ProtectedTabScreenProps> = ({
   options,
 }) => {
   const hasPermission = false;
-  console.log(hasPermission, "Has pERMISSION");
 
   // Render the tab screen only if the user has the required permission
   return hasPermission ? <Tabs.Screen name={name} options={options} /> : null;

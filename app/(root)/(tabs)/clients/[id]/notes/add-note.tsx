@@ -18,10 +18,9 @@ import {
   RichToolbar,
 } from "react-native-pell-rich-editor";
 import { LinearGradient } from "expo-linear-gradient";
-import * as DocumentPicker from "expo-document-picker";
 
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
-import { Upload, Trash2, CloudCog } from "lucide-react-native";
+import { Upload, Trash2 } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
@@ -30,26 +29,8 @@ import { CustomButton } from "@/common/components";
 import { getImageUrl, images } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
-
-// Constants for file validation
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "video/mp4",
-  "application/pdf",
-  "text/plain",
-];
-
-const ALLOWED_EXTENSIONS = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".gif",
-  ".mp4",
-  ".pdf",
-  ".txt",
-];
+import { pickDocument, showErrorAlert, showSuccessAlert } from "@/utils";
+import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {
   id?: number;
@@ -70,9 +51,10 @@ type MediaUpdatePayload = {
 };
 
 // Custom header rendering for RichToolbar
-const handleHead = ({ tintColor }) => (
+const handleHead = ({ tintColor }: { tintColor: string }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
+
 const getMediaPreview = (mimeType: string, url: string) => {
   switch (true) {
     case mimeType.includes("pdf"):
@@ -85,18 +67,21 @@ const getMediaPreview = (mimeType: string, url: string) => {
       return { uri: getImageUrl(url) };
   }
 };
+
 const AddNote = () => {
-  const richText = useRef();
+  const richText = useRef<RichEditor>();
   const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
   const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isLinkModalVisible, setIsLinkModalVisible] = useState(false);
   const [linkURL, setLinkURL] = useState("");
   const [linkText, setLinkText] = useState("");
-  const { id, noteId, noteDetails } = useLocalSearchParams();
+  const { id, noteDetails } = useLocalSearchParams();
   const projectId = parseInt(id as string);
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
+
+  const { uploadAsync } = useUpload()
 
   const parsedNoteDetails = noteDetails
     ? JSON.parse(noteDetails as string)
@@ -109,29 +94,6 @@ const AddNote = () => {
   const imageWidth =
     (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
-  const uploadMediaMutation = useMutation({
-    mutationFn: async (file: {
-      uri: string;
-      type: string;
-      fileName?: string;
-    }) => {
-      const formData = new FormData();
-      const fileToUpload = {
-        uri: file.uri,
-        type: file.type || "image/jpeg",
-        name: file.fileName || "file.jpg",
-      } as any;
-      formData.append("files", fileToUpload);
-
-      const response = await clientRepo.uploadMedia(formData);
-      return {
-        url: response.data[0].filename,
-        mimeType: file.type || "image/jpeg",
-        localUri: file.uri,
-      };
-    },
-  });
-
   const noteMutation = useMutation({
     mutationFn: async (payload: {
       notes?: string;
@@ -142,8 +104,8 @@ const AddNote = () => {
       if (isEditMode) {
         if (payload.notes || payload.project_id) {
           await clientRepo.updateNote(parsedNoteDetails.id, {
-            notes: payload.notes,
-            project_id: payload.project_id,
+            notes: payload.notes!,
+            project_id: payload.project_id!,
           });
         }
 
@@ -153,11 +115,6 @@ const AddNote = () => {
           });
         }
       } else {
-        console.log({
-          notes: payload.notes,
-          project_id: payload.project_id,
-          client_note_media: payload.client_note_media,
-        });
         return await clientRepo.createNote({
           notes: payload.notes,
           project_id: payload.project_id,
@@ -172,19 +129,20 @@ const AddNote = () => {
       setUploadedMedia(
         parsedNoteDetails?.media && parsedNoteDetails.media.length > 0
           ? parsedNoteDetails.media.map((media) => ({
-              id: media.id,
-              url: media.url,
-              mimeType: media.mimeType,
-              localUri: getImageUrl(media.url),
-              clientId: projectId,
-              ownerId: media.ownerId,
-              ownerType: media.ownerType,
-            }))
-          : [] 
+            id: media.id,
+            url: media.url,
+            mimeType: media.mimeType,
+            localUri: getImageUrl(media.url),
+            clientId: projectId,
+            ownerId: media.ownerId,
+            ownerType: media.ownerType,
+          }))
+          : []
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, projectId]);
-  
+
   const formik = useFormik({
     initialValues: {
       notes: isEditMode && parsedNoteDetails?.notes
@@ -205,7 +163,7 @@ const AddNote = () => {
               action: "Remove",
             }))
           );
-  
+
           mediaUpdates.push(
             ...uploadedMedia
               .filter((media) => !media.id)
@@ -218,7 +176,7 @@ const AddNote = () => {
                 action: "Add",
               }))
           );
-  
+
           await noteMutation.mutateAsync({
             notes: values.notes,
             project_id: values.project_id,
@@ -231,92 +189,42 @@ const AddNote = () => {
             client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest),
           });
         }
-  
-        Alert.alert(
-          "Success",
-          isEditMode ? "Note updated successfully" : "Note created successfully"
-        );
+
+        showSuccessAlert(isEditMode ? "Note updated successfully" : "Note created successfully")
         router.push(`/clients/${id.toString()}/notes`);
-      } catch (error) {
-        Alert.alert("Error", error.message || "Failed to save note");
+      } catch (error: any) {
+        showErrorAlert(error?.message || "Failed to save note")
       }
     },
   });
-  
+
   const pickMedia = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-        multiple: true,
-      });
-
-      if (result.canceled) {
-        return;
+      const resp = await pickDocument(true, { type: "*/*" })
+      if (!resp.isSuccess) {
+        showErrorAlert(resp.error)
+        return
       }
-      if (!result.assets) {
-        return;
-      }
-
-      const validFiles = result.assets || [];
-
-      const filteredFiles = validFiles.filter((file) => {
-        const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
-        const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) =>
-          file.name.toLowerCase().endsWith(ext)
-        );
-        return mimeTypeAllowed || extensionAllowed;
-      });
-      console.log("picked files",filteredFiles )
-      if (filteredFiles.length === 0) {
-        Alert.alert(
-          "Invalid File",
-          "Only images, videos, PDFs, and text files are allowed."
-        );
-        return;
-      }
-
       setIsUploading(true);
-
       const newUploadedMediaItems: MediaItem[] = [];
-      for (const file of filteredFiles) {
-        try {
-          const formData = new FormData();
-          if (!file.uri && file.mimeType && file.name) {
-            return;
-          }
-          const fileToUpload = {
-            uri: file.uri,
-            type: file.mimeType || "image/jpeg",
-            name: file.name || "file.jpg",
-          } as any;
-          formData.append("files", fileToUpload);
-          console.log("form data to be uploaded", formData)
-          const response = await clientRepo.uploadMedia(formData);
-          if (!response) {
-            return;
-          }
-
-          const mediaItem: MediaItem = {
-            url: response?.data[0]?.filename,
-            mimeType: file.mimeType!,
+      for (const file of resp.result) {
+        const res = await uploadAsync(file)
+        if (res.isSuccess) {
+          newUploadedMediaItems.push({
+            url: res.result,
+            mimeType: file.type,
             clientId: Number(id),
-            localUri: file.uri,
-          };
-
-          newUploadedMediaItems.push(mediaItem);
-        } catch (error: any) {
-          Alert.alert("Error", `Failed to upload media: ${error.message}`);
+            localUri: getImageUrl(res.result),
+          })
         }
       }
-
-      setUploadedMedia((prevMedia) => {
+      setUploadedMedia((prevMedia: any) => {
         const updatedMedia = [...prevMedia, ...newUploadedMediaItems];
         return updatedMedia;
       });
-    } catch (error: any) {
-      Alert.alert("Error", "Failed to pick media");
-    } finally {
       setIsUploading(false);
+    } catch (error: any) {
+      showErrorAlert(error?.message)
     }
   };
 
@@ -329,7 +237,7 @@ const AddNote = () => {
         setRemovedMediaIds((prevRemovedIds) => [...prevRemovedIds, mediaToRemove.id]);
       }
 
-      return updatedMedia; 
+      return updatedMedia;
     });
   };
 
@@ -365,6 +273,7 @@ const AddNote = () => {
       title: isEditMode ? "Edit Note" : "Add Note",
       headerRight: () => <UploadButton />,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, isUploading, isEditMode]);
 
   const handleInsertLink = () => {
@@ -468,9 +377,13 @@ const AddNote = () => {
       </View>
     );
   };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
         <RichToolbar
           editor={richText}
           actions={[
@@ -508,8 +421,7 @@ const AddNote = () => {
             borderRightColor: 0,
           }}
         />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <RichEditor
             ref={richText}
             initialHeight={45}
@@ -521,32 +433,34 @@ const AddNote = () => {
               placeholderColor: "#1C1C1C",
               backgroundColor: "#ffffff",
               cssText: `
-                                body {
-                                    font-size: 16px;
-                                    padding: 3px;
-                                }
-                            `,
+                        body {
+                            font-size: 16px;
+                            padding: 3px;
+                        }
+                    `,
             }}
             placeholder="Start typing here..."
             onChange={handleContentChange}
           />
           {formik.touched.notes && formik.errors.notes && (
             <Text className="text-red-500 px-4 mt-1">
-              {formik.errors.notes}
+              {typeof formik?.errors?.notes === 'string' ?
+                formik?.errors?.notes : formik?.errors?.notes.toString()
+              }
             </Text>
           )}
-        </KeyboardAvoidingView>
 
-        <View className="p-4">
-          <View className="flex flex-row flex-wrap">
-            {uploadedMedia.map(renderMediaPreview)}
+          <View className="p-4">
+            <View className="flex flex-row flex-wrap">
+              {uploadedMedia.map(renderMediaPreview)}
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
       <View className="p-4 bg-white">
         <CustomButton
           title={isEditMode ? "Update Note" : "Add Note"}
-          onPress={formik.handleSubmit}
+          onPress={() => formik.handleSubmit()}
           disabled={isUploading}
         />
       </View>

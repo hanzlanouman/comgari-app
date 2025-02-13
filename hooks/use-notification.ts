@@ -86,10 +86,8 @@ export function useNotification(isAuthenticated: boolean) {
           })
         ).data;
 
-        console.log(token, "Notification");
         // eslint-disable-next-line
       } catch (e: any) {
-        console.log(e?.message, "Error of Firebase");
         Alert.alert("Error", e?.message || "Somthing Went Wrong");
       }
     } else {
