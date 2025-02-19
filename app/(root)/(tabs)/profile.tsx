@@ -12,8 +12,9 @@ import { logout } from "@/store";
 import { Upload, ChevronDown, ChevronUp } from "lucide-react-native";
 import { AuthRepository } from "@/repositories/auth/auth";
 import { images } from "@/constants";
-import { pickImage, showErrorAlert, updateUserProperty } from "@/utils";
+import { pickImage, showErrorAlert, showSuccessAlert, updateUserProperty } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
+import { useMutation } from "react-query";
 const authRepo = AuthRepository.getInstance();
 
 const Profile = () => {
@@ -39,6 +40,13 @@ const Profile = () => {
     //@ts-ignore
     setFullName(user?.full_name)
   }, [user])
+
+  const { mutate: deleteAccount } = useMutation({
+    mutationFn: authRepo.deleteAccount,
+    onSuccess: () => {
+      showSuccessAlert("Your will receive an email to confirm your account deletion.")
+    }
+  })
 
   const updateProfilePic = async () => {
     try {
@@ -173,6 +181,37 @@ const Profile = () => {
               <CustomButton
                 title="Change Password"
                 onPress={handleChangePassword}
+              />
+            </View>
+          )}
+        </View>
+        {/* Delete Account Section */}
+        <View className="my-6 border border-light rounded-xl">
+          <TouchableOpacity onPress={() => toggleSection("detele")}>
+            <View className="flex-row items-center justify-between p-4">
+              <Text className="text-base font-ManropeSemibold text-dark">
+                Delete Account
+              </Text>
+              {expandedSection === "detele" ? (
+                <ChevronUp size={18} className="text-dark-100" />
+              ) : (
+                <ChevronDown size={18} className="text-dark-100" />
+              )}
+            </View>
+          </TouchableOpacity>
+          {expandedSection === "detele" && (
+            <View className="border-t border-light p-4">
+              <Text className="text-base font-ManropeBold text-red mt-2">
+                Are you sure you want to delete your account?
+              </Text>
+              <Text className="text-sm font-ManropeLight text-dark mb-4 mt-1">
+                This action cannot be undone. All your data will be permanently
+                deleted. All you subscribed to will be canceled. You will not
+                be able to recover your account or subscriptions after deletion.
+              </Text>
+              <CustomButton
+                title="Delete Account"
+                onPress={() => deleteAccount()}
               />
             </View>
           )}

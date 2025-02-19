@@ -74,6 +74,10 @@ export const END_POINTS = {
       route: AuthUrl + "/update-profile-pic",
       method: "PUT",
     },
+    DELETE_ACCOUNT_EMAIL: {
+      route: AuthUrl + "/delete-account",
+      method: "DELETE",
+    }
   },
   Member: {
     GET_ROLE: {
