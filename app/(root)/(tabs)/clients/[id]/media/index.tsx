@@ -9,7 +9,7 @@ import { Upload } from "lucide-react-native";
 import { useMutation } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
 import { useFocusEffect } from "@react-navigation/native";
-import { getExtFromUri, pickDocument, showErrorAlert } from "@/utils";
+import { pickDocument, showErrorAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {

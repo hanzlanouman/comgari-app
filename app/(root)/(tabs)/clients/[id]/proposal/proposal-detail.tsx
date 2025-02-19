@@ -19,7 +19,7 @@ import {
 } from "lucide-react-native";
 import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation,router, useLocalSearchParams } from "expo-router";
+import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
@@ -32,15 +32,15 @@ import {
   BottomSheetView,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
-import {  Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
+  return date.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   });
 };
 // Create HTML template for the PDF
@@ -127,16 +127,16 @@ const createProposalTemplate = (data: any) => {
   `;
 };
 const Proposal = () => {
-  const { 
-    id, 
-    jobName, 
+  const {
+    id,
+    jobName,
     jobPhone,
     city,
     zip,
     estimatedDays,
-    clientName, 
-    clientType, 
-    address, 
+    clientName,
+    clientType,
+    address,
     date,
     clientId,
     estimatedCost,
@@ -182,19 +182,20 @@ const Proposal = () => {
     router.push({
       pathname: '(tabs)/clients/[id]/proposal/add-proposal',
       params: {
-      proposalId: id,
-      job_name: jobName,
-      job_phone: jobPhone,
-      city: city,
-      zip_code: zip,
-      estimated_days: estimatedDays, 
-      address: address, 
-      date: date,
-      client_id: clientId,
-      estimated_cost: estimatedCost,
-      project_director: projectDirector,
-      specification: specification
-  }});
+        proposalId: id,
+        job_name: jobName,
+        job_phone: jobPhone,
+        city: city,
+        zip_code: zip,
+        estimated_days: estimatedDays,
+        address: address,
+        date: date,
+        client_id: clientId,
+        estimated_cost: estimatedCost,
+        project_director: projectDirector,
+        specification: specification
+      }
+    });
   };
 
   const handleDeleteProposal = () => {
@@ -212,11 +213,11 @@ const Proposal = () => {
           onPress: async () => {
             try {
               await clientRepo.deleteProposal(Number(id));
-              
-        router.push({
-          pathname: `/(root)/(tabs)/clients/${clientId}/proposal`,
-          params: { id: clientId },
-        });
+
+              router.push({
+                pathname: `/(root)/(tabs)/clients/${clientId}/proposal`,
+                params: { id: clientId },
+              });
             } catch (error) {
               console.error('Error deleting proposal:', error);
               Alert.alert('Error', 'Failed to delete proposal');
@@ -264,7 +265,7 @@ const Proposal = () => {
     try {
       const uri = await generatePDF();
       if (!uri) return;
-  
+
       // For iOS use sharing
       if (Platform.OS === 'ios') {
         if (await Sharing.isAvailableAsync()) {
@@ -277,24 +278,24 @@ const Proposal = () => {
           return;
         }
       }
-  
+
       const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-          
+
       if (permissions.granted) {
-        const base64 = await FileSystem.readAsStringAsync(uri, { 
-          encoding: FileSystem.EncodingType.Base64 
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64
         });
-        
+
         const fileName = `proposal_${Date.now()}.pdf`;
         const mimeType = 'application/pdf';
-  
+
         await FileSystem.StorageAccessFramework.createFileAsync(
-          permissions.directoryUri, 
-          fileName, 
+          permissions.directoryUri,
+          fileName,
           mimeType
         ).then(async (newUri) => {
-          await FileSystem.writeAsStringAsync(newUri, base64, { 
-            encoding: FileSystem.EncodingType.Base64 
+          await FileSystem.writeAsStringAsync(newUri, base64, {
+            encoding: FileSystem.EncodingType.Base64
           });
           Alert.alert('Success', 'Proposal saved successfully!');
           bottomSheetModalRef.current?.close();
@@ -303,7 +304,7 @@ const Proposal = () => {
         await Sharing.shareAsync(uri);
         bottomSheetModalRef.current?.close();
       }
-  
+
     } catch (error) {
       console.error('Error downloading proposal:', error);
       Alert.alert('Error', 'Failed to download proposal. Please try again.');
@@ -375,7 +376,7 @@ const Proposal = () => {
                       className="text-dark"
                     />
                     <Text className="text-sm text-dark-100 font-ManropeMedium ml-1">
-                      {date ? formatDate(date.toString()) : 'No Date'}
+                      {date ? formatDate(date?.toString()) : 'No Date'}
                     </Text>
                   </View>
                 </View>
@@ -401,7 +402,7 @@ const Proposal = () => {
                     Job Phone
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                  {jobPhone || 'Not Specified'}
+                    {jobPhone || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -417,7 +418,7 @@ const Proposal = () => {
                     City
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                  {city || 'Not Specified'}
+                    {city || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -425,7 +426,7 @@ const Proposal = () => {
                     Zip
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                  {zip || 'Not Specified'}
+                    {zip || 'Not Specified'}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -433,7 +434,7 @@ const Proposal = () => {
                     Estimated Days
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                  {estimatedDays || 'Not Specified'}
+                    {estimatedDays || 'Not Specified'}
                   </Text>
                 </View>
               </View>
@@ -457,10 +458,10 @@ const Proposal = () => {
                   <LinearGradient
                     colors={["#1B78B9", "#63348F"]}
                     className="rounded-full w-8 h-8"
-                    start={[0, 0]} 
+                    start={[0, 0]}
                     end={[1, 1]}>
                     <TouchableOpacity
-                      
+
                       className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
                       <ArrowDownToLine size={16} color="#ffffff" />
                     </TouchableOpacity>
@@ -474,7 +475,7 @@ const Proposal = () => {
               <TouchableOpacity onPress={handleShareProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
                 <View className="flex-row items-center">
                   <TouchableOpacity
-                    
+
                     className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
                     <Share2 size={16} className="text-white" />
                   </TouchableOpacity>
@@ -484,7 +485,7 @@ const Proposal = () => {
                 </View>
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
-              <TouchableOpacity                       onPress={handleEditProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+              <TouchableOpacity onPress={handleEditProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
                 <View className="flex-row items-center">
                   <LinearGradient
                     colors={["#1B78B9", "#63348F"]}
@@ -503,7 +504,7 @@ const Proposal = () => {
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
               {/* Delete Proposal Button */}
-              <TouchableOpacity                       onPress={handleDeleteProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+              <TouchableOpacity onPress={handleDeleteProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
                 <View className="flex-row items-center">
                   <LinearGradient
                     colors={["#B72D2D", "#F29D2E"]}

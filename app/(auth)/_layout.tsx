@@ -74,10 +74,6 @@ const Layout = () => {
         name="payment-method"
         options={{ headerShown: true, title: "Choose a Payment Option" }}
       />
-      <Stack.Screen
-        name="add-card"
-        options={{ headerShown: true, title: "Link Your Card" }}
-      />
     </Stack>
   );
 };

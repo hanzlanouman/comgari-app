@@ -16,12 +16,29 @@ export type OptionType = {
   value: string;
 };
 
-export type ClientType = "Construction" | "Building" | "LandMark" ;
+export type ClientType =
+  'General_contracting' |
+  'Cleaning_services' |
+  'Landscaping' |
+  'Plumbing' |
+  'HVAC' |
+  'Power_washing' |
+  'Interior_remodel' |
+  'Exterior_remodel' |
+  'Electrical_services' |
+  'Pool_services'
 
 export const CLIENT_TYPES: ClientType[] = [
-  "Construction",
-  "Building",
-  "LandMark",
+  'General_contracting',
+  'Cleaning_services',
+  'Landscaping',
+  'Plumbing',
+  'HVAC',
+  'Power_washing',
+  'Interior_remodel',
+  'Exterior_remodel',
+  'Electrical_services',
+  'Pool_services'
 ];
 
 export enum ClientStatus {
