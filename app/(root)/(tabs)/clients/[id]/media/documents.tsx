@@ -13,7 +13,8 @@ import { ChevronRight, PencilLine, Trash2, Upload } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-import * as Sharing from 'expo-sharing';import { ClientRepository } from "@/repositories/client/client";
+import * as Sharing from 'expo-sharing';
+import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
 
 import {
@@ -24,7 +25,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
-import { Action} from '@/common/enum';
+import { Action } from '@/common/enum';
 const MediaDocuments = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -52,23 +53,23 @@ const MediaDocuments = () => {
       Alert.alert('Error', 'Document URL is missing.');
       return;
     }
-  
+
     try {
       // Validate and prepare the URL
       const fileUrl = getImageUrl(doc.url);
       const filename = `${Date.now()}_${fileUrl.split('/').pop()}`;
       const fileUri = `${FileSystem.documentDirectory}${filename}`;
-  
+
       // Show feedback to the user
       Alert.alert('Download Started', 'Your file is being downloaded.');
-  
+
       // Download the file
       const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
-  
+
       if (downloadResult.status !== 200) {
         throw new Error(`Download failed with status ${downloadResult.status}`);
       }
-  
+
       // Request Media Library permission
       const { granted } = await MediaLibrary.requestPermissionsAsync();
       if (!granted) {
@@ -78,23 +79,23 @@ const MediaDocuments = () => {
         );
         return;
       }
-  
+
       // Save the file
       const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
       await MediaLibrary.createAlbumAsync('Downloads', asset, false);
-  
+
       Alert.alert('Download Complete', 'Your file has been saved.');
     } catch (error) {
       console.error('Error downloading file:', error);
       Alert.alert('Download Failed', `Could not download the file: ${error.message}`);
     }
   };
-  
+
 
   const handleDelete = async (doc) => {
     try {
       Alert.alert(
-        'Delete Document', 
+        'Delete Document',
         'Are you sure you want to delete this document?',
         [
           {
@@ -111,7 +112,7 @@ const MediaDocuments = () => {
                   media: [{
                     prev_media_id: doc.id,
                     client_id: Number(id),
-                    owner_type: doc.owner_type || 'Client', 
+                    owner_type: doc.owner_type || 'Client',
                     owner_id: Number(id),
                     action: Action.REMOVE,
                     mimeType: doc.mimeType
@@ -120,10 +121,10 @@ const MediaDocuments = () => {
 
                 // Call update client media API for deletion
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
-              // Update local state to remove the deleted document
-              const updatedDocuments = documentItems.filter(item => item.id !== doc.id);
-              setDocumentItems(updatedDocuments);
-              bottomSheetModalRef.current?.close();
+                // Update local state to remove the deleted document
+                const updatedDocuments = documentItems.filter(item => item.id !== doc.id);
+                setDocumentItems(updatedDocuments);
+                bottomSheetModalRef.current?.close();
                 Alert.alert('Success', 'Document deleted successfully');
               } catch (apiError) {
                 console.error('Delete API Error:', apiError);
@@ -159,11 +160,11 @@ const MediaDocuments = () => {
                 onPress={() => handlePresentModalPress(doc)}
               >
                 <View className="flex-row items-center flex-1">
-                  <Image 
+                  <Image
                     source={
                       doc.mimeType.includes('pdf') ? icons.pdfIcon : icons.docIcon
-                    } 
-                    className="w-9 h-9" 
+                    }
+                    className="w-9 h-9"
                   />
                   <View className="pl-2.5">
                     <Text
@@ -190,7 +191,7 @@ const MediaDocuments = () => {
             >
               <BottomSheetView>
                 <View className="p-4 pt-2">
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
                     onPress={() => selectedDocument && handleDownload(selectedDocument)}
                   >
@@ -213,7 +214,7 @@ const MediaDocuments = () => {
                     </View>
                     <ChevronRight size={16} color="#1C1C1C" />
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
                     onPress={() => selectedDocument && handleDelete(selectedDocument)}
                   >
