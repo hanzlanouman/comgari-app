@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { Check } from "lucide-react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { images } from "@/constants";
 import { scale, vs } from "react-native-size-matters";
 import { router, useLocalSearchParams } from "expo-router";

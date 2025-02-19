@@ -46,7 +46,7 @@ const Cards: React.FC<CardsProps> = ({
     <>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
         {cards.length > 0 ? (
-          <View>
+          <View className="flex-grow flex-col gap-y-4 mt-4">
             {cards.map((card) => (
               <CardComponent
                 key={card.id}

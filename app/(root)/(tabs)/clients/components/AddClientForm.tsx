@@ -191,6 +191,7 @@ export default function AddClientForm({
 
       <View className="mt-3">
         <DropdownSelect
+          search={true}
           placeholder="Type"
           data={typeOptions}
           selectedValue={String(formik.values.type || "")}

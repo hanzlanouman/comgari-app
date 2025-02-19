@@ -16,17 +16,16 @@ import { ClientRepository } from "@/repositories/client/client";
 import { CustomButton } from "@/common/components";
 import { images } from "@/constants";
 import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import {  Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
+  return date.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   });
 };
 
@@ -144,7 +143,7 @@ const InvoicesScreen = () => {
       setIsLoading(false);
     }
   };
-  
+
 
   const handleEditInvoice = (invoice: Invoice) => {
     router.push({
@@ -173,67 +172,67 @@ const InvoicesScreen = () => {
       );
     }
   };
-// Generate PDF function
-const generateInvoicePDF = async (invoiceData) => {
-  try {
-    const html = createInvoiceTemplate(invoiceData);
-    const { uri } = await Print.printToFileAsync({
-      html,
-      base64: false
-    });
-    return uri;
-  } catch (error) {
-    console.error('Error generating invoice PDF:', error);
-    throw new Error('Failed to generate invoice PDF');
-  }
-};
+  // Generate PDF function
+  const generateInvoicePDF = async (invoiceData) => {
+    try {
+      const html = createInvoiceTemplate(invoiceData);
+      const { uri } = await Print.printToFileAsync({
+        html,
+        base64: false
+      });
+      return uri;
+    } catch (error) {
+      console.error('Error generating invoice PDF:', error);
+      throw new Error('Failed to generate invoice PDF');
+    }
+  };
 
-const handleDownloadInvoice = async (invoice) => {
-  try {
-    const uri = await generateInvoicePDF(invoice);
-    if (!uri) return;
+  const handleDownloadInvoice = async (invoice) => {
+    try {
+      const uri = await generateInvoicePDF(invoice);
+      if (!uri) return;
 
-    // For iOS use sharing
-    if (Platform.OS === 'ios') {
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Save Proposal',
-          UTI: 'com.adobe.pdf'
-        });
-        return;
+      // For iOS use sharing
+      if (Platform.OS === 'ios') {
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save Proposal',
+            UTI: 'com.adobe.pdf'
+          });
+          return;
+        }
       }
-    }
 
-    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        
-    if (permissions.granted) {
-      const base64 = await FileSystem.readAsStringAsync(uri, { 
-        encoding: FileSystem.EncodingType.Base64 
-      });
-      
-      const fileName = `invoice_${Date.now()}.pdf`;
-      const mimeType = 'application/pdf';
+      const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
 
-      await FileSystem.StorageAccessFramework.createFileAsync(
-        permissions.directoryUri, 
-        fileName, 
-        mimeType
-      ).then(async (newUri) => {
-        await FileSystem.writeAsStringAsync(newUri, base64, { 
-          encoding: FileSystem.EncodingType.Base64 
+      if (permissions.granted) {
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64
         });
-        Alert.alert('Success', 'Invoice saved successfully!');
-      });
-    } else {
-      await Sharing.shareAsync(uri);
-    }
 
-  } catch (error) {
-    console.error('Error downloading invoice:', error);
-    Alert.alert('Error', 'Failed to download invoice. Please try again.');
-  }
-};
+        const fileName = `invoice_${Date.now()}.pdf`;
+        const mimeType = 'application/pdf';
+
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          permissions.directoryUri,
+          fileName,
+          mimeType
+        ).then(async (newUri) => {
+          await FileSystem.writeAsStringAsync(newUri, base64, {
+            encoding: FileSystem.EncodingType.Base64
+          });
+          Alert.alert('Success', 'Invoice saved successfully!');
+        });
+      } else {
+        await Sharing.shareAsync(uri);
+      }
+
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      Alert.alert('Error', 'Failed to download invoice. Please try again.');
+    }
+  };
   useFocusEffect(
     React.useCallback(() => {
       fetchInvoices();
@@ -300,22 +299,22 @@ const handleDownloadInvoice = async (invoice) => {
               <Download size={23} className="text-blue" />
             </TouchableOpacity>
           </View>
-            <View className="mt-2.5">
-              <Text className="text-sm text-dark-100 font-ManropeRegular">
-                Created
-              </Text>
-              <Text className="text-base text-dark font-ManropeMedium">
-                {formatDate(invoice.createdAt)}
-              </Text>
-            </View>
-            <View className="mt-2.5">
-              <Text className="text-sm text-dark-100 font-ManropeRegular">
-                Due Date
-              </Text>
-              <Text className="text-base text-dark font-ManropeMedium">
-                {formatDate(invoice.date)}
-              </Text>
-            </View>
+          <View className="mt-2.5">
+            <Text className="text-sm text-dark-100 font-ManropeRegular">
+              Created
+            </Text>
+            <Text className="text-base text-dark font-ManropeMedium">
+              {formatDate(invoice.createdAt)}
+            </Text>
+          </View>
+          <View className="mt-2.5">
+            <Text className="text-sm text-dark-100 font-ManropeRegular">
+              Due Date
+            </Text>
+            <Text className="text-base text-dark font-ManropeMedium">
+              {formatDate(invoice.date)}
+            </Text>
+          </View>
           <View className="mt-2.5">
             <Text className="text-sm text-dark-100 font-ManropeRegular">
               Status

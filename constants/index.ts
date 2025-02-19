@@ -26,6 +26,8 @@ import noNotes from "@/assets/icons/no-notes.png";
 import pdfIcon from "@/assets/icons/pdf-icon.png";
 import docIcon from "@/assets/icons/doc-icon.png";
 
+import missingImage from "@/assets/images/missing-image.jpg";
+
 export const images = {
   onboarding1,
   onboarding2,
@@ -42,6 +44,7 @@ export const images = {
   pdf,
   doc,
   invoice,
+  missingImage
 };
 
 export const icons = {
@@ -59,23 +62,23 @@ export const icons = {
 export const onboarding = [
   {
     id: 1,
-    title: "We are ready to work with you!",
+    title: "Ready to Work With You",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
+      "Stay organized and become productive with Comgari. It helps arrange your tasks and monitor them to ensure timely meeting of deadlines, whether you work alone or in a team.",
     image: images.onboarding1,
   },
   {
     id: 2,
-    title: "We are ready to work with you!",
+    title: "Ready to Work With You",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
+      "Comgari is all set to retain a proper tracking and progress record as well as great communication features to keep your team on the same page.",
     image: images.onboarding2,
   },
   {
     id: 3,
-    title: "We are ready to work with you!",
+    title: "Ready to Work With You",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
+      "Comgari will make task management simple with real-time updates and easy-to-use features. The road to your success has always been paved, whether you are a team manager or a part of a team.",
     image: images.onboarding3,
   },
 ];
@@ -87,7 +90,7 @@ export const data = {
 export const STRIPE_PUBLIC_KEY =
   "pk_test_51QHkbfJ8znQx7EOtvChenybm3ZwHYKH7X2qAM8FkSKbvgiWrUDnXFH9ssayz0GvYbBFQKSxbsPd7QBuuxiYzNdcX0043g3oki9";
 
-export const getImageUrl = (url) => {
+export const getImageUrl = (url: string) => {
   if (environment === "development") {
     return `${BaseUrl}:3010/public/${url}`;
   } else {
