@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { get, post, put } from "@/common/api";
+import { del, get, post, put } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
 import { ApiReponse } from "@/common/types";
@@ -32,6 +32,7 @@ interface IAuthRepository {
     authResponse: TLoginResponse
   ): Promise<TReponse>;
   verifyGoogleToken(payload: any): Promise<TReponse>;
+  deleteAccount(): Promise<TReponse>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -212,6 +213,18 @@ export class AuthRepository implements IAuthRepository {
 
       return res;
     } catch (e: any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+
+  async deleteAccount(): Promise<TReponse> {
+    try {
+      const res = await del(
+        `${BaseUrl + END_POINTS.AUTH.DELETE_ACCOUNT_EMAIL.route}`,
+        { show_loader: true }
+      );
+      return res;
+    } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
     }
   }
