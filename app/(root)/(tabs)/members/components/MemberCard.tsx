@@ -1,6 +1,6 @@
 import { View, Text, Image, Platform } from "react-native";
 import React from "react";
-import { images } from "@/common";
+import { images } from "@/constants";
 import { vs } from "react-native-size-matters";
 import { TMember } from "../members";
 const getRoleName = (roleId: number | undefined) => {

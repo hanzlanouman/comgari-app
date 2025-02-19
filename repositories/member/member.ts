@@ -2,8 +2,8 @@
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
 import { getErrorMessage } from "@/common/utils";
-import { get, post, put, del, postForm } from "@/common/api";
-import { BaseUrl, UserUrl } from "@/common";
+import { get, post, put, del } from "@/common/api";
+import { BaseUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
 import { MemberPayload, UpdateMemberPayload } from "./schemas";
 

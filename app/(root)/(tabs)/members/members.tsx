@@ -78,6 +78,7 @@ const Members = () => {
   });
 
   const handleMemberPress = useCallback((member: TMember) => {
+    console.log(member)
     setSelectedMember(member);
     actionModalRef.current?.present();
   }, []);

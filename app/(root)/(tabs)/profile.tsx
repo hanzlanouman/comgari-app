@@ -4,7 +4,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
   ScrollView,
 } from "react-native";
 import { AppImage, CustomButton, InputField } from "@/common/components";
