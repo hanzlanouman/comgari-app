@@ -33,7 +33,13 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.comgari",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -50,7 +56,24 @@
       "expo-router",
       "expo-font",
       [
-        "expo-document-picker"
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Comgari needs access to your photos to let you upload your profile picture, media and notes images."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Comgari needs access to your photos to let you upload your profile picture, media and notes images.",
+          "savePhotosPermission": "Comgari needs access to save invoices and proposals to your device.",
+          "isAccessMediaLocationEnabled": true
+        }
       ],
       "@config-plugins/react-native-blob-util"
     ],
@@ -64,6 +87,7 @@
       "eas": {
         "projectId": "aceacd83-9f20-4549-a495-bb267de1ca07"
       }
-    }
+    },
+    "owner": "carsen-fredricks"
   }
 }
