@@ -1,6 +1,6 @@
 import { View } from "react-native";
 
-const ProgressBar = ({ progress }) => {
+export const ProgressBar = ({ progress }) => {
   return (
     <View className="bg-gray-dark w-full h-2 rounded-lg">
       <View

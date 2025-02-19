@@ -5,7 +5,6 @@ import {
   View,
   Text,
   Image,
-  TouchableOpacity,
 } from "react-native";
 import { useQuery } from "react-query";
 import { scale, vs } from "react-native-size-matters";

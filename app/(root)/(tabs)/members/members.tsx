@@ -1,16 +1,14 @@
 //app\(root)\(tabs)\members\members.tsx
 import {
   SafeAreaView,
-  ScrollView,
   View,
   Text,
   Image,
   TouchableOpacity,
-  Platform,
   FlatList,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
-import { images } from "@/common";
+import { images } from "@/constants";
 import ActionModal from "./components/ActionModal";
 import { router } from "expo-router";
 import { AppContainer, CustomButton } from "@/common/components";
@@ -80,7 +78,6 @@ const Members = () => {
   });
 
   const handleMemberPress = useCallback((member: TMember) => {
-    console.log(member)
     setSelectedMember(member);
     actionModalRef.current?.present();
   }, []);

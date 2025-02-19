@@ -8,6 +8,8 @@ export const CustomButton = ({
   onPress,
   title,
   className,
+  IconRight,
+  iconSize,
   ...props
 }: ButtonProps) => {
   return (

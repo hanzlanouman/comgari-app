@@ -9,7 +9,7 @@ import {
     ImageSourcePropType
 } from 'react-native';
 
-import { images } from '../constants';
+import { images } from '@/constants';
 
 interface TAppImageProps extends ImageProps {
     remote?: string | null;

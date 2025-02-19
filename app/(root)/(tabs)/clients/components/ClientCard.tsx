@@ -3,7 +3,6 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import { CalendarDays } from "lucide-react-native";
 import { vs } from "react-native-size-matters";
 import { images, getImageUrl } from "@/constants";
-import { ProgressBar } from "@/common/components";
 
 type ClientCardProps = {
   client: {
@@ -60,7 +59,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
       year: "numeric",
     }).format(date);
   };
-  
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -104,9 +103,8 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
             key={member.id}
             source={images.user}
             resizeMode="cover"
-            className={`rounded-full border-2 border-white ${
-              index > 0 ? "relative -ml-3.5" : ""
-            }`}
+            className={`rounded-full border-2 border-white ${index > 0 ? "relative -ml-3.5" : ""
+              }`}
             style={{ width: vs(35), height: vs(35) }}
           />
         ))}
@@ -125,8 +123,8 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
           <View className="flex-row items-center ml-2">
             <CalendarDays size={18} color="#1C1C1C" />
             <Text className="text-sm font-ManropeMedium text-dark ml-2">
-            {formatDate(client.createdAt) || "Oct 05 2021"}
-           
+              {formatDate(client.createdAt) || "Oct 05 2021"}
+
             </Text>
           </View>
         </View>
