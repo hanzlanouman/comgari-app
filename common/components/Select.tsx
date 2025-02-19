@@ -12,6 +12,7 @@ interface DropdownSelectProps {
   setFieldValue: (field: string, value: any) => void;
   error?: string | boolean;
   fieldName: string;
+  search?: boolean;
 }
 
 export const DropdownSelect: React.FC<DropdownSelectProps> = ({
@@ -22,6 +23,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   setFieldValue,
   error,
   fieldName,
+  search = false,
 }) => {
   return (
     <View style={{ marginBottom: 16 }}>
@@ -32,7 +34,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         save="key"
         fontFamily="Manrope-Medium"
         placeholder={placeholder}
-        search={false}
+        search={search}
         arrowicon={<ChevronDown size={16} color="#1C1C1C" />}
         boxStyles={{
           backgroundColor: "#fff",

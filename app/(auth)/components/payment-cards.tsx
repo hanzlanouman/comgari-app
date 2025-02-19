@@ -1,7 +1,5 @@
-// CardComponent.tsx
 import React from "react";
-import { TouchableOpacity, View, Image, Text } from "react-native";
-import { scale, vs } from "react-native-size-matters"; // Assuming you're using these for scaling
+import { TouchableOpacity, View, Text } from "react-native";
 
 interface CardComponentProps {
   onPress: () => void;

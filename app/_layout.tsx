@@ -16,6 +16,7 @@ import { AlertBox, CustomButton } from "@/common/components";
 import { Text, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
+
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
     <View style={{
@@ -28,7 +29,12 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       <Text style={{
         marginBottom: 10
       }}>{error.message}</Text>
-      <CustomButton title="Try Again" onPress={retry} />
+      <View className="flex-row justify-center items-center">
+        <CustomButton
+          title="Try Again"
+          onPress={retry}
+        />
+      </View>
     </View>
   );
 }

@@ -191,7 +191,7 @@ const AddNote = () => {
         }
 
         showSuccessAlert(isEditMode ? "Note updated successfully" : "Note created successfully")
-        router.push(`/clients/${id.toString()}/notes`);
+        router.push(`/clients/${id?.toString()}/notes`);
       } catch (error: any) {
         showErrorAlert(error?.message || "Failed to save note")
       }
@@ -445,7 +445,7 @@ const AddNote = () => {
           {formik.touched.notes && formik.errors.notes && (
             <Text className="text-red-500 px-4 mt-1">
               {typeof formik?.errors?.notes === 'string' ?
-                formik?.errors?.notes : formik?.errors?.notes.toString()
+                formik?.errors?.notes : formik?.errors?.notes?.toString()
               }
             </Text>
           )}

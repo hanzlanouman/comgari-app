@@ -1,20 +1,19 @@
 //app\(root)\(tabs)\members\add-member.tsx
-import { Platform, SafeAreaView, ScrollView, View } from "react-native";
+import { SafeAreaView, ScrollView } from "react-native";
 
-import { Href, router } from "expo-router";
-import * as Yup from "yup";
+import { router } from "expo-router";
 import { useLocalSearchParams } from 'expo-router';
 
 import { useEffect, useState } from "react";
-import { AppContainer, CustomButton, InputField } from "@/common/components";
+import { AppContainer } from "@/common/components";
 import AddMemberForm from "./components/AddMemberForm";
 import { useFormik } from "formik";
 import { OptionType } from "@/common/types";
 import { MemberPayload, memberSchema, updateMemberSchema, UpdateMemberPayload } from "@/repositories/member/schemas";
 import { useMutation, useQuery } from "react-query";
 import { MemberRepository } from "@/repositories";
-import { route } from "@/common";
 import { useAppSelector } from "@/hooks/redux";
+
 enum Action {
   ADD = 'Add',
   REMOVE = 'Remove'

@@ -53,9 +53,7 @@ const Members = () => {
   const { getPermission } = useAuthorization();
   const actionModalRef = useRef<BottomSheetModal>(null);
   const hasPermission = getPermission(user!, "manage", "member");
-  const { data, isError, error, refetch } = useQuery(["member"], async () => {
-    return await MemberRepo.getMember();
-  });
+  const { data, isError, error, refetch } = useQuery(["member"], MemberRepo.getMember);
 
   const deleteMemberMutation = useMutation({
     mutationFn: () => {
@@ -82,6 +80,7 @@ const Members = () => {
   });
 
   const handleMemberPress = useCallback((member: TMember) => {
+    console.log(member)
     setSelectedMember(member);
     actionModalRef.current?.present();
   }, []);
@@ -93,7 +92,7 @@ const Members = () => {
         pathname: "/(root)/(tabs)/members/add-member",
         params: {
           isEditing: 'true',
-          memberId: selectedMember.id.toString(),
+          memberId: selectedMember.id?.toString(),
           memberData: JSON.stringify(selectedMember)
         }
       });
@@ -117,15 +116,15 @@ const Members = () => {
       setMembers(
         data?.data
           ?.map((item: any) => ({
-            id: item?.Auth?.user[0]?.id,
+            id: item?.Auth?.user?.id,
             user_name: item?.Auth?.username,
-            full_name: item?.Auth?.user[0]?.full_name,
-            image: item?.Auth?.user[0]?.avatar,
+            full_name: item?.Auth?.user?.full_name,
+            image: item?.Auth?.user?.avatar,
             phone: item?.Auth?.phone || undefined,
             email: item?.Auth?.email || '',
-            role_id: item?.Auth?.user[0]?.user_roles[0]?.role?.id || 0,
+            role_id: item?.Auth?.user?.user_roles?.role?.id || 0,
             status: item?.Auth?.status,
-            permission_ids: item?.Auth?.user?.[0]?.permission_by_user
+            permission_ids: item?.Auth?.user?.permission_by_user
               ?.map((p: any) => p?.permission?.id || p?.permissionId)
               ?.filter((id: any) => id !== undefined) || [],
           }))
