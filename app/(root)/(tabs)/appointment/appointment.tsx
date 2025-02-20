@@ -30,7 +30,7 @@ const Appointment = () => {
 
           // Extract member names
           const memberNames = appointment.appointment_member
-            .map(member => member.Auth.user[0]?.full_name || 'Unknown')
+            .map(member => member.Auth.user?.full_name || 'Unknown')
             .join(', ');
 
           acc[formattedDate].push({
@@ -69,7 +69,7 @@ const Appointment = () => {
     if (selectedAppointment) {
       const members = selectedAppointment.fullAppointmentData.appointment_member.map(member => ({
         id: member.member_id,
-        name: member.Auth.user[0]?.full_name || 'Unknown',
+        name: member.Auth.user?.full_name || 'Unknown',
       }));
       router.push({
         pathname: "/(root)/(tabs)/appointment/add-appointment",
@@ -103,7 +103,7 @@ const Appointment = () => {
           }
 
           const memberNames = appointment.appointment_member
-            .map(member => member.Auth.user[0]?.full_name || 'Unknown')
+            .map(member => member.Auth.user?.full_name || 'Unknown')
             .join(', ');
 
           const appointmentItem = {

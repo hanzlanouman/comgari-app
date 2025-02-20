@@ -14,7 +14,7 @@ import { ChevronDown, ChevronUp, Download } from "lucide-react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { CustomButton } from "@/common/components";
-import { images } from "@/constants";
+import { images, UNITS } from "@/constants";
 import * as FileSystem from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -96,7 +96,7 @@ const createInvoiceTemplate = (data) => {
         
         <div class="info-row">
           <span class="label">Total Amount:</span>
-          <span class="value amount">€${Number(data.total_amount).toFixed(2)}</span>
+          <span class="value amount">${UNITS.CURRENCY}${Number(data.total_amount).toFixed(2)}</span>
         </div>
       </body>
     </html>
@@ -269,7 +269,7 @@ const InvoicesScreen = () => {
                 {invoice.job_name}
               </Text>
               <Text className="text-sm font-ManropeSemibold text-blue">
-                €{Number(invoice.total_amount).toFixed(2)}
+                {UNITS.CURRENCY}{Number(invoice.total_amount).toFixed(2)}
               </Text>
             </View>
           </View>

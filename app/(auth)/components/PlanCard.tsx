@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity, View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient"; // Ensure you have this package installed
 import { Check } from "lucide-react-native";
+import { UNITS } from "@/constants";
 
 interface PlanCardProps {
   plan: string;
@@ -65,7 +66,7 @@ const renderCardContent = (
     </View>
     <Text
       className={`text-base sm:text-lg font-ManropeSemibold mt-2.5 ${isSelected ? "text-white" : "text-blue"}`}>
-      €{price}/m
+      {UNITS.CURRENCY}{price}/m
     </Text>
     <View className="flex-row items-center justify-between mt-4">
       <View className="flex-row items-center w-2/4">

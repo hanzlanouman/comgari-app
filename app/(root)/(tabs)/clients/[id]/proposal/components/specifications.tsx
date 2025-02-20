@@ -62,29 +62,26 @@ const Specifications = ({ initialData, onNext, onPrevious }) => {
         }}
       />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}>
-          <RichEditor
-            ref={richText}
-            initialHeight={45}
-            initialContentHTML={description}
-            editorStyle={{
-              color: "#4A4A4A",
-              placeholderColor: "#1C1C1C",
-              backgroundColor: "#ffffff",
-              cssText: `
+        <RichEditor
+          ref={richText}
+          initialHeight={45}
+          initialContentHTML={description}
+          editorStyle={{
+            color: "#4A4A4A",
+            placeholderColor: "#1C1C1C",
+            backgroundColor: "#ffffff",
+            cssText: `
                 body {
                   font-size: 16px;
                   padding: 3px;
                 }
               `,
-            }}
-            placeholder="Start typing here..."
-            onChange={(descriptionText) => {
-              setDescription(descriptionText);
-            }}
-          />
-        </KeyboardAvoidingView>
+          }}
+          placeholder="Start typing here..."
+          onChange={(descriptionText) => {
+            setDescription(descriptionText);
+          }}
+        />
       </ScrollView>
       <View className="p-4 bg-white">
         <CustomButton
@@ -98,4 +95,3 @@ const Specifications = ({ initialData, onNext, onPrevious }) => {
 
 export default Specifications;
 
-  

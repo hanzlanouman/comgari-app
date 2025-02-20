@@ -23,6 +23,7 @@ const SignupSchema = yup.object({
 
 export type SignupPayload = yup.InferType<typeof SignupSchema>;
 export { SignupSchema };
+
 const LoginSchema = yup.object().shape({
   email: yup
     .string()
@@ -81,12 +82,17 @@ const UpdateProfilePicSchema = yup.object({
   avatar: yup.string().required("Avatar URL is required"),
 });
 
+const DeleteAcountSchema = yup.object().shape({
+  password: yup.string().required("Password is required"),
+});
 
+export type TDeleteAcountSchema = yup.InferType<typeof DeleteAcountSchema>;
 export type ChangePasswordPayload = yup.InferType<typeof ChangePasswordSchema>;
 export type UpdateProfilePayload = yup.InferType<typeof UpdateProfileSchema>;
 export type UpdateProfilePicPayload = yup.InferType<typeof UpdateProfilePicSchema>;
 
 export {
+  DeleteAcountSchema,
   ChangePasswordSchema,
   UpdateProfileSchema,
   UpdateProfilePicSchema,

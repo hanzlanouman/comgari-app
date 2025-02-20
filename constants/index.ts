@@ -83,6 +83,10 @@ export const onboarding = [
   },
 ];
 
+export const UNITS = {
+  CURRENCY: '$',
+}
+
 export const data = {
   onboarding,
 };

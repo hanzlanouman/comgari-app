@@ -76,7 +76,7 @@ export const END_POINTS = {
     },
     DELETE_ACCOUNT_EMAIL: {
       route: AuthUrl + "/delete-account",
-      method: "DELETE",
+      method: "Post",
     }
   },
   Member: {
