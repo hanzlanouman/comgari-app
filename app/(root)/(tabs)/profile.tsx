@@ -15,6 +15,8 @@ import { images } from "@/constants";
 import { pickImage, showErrorAlert, showSuccessAlert, updateUserProperty } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 import { useMutation } from "react-query";
+import { TDeleteAcountSchema } from "@/repositories";
+import { useFormik } from "formik";
 const authRepo = AuthRepository.getInstance();
 
 const Profile = () => {
@@ -43,10 +45,23 @@ const Profile = () => {
 
   const { mutate: deleteAccount } = useMutation({
     mutationFn: authRepo.deleteAccount,
+    onError: (error: any) => {
+      showErrorAlert(error?.message || "Failed to delete account");
+    },
     onSuccess: () => {
-      showSuccessAlert("Your will receive an email to confirm your account deletion.")
+      dispatch(logout());
     }
   })
+
+  const deleteFormik = useFormik({
+    initialValues: {
+      password: "",
+    },
+    onSubmit: async (values: TDeleteAcountSchema) => {
+      deleteAccount(values);
+      showSuccessAlert("Account deleted successfully");
+    },
+  });
 
   const updateProfilePic = async () => {
     try {
@@ -209,9 +224,22 @@ const Profile = () => {
                 deleted. All you subscribed to will be canceled. You will not
                 be able to recover your account or subscriptions after deletion.
               </Text>
+              <View className="pb-4">
+                <InputField
+                  value={deleteFormik.values.password}
+                  onChangeText={deleteFormik.handleChange("password")}
+                  placeholder="Enter password"
+                  secureTextEntry
+                  error={
+                    deleteFormik.touched.password && deleteFormik.errors.password
+                      ? deleteFormik.errors.password
+                      : undefined
+                  }
+                />
+              </View>
               <CustomButton
                 title="Delete Account"
-                onPress={() => deleteAccount()}
+                onPress={() => deleteFormik.handleSubmit()}
               />
             </View>
           )}

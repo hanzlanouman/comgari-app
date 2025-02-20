@@ -184,58 +184,58 @@ const NoteDetails = () => {
     );
   };
   return (
-<GestureHandlerRootView style={{ flex: 1 }}>
-  <BottomSheetModalProvider>
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="px-4 mt-4">
-          {/* User Info */}
-          <View className="flex-row items-center">
-            <Image
-              source={
-                note.project?.created_by?.user[0]?.avatar
-                  ? { uri: getImageUrl(note.project.created_by.user[0].avatar) }
-                  : images.user
-              }
-              resizeMode="cover"
-              className="rounded-full"
-              style={{ width: vs(50), height: vs(50) }}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <SafeAreaView className="flex-1 bg-white">
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View className="px-4 mt-4">
+              {/* User Info */}
+              <View className="flex-row items-center">
+                <Image
+                  source={
+                    note.project?.created_by?.avatar
+                      ? { uri: getImageUrl(note.project.created_by.avatar) }
+                      : images.user
+                  }
+                  resizeMode="cover"
+                  className="rounded-full"
+                  style={{ width: vs(50), height: vs(50) }}
+                />
+                <View className="pl-4">
+                  <Text className="text-base sm:text-lg font-ManropeBold text-dark">
+                    {note.project?.created_by?.user?.full_name || "Unknown User"}
+                  </Text>
+                  <Text className="text-base font-ManropeMedium text-dark-100 mt-1">
+                    {new Date(note.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Note Content */}
+              <Text className="text-sm sm:text-base font-ManropeMedium text-dark-100 mt-4">
+                {stripHtmlTags(note.notes)}
+              </Text>
+            </View>
+
+            {/* Media Items */}
+            {note.media && note.media.length > 0 && (
+              <View className="p-4">
+                <View className="flex flex-row flex-wrap">
+                  {note.media.map(renderMediaPreview)}
+                </View>
+              </View>
+            )}
+
+            {/* Action Modal */}
+            <ActionModal
+              ref={actionModalRef}
+              onUpdate={handleUpdatePress}
+              onDelete={handleDeletePress}
             />
-            <View className="pl-4">
-              <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                {note.project?.created_by?.user[0]?.full_name || "Unknown User"}
-              </Text>
-              <Text className="text-base font-ManropeMedium text-dark-100 mt-1">
-                {new Date(note.created_at).toLocaleDateString()}
-              </Text>
-            </View>
-          </View>
-
-          {/* Note Content */}
-          <Text className="text-sm sm:text-base font-ManropeMedium text-dark-100 mt-4">
-            {stripHtmlTags(note.notes)}
-          </Text>
-        </View>
-
-        {/* Media Items */}
-        {note.media && note.media.length > 0 && (
-          <View className="p-4">
-            <View className="flex flex-row flex-wrap">
-              {note.media.map(renderMediaPreview)}
-            </View>
-          </View>
-        )}
-
-        {/* Action Modal */}
-        <ActionModal
-          ref={actionModalRef}
-          onUpdate={handleUpdatePress}
-          onDelete={handleDeletePress}
-        />
-      </ScrollView>
-    </SafeAreaView>
-  </BottomSheetModalProvider>
-</GestureHandlerRootView>
+          </ScrollView>
+        </SafeAreaView>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
 
   );
 };

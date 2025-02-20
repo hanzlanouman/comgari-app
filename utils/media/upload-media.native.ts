@@ -1,6 +1,7 @@
 import { BaseUrl, UserUrl } from '@/common'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 import { M, Media, TUploadMediaResponse } from '@/utils/media/types'
+import { Platform } from 'react-native';
 
 const postUrl = BaseUrl + UserUrl + '/upload'
 
@@ -24,7 +25,11 @@ export default async function uploadMedia(media: M, fieldName = 'files'): Promis
             name: fieldName,
             filename: m.name,
             type: m.type,
-            data: ReactNativeBlobUtil.wrap(m.uri),
+            data: ReactNativeBlobUtil.wrap(
+                Platform.OS === 'ios'
+                    ? decodeURIComponent(m.uri.replace('file://', ''))
+                    : m.uri
+            ),
         }))
     );
 

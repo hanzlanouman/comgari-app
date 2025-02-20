@@ -5,11 +5,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { MemberRepository } from "@/repositories/member/member";
 import { AppContainer } from "@/common/components";
+import { UNITS } from "@/constants";
 
 const Home = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -92,7 +92,7 @@ const Home = () => {
                     Received Amount
                   </Text>
                   <Text className="text-xl sm:text-lg text-yellow font-ManropeBold mt-1">
-                    €{dashboardData?.receivedAmount}
+                    {UNITS.CURRENCY}{dashboardData?.receivedAmount}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -102,7 +102,7 @@ const Home = () => {
                     Pending Amount
                   </Text>
                   <Text className="text-xl sm:text-lg text-blue font-ManropeBold mt-1">
-                    €{dashboardData?.pendingAmount}
+                    {UNITS.CURRENCY}{dashboardData?.pendingAmount}
                   </Text>
                 </TouchableOpacity>
               </View>

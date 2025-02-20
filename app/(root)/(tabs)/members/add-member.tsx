@@ -162,6 +162,12 @@ const AddMember = () => {
 
         updatePayload.status = values.status;
 
+        updatePayload.permission = updatePayload.permission
+          ?.filter((item: any) => item.permission_id > 0)
+
+        updatePayload.role = updatePayload.role
+          ?.filter((item: any) => item.role_id > 0)
+
         updateMutation.mutate(updatePayload, {
           onSuccess: () => {
             router.push("/(root)/(tabs)/members/members");

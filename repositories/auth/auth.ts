@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { del, get, post, put } from "@/common/api";
+import { get, post, put } from "@/common/api";
 import { END_POINTS } from "@/common/endpoints";
 import { BaseUrl } from "@/common/enviornment";
 import { ApiReponse } from "@/common/types";
@@ -12,6 +12,7 @@ import {
   UpdateProfilePicPayload,
   ResetPasswordPayload,
   SignupPayload,
+  TDeleteAcountSchema,
 } from "@/repositories/auth/schemas";
 import {
   TLoginResponse,
@@ -32,7 +33,7 @@ interface IAuthRepository {
     authResponse: TLoginResponse
   ): Promise<TReponse>;
   verifyGoogleToken(payload: any): Promise<TReponse>;
-  deleteAccount(): Promise<TReponse>;
+  deleteAccount(payload: TDeleteAcountSchema): Promise<TReponse>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -217,10 +218,11 @@ export class AuthRepository implements IAuthRepository {
     }
   }
 
-  async deleteAccount(): Promise<TReponse> {
+  async deleteAccount(payload: TDeleteAcountSchema): Promise<TReponse> {
     try {
-      const res = await del(
+      const res = await post(
         `${BaseUrl + END_POINTS.AUTH.DELETE_ACCOUNT_EMAIL.route}`,
+        payload,
         { show_loader: true }
       );
       return res;

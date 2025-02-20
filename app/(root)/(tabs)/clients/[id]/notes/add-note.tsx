@@ -380,83 +380,77 @@ const AddNote = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-        <RichToolbar
-          editor={richText}
-          actions={[
-            actions.undo,
-            actions.redo,
-            actions.setBold,
-            actions.setItalic,
-            actions.setUnderline,
-            actions.heading1,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            "customInsertLink",
-            actions.checkboxList,
-          ]}
-          iconMap={{
-            [actions.heading1]: handleHead,
-            customInsertLink: () => (
-              <TouchableOpacity onPress={openLinkModal}>
-                <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
-              </TouchableOpacity>
-            ),
+      <RichToolbar
+        editor={richText}
+        actions={[
+          actions.undo,
+          actions.redo,
+          actions.setBold,
+          actions.setItalic,
+          actions.setUnderline,
+          actions.heading1,
+          actions.insertBulletsList,
+          actions.insertOrderedList,
+          "customInsertLink",
+          actions.checkboxList,
+        ]}
+        iconMap={{
+          [actions.heading1]: handleHead,
+          customInsertLink: () => (
+            <TouchableOpacity onPress={openLinkModal}>
+              <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
+            </TouchableOpacity>
+          ),
 
-          }}
-          onPressAction={(action) => {
-            if (action === "customInsertLink") {
-              openLinkModal();
-            }
-          }}
-          style={{
+        }}
+        onPressAction={(action) => {
+          if (action === "customInsertLink") {
+            openLinkModal();
+          }
+        }}
+        style={{
+          backgroundColor: "#ffffff",
+          borderTopColor: "#EDEDED",
+          borderBottomColor: "#EDEDED",
+          borderWidth: 1,
+          borderLeftColor: 0,
+          borderRightColor: 0,
+        }}
+      />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <RichEditor
+          ref={richText}
+          initialHeight={45}
+          initialContentHTML={
+            isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ""
+          }
+          editorStyle={{
+            color: "#4A4A4A",
+            placeholderColor: "#1C1C1C",
             backgroundColor: "#ffffff",
-            borderTopColor: "#EDEDED",
-            borderBottomColor: "#EDEDED",
-            borderWidth: 1,
-            borderLeftColor: 0,
-            borderRightColor: 0,
-          }}
-        />
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <RichEditor
-            ref={richText}
-            initialHeight={45}
-            initialContentHTML={
-              isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ""
-            }
-            editorStyle={{
-              color: "#4A4A4A",
-              placeholderColor: "#1C1C1C",
-              backgroundColor: "#ffffff",
-              cssText: `
+            cssText: `
                         body {
                             font-size: 16px;
                             padding: 3px;
                         }
                     `,
-            }}
-            placeholder="Start typing here..."
-            onChange={handleContentChange}
-          />
-          {formik.touched.notes && formik.errors.notes && (
-            <Text className="text-red-500 px-4 mt-1">
-              {typeof formik?.errors?.notes === 'string' ?
-                formik?.errors?.notes : formik?.errors?.notes?.toString()
-              }
-            </Text>
-          )}
-
-          <View className="p-4">
-            <View className="flex flex-row flex-wrap">
-              {uploadedMedia.map(renderMediaPreview)}
-            </View>
+          }}
+          placeholder="Start typing here..."
+          onChange={handleContentChange}
+        />
+        {formik.touched.notes && formik.errors.notes && (
+          <Text className="text-red-500 px-4 mt-1">
+            {typeof formik?.errors?.notes === 'string' ?
+              formik?.errors?.notes : formik?.errors?.notes?.toString()
+            }
+          </Text>
+        )}
+        <View className="p-4">
+          <View className="flex flex-row flex-wrap">
+            {uploadedMedia.map(renderMediaPreview)}
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </ScrollView>
       <View className="p-4 bg-white">
         <CustomButton
           title={isEditMode ? "Update Note" : "Add Note"}
