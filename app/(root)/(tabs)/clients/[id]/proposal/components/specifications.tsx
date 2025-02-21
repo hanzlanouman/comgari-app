@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  Platform,
   ScrollView,
   View,
   Text,
-  KeyboardAvoidingView,
 } from "react-native";
 import { CustomButton } from "@/common/components";
 import {
@@ -12,6 +10,7 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const handleHead = ({ tintColor }) => (
   <Text style={{ color: tintColor }}>H1</Text>
@@ -31,7 +30,12 @@ const Specifications = ({ initialData, onNext, onPrevious }) => {
   };
 
   return (
-    <>
+    <KeyboardAwareScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ flexGrow: 1 }}
+      enableOnAndroid
+      keyboardShouldPersistTaps="handled"
+    >
       <RichToolbar
         editor={richText}
         actions={[
@@ -89,7 +93,7 @@ const Specifications = ({ initialData, onNext, onPrevious }) => {
           onPress={handleSubmit}
         />
       </View>
-    </>
+    </KeyboardAwareScrollView>
   );
 };
 

@@ -31,6 +31,7 @@ import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
 import { pickDocument, showErrorAlert, showSuccessAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type MediaItem = {
   id?: number;
@@ -380,84 +381,91 @@ const AddNote = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <RichToolbar
-        editor={richText}
-        actions={[
-          actions.undo,
-          actions.redo,
-          actions.setBold,
-          actions.setItalic,
-          actions.setUnderline,
-          actions.heading1,
-          actions.insertBulletsList,
-          actions.insertOrderedList,
-          "customInsertLink",
-          actions.checkboxList,
-        ]}
-        iconMap={{
-          [actions.heading1]: handleHead,
-          customInsertLink: () => (
-            <TouchableOpacity onPress={openLinkModal}>
-              <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
-            </TouchableOpacity>
-          ),
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        enableOnAndroid
+        keyboardShouldPersistTaps="handled"
+      >
+        <RichToolbar
+          editor={richText}
+          actions={[
+            actions.undo,
+            actions.redo,
+            actions.setBold,
+            actions.setItalic,
+            actions.setUnderline,
+            actions.heading1,
+            actions.insertBulletsList,
+            actions.insertOrderedList,
+            "customInsertLink",
+            actions.checkboxList,
+          ]}
+          iconMap={{
+            [actions.heading1]: handleHead,
+            customInsertLink: () => (
+              <TouchableOpacity onPress={openLinkModal}>
+                <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
+              </TouchableOpacity>
+            ),
 
-        }}
-        onPressAction={(action) => {
-          if (action === "customInsertLink") {
-            openLinkModal();
-          }
-        }}
-        style={{
-          backgroundColor: "#ffffff",
-          borderTopColor: "#EDEDED",
-          borderBottomColor: "#EDEDED",
-          borderWidth: 1,
-          borderLeftColor: 0,
-          borderRightColor: 0,
-        }}
-      />
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <RichEditor
-          ref={richText}
-          initialHeight={45}
-          initialContentHTML={
-            isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ""
-          }
-          editorStyle={{
-            color: "#4A4A4A",
-            placeholderColor: "#1C1C1C",
+          }}
+          onPressAction={(action) => {
+            if (action === "customInsertLink") {
+              openLinkModal();
+            }
+          }}
+          style={{
             backgroundColor: "#ffffff",
-            cssText: `
+            borderTopColor: "#EDEDED",
+            borderBottomColor: "#EDEDED",
+            borderWidth: 1,
+            borderLeftColor: 0,
+            borderRightColor: 0,
+          }}
+        />
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <RichEditor
+            ref={richText}
+            initialHeight={45}
+            initialContentHTML={
+              isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ""
+            }
+            editorStyle={{
+              color: "#4A4A4A",
+              placeholderColor: "#1C1C1C",
+              backgroundColor: "#ffffff",
+              cssText: `
                         body {
                             font-size: 16px;
                             padding: 3px;
                         }
                     `,
-          }}
-          placeholder="Start typing here..."
-          onChange={handleContentChange}
-        />
-        {formik.touched.notes && formik.errors.notes && (
-          <Text className="text-red-500 px-4 mt-1">
-            {typeof formik?.errors?.notes === 'string' ?
-              formik?.errors?.notes : formik?.errors?.notes?.toString()
-            }
-          </Text>
-        )}
-        <View className="p-4">
-          <View className="flex flex-row flex-wrap">
-            {uploadedMedia.map(renderMediaPreview)}
+            }}
+            placeholder="Start typing here..."
+            onChange={handleContentChange}
+          />
+          {formik.touched.notes && formik.errors.notes && (
+            <Text className="text-red-500 px-4 mt-1">
+              {typeof formik?.errors?.notes === 'string' ?
+                formik?.errors?.notes : formik?.errors?.notes?.toString()
+              }
+            </Text>
+          )}
+          <View className="p-4">
+            <View className="flex flex-row flex-wrap">
+              {uploadedMedia.map(renderMediaPreview)}
+            </View>
           </View>
+        </ScrollView>
+        <View className="p-4 bg-white">
+          <CustomButton
+            title={isEditMode ? "Update Note" : "Add Note"}
+            onPress={() => formik.handleSubmit()}
+            disabled={isUploading}
+          />
         </View>
-      </ScrollView>
-      <View className="p-4 bg-white">
-        <CustomButton
-          title={isEditMode ? "Update Note" : "Add Note"}
-          onPress={() => formik.handleSubmit()}
-          disabled={isUploading}
-        />
-      </View>
+      </KeyboardAwareScrollView>
       <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}

@@ -21,7 +21,7 @@
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+              "com.googleusercontent.apps.591433819621-j21up9ffi29k3hko48j3flht7ma185au"
             ]
           }
         ]
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.comgari",
+      "package": "com.comgari.app",
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -50,7 +50,7 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr"
+          "iosUrlScheme": "com.googleusercontent.apps.591433819621-j21up9ffi29k3hko48j3flht7ma185au"
         }
       ],
       "expo-router",
