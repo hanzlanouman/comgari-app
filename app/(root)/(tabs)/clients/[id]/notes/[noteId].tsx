@@ -46,6 +46,7 @@ const NoteDetails = () => {
     (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
   const handleUpdatePress = () => {
+    actionModalRef?.current?.dismiss();
     router.push({
       pathname: "/(root)/(tabs)/clients/[id]/notes/add-note",
       params: {

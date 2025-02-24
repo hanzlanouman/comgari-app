@@ -13,17 +13,19 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import { CustomButton } from "@/common/components";
-import { router, useLocalSearchParams } from "expo-router";
+import { CustomButton, HeaderButton } from "@/common/components";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../components/InsertLinkModal";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Save } from "lucide-react-native";
+import { isAndroid } from "@/utils";
 
 const handleHead = ({ tintColor }: { tintColor: string }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
 
 const Brief = () => {
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const richText = useRef(null);
 
@@ -35,6 +37,18 @@ const Brief = () => {
   const [linkText, setLinkText] = useState("");
 
   const clientRepo = ClientRepository.getInstance();
+
+  useEffect(() => {
+    if (isAndroid()) return;
+    navigation.setOptions({
+      headerRight: () => <HeaderButton
+        onPress={handleSave}
+        disabled={isMutating}
+        icon={<Save size={18} color="#ffffff" />}
+      />
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation]);
 
   useEffect(() => {
     const fetchBrief = async () => {
@@ -125,64 +139,57 @@ const Brief = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        enableOnAndroid
-        keyboardShouldPersistTaps="handled"
-      >
-        <RichToolbar
-          editor={richText}
-          actions={[
-            actions.undo,
-            actions.redo,
-            actions.setBold,
-            actions.setItalic,
-            actions.setUnderline,
-            actions.heading1,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            "customInsertLink",
-            actions.checkboxList,
+      <RichToolbar
+        editor={richText}
+        actions={[
+          actions.undo,
+          actions.redo,
+          actions.setBold,
+          actions.setItalic,
+          actions.setUnderline,
+          actions.heading1,
+          actions.insertBulletsList,
+          actions.insertOrderedList,
+          "customInsertLink",
+          actions.checkboxList,
 
-          ]}
-          iconMap={{
-            [actions.heading1]: handleHead,
-            customInsertLink: () => (
-              <TouchableOpacity onPress={openLinkModal}>
-                <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
-              </TouchableOpacity>
-            ),
+        ]}
+        iconMap={{
+          [actions.heading1]: handleHead,
+          customInsertLink: () => (
+            <TouchableOpacity onPress={openLinkModal}>
+              <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
+            </TouchableOpacity>
+          ),
+        }}
+        onPressAction={(action) => {
+          if (action === "customInsertLink") {
+            openLinkModal();
+          }
+        }}
+      />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <RichEditor
+          ref={richText}
+          initialHeight={45}
+          editorStyle={{
+            color: "#4A4A4A",
+            placeholderColor: "#1C1C1C",
+            backgroundColor: "#ffffff",
           }}
-          onPressAction={(action) => {
-            if (action === "customInsertLink") {
-              openLinkModal();
-            }
-          }}
+          initialContentHTML={content}
+          placeholder="Start typing here..."
+          onChange={handleContentChange}
+          onBlur={() => Keyboard.dismiss()}
         />
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <RichEditor
-            ref={richText}
-            initialHeight={45}
-            editorStyle={{
-              color: "#4A4A4A",
-              placeholderColor: "#1C1C1C",
-              backgroundColor: "#ffffff",
-            }}
-            initialContentHTML={content}
-            placeholder="Start typing here..."
-            onChange={handleContentChange}
-            onBlur={() => Keyboard.dismiss()}
-          />
-        </ScrollView>
-        <View className="p-4 bg-white">
-          <CustomButton
-            title={isCreateMode ? "Create" : "Update"}
-            onPress={handleSave}
-            disabled={isMutating}
-          />
-        </View>
-      </KeyboardAwareScrollView>
+      </ScrollView>
+      {isAndroid() && <View className="p-4 bg-white">
+        <CustomButton
+          title={isCreateMode ? "Create" : "Update"}
+          onPress={handleSave}
+          disabled={isMutating}
+        />
+      </View>}
       <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}

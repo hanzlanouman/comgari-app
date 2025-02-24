@@ -83,7 +83,6 @@ const Notes = () => {
         {hasData ? (
           <View className="pb-4">
             {clientNotes?.map((note) => (
-
               <TouchableOpacity
                 key={note.id}
                 onPress={() => router.push({
@@ -105,7 +104,7 @@ const Notes = () => {
                     <Image
                       source={
                         note.project?.created_by?.avatar
-                          ? { uri: getImageUrl(note.project.created_by.avatar) }
+                          ? { uri: getImageUrl(note?.project?.created_by?.user?.avatar) }
                           : images.user
                       }
                       resizeMode="cover"
@@ -113,7 +112,7 @@ const Notes = () => {
                       style={{ width: vs(30), height: vs(30) }}
                     />
                     <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
-                      {note.project?.created_by?.full_name ||
+                      {note.project?.created_by?.user?.full_name ||
                         "Unknown User"}
                     </Text>
                   </View>

@@ -1,41 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   ScrollView,
   View,
   Text,
 } from "react-native";
-import { CustomButton } from "@/common/components";
+import { CustomButton, HeaderButton } from "@/common/components";
 import {
   actions,
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { isAndroid } from "@/utils";
+import { useNavigation } from "expo-router";
+import { ArrowRight } from "lucide-react-native";
 
-const handleHead = ({ tintColor }) => (
+const handleHead = ({ tintColor }: { tintColor: string }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
 
-const Specifications = ({ initialData, onNext, onPrevious }) => {
-  const richText = React.useRef();
-  const [description, setDescription] = useState(initialData.specification || "");
+const Specifications = ({ initialData, onNext, onPrevious, currentStep }) => {
+  const navigation = useNavigation();
+  const richText = React.useRef<RichEditor>();
+  const descriptionRef = React.useRef<string>(initialData.specification || "");
 
   const handleSubmit = () => {
-    // Optional: Validate description
-    if (description.trim()) {
-      onNext({ specification: description });
+    if (descriptionRef.current.trim()) {
+      onNext({ specification: descriptionRef.current });
     } else {
       alert("Please enter specifications");
     }
   };
 
+
+  useEffect(() => {
+    if (isAndroid() || currentStep !== 2)
+      navigation.setOptions({
+        headerRight: () => <></>,
+      });
+    else
+      navigation.setOptions({
+        headerRight: () => <HeaderButton
+          onPress={handleSubmit}
+          disabled={false}
+          icon={<ArrowRight size={18} color="#ffffff" />}
+        />
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, currentStep]);
+
+  if (currentStep !== 2) return <></>;
+
   return (
-    <KeyboardAwareScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{ flexGrow: 1 }}
-      enableOnAndroid
-      keyboardShouldPersistTaps="handled"
-    >
+    <>
       <RichToolbar
         editor={richText}
         actions={[
@@ -69,7 +85,7 @@ const Specifications = ({ initialData, onNext, onPrevious }) => {
         <RichEditor
           ref={richText}
           initialHeight={45}
-          initialContentHTML={description}
+          initialContentHTML={descriptionRef.current}
           editorStyle={{
             color: "#4A4A4A",
             placeholderColor: "#1C1C1C",
@@ -83,17 +99,17 @@ const Specifications = ({ initialData, onNext, onPrevious }) => {
           }}
           placeholder="Start typing here..."
           onChange={(descriptionText) => {
-            setDescription(descriptionText);
+            descriptionRef.current = descriptionText;
           }}
         />
       </ScrollView>
-      <View className="p-4 bg-white">
+      {isAndroid() && <View className="p-4 bg-white">
         <CustomButton
           title="Next"
           onPress={handleSubmit}
         />
-      </View>
-    </KeyboardAwareScrollView>
+      </View>}
+    </>
   );
 };
 

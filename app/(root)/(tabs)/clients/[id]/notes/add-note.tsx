@@ -6,8 +6,6 @@ import {
   Text,
   Image,
   Dimensions,
-  Platform,
-  KeyboardAvoidingView,
   TouchableOpacity,
   Alert,
 } from "react-native";
@@ -17,21 +15,19 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import { LinearGradient } from "expo-linear-gradient";
 
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
-import { Upload, Trash2 } from "lucide-react-native";
+import { Upload, Trash2, Save } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
 // Import necessary constants and types
-import { CustomButton } from "@/common/components";
+import { CustomButton, HeaderButton } from "@/common/components";
 import { getImageUrl, images } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
-import { pickDocument, showErrorAlert, showSuccessAlert } from "@/utils";
+import { isAndroid, isIos, pickDocument, showErrorAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type MediaItem = {
   id?: number;
@@ -191,7 +187,6 @@ const AddNote = () => {
           });
         }
 
-        showSuccessAlert(isEditMode ? "Note updated successfully" : "Note created successfully")
         router.push(`/clients/${id?.toString()}/notes`);
       } catch (error: any) {
         showErrorAlert(error?.message || "Failed to save note")
@@ -242,37 +237,23 @@ const AddNote = () => {
     });
   };
 
-  // Upload button component
-  const UploadButton = () => (
-    <LinearGradient
-      colors={["#1B78B9", "#63348F"]}
-      style={{
-        borderRadius: 999,
-        width: 32,
-        height: 32,
-      }}
-      start={[0, 0]}
-      end={[1, 1]}>
-      <TouchableOpacity
-        onPress={pickMedia}
-        style={{
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        disabled={isUploading || noteMutation.isPending}>
-        <Upload size={18} color="#ffffff" />
-      </TouchableOpacity>
-    </LinearGradient>
-  );
-
   // Update navigation options
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
       title: isEditMode ? "Edit Note" : "Add Note",
-      headerRight: () => <UploadButton />,
+      headerRight: () => <>
+        <HeaderButton
+          disabled={isUploading || noteMutation?.isPending}
+          onPress={pickMedia}
+          icon={<Upload size={18} color="#ffffff" />}
+        />
+        {isIos() && <HeaderButton
+          onPress={() => formik.handleSubmit()}
+          disabled={isUploading}
+          icon={<Save size={18} color="#ffffff" />}
+        />}
+      </>,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, isUploading, isEditMode]);
@@ -381,91 +362,84 @@ const AddNote = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        enableOnAndroid
-        keyboardShouldPersistTaps="handled"
-      >
-        <RichToolbar
-          editor={richText}
-          actions={[
-            actions.undo,
-            actions.redo,
-            actions.setBold,
-            actions.setItalic,
-            actions.setUnderline,
-            actions.heading1,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            "customInsertLink",
-            actions.checkboxList,
-          ]}
-          iconMap={{
-            [actions.heading1]: handleHead,
-            customInsertLink: () => (
-              <TouchableOpacity onPress={openLinkModal}>
-                <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
-              </TouchableOpacity>
-            ),
+      <RichToolbar
+        editor={richText}
+        actions={[
+          actions.undo,
+          actions.redo,
+          actions.setBold,
+          actions.setItalic,
+          actions.setUnderline,
+          actions.heading1,
+          actions.insertBulletsList,
+          actions.insertOrderedList,
+          "customInsertLink",
+          actions.checkboxList,
+        ]}
+        iconMap={{
+          [actions.heading1]: handleHead,
+          customInsertLink: () => (
+            <TouchableOpacity onPress={openLinkModal}>
+              <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
+            </TouchableOpacity>
+          ),
 
-          }}
-          onPressAction={(action) => {
-            if (action === "customInsertLink") {
-              openLinkModal();
-            }
-          }}
-          style={{
+        }}
+        onPressAction={(action) => {
+          if (action === "customInsertLink") {
+            openLinkModal();
+          }
+        }}
+        style={{
+          backgroundColor: "#ffffff",
+          borderTopColor: "#EDEDED",
+          borderBottomColor: "#EDEDED",
+          borderWidth: 1,
+          borderLeftColor: 0,
+          borderRightColor: 0,
+        }}
+      />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <RichEditor
+          ref={richText}
+          initialHeight={45}
+          initialContentHTML={
+            isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ""
+          }
+          editorStyle={{
+            color: "#4A4A4A",
+            placeholderColor: "#1C1C1C",
             backgroundColor: "#ffffff",
-            borderTopColor: "#EDEDED",
-            borderBottomColor: "#EDEDED",
-            borderWidth: 1,
-            borderLeftColor: 0,
-            borderRightColor: 0,
-          }}
-        />
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <RichEditor
-            ref={richText}
-            initialHeight={45}
-            initialContentHTML={
-              isEditMode && parsedNoteDetails ? parsedNoteDetails.notes : ""
-            }
-            editorStyle={{
-              color: "#4A4A4A",
-              placeholderColor: "#1C1C1C",
-              backgroundColor: "#ffffff",
-              cssText: `
+            cssText: `
                         body {
                             font-size: 16px;
                             padding: 3px;
                         }
                     `,
-            }}
-            placeholder="Start typing here..."
-            onChange={handleContentChange}
-          />
-          {formik.touched.notes && formik.errors.notes && (
-            <Text className="text-red-500 px-4 mt-1">
-              {typeof formik?.errors?.notes === 'string' ?
-                formik?.errors?.notes : formik?.errors?.notes?.toString()
-              }
-            </Text>
-          )}
-          <View className="p-4">
-            <View className="flex flex-row flex-wrap">
-              {uploadedMedia.map(renderMediaPreview)}
-            </View>
+          }}
+          placeholder="Start typing here..."
+          onChange={handleContentChange}
+        />
+        {formik.touched.notes && formik.errors.notes && (
+          <Text className="text-red-500 px-4 mt-1">
+            {typeof formik?.errors?.notes === 'string' ?
+              formik?.errors?.notes : formik?.errors?.notes?.toString()
+            }
+          </Text>
+        )}
+        <View className="p-4">
+          <View className="flex flex-row flex-wrap">
+            {uploadedMedia.map(renderMediaPreview)}
           </View>
-        </ScrollView>
-        <View className="p-4 bg-white">
-          <CustomButton
-            title={isEditMode ? "Update Note" : "Add Note"}
-            onPress={() => formik.handleSubmit()}
-            disabled={isUploading}
-          />
         </View>
-      </KeyboardAwareScrollView>
+      </ScrollView>
+      {isAndroid() && <View className="p-4 bg-white">
+        <CustomButton
+          title={isEditMode ? "Update Note" : "Add Note"}
+          onPress={() => formik.handleSubmit()}
+          disabled={isUploading}
+        />
+      </View>}
       <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}

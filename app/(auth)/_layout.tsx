@@ -41,9 +41,9 @@ const Layout = () => {
         },
         headerShadowVisible: false,
       }}>
-      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      <Stack.Screen name="welcome" options={{ headerShown: false }} />
-      <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding" options={{ headerShown: false, headerTitle: "Welcome" }} />
+      <Stack.Screen name="welcome" options={{ headerShown: false, headerTitle: "Welcome" }} />
+      <Stack.Screen name="sign-in" options={{ headerShown: false, headerTitle: "Sign In" }} />
       <Stack.Screen
         name="forgot-password"
         options={{ headerShown: true, title: "Forgot Your Password?", headerBackTitle: "Sign In" }}

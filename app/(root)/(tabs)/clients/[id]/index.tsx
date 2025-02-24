@@ -123,43 +123,44 @@ export const options = {};
 
 const ClientDetailPage: React.FC = () => {
   const { id } = useLocalSearchParams();
-  const clientIdNum = typeof id === "string" ? parseInt(id, 10) : id;
+  const clientIdNum = typeof id === "string" ? parseInt(id, 10) : id as unknown as number;
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
   const clientRepo = ClientRepository.getInstance();
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const request: Request = {
+  const request = {
     user: {
-      id: user.id,
-      auth_id: user.authId,
+      id: user?.id,
+      auth_id: user?.authId,
     },
   };
-  const EditButton = () => (
-      <LinearGradient
-        colors={["#1B78B9", "#63348F"]}
-        style={{
-          borderRadius: 999,
-          width: 32,
-          height: 32,
-        }}
-        start={[0, 0]}
-        end={[1, 1]}>
-        <TouchableOpacity
-          onPress={() => {
-            bottomSheetRef.current?.present();
-          }}
-          style={{
-            width: "100%",
-            height: "100%",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-          <Pencil size={18} color="#ffffff" />
-        </TouchableOpacity>
 
-      </LinearGradient>
+  const EditButton = () => (
+    <LinearGradient
+      colors={["#1B78B9", "#63348F"]}
+      style={{
+        borderRadius: 999,
+        width: 32,
+        height: 32,
+      }}
+      start={[0, 0]}
+      end={[1, 1]}>
+      <TouchableOpacity
+        onPress={() => {
+          bottomSheetRef.current?.present();
+        }}
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+        <Pencil size={18} color="#ffffff" />
+      </TouchableOpacity>
+
+    </LinearGradient>
   );
 
   useEffect(() => {
@@ -169,16 +170,14 @@ const ClientDetailPage: React.FC = () => {
       headerRight: () => <EditButton />,
     });
   }, [navigation]);
+
   const {
-    data: client,
+    data,
     isError,
     isLoading,
-  } = useQuery<Client>(
+  } = useQuery(
     ["client", clientIdNum],
-    async () => {
-      const clientData = await clientRepo.getSingleClient(clientIdNum);
-      return clientData;
-    },
+    () => clientRepo.getSingleClient(clientIdNum),
     {
       enabled: !!clientIdNum && !!user && isAuthenticated,
       onError: (error) => {
@@ -187,7 +186,8 @@ const ClientDetailPage: React.FC = () => {
     }
   );
 
-  if (isLoading) {
+
+  if (isLoading || !data) {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <AppContainer isLoading={true}>
@@ -196,6 +196,8 @@ const ClientDetailPage: React.FC = () => {
       </SafeAreaView>
     );
   }
+
+  const client = data as unknown as Client
 
   if (isError || !client) {
     return (
@@ -248,62 +250,6 @@ const ClientDetailPage: React.FC = () => {
     </View>
   );
 
-  const renderClientInfo = () => {
-    if (!client) return null;
-
-    return (
-      <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
-        <View className="flex-row items-center border-b border-light pb-3.5">
-          <Image
-            source={
-              client?.logo ? { uri: getImageUrl(client.logo) } : images.user
-            }
-            resizeMode="cover"
-            className="rounded-full"
-            style={{ width: vs(45), height: vs(45) }}
-          />
-          <View className="pl-3 flex-grow">
-            <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-              {client?.name || "Unknown"}
-            </Text>
-            {client?.email && (
-              <Text className="text-sm font-ManropeMedium text-dark-100 mt-px">
-                {client.email}
-              </Text>
-            )}
-          </View>
-        </View>
-        <View className="mt-3">
-          {client?.phone && (
-            <Text className="text-base font-ManropeMedium text-dark">
-              {client.phone}
-            </Text>
-          )}
-          {client?.description && (
-            <Text className="text-sm font-ManropeMedium text-dark-100 mt-1.5">
-              {client.description}
-            </Text>
-          )}
-          <View className="flex-row items-center justify-between mt-4 border-t border-light pt-3 pb-1">
-            <View className="flex-row items-center">
-              <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-                <View className="bg-blue w-1.5 h-1.5" />
-              </View>
-              <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                {client?.type || "N/A"}
-              </Text>
-            </View>
-            <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-              <Text className="text-sm font-ManropeMedium text-green text-center">
-                {client?.status || "Unknown"}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
@@ -312,7 +258,55 @@ const ClientDetailPage: React.FC = () => {
             <ScrollView
               contentContainerStyle={{ flexGrow: 1 }}
               className="px-4 pt-2.5">
-              {renderClientInfo()}
+              {client && <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
+                <View className="flex-row items-center border-b border-light pb-3.5">
+                  <Image
+                    source={
+                      client?.logo ? { uri: getImageUrl(client.logo) } : images.user
+                    }
+                    resizeMode="cover"
+                    className="rounded-full"
+                    style={{ width: vs(45), height: vs(45) }}
+                  />
+                  <View className="pl-3 flex-grow">
+                    <Text className="text-base sm:text-lg font-ManropeBold text-dark">
+                      {client?.name || "Unknown"}
+                    </Text>
+                    {client?.email && (
+                      <Text className="text-sm font-ManropeMedium text-dark-100 mt-px">
+                        {client.email}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <View className="mt-3">
+                  {client?.phone && (
+                    <Text className="text-base font-ManropeMedium text-dark">
+                      {client.phone}
+                    </Text>
+                  )}
+                  {client?.description && (
+                    <Text className="text-sm font-ManropeMedium text-dark-100 mt-1.5">
+                      {client.description}
+                    </Text>
+                  )}
+                  <View className="flex-row items-center justify-between mt-4 border-t border-light pt-3 pb-1">
+                    <View className="flex-row items-center">
+                      <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
+                        <View className="bg-blue w-1.5 h-1.5" />
+                      </View>
+                      <Text className="text-sm font-ManropeMedium text-blue ml-2">
+                        {client?.type?.replace("_", " ") || "N/A"}
+                      </Text>
+                    </View>
+                    <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
+                      <Text className="text-sm font-ManropeMedium text-green text-center">
+                        {client?.status || "Unknown"}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>}
               <View className="flex-row flex-wrap -mx-1.5 justify-start">
                 {navigationItems.map(renderNavigationItem)}
               </View>

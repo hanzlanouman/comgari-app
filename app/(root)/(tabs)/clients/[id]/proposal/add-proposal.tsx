@@ -49,17 +49,16 @@ const AddProposal = () => {
       ),
       headerTitleAlign: "center",
     });
-  }, [navigation]); 
-  
+  }, [navigation]);
+
   useEffect(() => {
     if (isEditing) {
       setFormData((prevData) => ({
         ...prevData,
-        ...initialParams, 
+        ...initialParams,
       }));
     }
   }, [isEditing]);
-  
 
   // Mutation for creating a proposal
   const createProposalMutation = useMutation(
@@ -89,7 +88,7 @@ const AddProposal = () => {
           pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
           params: { id: formData.project_id },
         });
-        
+
       },
       onError: (error) => {
         console.error("Error updating proposal:", error);
@@ -142,44 +141,24 @@ const AddProposal = () => {
     }
   };
 
-  const renderContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <JobDetails
-            initialData={formData}
-            onNext={handleNextStep}
-          />
-        );
-      case 2:
-        return (
-          <Specifications
-            initialData={formData}
-            onNext={handleNextStep}
-            onPrevious={handlePreviousStep}
-          />
-        );
-      case 3:
-        return (
-          <Review
-            formData={formData}
-            onSave={handleSave}
-            isLoading={
-              isEditing
-                ? updateProposalMutation.isLoading
-                : createProposalMutation.isLoading
-            }
-          />
-        );
-      default:
-        return null;
-    }
-  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StepsIndicator currentStep={currentStep} steps={steps} />
-      {renderContent()}
+      {currentStep === 1 && (<JobDetails
+        initialData={formData}
+        onNext={handleNextStep}
+      />)}
+      <Specifications
+        initialData={formData}
+        onNext={handleNextStep}
+        onPrevious={handlePreviousStep}
+        currentStep={currentStep}
+      />
+      {currentStep === 3 && (<Review
+        formData={formData}
+        onSave={handleSave}
+      />)}
     </SafeAreaView>
   );
 };
