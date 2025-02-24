@@ -1,11 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   SafeAreaView,
-  Platform,
-  KeyboardAvoidingView,
   ScrollView,
   View,
-  TouchableWithoutFeedback,
   Keyboard,
   Text,
   Alert,
@@ -16,16 +13,19 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import { CustomButton } from "@/common/components";
-import { router, useLocalSearchParams } from "expo-router";
+import { CustomButton, HeaderButton } from "@/common/components";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../components/InsertLinkModal";
+import { Save } from "lucide-react-native";
+import { isAndroid } from "@/utils";
 
 const handleHead = ({ tintColor }: { tintColor: string }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
 
 const Brief = () => {
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const richText = useRef(null);
 
@@ -37,6 +37,18 @@ const Brief = () => {
   const [linkText, setLinkText] = useState("");
 
   const clientRepo = ClientRepository.getInstance();
+
+  useEffect(() => {
+    if (isAndroid()) return;
+    navigation.setOptions({
+      headerRight: () => <HeaderButton
+        onPress={handleSave}
+        disabled={isMutating}
+        icon={<Save size={18} color="#ffffff" />}
+      />
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation]);
 
   useEffect(() => {
     const fetchBrief = async () => {
@@ -171,13 +183,13 @@ const Brief = () => {
           onBlur={() => Keyboard.dismiss()}
         />
       </ScrollView>
-      <View className="p-4 bg-white">
+      {isAndroid() && <View className="p-4 bg-white">
         <CustomButton
           title={isCreateMode ? "Create" : "Update"}
           onPress={handleSave}
           disabled={isMutating}
         />
-      </View>
+      </View>}
       <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}

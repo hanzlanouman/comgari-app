@@ -54,6 +54,7 @@ const Layout = () => {
         name="[id]"
         options={{
           headerShown: false,
+          headerTitle: "Client",
         }}
       />
     </Stack>

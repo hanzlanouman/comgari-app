@@ -6,8 +6,6 @@ import {
   Text,
   Image,
   Dimensions,
-  Platform,
-  KeyboardAvoidingView,
   TouchableOpacity,
   Alert,
 } from "react-native";
@@ -17,19 +15,18 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import { LinearGradient } from "expo-linear-gradient";
 
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
-import { Upload, Trash2 } from "lucide-react-native";
+import { Upload, Trash2, Save } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
 // Import necessary constants and types
-import { CustomButton } from "@/common/components";
+import { CustomButton, HeaderButton } from "@/common/components";
 import { getImageUrl, images } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
-import { pickDocument, showErrorAlert, showSuccessAlert } from "@/utils";
+import { isAndroid, isIos, pickDocument, showErrorAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {
@@ -190,7 +187,6 @@ const AddNote = () => {
           });
         }
 
-        showSuccessAlert(isEditMode ? "Note updated successfully" : "Note created successfully")
         router.push(`/clients/${id?.toString()}/notes`);
       } catch (error: any) {
         showErrorAlert(error?.message || "Failed to save note")
@@ -241,37 +237,23 @@ const AddNote = () => {
     });
   };
 
-  // Upload button component
-  const UploadButton = () => (
-    <LinearGradient
-      colors={["#1B78B9", "#63348F"]}
-      style={{
-        borderRadius: 999,
-        width: 32,
-        height: 32,
-      }}
-      start={[0, 0]}
-      end={[1, 1]}>
-      <TouchableOpacity
-        onPress={pickMedia}
-        style={{
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        disabled={isUploading || noteMutation.isPending}>
-        <Upload size={18} color="#ffffff" />
-      </TouchableOpacity>
-    </LinearGradient>
-  );
-
   // Update navigation options
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
       title: isEditMode ? "Edit Note" : "Add Note",
-      headerRight: () => <UploadButton />,
+      headerRight: () => <>
+        <HeaderButton
+          disabled={isUploading || noteMutation?.isPending}
+          onPress={pickMedia}
+          icon={<Upload size={18} color="#ffffff" />}
+        />
+        {isIos() && <HeaderButton
+          onPress={() => formik.handleSubmit()}
+          disabled={isUploading}
+          icon={<Save size={18} color="#ffffff" />}
+        />}
+      </>,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, isUploading, isEditMode]);
@@ -451,13 +433,13 @@ const AddNote = () => {
           </View>
         </View>
       </ScrollView>
-      <View className="p-4 bg-white">
+      {isAndroid() && <View className="p-4 bg-white">
         <CustomButton
           title={isEditMode ? "Update Note" : "Add Note"}
           onPress={() => formik.handleSubmit()}
           disabled={isUploading}
         />
-      </View>
+      </View>}
       <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}

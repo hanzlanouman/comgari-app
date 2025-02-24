@@ -90,11 +90,11 @@ const Layout = () => {
         headerShown: true,
         title: "Client Briefing",
       }} />
-      <Stack.Screen name="notes/add-note" options={{ headerShown: false }} />
+      <Stack.Screen name="notes/add-note" options={{ headerShown: false, headerTitle: "Notes" }} />
       <Stack.Screen name="media/images" options={{ headerShown: true, title: "Images", }} />
       <Stack.Screen name="media/videos" options={{ headerShown: true, title: "Videos", }} />
       <Stack.Screen name="media/documents" options={{ headerShown: true, title: "Documents", }} />
-      <Stack.Screen name="proposal" options={{ headerShown: false }} />
+      <Stack.Screen name="proposal" options={{ headerShown: false, headerTitle: "Perposal" }} />
     </Stack>
   );
 };

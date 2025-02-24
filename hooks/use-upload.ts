@@ -10,6 +10,7 @@ export const useUpload = () => {
             showErrorAlert(error?.message)
         },
     })
+
     const { mutate: mutateMultiple, reset: resetMultiple, mutateAsync: mutateMutlipleAsync } = useMutation({
         mutationFn: async (media: Media[]) => uploadMedia(media, undefined, true),
         retry: 3,

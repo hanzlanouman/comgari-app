@@ -80,9 +80,9 @@ function LayoutWrapper() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(root)" options={{ headerShown: false }} />
+              <Stack.Screen name="index" options={{ headerShown: false, headerTitle: "Home" }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false, headerTitle: "Auth" }} />
+              <Stack.Screen name="(root)" options={{ headerShown: false, headerTitle: "Home" }} />
               <Stack.Screen name="+not-found" />
             </Stack>
           </BottomSheetModalProvider>

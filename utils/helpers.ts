@@ -1,3 +1,9 @@
-export const getExtFromUri = (uri: string, def: string = 'pdf'): string => {
-    return uri.split(".").pop() || def;
+import { Platform } from "react-native";
+
+export const isIos = () => {
+    return Platform.OS === 'ios';
+}
+
+export const isAndroid = () => {
+    return Platform.OS === 'android';
 }

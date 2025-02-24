@@ -33,7 +33,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
       case "LandMark":
         return { bg: "bg-yellow-100", dot: "bg-yellow", text: "text-yellow" };
       default:
-        return { bg: "bg-gray-100", dot: "bg-gray", text: "text-gray" };
+        return { bg: "bg-green-100", dot: "bg-green", text: "text-green" };
     }
   };
 
@@ -86,7 +86,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
               <Text
                 className={`text-sm font-ManropeMedium ml-2 ${categoryClasses.text}`}
               >
-                {client.category}
+                {client.category?.replaceAll("_", " ")}
               </Text>
             </View>
           )}

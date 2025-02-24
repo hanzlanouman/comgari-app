@@ -15,8 +15,8 @@ export type TAppConfig = {
   PREFIX: string;
 };
 
-export const GoogleWebClientID = "225796584741-raqg0b198t68dfolltc0osfgejoenvkr.apps.googleusercontent.com";
-export const GoogleIOSClientID = "225796584741-2c560fdrfim782p4hqek6s72rmj0kdsr.apps.googleusercontent.com";
+export const GoogleWebClientID = "591433819621-qf3bdsobv4hmetac1m7of5sc049dc087.apps.googleusercontent.com";
+export const GoogleIOSClientID = "591433819621-j21up9ffi29k3hko48j3flht7ma185au.apps.googleusercontent.com";
 
 const AppDevConfigs: Record<APP_NAMES, TAppConfig> = {
   [APP_NAMES.USER]: {
