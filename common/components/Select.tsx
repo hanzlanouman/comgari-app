@@ -29,6 +29,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
     <View style={{ marginBottom: 16 }}>
       {label && <Text className={`text-sm font-ManropMedium`}>{label}</Text>}
       <SelectList
+        defaultOption={data.find(i => i.key === selectedValue)}
         setSelected={(value: any) => setFieldValue(fieldName, value)}
         data={data}
         save="key"

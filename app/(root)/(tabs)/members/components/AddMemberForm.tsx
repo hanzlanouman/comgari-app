@@ -1,13 +1,12 @@
 //app\(root)\(tabs)\members\components\AddMemberForm.tsx
 import { View, Platform, ScrollView, Text } from "react-native";
 import React from "react";
-import { CustomButton, InputField } from "@/common/components";
+import { CustomButton, InputField, MutlitSelectWithDefault } from "@/common/components";
 import { KeyboardAvoidingView } from "react-native";
 
 import { FormikProps } from "formik";
 import { OptionType } from "@/common/types";
 import DropdownSelect from "@/common/components/Select";
-import MultiSelectDropdown from "@/common/components/MultiSelect";
 
 interface AddMemberFormProps {
   formik: FormikProps<any>;
@@ -24,6 +23,8 @@ export default function AddMemberForm({
   statusOptions,
   isEditing = false,
 }: AddMemberFormProps) {
+  const permissionTitles = permissionOptions.map((item: any) => formik.values.permission_ids?.includes(item.key) ? item.value : null).filter((item: any) => item !== null).flat();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -35,13 +36,14 @@ export default function AddMemberForm({
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <Text className="text-sm  text-dark-100 mb-6">
-        Add new team members by filling in their details below.
+          Add new team members by filling in their details below.
         </Text>
 
         <View>
           <View className="mt-2.5">
             <InputField
               label=""
+              disabled={isEditing}
               value={formik.values.user_name}
               onChangeText={formik.handleChange("user_name")}
               placeholder="Username"
@@ -69,6 +71,7 @@ export default function AddMemberForm({
           <View className="mt-3">
             <InputField
               label=""
+              disabled={isEditing}
               value={formik.values.email.toLowerCase()}
               onChangeText={formik.handleChange("email")}
               placeholder="Email"
@@ -110,21 +113,25 @@ export default function AddMemberForm({
             />
           </View>
           {formik.values.role_id === 4 && (
-          <View className="mt-3" >
-            <MultiSelectDropdown
-              placeholder="Permissions"
-              data={permissionOptions}
-              selectedValues={formik.values.permission_ids}
-              setFieldValue={formik.setFieldValue}
-              error={
-                typeof formik.errors.permission_ids == "string"
-                  ? formik.errors.permission_ids
-                  : undefined
-              }
-              fieldName="permission_ids"
-            />
-          </View>
-  )}
+            <View className="mt-3" >
+              <MutlitSelectWithDefault
+                search
+                save="key"
+                placeholder="Permissions"
+                options={permissionOptions}
+                value={formik.values.permission_ids}
+                valueTitles={permissionTitles}
+                onSelect={(val) => {
+                  formik.setFieldValue("permission_ids", val.map((item: any) => parseInt(item)))
+                }}
+                error={
+                  typeof formik.errors.permission_ids == "string"
+                    ? formik.errors.permission_ids
+                    : undefined
+                }
+              />
+            </View>
+          )}
           <View className="mt-2.5">
             <DropdownSelect
               placeholder="Status"

@@ -23,6 +23,7 @@ export const InputField = ({
   iconStyle,
   error,
   errorStyle,
+  disabled = false,
   generatePasswordIcon = false, // New prop for displaying generate password icon
   onGeneratePassword, // New function prop for generating password
   className,
@@ -54,13 +55,14 @@ export const InputField = ({
             className={`flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}>
             {icon && <View className={`ml-4 ${iconStyle}`}>{icon}</View>}
             <TextInput
-              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 ${inputStyle} text-left`}
+              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 ${inputStyle} text-left ${disabled ? 'opacity-50' : ''}`}
               secureTextEntry={isPasswordVisible}
               value={inputValue}
-              onChangeText={setInputValue}
+              onChangeText={disabled ? () => { } : setInputValue}
               {...props}
               placeholderTextColor="#4A4A4A"
               ref={ref}
+              editable={!disabled}
             />
             {secureTextEntry && (
               <TouchableOpacity
@@ -85,6 +87,13 @@ export const InputField = ({
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+  );
+};
+
+export const ErrorText = ({ error }: { error: string | undefined | null }) => {
+  if (!error) return null;
+  return (
+    <Text style={{ color: "red" }}>{error}</Text>
   );
 };
 

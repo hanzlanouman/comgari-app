@@ -46,11 +46,11 @@ const AddClient = () => {
       setIsLoading(true);
       try {
         // Fetch members
-        const { data: membersData } = await memberRepo.getMember();
+        const membersData = await memberRepo.getMemberList();
         const members = membersData || [];
         const options: OptionType[] = members.map((member) => ({
           key: member.Auth.id,
-          value: member.Auth.username || 'Unknown',
+          value: member.Auth.user.full_name || 'Unknown',
         }));
         setMemberOptions(options);
 

@@ -6,12 +6,14 @@ import { get, post, put, del } from "@/common/api";
 import { BaseUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
 import { MemberPayload, UpdateMemberPayload } from "./schemas";
+import { TMemberListResponse } from "./types";
 
 interface IMemberRepository {
   getAllRoles(): Promise<TReponse>;
   getPermissions(): Promise<TReponse>;
   createMember(payload: MemberPayload): Promise<TReponse>;
   getMember(): Promise<TReponse>;
+  getMemberList(): Promise<TMemberListResponse>;
   deleteMember(id: number): Promise<TReponse>;
   updateMember(id: number, payload: UpdateMemberPayload): Promise<TReponse>;
   getDashboard(): Promise<TReponse>;
@@ -44,10 +46,22 @@ export class MemberRepository implements IMemberRepository {
   async getMember(): Promise<TReponse> {
     try {
       const res = await get(
-        `${BaseUrl + END_POINTS.Member.CREATE_MEMBER.route}`,
+        `${BaseUrl + END_POINTS.Member.GET_MEMBER.route}`,
         { show_loader: true }
       );
       return res;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+
+  async getMemberList(): Promise<TMemberListResponse> {
+    try {
+      const res = await get(
+        `${BaseUrl + END_POINTS.Member.GET_MEMBER_LIST.route}`,
+        { show_loader: true }
+      );
+      return res.data;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
     }

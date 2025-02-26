@@ -28,6 +28,8 @@ import docIcon from "@/assets/icons/doc-icon.png";
 
 import missingImage from "@/assets/images/missing-image.jpg";
 
+import check from "@/assets/images/check.png";
+
 export const images = {
   onboarding1,
   onboarding2,
@@ -44,7 +46,8 @@ export const images = {
   pdf,
   doc,
   invoice,
-  missingImage
+  missingImage,
+  check
 };
 
 export const icons = {
@@ -92,7 +95,7 @@ export const data = {
 };
 
 export const STRIPE_PUBLIC_KEY =
-  "pk_test_51QHkbfJ8znQx7EOtvChenybm3ZwHYKH7X2qAM8FkSKbvgiWrUDnXFH9ssayz0GvYbBFQKSxbsPd7QBuuxiYzNdcX0043g3oki9";
+  "pk_test_51QQYK5G8sQYF8V0vXjymMsGlVSlVZN9kNDoQmeeBu3OsR3TD4KS1MCQ2JUTKoVtKcdQ0hm0ec0dTdrSb0YzabtQ5009pBAjnaP";
 
 export const getImageUrl = (url: string) => {
   if (environment === "development") {

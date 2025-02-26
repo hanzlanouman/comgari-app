@@ -3,7 +3,7 @@ import { Image, TextInput, TouchableOpacity, View } from "react-native";
 import { FormikProps } from "formik";
 import { Upload } from "lucide-react-native";
 import { vs } from "react-native-size-matters";
-import { InputField } from "@/common/components";
+import { InputField, MutlitSelectWithDefault } from "@/common/components";
 import { OptionType, ClientType, ClientStatus } from "@/common/types";
 import { Action } from "@/common/enum";
 import DropdownSelect from "@/common/components/Select";
@@ -115,6 +115,8 @@ export default function AddClientForm({
     }
   };
 
+  const memberTitles = memberOptions?.map((item: any) => formik.values.member_ids?.includes(item.key) ? item.value : null).filter((item: any) => item !== null).flat();
+
   return (
     <View>
       <View
@@ -175,17 +177,18 @@ export default function AddClientForm({
       </View>
 
       <View className="mt-3">
-        <MultiSelectDropdown
-          placeholder="Assign Members"
-          data={memberOptions}
-          selectedValues={formik.values.member_ids?.map(String) || []}
-          setFieldValue={handleMemberSelection}
+        <MutlitSelectWithDefault
+          placeholder="Assign Member"
+          options={memberOptions || []}
+          save="key"
+          onSelect={(val) => handleMemberSelection("member_ids", val)}
+          value={formik.values.member_ids.map((id) => String(id))}
+          valueTitles={memberTitles}
           error={
             typeof formik.errors.member_ids === "string"
               ? formik.errors.member_ids
               : undefined
           }
-          fieldName="member_ids"
         />
       </View>
 

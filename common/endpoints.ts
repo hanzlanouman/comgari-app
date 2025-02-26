@@ -100,6 +100,11 @@ export const END_POINTS = {
       method: "GET",
       description: "Get member details",
     },
+    GET_MEMBER_LIST: {
+      route: UserUrl + "/member/list",
+      method: "GET",
+      description: "Get member list",
+    },
     DELETE_MEMBER: {
       route: UserUrl + "/member",
       method: "DELETE",
