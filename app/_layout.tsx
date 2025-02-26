@@ -12,7 +12,7 @@ import { SimpleActivityIndicator } from "@/common/components/Loader";
 import { AuthorizationProvider } from "@/context/PermissionContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { AlertBox, CustomButton } from "@/common/components";
+import { AlertBox, CustomButton, ProgressBox } from "@/common/components";
 import { Text, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
@@ -76,6 +76,7 @@ function LayoutWrapper() {
     <Fragment>
       {isLoading && <SimpleActivityIndicator />}
       <AlertBox />
+      <ProgressBox />
       <AuthorizationProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>

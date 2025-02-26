@@ -16,16 +16,11 @@ const ALLOWED_TYPES = [
     "video/mp4",
     "application/pdf",
     "text/plain",
-];
-
-const ALLOWED_EXTENSIONS = [
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".gif",
-    ".mp4",
-    ".pdf",
-    ".txt",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+    "application/rtf",
+    "application/vnd.oasis.opendocument.text",
 ];
 
 export function pickDocument<TMultiple extends boolean>(mutliple: TMultiple, options?: DocumentPickerOptions): Promise<TPickerResponse<TMultiple>>
@@ -43,8 +38,7 @@ export async function pickDocument(mutliple: boolean, options?: DocumentPickerOp
         if (result.assets && result.assets.length > 0) {
             const validFiles = result.assets.filter((file) => {
                 const mimeTypeAllowed = ALLOWED_TYPES.includes(file.mimeType || "");
-                const extensionAllowed = ALLOWED_EXTENSIONS.some((ext) => file.name?.toLowerCase().endsWith(ext));
-                return mimeTypeAllowed && extensionAllowed;
+                return mimeTypeAllowed;
             });
             assets = validFiles;
         }
