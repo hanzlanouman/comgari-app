@@ -6,9 +6,7 @@ import {
   TouchableOpacity,
   Text,
   Image,
-  Dimensions,
 } from "react-native";
-import { Video } from "expo-av";
 
 import { images, getImageUrl } from "@/constants";
 import { vs } from "react-native-size-matters";
@@ -22,14 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useNavigation, router } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import ActionModal from "../../components/ActionModal";
-
-type MediaItem = {
-  id?: number;
-  url: string;
-  mimeType: string;
-  clientId: number;
-  localUri?: string;
-};
+import { AssetPreview } from "@/common/components";
 
 const NoteDetails = () => {
   const { id, noteId, noteDetails } = useLocalSearchParams();
@@ -38,12 +29,6 @@ const NoteDetails = () => {
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
   const actionModalRef = useRef<BottomSheetModal>(null);
-
-  const windowWidth = Dimensions.get("window").width;
-  const spacingBetweenImages = 16;
-  const sidePadding = 16;
-  const imageWidth =
-    (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
   const handleUpdatePress = () => {
     actionModalRef?.current?.dismiss();
@@ -100,90 +85,8 @@ const NoteDetails = () => {
     if (!html) return "";
     return html.replace(/<[^>]*>/g, '');
   };
-  const getMediaPreview = (mimeType: string, url: string) => {
-    if (!mimeType || !url) {
-      return images.pdf; // Default placeholder for missing data
-    }
-    switch (true) {
-      case mimeType.includes("pdf"):
-        return images.pdf; // Predefined icon for PDFs
-      case mimeType.includes("text"):
-        return images.doc; // Predefined icon for text files
-      case mimeType.includes("video"):
-        return { uri: url }; // Video URL for `Video` component
-      case mimeType.includes("image"):
-        return { uri: url }; // Image URL for `Image` component
-      default:
-        return images.pdf; // Fallback for unknown types
-    }
-  };
-  const renderMediaPreview = (media: MediaItem, index: number) => {
-    const isImage = media.mimeType?.includes("image");
-    const isVideo = media.mimeType?.includes("video");
-    const isPDFOrText = media.mimeType?.includes("pdf") || media.mimeType?.includes("text");
-    return (
-      <View
-        key={index}
-        style={{
-          width: imageWidth,
-          height: imageWidth,
-          marginRight: index % 3 === 2 ? 0 : spacingBetweenImages,
-          marginBottom: spacingBetweenImages,
-        }}
-        className="relative">
 
-        {isImage ? (
-          <Image
-            source={{ uri: getImageUrl(media.url) }}
-            style={{ width: "100%", height: "100%" }}
-            className="rounded-[20px]"
-            resizeMode="cover"
-          />
-        ) : isVideo ? (
-          <Video
-            source={{ uri: getImageUrl(media.url) }}
-            style={{ width: "100%", height: "100%" }}
-            className="rounded-[20px]"
-            resizeMode="cover"
-            shouldPlay={false}
-          />
-        ) : isPDFOrText ? (
-          <View
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#f3f3f3",
-              borderRadius: 20,
-            }}
-          >
-            <Image
-              source={images.pdf}
-              style={{ width: "100%", height: "100%" }}
-              className="rounded-[20px]"
-              resizeMode="contain"
-            />
-          </View>
-        ) : (
-          <View
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#f3f3f3",
-              borderRadius: 20,
-            }}
-          >
-            <Text style={{ color: "#4A4A4A", fontSize: 14, textAlign: "center" }}>
-              Unsupported File
-            </Text>
-          </View>
-        )}
-      </View>
-    );
-  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
@@ -222,7 +125,12 @@ const NoteDetails = () => {
             {note.media && note.media.length > 0 && (
               <View className="p-4">
                 <View className="flex flex-row flex-wrap">
-                  {note.media.map(renderMediaPreview)}
+                  {note.media.map((media: any, index: any) => <AssetPreview
+                    disabled={false}
+                    index={index}
+                    media={media}
+                    key={index}
+                  />)}
                 </View>
               </View>
             )}

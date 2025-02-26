@@ -4,9 +4,9 @@ import { M, Media, TUploadMediaResponse } from '@/utils/media/types'
 
 const postUrl = BaseUrl + UserUrl + '/upload'
 
-export default async function uploadMedia<TMedia extends M>(media: TMedia, fieldName?: string): Promise<TUploadMediaResponse<TMedia>>
+export default async function uploadMedia<TMedia extends M>(media: TMedia, fieldName?: string, up?: (percentage: number) => void): Promise<TUploadMediaResponse<TMedia>>
 
-export default async function uploadMedia(media: M, fieldName = 'files'): Promise<TUploadMediaResponse<M>> {
+export default async function uploadMedia(media: M, fieldName = 'files', up?: (percentage: number) => void): Promise<TUploadMediaResponse<M>> {
     let mediaPayload: Media[] = [];
     if (!Array.isArray(media)) {
         mediaPayload = [media]
@@ -21,6 +21,14 @@ export default async function uploadMedia(media: M, fieldName = 'files'): Promis
         headers: {
             'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent: any) => {
+            if (up) {
+                const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                );
+                up(percentCompleted)
+            }
+        }
     })
 
     if (!json?.data?.data || json?.data?.data?.length < 1) {

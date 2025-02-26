@@ -20,3 +20,16 @@ export const showSuccessAlert = (message: string) => {
 export const updateUserProperty = (property: keyof TUSER, value: any) => {
     store.dispatch(UpdateUserProperty({ property, value }))
 }
+
+export const showProgress = (title: string, progress: number, description?: string) => {
+    store.dispatch({
+        type: "progress/showProgress",
+        payload: { title, progress, description },
+    });
+};
+
+export const hideProgress = () => {
+    store.dispatch({
+        type: "progress/hideProgress",
+    });
+};

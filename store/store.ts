@@ -16,17 +16,19 @@ import {
 import authSlice from "./auth-slice";
 import appSlice from "./app-slice";
 import { alertSlice } from "./alert-slice";
+import { progressSlice } from "./progress-slice";
 
 const appReducer = combineReducers({
   auth: authSlice.reducer,
   app: appSlice.reducer,
   alert: alertSlice.reducer,
+  progress: progressSlice.reducer,
 });
 
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  blacklist: ["app", "alert"],
+  blacklist: ["app", "alert", "progress"],
 };
 
 const persistedReducer = persistReducer(persistConfig, appReducer);

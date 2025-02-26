@@ -4,12 +4,9 @@ import {
   ScrollView,
   View,
   Text,
-  Image,
-  Dimensions,
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { Video } from "expo-av";
 import {
   actions,
   RichEditor,
@@ -17,19 +14,19 @@ import {
 } from "react-native-pell-rich-editor";
 
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
-import { Upload, Trash2, Save } from "lucide-react-native";
+import { Upload, Save } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
 // Import necessary constants and types
-import { CustomButton, HeaderButton } from "@/common/components";
-import { getImageUrl, images } from "@/constants";
+import { AssetPreview, CustomButton, HeaderButton } from "@/common/components";
+import { getImageUrl } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
 import { isAndroid, isIos, pickDocument, showErrorAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 
-type MediaItem = {
+export type MediaItem = {
   id?: number;
   url: string;
   mimeType: string;
@@ -52,19 +49,6 @@ const handleHead = ({ tintColor }: { tintColor: string }) => (
   <Text style={{ color: tintColor }}>H1</Text>
 );
 
-const getMediaPreview = (mimeType: string, url: string) => {
-  switch (true) {
-    case mimeType.includes("pdf"):
-      return images.pdf;
-    case mimeType.includes("text"):
-      return images.doc;
-    case mimeType.includes("video"):
-      return { uri: url };
-    default:
-      return { uri: getImageUrl(url) };
-  }
-};
-
 const AddNote = () => {
   const richText = useRef<RichEditor>();
   const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
@@ -84,12 +68,6 @@ const AddNote = () => {
     ? JSON.parse(noteDetails as string)
     : null;
   const isEditMode = !!parsedNoteDetails;
-
-  const windowWidth = Dimensions.get("window").width;
-  const spacingBetweenImages = 16;
-  const sidePadding = 16;
-  const imageWidth =
-    (windowWidth - sidePadding * 2 - spacingBetweenImages * 2) / 3;
 
   const noteMutation = useMutation({
     mutationFn: async (payload: {
@@ -285,81 +263,6 @@ const AddNote = () => {
     setLinkText("");
   };
 
-  const renderMediaPreview = (media: MediaItem, index: number) => {
-    const previewSource = getMediaPreview(media.mimeType, media.localUri || media.url);
-    const isImage = media.mimeType?.includes("image");
-    const isVideo = media.mimeType?.includes("video");
-    const isPDFOrText = media.mimeType?.includes("pdf") || media.mimeType?.includes("text");
-    return (
-      <View
-        key={index}
-        style={{
-          width: imageWidth,
-          height: imageWidth,
-          marginRight: index % 3 === 2 ? 0 : spacingBetweenImages,
-          marginBottom: spacingBetweenImages,
-        }}
-        className="relative">
-        <TouchableOpacity
-          className="bg-red flex items-center justify-center w-6 h-6 rounded-full absolute top-2 right-2 z-10"
-          onPress={() => removeMedia(index)}
-          disabled={isUploading}>
-          <Trash2 size={12} color="#ffffff" />
-        </TouchableOpacity>
-
-        {isImage ? (
-          <Image
-            source={{ uri: media.localUri }}
-            style={{ width: "100%", height: "100%" }}
-            className="rounded-[20px]"
-            resizeMode="cover"
-          />
-        ) : isVideo ? (
-          <Video
-            source={{ uri: media.localUri }}
-            style={{ width: "100%", height: "100%" }}
-            className="rounded-[20px]"
-            resizeMode="cover"
-            shouldPlay={false}
-          />
-        ) : isPDFOrText ? (
-          <View
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#f3f3f3",
-              borderRadius: 20,
-            }}
-          >
-            <Image
-              source={previewSource}
-              style={{ width: "100%", height: "100%" }}
-              className="rounded-[20px]"
-              resizeMode="contain"
-            />
-          </View>
-        ) : (
-          <View
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#f3f3f3",
-              borderRadius: 20,
-            }}
-          >
-            <Text style={{ color: "#4A4A4A", fontSize: 14, textAlign: "center" }}>
-              Unsupported File
-            </Text>
-          </View>
-        )}
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <RichToolbar
@@ -429,7 +332,14 @@ const AddNote = () => {
         )}
         <View className="p-4">
           <View className="flex flex-row flex-wrap">
-            {uploadedMedia.map(renderMediaPreview)}
+            {uploadedMedia.map((media, index) => <AssetPreview
+              disabled={isUploading}
+              index={index}
+              media={media}
+              removeMedia={() => removeMedia(index)}
+              key={index}
+            />
+            )}
           </View>
         </View>
       </ScrollView>
