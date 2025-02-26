@@ -19,5 +19,12 @@ declare interface InputFieldProps extends TextInputProps {
   className?: string;
   ref?: any;
   generatePasswordIcon?: boolean;
+  disabled?: boolean
   onGeneratePassword?: (password: string) => void;
+}
+
+declare interface SelectOption {
+  key: string;
+  value: string;
+  disabled?: boolean;
 }

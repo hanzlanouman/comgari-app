@@ -78,7 +78,6 @@ const Members = () => {
   });
 
   const handleMemberPress = useCallback((member: TMember) => {
-    console.log(member)
     setSelectedMember(member);
     actionModalRef.current?.present();
   }, []);
@@ -120,7 +119,7 @@ const Members = () => {
             image: item?.Auth?.user?.avatar,
             phone: item?.Auth?.phone || undefined,
             email: item?.Auth?.email || '',
-            role_id: item?.Auth?.user?.user_roles?.role?.id || 0,
+            role_id: item?.Auth?.user?.user_roles[0]?.role_id,
             status: item?.Auth?.status,
             permission_ids: item?.Auth?.user?.permission_by_user
               ?.map((p: any) => p?.permission?.id || p?.permissionId)

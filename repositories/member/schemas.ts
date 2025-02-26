@@ -1,4 +1,3 @@
-import { Action } from '@/common/enum';
 import * as Yup from "yup";
 
 export enum UserStatus {
@@ -14,7 +13,7 @@ export const memberSchema = Yup.object().shape({
     .required("Email is required."),
   phone: Yup.string()
     .matches(/^[0-9]{11}$/, "Phone number must be 11 digits")
-    .optional(),  
+    .optional(),
   password: Yup.string().required("Password is required."),
   full_name: Yup.string().required("Full name is required."),
   permission_ids: Yup.array()
@@ -29,33 +28,19 @@ export const memberSchema = Yup.object().shape({
 });
 
 export const updateMemberSchema = Yup.object().shape({
-  user_name: Yup.string().optional(),
+  full_name: Yup.string().required("Full name is required."),
   phone: Yup.string()
     .matches(/^[0-9]{11}$/, "Phone number must be 11 digits")
-    .optional(),  full_name: Yup.string().optional(),
+    .optional(),
   status: Yup.mixed()
     .oneOf(Object.values(UserStatus), "Invalid status.")
     .optional(),
-  role: Yup.array()
-    .of(
-      Yup.object().shape({
-        role_id: Yup.number().typeError("Role ID must be a number."),
-        action: Yup.mixed()
-          .oneOf(Object.values(Action), "Invalid action.")
-          .optional(),
-      })
-    )
-    .optional(),
-  permission: Yup.array()
-    .of(
-      Yup.object().shape({
-        permission_id: Yup.number().typeError("Permission ID must be a number."),
-        action: Yup.mixed()
-          .oneOf(Object.values(Action), "Invalid action.")
-          .optional(),
-      })
-    )
-    .optional(),
+  role_id: Yup.number()
+    .required("Role ID is required.")
+    .typeError("Role ID must be a number."),
+  permission_ids: Yup.array()
+    .of(Yup.number().typeError("Permission ID must be a number."))
+    .required("Permission IDs are required."),
 });
 
 export type MemberPayload = Yup.InferType<typeof memberSchema>;

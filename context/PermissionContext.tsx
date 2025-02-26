@@ -41,6 +41,7 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
   useEffect(() => {
     setAuth(auth);
   }, [auth]);
+
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
@@ -70,16 +71,10 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
       (item) => item.role.name === "SuperAdmin"
     );
     let hasPermission = false;
-    if (isAdmin) {
-      return true;
-    }
-    if (isSecretary) {
-      return true;
-    }
-    if (isSuperAdmin) {
-      return true;
-    }
 
+    if (isAdmin || isSecretary || isSuperAdmin) {
+      return true;
+    }
     if (permission.length > 0) {
       hasPermission = permissions?.some((item) => {
         return (

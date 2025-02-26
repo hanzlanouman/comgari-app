@@ -14,11 +14,6 @@ import { useMutation, useQuery } from "react-query";
 import { MemberRepository } from "@/repositories";
 import { useAppSelector } from "@/hooks/redux";
 
-enum Action {
-  ADD = 'Add',
-  REMOVE = 'Remove'
-}
-
 enum UserStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
@@ -70,7 +65,6 @@ const AddMember = () => {
   const userRole = user?.user_roles[0]?.role.name || "Salesman";
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
-
   const roleVisibilityMap = {
     SuperAdmin: ["Admin", "Secretary", "Salesman"],
     Admin: ["Admin", "Secretary", "Salesman"],
@@ -110,51 +104,19 @@ const AddMember = () => {
       permission_ids: initialMemberData?.permission_ids || [],
       status: initialMemberData?.status || UserStatus.ACTIVE,
       role_id: initialMemberData?.role_id
-        ? Number(initialMemberData.role_id)
-        : 0,
+        ? Number(initialMemberData.role_id) : undefined,
     },
     enableReinitialize: true,
     validationSchema: isEditing === 'true' ? updateMemberSchema : memberSchema,
     onSubmit: (values) => {
       if (isEditing === 'true' && initialMemberData) {
-        const updatePayload: UpdateMemberPayload = {};
-        updatePayload.role = [
-          ...(initialMemberData.role_id ? [{
-            role_id: initialMemberData.role_id,
-            action: Action.REMOVE
-          }] : []),
-          {
-            role_id: Number(values.role_id),
-            action: Action.ADD
-          }
-        ];
-
-        const initialPermissionIds = initialMemberData.permission_ids || [];
-        const currentPermissionIds = values.permission_ids || [];
-
-        const permissionsToRemove = initialPermissionIds.filter(
-          pid => !currentPermissionIds.includes(pid)
-        ).map(pid => ({
-          permission_id: pid,
-          action: Action.REMOVE
-        }));
-
-        const permissionsToAdd = currentPermissionIds.filter(
-          pid => !initialPermissionIds.includes(pid)
-        ).map(pid => ({
-          permission_id: pid,
-          action: Action.ADD
-        }));
-
-        if (permissionsToRemove.length > 0 || permissionsToAdd.length > 0) {
-          updatePayload.permission = [
-            ...permissionsToRemove,
-            ...permissionsToAdd
-          ];
-        }
-
-        updatePayload.user_name = values.user_name;
-        updatePayload.full_name = values.full_name;
+        const updatePayload: Omit<MemberPayload, 'email' | 'password'> = {
+          user_name: values.user_name,
+          full_name: values.full_name,
+          permission_ids: values.permission_ids,
+          status: values.status,
+          role_id: values.role_id,
+        };
 
         if (values.phone?.trim()) {
           updatePayload.phone = values.phone;
@@ -162,15 +124,11 @@ const AddMember = () => {
 
         updatePayload.status = values.status;
 
-        updatePayload.permission = updatePayload.permission
-          ?.filter((item: any) => item.permission_id > 0)
-
-        updatePayload.role = updatePayload.role
-          ?.filter((item: any) => item.role_id > 0)
+        console.log(updatePayload);
 
         updateMutation.mutate(updatePayload, {
           onSuccess: () => {
-            router.push("/(root)/(tabs)/members/members");
+            router.back()
           },
         });
       } else {
@@ -190,7 +148,7 @@ const AddMember = () => {
 
         mutate(createPayload, {
           onSuccess: () => {
-            router.push("/(root)/(tabs)/members/members");
+            router.back()
           },
         });
       }
