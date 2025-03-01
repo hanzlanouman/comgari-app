@@ -47,13 +47,12 @@ const Layout = () => {
         name="proposal-detail"
         options={{
           headerShown: true,
-          title: "Proposal Detail",
+          title: "Proposal Details",
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{}}>
+            <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 10 }}>
               <ArrowLeft size={24} color="#1C1C1C" />
             </TouchableOpacity>
-          ),
-          headerTitleAlign: "center",
+          )
         }}
       />
       <Stack.Screen

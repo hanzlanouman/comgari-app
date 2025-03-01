@@ -15,10 +15,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { CustomButton } from "@/common/components";
 import { images, UNITS } from "@/constants";
-import * as FileSystem from 'expo-file-system';
 import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
-import { Platform } from 'react-native';
+import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -188,51 +186,16 @@ const InvoicesScreen = () => {
   };
 
   const handleDownloadInvoice = async (invoice) => {
-    try {
-      const uri = await generateInvoicePDF(invoice);
-      if (!uri) return;
+    const uri = await generateInvoicePDF(invoice);
+    if (!uri) return;
 
-      // For iOS use sharing
-      if (Platform.OS === 'ios') {
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'application/pdf',
-            dialogTitle: 'Save Proposal',
-            UTI: 'com.adobe.pdf'
-          });
-          return;
-        }
-      }
+    const resp = await moveFile(uri);
+    if (!resp.success)
+      showErrorAlert(resp.message);
+    else
+      showSuccessAlert(resp.message);
+  }
 
-      const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-      if (permissions.granted) {
-        const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64
-        });
-
-        const fileName = `invoice_${Date.now()}.pdf`;
-        const mimeType = 'application/pdf';
-
-        await FileSystem.StorageAccessFramework.createFileAsync(
-          permissions.directoryUri,
-          fileName,
-          mimeType
-        ).then(async (newUri) => {
-          await FileSystem.writeAsStringAsync(newUri, base64, {
-            encoding: FileSystem.EncodingType.Base64
-          });
-          Alert.alert('Success', 'Invoice saved successfully!');
-        });
-      } else {
-        await Sharing.shareAsync(uri);
-      }
-
-    } catch (error) {
-      console.error('Error downloading invoice:', error);
-      Alert.alert('Error', 'Failed to download invoice. Please try again.');
-    }
-  };
   useFocusEffect(
     React.useCallback(() => {
       fetchInvoices();

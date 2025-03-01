@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
 import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import ActionModal from "../clients/components/ActionModal";
+import { format } from 'date-fns';
+
 const Appointment = () => {
   const [items, setItems] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -12,81 +14,85 @@ const Appointment = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const clientRepo = ClientRepository.getInstance();
   const actionModalRef = useRef<BottomSheetModal>(null);
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await clientRepo.getAppointment();
-        if (!response.data || response.data.length === 0) {
-          setItems({});
-          setIsLoading(false);
-          return;
-        }
-        const transformedItems = response.data.reduce((acc, appointment) => {
-          const formattedDate = new Date(appointment.date).toISOString().split('T')[0];
 
-          if (!acc[formattedDate]) {
-            acc[formattedDate] = [];
-          }
-
-          // Extract member names
-          const memberNames = appointment.appointment_member
-            .map(member => member.Auth.user?.full_name || 'Unknown')
-            .join(', ');
-
-          acc[formattedDate].push({
-            id: appointment.id,
-
-            name: appointment.title,
-            startTime: appointment.start_time,
-            endTime: appointment.end_time,
-            address: appointment.notes || 'None',
-            status: appointment.status,
-            clientName: appointment.client.name,
-            memberNames: memberNames,
-            fullAppointmentData: appointment
-          });
-
-          return acc;
-        }, {});
-
-        setItems(transformedItems);
-      } catch (error) {
-        console.error('Failed to fetch appointments', error);
+  const fetchAppointments = async () => {
+    try {
+      const response = await clientRepo.getAppointment();
+      if (!response.data || response.data.length === 0) {
         setItems({});
-      } finally {
         setIsLoading(false);
+        return;
       }
-    };
+      const transformedItems = response.data.reduce((acc, appointment) => {
+        const formattedDate = format(new Date(appointment.date), 'yyyy-MM-dd');
 
-    fetchAppointments();
-  }, []);
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+
+        // Extract member names
+        const memberNames = appointment.appointment_member
+          .map(member => member.Auth.user?.full_name || 'Unknown')
+          .join(', ');
+
+        acc[formattedDate].push({
+          id: appointment.id,
+          name: appointment.title,
+          startTime: new Date(appointment.start_time),
+          endTime: new Date(appointment.end_time),
+          address: appointment.notes || 'None',
+          status: appointment.status,
+          clientName: appointment.client.name,
+          memberNames: memberNames,
+          fullAppointmentData: appointment
+        });
+
+        return acc;
+      }, {});
+
+      setItems(transformedItems);
+    } catch (error) {
+      console.error('Failed to fetch appointments', error);
+      setItems({});
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useFocusEffect(useCallback(() => { fetchAppointments() }, []));
+
   const handleAppointmentPress = (item) => {
     setSelectedAppointment(item);
     actionModalRef.current?.present();
   };
 
   const handleUpdatePress = () => {
-    if (selectedAppointment) {
-      const members = selectedAppointment.fullAppointmentData.appointment_member.map(member => ({
-        id: member.member_id,
-        name: member.Auth.user?.full_name || 'Unknown',
-      }));
-      router.push({
-        pathname: "/(root)/(tabs)/appointment/add-appointment",
-        params: {
-          isEditing: 'true',
-          appointmentId: selectedAppointment.id,
-          title: selectedAppointment.name,
-          clientId: selectedAppointment.fullAppointmentData.client_id,
-          status: selectedAppointment.status,
-          date: selectedAppointment.startTime,
-          notes: selectedAppointment.address,
-          members: JSON.stringify(members), // Pass members as a stringified JSON
+    if (!selectedAppointment) return;
+    const appointment = selectedAppointment.fullAppointmentData;
 
-        }
-      });
-      actionModalRef.current?.dismiss();
+    const members = appointment.appointment_member.map(member => ({
+      id: member.member_id,
+      name: member.Auth.user?.full_name || 'Unknown',
+    }));
+
+    const initialData = {
+      isEditing: 'true',
+      clientId: appointment.client_id,
+      date: appointment.date,
+      startTime: appointment.start_time,
+      endTime: appointment.end_time,
+      notes: appointment.notes,
+      status: appointment.status,
+      title: appointment.title,
+      appointmentId: appointment.id,
+      members: JSON.stringify(members),
     }
+
+    router.push({
+      pathname: "/(root)/(tabs)/appointment/add-appointment",
+      params: initialData
+    });
+    actionModalRef.current?.dismiss();
   };
 
   const handleDeletePress = async () => {
@@ -131,25 +137,27 @@ const Appointment = () => {
     }
   };
 
+  const formatTime = (isoTime) => {
+    const date = new Date(isoTime);
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
+  const getInitials = (name) => {
+    const nameParts = name.split(" ");
+    return nameParts.map(part => part[0]).join("").toUpperCase();
+  };
+
   const renderAgendaItem = (item) => {
-
-    const formatTime = (isoTime) => {
-      const date = new Date(isoTime);
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-    };
-
-    const getInitials = (name) => {
-      const nameParts = name.split(" ");
-      return nameParts.map(part => part[0]).join("").toUpperCase();
-    };
 
     return (
       <TouchableOpacity
-        onPress={() => handleAppointmentPress(item)} className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md">
+        onPress={() => handleAppointmentPress(item)}
+        className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md"
+      >
         {/* Appointment details */}
         <View className="flex-1">
           <Text className="text-sm text-dark-100 font-ManropeMedium">

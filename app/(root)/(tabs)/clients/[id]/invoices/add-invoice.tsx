@@ -109,7 +109,7 @@ const AddInvoiceScreen = () => {
       }
 
       // Navigate back to invoices screen
-      router.push({
+      router.replace({
         pathname: "/(root)/(tabs)/clients/[id]/invoices",
         params: { id: projectId }
       });

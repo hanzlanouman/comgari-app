@@ -9,11 +9,8 @@ import {
   Alert,
 } from "react-native";
 import { icons } from "@/constants";
-import { ChevronRight, PencilLine, Trash2, Upload } from "lucide-react-native";
+import { ChevronRight, Download, Trash2 } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
-import * as Sharing from 'expo-sharing';
 import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
 
@@ -26,6 +23,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 import { Action } from '@/common/enum';
+import { downloadMedia, showErrorAlert, showSuccessAlert } from "@/utils";
+
 const MediaDocuments = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -34,7 +33,7 @@ const MediaDocuments = () => {
 
   const [documentItems, setDocumentItems] = useState(items ? JSON.parse(items as string) : []);
 
-  const snapPoints = useMemo(() => ["22%", "22%"], []);
+  const snapPoints = useMemo(() => ["30%", "40%"], []);
 
   const renderBackdrop = useMemo(
     () => (props) => (
@@ -49,46 +48,15 @@ const MediaDocuments = () => {
   );
 
   const handleDownload = async (doc) => {
-    if (!doc?.url) {
-      Alert.alert('Error', 'Document URL is missing.');
-      return;
-    }
-
-    try {
-      // Validate and prepare the URL
-      const fileUrl = getImageUrl(doc.url);
-      const filename = `${Date.now()}_${fileUrl.split('/').pop()}`;
-      const fileUri = `${FileSystem.documentDirectory}${filename}`;
-
-      // Show feedback to the user
-      Alert.alert('Download Started', 'Your file is being downloaded.');
-
-      // Download the file
-      const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
-
-      if (downloadResult.status !== 200) {
-        throw new Error(`Download failed with status ${downloadResult.status}`);
+    bottomSheetModalRef.current?.close();
+    const { success, message } = await downloadMedia(getImageUrl(doc.url));
+    setTimeout(() => {
+      if (success) {
+        showSuccessAlert(message)
+      } else {
+        showErrorAlert(message)
       }
-
-      // Request Media Library permission
-      const { granted } = await MediaLibrary.requestPermissionsAsync();
-      if (!granted) {
-        Alert.alert(
-          'Permission Denied',
-          'Please grant media library access to save files.'
-        );
-        return;
-      }
-
-      // Save the file
-      const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
-      await MediaLibrary.createAlbumAsync('Downloads', asset, false);
-
-      Alert.alert('Download Complete', 'Your file has been saved.');
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      Alert.alert('Download Failed', `Could not download the file: ${error.message}`);
-    }
+    }, 1000)
   };
 
 
@@ -205,7 +173,7 @@ const MediaDocuments = () => {
                         <TouchableOpacity
                           className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px"
                         >
-                          <Upload size={16} color="#ffffff" />
+                          <Download size={16} color="#ffffff" />
                         </TouchableOpacity>
                       </LinearGradient>
                       <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">

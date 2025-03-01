@@ -41,3 +41,9 @@ export type TUploadMediaResponse<TMedia extends M> =
         TUploadMediaSuccess<string>
     )
     | TMediaError
+
+
+export type TDownloadResponse = {
+    success: boolean;
+    message: string;
+};
