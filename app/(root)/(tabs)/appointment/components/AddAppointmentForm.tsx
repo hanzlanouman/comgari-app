@@ -3,20 +3,19 @@ import {
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
   Alert,
 } from "react-native";
 import { format } from "date-fns";
 
 import { CalendarDays } from "lucide-react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { OptionType } from "@/common/types";
 import {
   CustomButton,
   InputField,
-  MultiSelectDropdown,
   DropdownSelect,
+  DateTimePicker,
+  MutlitSelectWithDefault,
 } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 
@@ -25,14 +24,16 @@ enum Action {
   REMOVE = "Remove",
 }
 
-interface InitialData {
-  titleOfMeeting?: string;
-  selectedClient?: string;
-  status?: string;
-  selectedDate?: Date | null;
-  notes?: string;
-  selectedMembers?: { id: string; name: string }[];
-}
+type InitialData = {
+  clientId: number;
+  appointmentId: number;
+  title: string;
+  status: string;
+  notes: string;
+  startTime: string;
+  endTime: string;
+  members: { id: string; name: string }[];
+} | undefined;
 
 interface AddAppointmentFormProps {
   clientOptions: OptionType[];
@@ -56,36 +57,29 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
   isMembersLoading,
   onSubmitSuccess,
   isEditing = false,
-  editingAppointmentId,
   initialData,
   isAppointmentAdded,
   setAppointmentAdded,
 }) => {
   // State for form values
   const [values, setValues] = useState({
-    titleOfMeeting: initialData?.titleOfMeeting || "",
+    titleOfMeeting: initialData?.title || "",
     notes: initialData?.notes || "",
-    selectedClient: initialData?.selectedClient || "",
+    selectedClient: initialData?.clientId || "",
     selectedMembers:
-      initialData?.selectedMembers?.map((member) => member.id) || [],
+      initialData?.members?.map((member) => member.id) || [],
     status: initialData?.status || "",
+    startTime: initialData?.startTime || null,
+    endTime: initialData?.endTime || null,
   });
-  // State for handling date
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    initialData?.selectedDate || null
-  );
 
-  // Track initial selected members for comparison
-  const [initialSelectedMembers] = useState(
-    initialData?.selectedMembers?.map((member) => member.id) || []
-  );
+  const initialSelectedMembers = initialData?.members?.map((member) => member.id) || [];
 
   // State for submission
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const clientRepo = ClientRepository.getInstance();
-  const appointmentId = Number(editingAppointmentId);
+  const appointmentId = Number(initialData?.appointmentId);
 
   // Improved member selection handling
   const handleMemberSelection = (field: string, value: string[]) => {
@@ -102,12 +96,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
 
     return (
       values.titleOfMeeting.trim() !==
-      (initialData?.titleOfMeeting || "").trim() ||
+      (initialData?.title || "").trim() ||
       values.notes.trim() !== (initialData?.notes || "").trim() ||
-      values.selectedClient !== initialData?.selectedClient ||
+      values.selectedClient !== initialData?.clientId ||
       values.status !== initialData?.status ||
-      selectedDate?.toISOString() !==
-      initialData?.selectedDate?.toISOString() ||
+      values.startTime !==
+      initialData?.startTime ||
+      values.endTime !==
+      initialData?.endTime ||
       currentMemberIds.length !== initialMemberIds.length ||
       !currentMemberIds.every((id) => initialMemberIds.includes(id))
     );
@@ -128,8 +124,12 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
       Alert.alert("Error", "Please select a status");
       return;
     }
-    if (!selectedDate) {
-      Alert.alert("Error", "Please select a date and time");
+    if (!values.startTime) {
+      Alert.alert("Error", "Please select a start date and time");
+      return;
+    }
+    if (!values.endTime) {
+      Alert.alert("Error", "Please select an end date and time");
       return;
     }
 
@@ -176,15 +176,12 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
             action: Action.REMOVE,
           })),
         ];
-
         const updatePayload = {
           title: values.titleOfMeeting || undefined,
           clientId: parseInt(values.selectedClient, 10),
-          date: selectedDate?.toISOString(),
-          startTime: selectedDate?.toISOString(),
-          endTime: new Date(
-            selectedDate?.getTime() + 60 * 60 * 1000
-          ).toISOString(),
+          date: values.startTime,
+          startTime: values.startTime,
+          endTime: values.endTime,
           notes: values.notes || undefined,
           status: values.status || "Scheduled",
           projectId: parseInt(values.selectedClient, 10),
@@ -201,12 +198,10 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           title: values.titleOfMeeting,
           clientId: parseInt(values.selectedClient, 10),
           memberId: values.selectedMembers.map((id) => parseInt(id, 10)),
-          date: selectedDate.toISOString(),
           status: values.status || "Scheduled",
-          startTime: selectedDate.toISOString(),
-          endTime: new Date(
-            selectedDate.getTime() + 60 * 60 * 1000
-          ).toISOString(),
+          date: values.startTime,
+          startTime: values.startTime,
+          endTime: values.endTime,
           notes: values.notes || "No notes",
           projectId: parseInt(values.selectedClient, 10),
           is_add_in_google_calendar: false,
@@ -226,12 +221,6 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Handle date picker confirmation
-  const handleConfirm = (date: Date) => {
-    setSelectedDate(date);
-    setDatePickerVisibility(false);
   };
 
   return (
@@ -263,12 +252,13 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
 
       {/* Members Selection */}
       <View className="mt-3">
-        <MultiSelectDropdown
+        <MutlitSelectWithDefault
           placeholder="Assign Members"
-          data={memberOptions}
-          selectedValues={values.selectedMembers}
-          setFieldValue={handleMemberSelection}
-          fieldName="selectedMembers"
+          options={memberOptions || []}
+          save="key"
+          onSelect={(val) => handleMemberSelection("selectedMembers", val)}
+          value={values.selectedMembers.map((id) => String(id))}
+          valueTitles={memberOptions?.map((item: any) => values.selectedMembers?.includes(item.key) ? item.value : null).filter((item: any) => item !== null).flat()}
         />
       </View>
 
@@ -285,25 +275,35 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         />
       </View>
 
-      {/* Date Picker */}
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={() => setDatePickerVisibility(true)}
-        className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
-        <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
-          {selectedDate
-            ? format(selectedDate, "MMM dd, yyyy hh:mm a")
-            : "Date/Time"}
-        </Text>
-        <CalendarDays size={16} className="text-dark-100" />
-      </TouchableOpacity>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="datetime"
-        onConfirm={handleConfirm}
-        minimumDate={new Date()}
-        onCancel={() => setDatePickerVisibility(false)}
+      <DateTimePicker
+        setDate={(date) => date ? setValues((prev) => ({ ...prev, startTime: date })) : {}}
+        date={values?.startTime ? values?.startTime : undefined}
+        minimumTime={new Date()}
+        minimumTimeMessage="Cannot be before current time"
+        tigger={
+          <View className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
+            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+              {values?.startTime
+                ? format(values?.startTime, "MMM dd, yyyy hh:mm a")
+                : "Start Date/Time"}
+            </Text>
+            <CalendarDays size={16} className="text-dark-100" />
+          </View>}
+      />
+      <DateTimePicker
+        setDate={(date) => date ? setValues((prev) => ({ ...prev, endTime: date })) : {}}
+        date={values?.endTime ? values?.endTime : undefined}
+        minimumTime={new Date()}
+        minimumTimeMessage="Cannot be before current time"
+        tigger={
+          <View className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
+            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+              {values?.endTime
+                ? format(values?.endTime, "MMM dd, yyyy hh:mm a")
+                : "End Date/Time"}
+            </Text>
+            <CalendarDays size={16} className="text-dark-100" />
+          </View>}
       />
 
       {/* Notes */}

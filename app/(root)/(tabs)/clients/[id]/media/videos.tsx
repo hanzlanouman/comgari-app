@@ -5,7 +5,6 @@ import {
   View,
   Text,
   Alert,
-  Image,
   Dimensions,
   TouchableOpacity,
   Modal,

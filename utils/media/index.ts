@@ -1,7 +1,7 @@
 import { ImagePickerOptions } from '@/utils/media/pick-image'
 import { pickImage } from '@/utils/media/pick-image'
 import { isRunningInExpoGo } from 'expo'
-import { M, TMediaError, TUploadMediaSuccess, TUploadMediaResponse } from '@/utils/media/types'
+import { M, TMediaError, TUploadMediaSuccess, TUploadMediaResponse, TDownloadResponse } from '@/utils/media/types'
 import { DocumentPickerOptions, pickDocument } from '@/utils/media/pick-document'
 
 export * from '@/utils/media/pick-image'
@@ -55,6 +55,34 @@ export async function uploadMedia(meida: M, fieldName?: string, thr = false, up?
             isSuccess: false,
             result: undefined,
             error: e?.message || "Something went wrong"
+        }
+    }
+}
+
+export async function downloadMedia(url: string): Promise<TDownloadResponse> {
+    try {
+        // @ts-ignore
+        const _downloadMedia: any = (isRunningInExpoGo() ? await import('./download-media.expo') : await import('./download-media.native'))
+
+        return _downloadMedia.Download(url)
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.message || "Something went wrong"
+        }
+    }
+}
+
+export async function moveFile(uri: string): Promise<TDownloadResponse> {
+    try {
+        // @ts-ignore
+        const _downloadMedia: any = (isRunningInExpoGo() ? await import('./download-media.expo') : await import('./download-media.native'))
+
+        return _downloadMedia.MoveFile(uri)
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.message || "Something went wrong"
         }
     }
 }

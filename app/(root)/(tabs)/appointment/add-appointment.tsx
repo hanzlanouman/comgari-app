@@ -30,17 +30,18 @@ const STATUS_OPTIONS = [
 const AddAppointment = () => {
   const {
     isEditing,
-    appointmentId,
-    title,
     clientId,
-    status,
     date,
+    startTime,
+    endTime,
     notes,
+    status,
+    title,
+    appointmentId,
     members,
   } = useLocalSearchParams();
 
   const parsedMembers = members ? JSON.parse(members as string) : [];
-  const parsedDate = date ? new Date(date as string) : null;
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
   const authRepo = AuthRepository.getInstance();
@@ -175,6 +176,17 @@ const AddAppointment = () => {
           onSubmitSuccess={handleSubmitSuccess}
           setAppointmentAdded={setAppointmentAdded}
           isAppointmentAdded={appointmentAdded}
+          isEditing={isEditing === 'true'}
+          initialData={isEditing === 'true' ? {
+            clientId: parseInt(clientId as string),
+            startTime: startTime as string,
+            endTime: endTime as string,
+            notes: notes as string,
+            status: status as string,
+            title: title as string,
+            appointmentId: parseInt(appointmentId as string),
+            members: parsedMembers,
+          } : undefined}
         />
       </AppContainer>
     </SafeAreaView>

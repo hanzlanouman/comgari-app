@@ -66,7 +66,7 @@ const AddProposal = () => {
     {
       onSuccess: (response) => {
         alert("Proposal created successfully!");
-        router.push({
+        router.replace({
           pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
           params: { id: formData.project_id },
         });

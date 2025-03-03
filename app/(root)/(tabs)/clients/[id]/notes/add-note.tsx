@@ -165,7 +165,7 @@ const AddNote = () => {
           });
         }
 
-        router.push(`/clients/${id?.toString()}/notes`);
+        router.replace(`/clients/${id?.toString()}/notes`);
       } catch (error: any) {
         showErrorAlert(error?.message || "Failed to save note")
       }

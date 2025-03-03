@@ -106,10 +106,10 @@ export const AppContainer = (props: Props) => {
             <Text style={styles.heading}>Confirm</Text>
             <Text style={styles.textStyle}>{props.confirmationMessage}</Text>
             <View className="mb-2">
-            <CustomButton onPress={handleConfirm} title="Yes" />
+              <CustomButton onPress={handleConfirm} title="Yes" />
             </View>
             <View className="mb-2">
-            <CustomButton onPress={handleConfirm} title="No" />
+              <CustomButton onPress={handleCancel} title="No" />
             </View>
 
           </View>

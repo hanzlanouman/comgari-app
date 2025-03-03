@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useEffect, useState } from "react";
+import React, { useCallback, useMemo, useRef, useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -15,7 +15,7 @@ import {
   ChevronRight,
   Share2,
   Pencil,
-  Trash2
+  Trash2,
 } from "lucide-react-native";
 import { images } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,7 +23,6 @@ import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
-import * as FileSystem from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import {
@@ -31,7 +30,8 @@ import {
   BottomSheetView,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
-import { Platform } from 'react-native';
+import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
+import { HeaderButton } from "@/common/components";
 
 
 const formatDate = (dateString: string) => {
@@ -159,22 +159,15 @@ const Proposal = () => {
 
   useEffect(() => {
     navigation.setOptions({
-      title: "Proposal Details",
       headerRight: () => (
-        <LinearGradient
-          colors={["#1B78B9", "#63348F"]}
-          className="rounded-full w-8 h-8"
-          start={[0, 0]}
-          end={[1, 1]}>
-          <TouchableOpacity
-            onPress={handlePresentModalPress}
-            className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-            <Pencil size={16} className="text-white" />
-          </TouchableOpacity>
-        </LinearGradient>
+        <HeaderButton
+          onPress={handlePresentModalPress}
+          icon={<Pencil size={16} color="#ffffff" />}
+        />
       ),
     });
-  }, [navigation, handlePresentModalPress, jobName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation]);
 
   const handleEditProposal = () => {
     bottomSheetModalRef.current?.close();
@@ -227,8 +220,6 @@ const Proposal = () => {
     );
   };
 
-  const [pdfUri, setPdfUri] = useState<string>('');
-
   // Generate PDF function
   const generatePDF = async () => {
     try {
@@ -251,7 +242,7 @@ const Proposal = () => {
         html,
         base64: false
       });
-      setPdfUri(uri);
+
       return uri;
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -261,54 +252,17 @@ const Proposal = () => {
   };
 
   const handleDownloadProposal = async () => {
-    try {
-      const uri = await generatePDF();
-      if (!uri) return;
+    bottomSheetModalRef?.current?.close();
+    const uri = await generatePDF();
+    if (!uri) return;
+    const resp = await moveFile(uri);
+    if (!resp.success)
+      showErrorAlert(resp.message);
+    else
+      showSuccessAlert(resp.message);
 
-      // For iOS use sharing
-      if (Platform.OS === 'ios') {
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'application/pdf',
-            dialogTitle: 'Save Proposal',
-            UTI: 'com.adobe.pdf'
-          });
-          bottomSheetModalRef.current?.close();
-          return;
-        }
-      }
-
-      const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-      if (permissions.granted) {
-        const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64
-        });
-
-        const fileName = `proposal_${Date.now()}.pdf`;
-        const mimeType = 'application/pdf';
-
-        await FileSystem.StorageAccessFramework.createFileAsync(
-          permissions.directoryUri,
-          fileName,
-          mimeType
-        ).then(async (newUri) => {
-          await FileSystem.writeAsStringAsync(newUri, base64, {
-            encoding: FileSystem.EncodingType.Base64
-          });
-          Alert.alert('Success', 'Proposal saved successfully!');
-          bottomSheetModalRef.current?.close();
-        });
-      } else {
-        await Sharing.shareAsync(uri);
-        bottomSheetModalRef.current?.close();
-      }
-
-    } catch (error) {
-      console.error('Error downloading proposal:', error);
-      Alert.alert('Error', 'Failed to download proposal. Please try again.');
-    }
   };
+
   const handleShareProposal = async () => {
     try {
       const uri = await generatePDF();
