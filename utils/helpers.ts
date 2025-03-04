@@ -1,3 +1,4 @@
+import { differenceInDays, format } from "date-fns";
 import { Platform } from "react-native";
 
 export const isIos = () => {
@@ -30,3 +31,11 @@ export const getMimeTypeFromFileName = (fileName: string) => {
     const extension = fileName.split(".").pop();
     return MIME_TYPES_MAP[extension as keyof typeof MIME_TYPES_MAP] || "image/jpeg";
 };
+
+export const getDaysSinceStart = (startDate: Date | string) => {
+    return differenceInDays(new Date(), new Date(startDate));
+}
+
+export const getRemainingDaysAndTotal = (startDate: Date | string, endDate: Date | string) => {
+    return differenceInDays(new Date(endDate), new Date(startDate));
+}

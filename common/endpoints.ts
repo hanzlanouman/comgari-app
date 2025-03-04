@@ -142,6 +142,18 @@ export const END_POINTS = {
       method: "POST",
       description: "Create new subscription",
     },
+    CANCEL_SUBSCRIPTION: {
+      route: PaymentUrl + '/delete-subscription',
+      method: 'DELETE'
+    },
+    UPGRADE_PLAN: {
+      route: PaymentUrl + '/update-subscription',
+      method: 'POST',
+      description: 'Upgrade plan'
+    },
+    AGENCY_SUBSCRIPTION: {
+      route: PaymentUrl + '/agency-subscription'
+    }
   },
   Client: {
     CREATE_CLIENT: {
