@@ -15,3 +15,4 @@ export * from "./multi-select-list/MultiSelect";
 export * from "./AssetsPreview";
 export * from "./DatePicker";
 export * from "./DateTimePicker";
+export * from "./ComfimationModel";

@@ -1,5 +1,5 @@
 import { router, Stack } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plus } from "lucide-react-native";
 import WithRole from "@/common/components/withRole";
