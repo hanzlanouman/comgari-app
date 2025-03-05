@@ -22,17 +22,11 @@ const getStartOfToday = () => {
   return today;
 };
 // Enum for Invoice Status
+
 enum InvoiceStatus {
   DRAFT = "DRAFT",
-  PENDING_APPROVAL = "PENDING_APPROVAL",
-  APPROVED = "APPROVED",
   SENT = "SENT",
-  PARTIALLY_PAID = "PARTIALLY_PAID",
   PAID = "PAID",
-  OVERDUE = "OVERDUE",
-  CANCELED = "CANCELED",
-  REFUNDED = "REFUNDED",
-  DISPUTED = "DISPUTED"
 }
 
 // Option Type Definition
