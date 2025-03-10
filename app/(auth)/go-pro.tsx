@@ -14,6 +14,7 @@ import { CustomButton } from "@/common/components";
 import PlanCard from "./components/PlanCard";
 import { useQuery } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
+import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
 // Define the plan types
 type TPlanProps = {
@@ -21,6 +22,7 @@ type TPlanProps = {
 };
 
 const GoPro = () => {
+  useRedirectIfIOS();
   const { authResponse } = useLocalSearchParams<TPlanProps>();
 
   const [activeTab, setActiveTab] = useState("monthly");
@@ -108,6 +110,7 @@ const GoPro = () => {
                 <PlanCard
                   key={plan?.id}
                   plan={plan?.name}
+                  shcedule={plan.pricing?.[0].paymentSchedule}
                   price={plan?.pricing[0]?.price}
                   members={plan?.maxMembers}
                   clients={plan?.maxClients}

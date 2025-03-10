@@ -2,9 +2,11 @@ import React from "react";
 import { TouchableOpacity, View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient"; // Ensure you have this package installed
 import { Check } from "lucide-react-native";
+import { sentanceCase } from "@/utils";
 
 interface PlanCardProps {
     plan: string;
+    shcedule: string;
     price: number;
     members: number;
     clients: number;
@@ -14,6 +16,7 @@ interface PlanCardProps {
 
 const PlanCardPro: React.FC<PlanCardProps> = ({
     plan,
+    shcedule,
     price,
     members,
     clients,
@@ -29,11 +32,11 @@ const PlanCardPro: React.FC<PlanCardProps> = ({
                     end={[1, 1]}
                     className="rounded-[20px] p-4 border border-white"
                 >
-                    {renderCardContent(plan, price, members, clients, true)}
+                    {renderCardContent(plan, shcedule, price, members, clients, true)}
                 </LinearGradient>
             ) : (
                 <View className="border border-light bg-white rounded-[20px] p-4">
-                    {renderCardContent(plan, price, members, clients, false)}
+                    {renderCardContent(plan, shcedule, price, members, clients, false)}
                 </View>
             )}
         </TouchableOpacity>
@@ -42,10 +45,10 @@ const PlanCardPro: React.FC<PlanCardProps> = ({
 
 const renderCardContent = (
     plan: string,
+    shcedule: string,
     price: number,
     members: number,
     clients: number,
-
     isSelected: boolean
 ) => (
     <View>
@@ -59,7 +62,7 @@ const renderCardContent = (
         <Text
             className={`text-base sm:text-lg font-ManropeSemibold mt-2.5 ${isSelected ? "text-white" : "text-blue"}`}
         >
-            €{price}/m
+            €{price}/{sentanceCase(shcedule)}
         </Text>
         <View className="flex-row items-center justify-between mt-4 -mx-2">
             <View className="flex-row items-center w-2/4 px-2 ">
@@ -71,7 +74,7 @@ const renderCardContent = (
                 <Text
                     className={`text-sm sm:text-base font-ManropeMedium ml-1.5 ${isSelected ? "text-white" : "text-dark"}`}
                 >
-                    {members === -1 ? "UnLimited" : members} Members
+                    {members === -1 ? "Unlimited" : members} Members
                 </Text>
             </View>
             <View className="flex-row items-center w-2/4 px-2">
@@ -83,7 +86,7 @@ const renderCardContent = (
                 <Text
                     className={`text-sm sm:text-base font-ManropeMedium ml-1.5 ${isSelected ? "text-white" : "text-dark"}`}
                 >
-                    {clients === -1 ? "UnLimited" : clients} Clients
+                    {clients === -1 ? "Unlimited" : clients} Clients
                 </Text>
             </View>
         </View>

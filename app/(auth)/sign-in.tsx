@@ -16,6 +16,7 @@ import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
 import { OTP_TYPE } from "@/common/enum";
+import { IS_ANDROID } from "@/utils";
 
 const SignIn = () => {
   const AuthRepo = AuthRepository.getInstance();
@@ -153,7 +154,7 @@ const SignIn = () => {
               onPress={() => formik.handleSubmit()}
             />
           </View>
-          <View className="flex-row items-center justify-center my-5">
+          {IS_ANDROID && <View className="flex-row items-center justify-center my-5">
             <Text className="text-sm sm:text-base text-dark font-ManropeMedium">
               Doesn't have an account?
             </Text>
@@ -166,7 +167,7 @@ const SignIn = () => {
                 Sign Up
               </Text>
             </TouchableOpacity>
-          </View>
+          </View>}
         </View>
       </ImageBackground>
     </AppContainer>

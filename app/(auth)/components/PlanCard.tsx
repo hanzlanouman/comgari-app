@@ -3,9 +3,11 @@ import { TouchableOpacity, View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient"; // Ensure you have this package installed
 import { Check } from "lucide-react-native";
 import { UNITS } from "@/constants";
+import { sentanceCase } from "@/utils";
 
 interface PlanCardProps {
   plan: string;
+  shcedule: string;
   price: number;
   members: number;
   clients: number;
@@ -16,6 +18,7 @@ interface PlanCardProps {
 
 const PlanCard: React.FC<PlanCardProps> = ({
   plan,
+  shcedule,
   price,
   members,
   clients,
@@ -31,11 +34,11 @@ const PlanCard: React.FC<PlanCardProps> = ({
           start={[0, 0]}
           end={[1, 1]}
           className="rounded-[20px] p-4 border border-white">
-          {renderCardContent(plan, price, members, clients, freetrial, true)}
+          {renderCardContent(plan, shcedule, price, members, clients, freetrial, true)}
         </LinearGradient>
       ) : (
         <View className="border border-light bg-white rounded-[20px] p-4">
-          {renderCardContent(plan, price, members, clients, freetrial, false)}
+          {renderCardContent(plan, shcedule, price, members, clients, freetrial, false)}
         </View>
       )}
     </TouchableOpacity>
@@ -44,6 +47,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
 const renderCardContent = (
   plan: string,
+  shcedule: string,
   price: number,
   members: number,
   clients: number,
@@ -51,7 +55,7 @@ const renderCardContent = (
   isSelected: boolean
 ) => (
   <View>
-    <View className="flex-row items-center justify-between">
+    <View className="flex-row items-center justify-between flex-wrap">
       <Text
         className={`text-lg sm:text-xl font-ManropeBold ${isSelected ? "text-white" : "text-dark"}`}>
         {plan}
@@ -66,7 +70,7 @@ const renderCardContent = (
     </View>
     <Text
       className={`text-base sm:text-lg font-ManropeSemibold mt-2.5 ${isSelected ? "text-white" : "text-blue"}`}>
-      {UNITS.CURRENCY}{price}/m
+      {UNITS.CURRENCY}{price}/{sentanceCase(shcedule)}
     </Text>
     <View className="flex-row items-center justify-between mt-4">
       <View className="flex-row items-center w-2/4">
@@ -76,7 +80,7 @@ const renderCardContent = (
         </View>
         <Text
           className={`text-sm sm:text-base font-ManropeMedium ml-1.5 ${isSelected ? "text-white" : "text-dark"}`}>
-          {members === -1 ? "UnLimited" : members} Members
+          {members === -1 ? "Unlimited" : members} Members
         </Text>
       </View>
       <View className="flex-row items-center w-2/4">
@@ -86,7 +90,7 @@ const renderCardContent = (
         </View>
         <Text
           className={`text-sm sm:text-base font-ManropeMedium ml-1.5 ${isSelected ? "text-white" : "text-dark"}`}>
-          {clients === -1 ? "UnLimited" : clients} Clients
+          {clients === -1 ? "Unlimited" : clients} Clients
         </Text>
       </View>
     </View>

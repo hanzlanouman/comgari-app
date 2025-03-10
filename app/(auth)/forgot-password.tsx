@@ -1,9 +1,7 @@
 import { View, Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
-import { useState } from "react";
 import InputField from "@/common/components/InputField";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import CustomButton from "@/common/components/CustomButton";
 import { useFormik } from "formik";
 import {
@@ -13,9 +11,11 @@ import {
 import { AuthRepository } from "@/repositories/auth/auth";
 import { useMutation } from "react-query";
 import { OTP_TYPE } from "@/common/enum";
+
 type ForgotPasswordProps = {
   otpRoute: string;
 };
+
 const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
   const router = useRouter();
   const authrepo = AuthRepository.getInstance();
@@ -47,30 +47,30 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
 
   return (
     <SafeAreaProvider>
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
-      <View className="flex-1 p-4">
-      
-        <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-        Enter your email below to receive a password reset link.        </Text>
-        <View className="mt-6">
-          <InputField
-            label=""
-            value={formik.values.username}
-            onChangeText={formik.handleChange("username")}
-            placeholder="Email"
-            keyboardType="email-address"
+      <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
+        <View className="flex-1 p-4">
+
+          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
+            Enter your email below to receive a password reset link.        </Text>
+          <View className="mt-6">
+            <InputField
+              label=""
+              value={formik.values.username}
+              onChangeText={formik.handleChange("username")}
+              placeholder="Email"
+              keyboardType="email-address"
+            />
+          </View>
+        </View>
+        <View className="px-4 pb-4">
+          <CustomButton
+            title="Send Code"
+            onPress={() => {
+              formik.handleSubmit();
+            }}
           />
         </View>
-      </View>
-      <View className="px-4 pb-4">
-        <CustomButton
-          title="Send Code"
-          onPress={() => {
-            formik.handleSubmit();
-          }}
-        />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 };

@@ -1,9 +1,7 @@
 import {
   View,
   Text,
-  ScrollView,
   SafeAreaView,
-  Platform,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
@@ -15,6 +13,7 @@ import { useLocalSearchParams } from "expo-router";
 import { TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
+import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
 type TPlanProps = {
   authResponse?: string;
@@ -22,6 +21,7 @@ type TPlanProps = {
 };
 
 export default function Paymentmethod() {
+  useRedirectIfIOS();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const dispatch = useAppDispatch();
 
