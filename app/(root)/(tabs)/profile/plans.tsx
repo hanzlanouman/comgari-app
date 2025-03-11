@@ -11,9 +11,10 @@ import { CustomButton } from "@/common/components";
 import PlanCard from "@/app/(root)/(tabs)/profile/components/PlanCardPro";
 import { useQuery } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
+import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
 const GoPro = () => {
-
+    useRedirectIfIOS();
     const [activeTab, setActiveTab] = useState("monthly");
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [priceId, setPriceId] = useState<string | undefined>(undefined);
@@ -92,6 +93,7 @@ const GoPro = () => {
                                 <PlanCard
                                     key={plan?.id}
                                     plan={plan?.name}
+                                    shcedule={plan.pricing?.[0].paymentSchedule}
                                     price={plan?.pricing[0]?.price}
                                     members={plan?.maxMembers}
                                     clients={plan?.maxClients}

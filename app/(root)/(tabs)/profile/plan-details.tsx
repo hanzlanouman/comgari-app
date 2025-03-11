@@ -9,9 +9,11 @@ import { differenceInDays, format } from "date-fns";
 import { getDaysSinceStart, getRemainingDaysAndTotal } from "@/utils";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSubscribed } from "@/store";
+import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 const paymentRepo = PaymentRepository.getInstance()
 
 const SubscribedPlanDetails = () => {
+    useRedirectIfIOS();
     const dispatch = useAppDispatch()
     const queryClient = useQueryClient()
 

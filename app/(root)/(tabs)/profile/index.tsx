@@ -12,7 +12,7 @@ import { logout } from "@/store";
 import { Upload, ChevronDown, ChevronUp, ChevronRight } from "lucide-react-native";
 import { AuthRepository } from "@/repositories/auth/auth";
 import { images } from "@/constants";
-import { pickImage, showErrorAlert, showSuccessAlert, updateUserProperty } from "@/utils";
+import { IS_ANDROID, pickImage, showErrorAlert, showSuccessAlert, updateUserProperty } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 import { useMutation } from "react-query";
 import { TDeleteAcountSchema } from "@/repositories";
@@ -134,14 +134,14 @@ const Profile = () => {
                     </View>
                 </View>
 
-                <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/profile/plan-details')} className="mt-6 border border-light rounded-xl">
+                {IS_ANDROID && <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/profile/plan-details')} className="mt-6 border border-light rounded-xl">
                     <View className="flex-row items-center justify-between p-4">
                         <Text className="text-base font-ManropeSemibold text-dark">
                             Upgarde Plan
                         </Text>
                         <ChevronRight size={18} className="text-dark-100" />
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity>}
 
                 {/* Update Profile Section */}
                 <View className="mt-6 border border-light rounded-xl">

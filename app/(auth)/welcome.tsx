@@ -11,11 +11,11 @@ import { scale, vs, verticalScale } from "react-native-size-matters";
 import { router } from "expo-router";
 import { route } from "@/common";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { IS_ANDROID } from "@/utils";
 
 const Welcome = () => {
   return (
     <SafeAreaProvider>
-
       <SafeAreaView className="flex-1 bg-white " edges={["bottom"]}>
         <ImageBackground
           source={images.welcome}
@@ -47,10 +47,10 @@ const Welcome = () => {
               onPress={() => router.push(route.auth.login)}
               className="bg-white w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">
               <Text className="text-sm sm:text-base font-ManropeSemibold text-blue">
-                I have an account
+                {IS_ANDROID ? "I have an account" : "Sign In"}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {IS_ANDROID && <TouchableOpacity
               onPress={() => {
                 router.push(route.auth.OnBoarding);
               }}
@@ -58,7 +58,7 @@ const Welcome = () => {
               <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
                 I’m new here
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
             <Text className="text-base sm:text-lg text-white font-ManropeMedium text-center px-5 mt-5">
               Let us handle the entire project from start to finish.
             </Text>

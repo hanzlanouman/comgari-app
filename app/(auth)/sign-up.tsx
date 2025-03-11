@@ -10,8 +10,10 @@ import { useMutation } from "react-query";
 import { SignupPayload } from "@/repositories/auth/schemas";
 import { OTP_TYPE } from "@/common/enum";
 import { route } from "@/common";
+import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
 const SignUp = () => {
+  useRedirectIfIOS();
   const authRepo = AuthRepository.getInstance();
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: Partial<SignupPayload>) => authRepo.register(payload),

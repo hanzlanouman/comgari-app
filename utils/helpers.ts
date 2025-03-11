@@ -1,13 +1,18 @@
-import { differenceInDays, format } from "date-fns";
+import { differenceInDays } from "date-fns";
 import { Platform } from "react-native";
 
 export const isIos = () => {
+    // return true;
     return Platform.OS === 'ios';
 }
 
 export const isAndroid = () => {
+    // return false;
     return Platform.OS === 'android';
 }
+
+export const IS_IOS = isIos();
+export const IS_ANDROID = isAndroid();
 
 const MIME_TYPES_MAP = {
     jpeg: "image/jpeg",
@@ -38,4 +43,10 @@ export const getDaysSinceStart = (startDate: Date | string) => {
 
 export const getRemainingDaysAndTotal = (startDate: Date | string, endDate: Date | string) => {
     return differenceInDays(new Date(endDate), new Date(startDate));
+}
+
+export const sentanceCase = (str: string | undefined | null) => {
+    if (!str) return ''
+    if (typeof str !== 'string') return str
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

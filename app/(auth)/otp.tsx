@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
-import InputField from "@/common/components/InputField";
-import { useRef, useState } from "react";
+import { SafeAreaView, View, Text } from "react-native";
+import { useRef } from "react";
 import CustomButton from "@/common/components/CustomButton";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { OTP_TYPE } from "@/common/enum";
 import { useRouter } from "expo-router";
 import { useAppDispatch } from "@/hooks/redux";
@@ -11,12 +10,11 @@ import { TLoginResponse, TVerifyCredPayload } from "@/repositories/auth/types";
 import { useFormik } from "formik";
 import { OtpSchema } from "@/repositories/auth/schemas";
 import { useMutation } from "react-query";
-import { login } from "@/store";
 import { AuthRepository } from "@/repositories/auth/auth";
 import { TextInput } from "react-native-gesture-handler";
 import OtpField from "@/common/components/OtpField";
 import { route } from "@/common";
-import { AppContainer } from "@/common/components";
+import { AppContainer, ErrorText } from "@/common/components";
 export type TOtpProps =
   | {
     username: string;
@@ -39,13 +37,9 @@ export type TOtpComponentProps = {
 };
 const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const AuthRepo = AuthRepository.getInstance();
   const { username, authResponse, type } = useLocalSearchParams<TOtpProps>();
 
-  const parsedAuthResponse: TLoginResponse = authResponse
-    ? JSON.parse(authResponse)
-    : undefined;
   const {
     mutate: verfifyCred,
     isError,
@@ -128,7 +122,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
             Verification code sent to your contact number and email. Please check your SMS or email.          </Text>
-          <View className="flex-row -mx-2 mt-5">
+          <View className="flex-row -mx-2 mt-5 mb-2">
             {formik.values.otp.map((_, index) => (
               <OtpField
                 key={index}
@@ -141,14 +135,14 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
                 type="text"
                 index={index}
                 inputRef={inputRefs}
-                error={
-                  formik.touched.otp && formik.errors.otp
-                    ? formik.errors.otp
-                    : ""
-                }
               />
             ))}
           </View>
+          <ErrorText
+            error={formik.touched.otp && formik.errors.otp ?
+              typeof formik.errors.otp === "string" ? formik.errors.otp : "Please enter the correct OTP code." : ""
+            }
+          />
           <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
             Don’t receive OTP:{" "}
             <Text

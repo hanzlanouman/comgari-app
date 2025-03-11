@@ -2,7 +2,8 @@ import { APP_NAMES } from "./enum";
 
 export const environment = process.env.NODE_ENV;
 
-const isDev = environment === "development";
+// const isDev = environment === "development";
+const isDev = false
 
 const SERVER_HOST = isDev
   ? "http://192.168.1.8"

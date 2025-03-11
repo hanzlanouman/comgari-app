@@ -9,8 +9,10 @@ import { router } from "expo-router";
 import { onboarding } from "@/constants";
 import CustomButton from "@/common/components/CustomButton";
 import { route } from "@/common";
+import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
 const Onboarding = () => {
+  useRedirectIfIOS();
   const swiperRef = useRef<Swiper>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const isLastSlide = activeIndex === onboarding.length - 1;
