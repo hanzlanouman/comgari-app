@@ -300,7 +300,7 @@ const Proposal = () => {
                           <View className="bg-blue w-1.5 h-1.5" />
                         </View>
                         <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                          {clientType || 'Construction'}
+                          {clientType?.replaceAll("_", " ") || 'Construction'}
                         </Text>
                       </View>
                     </View>

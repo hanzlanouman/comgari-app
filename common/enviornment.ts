@@ -2,11 +2,11 @@ import { APP_NAMES } from "./enum";
 
 export const environment = process.env.NODE_ENV;
 
-// const isDev = environment === "development";
-const isDev = false
+const isDev = environment === "development";
+// const isDev = false
 
 const SERVER_HOST = isDev
-  ? "http://192.168.1.8"
+  ? "http://192.168.1.6"
   : "https://api.comgari.com";
 
 export const SERVER_URL = `${SERVER_HOST}`;
