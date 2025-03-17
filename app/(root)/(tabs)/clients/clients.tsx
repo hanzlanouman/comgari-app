@@ -150,6 +150,7 @@ const Clients: React.FC = () => {
           refreshing={isLoading}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
+          contentContainerStyle={{ paddingBottom: vs(50) }}
         >
           <Text className="text-sm  text-dark-100 mt-3">
             Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.

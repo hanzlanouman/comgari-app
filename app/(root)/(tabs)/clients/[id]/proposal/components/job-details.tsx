@@ -157,7 +157,7 @@ const JobDetails = ({ initialData, onNext }: {
       {(formikProps) => (
         <>
 
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
             <View className="px-4">
               <View className="mt-4">
                 <DropdownSelect
@@ -257,7 +257,6 @@ const JobDetails = ({ initialData, onNext }: {
                   placeholder="Job Name"
                   onChangeText={formikProps.handleChange("job_name")}
                   onBlur={formikProps.handleBlur("job_name")}
-                  className="mt-2.5"
                 />
                 {formikProps.touched.job_name && formikProps.errors.job_name && (
                   <Text className="text-red mt-1">{formikProps.errors.job_name}</Text>
@@ -270,20 +269,17 @@ const JobDetails = ({ initialData, onNext }: {
                   placeholder="Job Phone"
                   onChangeText={formikProps.handleChange("job_phone")}
                   onBlur={formikProps.handleBlur("job_phone")}
-                  className="mt-2.5"
                 />
                 {formikProps.touched.job_phone && formikProps.errors.job_phone && (
                   <Text className="text-red mt-1">{formikProps.errors.job_phone}</Text>
                 )}
               </View>
               <View className="mt-2.5 relative">
-
                 <InputField
                   value={formikProps.values.project_director}
                   placeholder="Project Director"
                   onChangeText={formikProps.handleChange("project_director")}
                   onBlur={formikProps.handleBlur("project_director")}
-                  className="mt-2.5"
                 />
                 {formikProps.touched.project_director && formikProps.errors.project_director && (
                   <Text className="text-red mt-1">{formikProps.errors.project_director}</Text>
@@ -291,13 +287,11 @@ const JobDetails = ({ initialData, onNext }: {
               </View>
 
               <View className="mt-2.5 relative">
-
                 <InputField
                   value={formikProps.values.estimated_days.toString()}
                   placeholder="Estimated Days"
                   onChangeText={(text) => formikProps.setFieldValue("estimated_days", text)}
                   onBlur={formikProps.handleBlur("estimated_days")}
-                  className="mt-2.5"
                   keyboardType="numeric"
                 />
                 {formikProps.touched.estimated_days && formikProps.errors.estimated_days && (

@@ -256,7 +256,7 @@ const ClientDetailPage: React.FC = () => {
         <SafeAreaView className="flex-1 bg-white">
           <AppContainer isError={isError} isLoading={isLoading}>
             <ScrollView
-              contentContainerStyle={{ flexGrow: 1 }}
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
               className="px-4 pt-2.5">
               {client && <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
                 <View className="flex-row items-center border-b border-light pb-3.5">

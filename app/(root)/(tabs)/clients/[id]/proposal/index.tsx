@@ -105,10 +105,10 @@ const Proposal = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
   };
 
@@ -167,8 +167,8 @@ const Proposal = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView 
-        contentContainerStyle={{ flexGrow: 1 }} 
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         className="px-4"
         refreshControl={
           <RefreshControl
@@ -229,7 +229,7 @@ const Proposal = () => {
                         <View className="bg-blue w-1.5 h-1.5" />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                        {proposal.client?.type || 'Construction'}
+                        {proposal.client?.type?.replaceAll("_", " ") || 'Construction'}
                       </Text>
                     </View>
                     <Text

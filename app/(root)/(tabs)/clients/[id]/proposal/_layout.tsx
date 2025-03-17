@@ -1,9 +1,24 @@
-import { router, Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Plus } from "lucide-react-native";
 
 const Layout = () => {
+  const params = useLocalSearchParams();
+
+  const goBack = () => {
+    const canGoBack = router.canGoBack();
+    if (canGoBack) {
+      router.back();
+      return;
+    }
+    if (params?.clientId || params?.id) {
+      router.replace(`/(root)/(tabs)/clients/${params?.clientId || params?.id}`);
+      return;
+    }
+    router.replace("/(root)/(tabs)/clients/");
+  }
+
   return (
     <Stack
       screenOptions={{
@@ -20,10 +35,16 @@ const Layout = () => {
         headerShown: true,
       }}>
       <Stack.Screen
-        name="proposal"
+        name="index"
         options={{
           headerShown: true,
+          headerTitleAlign: "center",
           title: "Proposal",
+          headerLeft: () => (
+            <TouchableOpacity onPress={goBack}>
+              <ArrowLeft size={24} color="#1C1C1C" />
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}

@@ -79,7 +79,7 @@ const Notes = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }} className="px-4">
         {hasData ? (
           <View className="pb-4">
             {clientNotes?.map((note) => (

@@ -24,12 +24,12 @@ const AddProposal = () => {
     date: '',
     address: '',
     city: '',
-    zip_code: 0,
+    zip_code: undefined,
     job_name: '',
     job_phone: '',
     project_director: '',
-    estimated_days: 0,
-    estimated_cost: 0.0,
+    estimated_days: undefined,
+    estimated_cost: undefined,
     specification: '',
     project_id: 0,
   });
@@ -84,7 +84,7 @@ const AddProposal = () => {
     {
       onSuccess: () => {
         alert("Proposal updated successfully!");
-        router.push({
+        router.replace({
           pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
           params: { id: formData.project_id },
         });

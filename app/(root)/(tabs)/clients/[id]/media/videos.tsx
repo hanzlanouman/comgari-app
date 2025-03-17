@@ -16,6 +16,7 @@ import { ClientRepository } from "@/repositories/client/client";
 import { Action } from "@/common/enum";
 import { Trash2, X, Play } from "lucide-react-native";
 import { getImageUrl } from "@/constants";
+import { IS_ANDROID } from "@/utils";
 
 type MediaItem = {
   id?: number;
@@ -188,7 +189,7 @@ const VideosMediaDetailScreen = () => {
             <View
               style={{
                 position: "absolute",
-                top: 18,
+                top: IS_ANDROID ? 24 : 18,
                 left: 16,
                 right: 16,
                 zIndex: 10,

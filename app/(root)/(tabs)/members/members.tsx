@@ -144,7 +144,7 @@ const Members = () => {
             <MemberCard member={item} />
           </TouchableOpacity>}
           contentContainerStyle={{
-            paddingBottom: vs(10),
+            paddingBottom: vs(150),
           }}
           ListEmptyComponent={
             <View className="flex-grow flex-col items-center justify-center px-4">
