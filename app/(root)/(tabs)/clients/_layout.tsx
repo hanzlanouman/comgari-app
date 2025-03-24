@@ -37,7 +37,7 @@ const Layout = () => {
                 start={[0, 0]}
                 end={[1, 1]}>
                 <TouchableOpacity
-                  onPress={() => router.push("/(root)/(tabs)/clients/add-client")}
+                  onPressIn={() => router.push("/(root)/(tabs)/clients/add-client")}
                   className="w-full h-full rounded-full flex flex-row justify-center items-center">
                   <Plus size={18} color="#ffffff" />
                 </TouchableOpacity>

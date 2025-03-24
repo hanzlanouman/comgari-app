@@ -63,7 +63,7 @@ const NoteDetails = () => {
           end={[1, 1]}
         >
           <TouchableOpacity
-            onPress={() => actionModalRef.current?.present()}
+            onPressIn={() => actionModalRef.current?.present()}
             className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px"
           >
             <Pencil size={17} color="#ffffff" />

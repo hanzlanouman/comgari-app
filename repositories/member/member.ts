@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 //repositories\member\member.ts
 import { AxiosError } from "axios";
 import { TReponse } from "../auth";
@@ -94,7 +95,7 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
-  async getDashboard(): Promise<TReponse> {
+  async getDashboard(){
     try {
       const res = await get(`${BaseUrl + END_POINTS.Dashboard.GET_DASHBOARD.route}`, {
         show_loader: true,
