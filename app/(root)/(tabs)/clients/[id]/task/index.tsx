@@ -180,7 +180,7 @@ const Tasks = () => {
       start={[0, 0]}
       end={[1, 1]}>
       <TouchableOpacity
-        onPress={() => {
+        onPressIn={() => {
           addModalRef.current?.present();
         }}
         style={{

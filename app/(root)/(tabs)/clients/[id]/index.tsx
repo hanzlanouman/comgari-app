@@ -148,7 +148,7 @@ const ClientDetailPage: React.FC = () => {
       start={[0, 0]}
       end={[1, 1]}>
       <TouchableOpacity
-        onPress={() => {
+        onPressIn={() => {
           bottomSheetRef.current?.present();
         }}
         style={{

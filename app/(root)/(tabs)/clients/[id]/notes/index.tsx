@@ -68,9 +68,10 @@ const Notes = () => {
     enabled: !!clientId,
   });
 
+  
   const hasData =
-    clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
-
+  clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
+ 
   const processNoteText = (html: string) => {
     if (!html) return "";
     const strippedText = html.replace(/<[^>]*>/g, ''); // Remove HTML tags
@@ -90,9 +91,12 @@ const Notes = () => {
                   params: {
                     id: clientId,
                     noteId: note.id,
-                    noteDetails: JSON.stringify(note)
+                    noteDetails: JSON.stringify({...note, media: note.media.map(m=>({...m,localUri: getImageUrl(m.url)}))})
+                    
                   }
                 })}
+
+                // onPress={()=> {console.log(note)}}
                 className="border border-light p-3.5 rounded-[20px] mt-2.5"
               >
                 <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">

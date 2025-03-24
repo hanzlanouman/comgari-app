@@ -1,4 +1,4 @@
-//app\(root)\(tabs)\appointment\add-appointment.tsx
+
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, Alert } from "react-native";
 import { router } from "expo-router";

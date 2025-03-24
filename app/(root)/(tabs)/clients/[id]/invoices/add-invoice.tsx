@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  Platform,
+  // Platform,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -12,7 +12,7 @@ import { CustomButton, InputField } from "@/common/components";
 import DropdownSelect from "@/common/components/Select";
 import { router, useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
-import { CalendarDays, Euro } from "lucide-react-native";
+import { CalendarDays, DollarSignIcon } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ClientRepository } from "@/repositories/client/client";
 
@@ -168,7 +168,7 @@ const AddInvoiceScreen = () => {
                   keyboardType="numeric"
                   error={formik.touched.total_amount && formik.errors.total_amount}
                 />
-                <Euro
+                <DollarSignIcon
                   size={16}
                   className="text-dark-100 absolute top-[18px] right-4"
                 />
