@@ -9,7 +9,7 @@ import {
   View,
   Text,
 } from "react-native";
-import { CalendarDays, Euro } from "lucide-react-native";
+import { CalendarDays, DollarSign, DollarSignIcon } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CustomButton, InputField, DropdownSelect } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
@@ -321,7 +321,7 @@ const JobDetails = ({ initialData, onNext }: {
                   onBlur={formikProps.handleBlur("estimated_cost")}
                   keyboardType="decimal-pad"
                 />
-                <Euro size={16} color="#000000" className="absolute top-[18px] right-4" />
+                <DollarSignIcon size={16} color="#000000" className="absolute top-[18px] right-4" />
                 {formikProps.touched.estimated_cost && formikProps.errors.estimated_cost && (
                   <Text className="text-red mt-1">{formikProps.errors.estimated_cost}</Text>
                 )}

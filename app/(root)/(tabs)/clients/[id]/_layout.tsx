@@ -39,7 +39,7 @@ const Layout = () => {
 
 
               <TouchableOpacity
-                onPress={() =>
+                onPressIn={() =>
                   router.push({
                     pathname: "/clients/[id]/notes/add-note",
                     params: { id: clientId },
@@ -66,7 +66,7 @@ const Layout = () => {
               start={[0, 0]}
               end={[1, 1]}>
               <TouchableOpacity
-                onPress={() =>
+                onPressIn={() =>
                   router.push({
                     pathname: "/(root)/clients/[id]/invoices/add-invoice",
                     params: {

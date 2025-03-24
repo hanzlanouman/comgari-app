@@ -162,11 +162,11 @@ const Layout = () => {
       {tabScreens.map((screen) => (
         <Tabs.Screen
           key={screen.name}
-          name={screen.href || screen.name} // Use href if it's not null
+          name={screen.href || screen.name} 
           options={{
             title: screen.title,
             headerShown: screen.headerShown,
-            href: screen.href, // Pass href here
+            href: screen.href, 
             tabBarIcon: ({ focused }) => (
               <screen.icon color={focused ? "#1B78B9" : "#1C1C1C"} />
             ),
