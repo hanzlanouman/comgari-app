@@ -1,8 +1,10 @@
 import { View, Text, Image, Platform } from "react-native";
 import React from "react";
-import { images } from "@/constants";
+import { getImageUrl, images } from "@/constants";
 import { vs } from "react-native-size-matters";
 import { TMember } from "../members";
+
+
 const getRoleName = (roleId: number | undefined) => {
   switch (roleId) {
     case 2:
@@ -16,12 +18,14 @@ const getRoleName = (roleId: number | undefined) => {
   }
 };
 export default function MemberCard({ member }: { member: TMember }) {
+
+
   return (
     <View>
       <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
         <View className="relative items-center">
           <Image
-            source={member?.image ? member?.image : images?.user}
+            source={member.image ? {uri: getImageUrl(member.image)}: images.user}
             resizeMode="cover"
             className="rounded-full"
             style={{ width: vs(70), height: vs(70) }}

@@ -288,7 +288,7 @@ import { AuthRepository } from "@/repositories/auth/auth";
 import { images } from "@/constants";
 import { IS_ANDROID, pickImage, showErrorAlert, showSuccessAlert, updateUserProperty } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { TDeleteAcountSchema } from "@/repositories";
 import { useFormik } from "formik";
 import { router } from "expo-router";
@@ -298,6 +298,8 @@ const Profile = () => {
     const dispatch = useAppDispatch();
     const { user } = useAppSelector(state => state.auth)
     const { upload } = useUpload()
+
+    const queryClient = useQueryClient()
 
     const [fullName, setFullName] = useState("");
     const [oldPassword, setOldPassword] = useState("");
@@ -347,6 +349,9 @@ const Profile = () => {
             upload(result, async (url: string) => {
                 await authRepo.updateProfilePic({ avatar: url });
                 updateUserProperty('avatar', url)
+                queryClient.invalidateQueries({
+                    queryKey: ["member"]
+                })
             })
         } catch (e: any) {
             showErrorAlert(e?.message)

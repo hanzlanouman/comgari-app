@@ -116,7 +116,7 @@ const Members = () => {
             id: item?.Auth?.user?.id,
             user_name: item?.Auth?.username,
             full_name: item?.Auth?.user?.full_name,
-            image: item?.Auth?.user?.avatar,
+            image: item.Auth.user.avatar,
             phone: item?.Auth?.phone || undefined,
             email: item?.Auth?.email || '',
             role_id: item?.Auth?.user?.user_roles[0]?.role_id,
@@ -125,7 +125,7 @@ const Members = () => {
               ?.map((p: any) => p?.permission?.id || p?.permissionId)
               ?.filter((id: any) => id !== undefined) || [],
           }))
-          ?.sort((a, b) => b.id - a.id) // Sort members by descending order of `id`
+          ?.sort((a, b) => b.id - a.id) 
       );
     }
   }, [data]);
