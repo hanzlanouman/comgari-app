@@ -309,7 +309,7 @@ export class ClientRepository implements IClientRepository {
   }
   async getClients(
     payload: ClientListingPayload,
-    req: Request
+    // req: Request
   ): Promise<TReponse> {
     try {
       const res = await post(

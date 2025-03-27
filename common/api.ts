@@ -21,6 +21,7 @@ const getHeader = (headers: AxiosHeaders) => {
     newheaders["Content-Type"] = "application/json";
   }
 
+
   return newheaders;
 };
 

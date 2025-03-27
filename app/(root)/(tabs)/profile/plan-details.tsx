@@ -24,14 +24,15 @@ const SubscribedPlanDetails = () => {
         onSuccess: () => {
             refetch();
             queryClient.invalidateQueries(['subscription'])
-            dispatch(setSubscribed(true))
+            dispatch(setSubscribed(false))
         }
     })
 
-    const { data: currentPlan, refetch } = useQuery({
+    const { data: currentPlan, refetch, isLoading } = useQuery({
         queryKey: ['subscription'],
         queryFn: async () => {
             const response = await paymentRepo.getAgencySubscription()
+            console.log(response,"Agency Subscription Plan")
             return response.data[0]
         }
     })
@@ -45,12 +46,16 @@ const SubscribedPlanDetails = () => {
     const differnceInDays = currentPlan ? differenceInDays(currentPlan?.ExpiryDate, new Date()) : 0
     const totalDays = currentPlan ? getRemainingDaysAndTotal(currentPlan?.createdAt, currentPlan?.ExpiryDate) : 0
 
+    const handleUpgradePlan = () => {
+        router.push('/(root)/(tabs)/profile/plans')
+    }
+
     return (
         <ScrollView className="p-6">
             {isFreeTrial && (
                 <View>
                     <Text className="mt-4 text-xl sm:text-2xl leading-[1] font-ManropeBold font-bold text-black mb-2">
-                        You’re on a Free Trial
+                        You're on a Free Trial
                     </Text>
 
                     <Text className="text-sm font-ManropeSemibold text-dark-100 mb-2">
@@ -68,7 +73,7 @@ const SubscribedPlanDetails = () => {
                         </Text>
                     </View>
                     <View className="mb-4">
-                        <CustomButton title="Upgrade Plan" onPress={() => router.push('/(root)/(tabs)/profile/plans')} />
+                        <CustomButton title="Upgrade Plan" onPress={handleUpgradePlan} />
                     </View>
                     <View className="mb-5">
                         <ComfimationModelWithTrigger
@@ -131,33 +136,39 @@ const SubscribedPlanDetails = () => {
                             </View>
                             <View className="flex-1 ml-2">
                                 <Text className="text-sm font-ManropeRegular font-normal text-orange-500 ">
-                                    Your trial ends soon! Upgrade now.
+                                    Your subscription renews soon! Upgrade now.
                                 </Text>
                             </View>
                         </View>
                     </View>}
                     <View className="mb-4">
-                        <CustomButton title="Upgrade Plan" onPress={() => router.push('/(root)/(tabs)/profile/plans')} />
+                        <CustomButton title="Upgrade Plan" onPress={handleUpgradePlan} />
                     </View>
                     <View className="mb-5">
-                        <TouchableOpacity className="bg-red w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">
-                            <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
-                                Cancel Plan
-                            </Text>
-                        </TouchableOpacity>
+                        <ComfimationModelWithTrigger
+                            Button={({ onPress }) => (
+                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">
+                                    <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
+                                        Cancel Plan
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            message="Are you sure you want to cancel your subscription?"
+                            onConfirm={() => cancelSubscriptionMutation.mutate()}
+                        />
                     </View>
                 </View>
             )}
-            {!currentPlan && (
+            {!currentPlan && !isLoading && (
                 <View>
                     <Text className="text-xl sm:text-2xl leading-[1] font-ManropeBold font-bold text-black mb-2">
-                        You dont have any active subscription
+                        You don't have any active subscription
                     </Text>
                     <Text className="text-sm font-ManropeRegular font-normal text-dark-100 mb-2">
                         Please select a plan to continue using Comgari
                     </Text>
                     <View className="mb-4">
-                        <CustomButton title="Select Plan" onPress={() => router.push('/(root)/(tabs)/profile/plans')} />
+                        <CustomButton title="Select Plan" onPress={handleUpgradePlan} />
                     </View>
                 </View>
             )}
