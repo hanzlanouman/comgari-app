@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { AxiosError } from "axios";
 import { TLoginResponse, TReponse } from "../auth";
 import { del, get, post } from "@/common/api";
@@ -57,11 +58,12 @@ export class PaymentRepository implements IPaymentRepository {
         `${BaseUrl + END_POINTS.PAYMENT.GET_SUBSCRIPTION.route}`,
         {
           show_loader: true,
-          headers: authResponse
-            ? { Authorization: `Bearer ${JSON.parse(authResponse).access_token}` }
-            : undefined,
+          // headers: authResponse
+          //   ? { Authorization: `Bearer ${JSON.parse(authResponse).access_token}` }
+          //   : undefined,
         }
       );
+
       return res;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   View,
   Text,
@@ -14,10 +15,12 @@ import { TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
+import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
 
 type TPlanProps = {
   authResponse?: string;
-  selectedPlanPrice: any;
+  selectedPlanPrice: string;
+  isNewSubscription?: string;
 };
 
 export default function Paymentmethod() {
@@ -28,6 +31,7 @@ export default function Paymentmethod() {
   const searchParams = useLocalSearchParams<TPlanProps>();
   const authResponse = searchParams.authResponse;
   const selectedPlanPrice = searchParams.selectedPlanPrice;
+  const isNewSubscription = searchParams.isNewSubscription === "true";
 
   const parsedAuthResponse = React.useMemo(
     () => (authResponse ? (JSON.parse(authResponse) as TLoginResponse) : null),
@@ -38,6 +42,7 @@ export default function Paymentmethod() {
   const queryClient = useQueryClient();
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState<string>("");
 
   const { data: cards } = useQuery(
     ["cards"],
@@ -63,11 +68,17 @@ export default function Paymentmethod() {
   );
 
   const onConfirmPayment = async () => {
-    const payload = {
+    const payload: Partial<TCreateSubscriptionPayload> & { totalClient: number } = {
       id: selectedPlanPrice,
-      paymentMethod_id: selectedCard,
+      paymentMethod_id: selectedCard || "",
       totalClient: 20,
     };
+    
+    // Add coupon code to payload if provided and this is a new subscription
+    if (isNewSubscription && couponCode.trim()) {
+      payload.coupon = couponCode.trim();
+    }
+    
     return parsedAuthResponse
       ? await paymentRepo.createSubscription(payload, parsedAuthResponse)
       : await paymentRepo.createSubscription(payload);
@@ -130,6 +141,13 @@ export default function Paymentmethod() {
     setSelectedCard(cardId);
   };
 
+  const handleConfirmPayment = (coupon?: string) => {
+    if (coupon) {
+      setCouponCode(coupon);
+    }
+    confirmPayment();
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
       <StripeProvider
@@ -147,7 +165,7 @@ export default function Paymentmethod() {
           cards={cards?.data || []}
           onAddCard={onAddCard}
           handleSelectCard={handleSelectCard}
-          onConfirmPayment={confirmPayment}
+          onConfirmPayment={handleConfirmPayment}
           selectedCard={selectedCard}
         />
       </StripeProvider>

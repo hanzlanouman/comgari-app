@@ -159,7 +159,7 @@ const Media: React.FC = () => {
         }}>
         <View className="mb-5">
           <Text className="text-base font-ManropeRegular text-gray-500 mt-1">
-            You can find all the media files you uploaded ever in the Comgarli.
+            You can find all the media files you uploaded ever in the Comgari.
           </Text>
         </View>
 
