@@ -11,11 +11,13 @@ import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAppDispatch } from "@/hooks/redux";
-import {  setSubscribed } from "@/store";
+import { setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
+import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
 
 type TPlanProps = {
-  selectedPlanPrice: any;
+  selectedPlanPrice: string;
+  isNewSubscription?: string;
 };
 
 export default function Paymentmethod() {
@@ -25,11 +27,29 @@ export default function Paymentmethod() {
 
   const searchParams = useLocalSearchParams<TPlanProps>();
   const selectedPlanPrice = searchParams.selectedPlanPrice;
+  const isNewSubscription = searchParams.isNewSubscription === "false";
 
   const paymentRepo = PaymentRepository.getInstance();
   const queryClient = useQueryClient();
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // First check if user already has a subscription
+  const { data: agencySubscription } = useQuery(
+    "profileAgencySubscription",
+    async () => paymentRepo.getAgencySubscription(),
+    {
+      enabled: true,
+      onSuccess: (data) => {
+      
+        if (data?.data?.hasSubscription && !isNewSubscription) {
+          router.replace("/(root)/(tabs)/profile/plans");
+        }
+      }
+    }
+  );
 
   const { data: cards } = useQuery(
     ["cards"],
@@ -49,11 +69,23 @@ export default function Paymentmethod() {
   );
 
   const onConfirmPayment = async () => {
-    const payload = {
+   
+    if (agencySubscription?.data?.hasSubscription) {
+      setErrorMessage("You already have a subscription. Please use upgrade option from the plans page.");
+      return;
+    }
+
+    const payload: Partial<TCreateSubscriptionPayload> & { totalClient: number } = {
       id: selectedPlanPrice,
-      paymentMethod_id: selectedCard,
+      paymentMethod_id: selectedCard || "",
       totalClient: 20,
     };
+    
+    // Add coupon code if provided
+    if (couponCode.trim()) {
+      payload.coupon = couponCode.trim();
+    }
+    
     return paymentRepo.createSubscription(payload);
   };
 
@@ -66,6 +98,7 @@ export default function Paymentmethod() {
       },
       onError: (error) => {
         console.error("Payment failed:", error);
+        setErrorMessage(`Payment failed: ${error}`);
       },
     }
   );
@@ -112,6 +145,13 @@ export default function Paymentmethod() {
     setSelectedCard(cardId);
   };
 
+  const handleConfirmPayment = (coupon?: string) => {
+    if (coupon) {
+      setCouponCode(coupon);
+    }
+    confirmPayment();
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
       <StripeProvider
@@ -125,12 +165,17 @@ export default function Paymentmethod() {
           </Text>
         </View>
 
+        <View className="my-3 px-4">
+          {errorMessage && <Text className="text-red text-center">{errorMessage}</Text>}
+        </View>
+
         <Cards
           cards={cards?.data || []}
           onAddCard={onAddCard}
           handleSelectCard={handleSelectCard}
-          onConfirmPayment={confirmPayment}
+          onConfirmPayment={handleConfirmPayment}
           selectedCard={selectedCard}
+          isNewSubscription={isNewSubscription}
         />
       </StripeProvider>
     </SafeAreaView>

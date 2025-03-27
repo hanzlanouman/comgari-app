@@ -9,20 +9,41 @@ import {
 import { router } from "expo-router";
 import { CustomButton } from "@/common/components";
 import PlanCard from "@/app/(root)/(tabs)/profile/components/PlanCardPro";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
+import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
+import { TReponse } from "@/repositories/auth";
+
+interface Subscription {
+    id: string;
+    name: string;
+    maxMembers: number;
+    maxClients: number;
+    pricing: {
+        price: number;
+        price_id: string;
+        paymentSchedule: string;
+    }[];
+}
+
+interface AgencySubscriptionResponse {
+    data: {
+        hasSubscription: boolean;
+        defaultPaymentMethod: string;
+    };
+}
 
 const GoPro = () => {
     useRedirectIfIOS();
     const [activeTab, setActiveTab] = useState("monthly");
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [priceId, setPriceId] = useState<string | undefined>(undefined);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const paymentRepo = PaymentRepository.getInstance();
 
-    const { data: subscriptions } = useQuery(
+    const { data: subscriptions } = useQuery<TReponse>(
         "subscription",
         async () => paymentRepo.getSubscription(),
         {
@@ -30,14 +51,35 @@ const GoPro = () => {
         }
     );
 
+    const { data: agencySubscription } = useQuery<AgencySubscriptionResponse>(
+        "agencySubscription",
+        async () => paymentRepo.getAgencySubscription(),
+        {
+            enabled: true,
+        }
+    );
+
+    const { mutate: upgradeSubscription, isLoading: isUpgrading } = useMutation(
+        (payload: TCreateSubscriptionPayload) => paymentRepo.updateAgencySubscription(payload),
+        {
+            onSuccess: () => {
+                
+                alert("Subscription upgraded successfully!");
+            },
+            onError: (error) => {
+                setErrorMessage(`Failed to upgrade: ${error}`);
+            }
+        }
+    );
+
     const handlePress = (plan: string, price: string) => {
         setSelectedPlan(plan);
         setPriceId(price);
-        setErrorMessage(null); // Clear error message when a plan is selected
+        setErrorMessage(null);
     };
 
     // Filter plans based on active tab
-    const plans = subscriptions?.data?.filter((subscription) =>
+    const plans = subscriptions?.data?.filter((subscription: Subscription) =>
         activeTab === "monthly"
             ? subscription.pricing[0].paymentSchedule === "month"
             : subscription.pricing[0].paymentSchedule === "year"
@@ -45,17 +87,34 @@ const GoPro = () => {
 
     const handleBuyNow = () => {
         if (!selectedPlan) {
-            setErrorMessage("Please select a plan."); // Set error message if no plan is selected
+            setErrorMessage("Please select a plan.");
             return;
         }
 
-        router.push({
-            pathname: "/(root)/(tabs)/profile/payment-method",
-            params: {
-                selectedPlanPrice: priceId,
-            },
-        });
-
+        // Check if user has an existing subscription
+        if (agencySubscription?.data?.hasSubscription) {
+            // Upgrade existing subscription
+            if (!priceId) {
+                setErrorMessage("Invalid plan selection.");
+                return;
+            }
+            
+            const payload: TCreateSubscriptionPayload = {
+                id: priceId,
+                paymentMethod_id: agencySubscription.data.defaultPaymentMethod
+            };
+            
+            upgradeSubscription(payload);
+        } else {
+            // New subscription - navigate to payment method page
+            router.push({
+                pathname: "/(root)/(tabs)/profile/payment-method",
+                params: {
+                    selectedPlanPrice: priceId,
+                    isNewSubscription: "true"
+                },
+            });
+        }
     };
 
     return (
@@ -63,7 +122,10 @@ const GoPro = () => {
             <ScrollView>
                 <View className="flex-1 px-4 py-4 relative z-10">
                     <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-                        Choose a plan to unlock all of Comgari’s premium features.{"\n"}
+                        {agencySubscription?.data?.hasSubscription 
+                            ? "Upgrade your plan to unlock more features." 
+                            : "Choose a plan to unlock all of Comgari's premium features."}
+                        {"\n"}
                         <Text className="text-red">Cancel</Text> at any time.
                     </Text>
 
@@ -88,13 +150,13 @@ const GoPro = () => {
                         </TouchableOpacity>
                     </View>
                     <View className="mt-4">
-                        {plans?.map((plan) => {
+                        {plans?.map((plan: Subscription) => {
                             return (
                                 <PlanCard
                                     key={plan?.id}
                                     plan={plan?.name}
                                     shcedule={plan.pricing?.[0].paymentSchedule}
-                                    price={plan?.pricing[0]?.price}
+                                    price={Number(plan?.pricing[0]?.price)}
                                     members={plan?.maxMembers}
                                     clients={plan?.maxClients}
                                     isSelected={selectedPlan === plan?.name}
@@ -108,8 +170,9 @@ const GoPro = () => {
 
                     <View className="mt-4">
                         <CustomButton
-                            title="Upgrade Now"
-                            onPress={handleBuyNow} // Use the new handleBuyNow function
+                            title={agencySubscription?.data?.hasSubscription ? "Upgrade Plan" : "Get Started"}
+                            onPress={handleBuyNow}
+                            disabled={isUpgrading}
                         />
                     </View>
                 </View>

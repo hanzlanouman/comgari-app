@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity, TextInput } from "react-native";
 import { images } from "@/constants";
 import { scale, vs } from "react-native-size-matters";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,8 +19,9 @@ interface CardsProps {
   cards: CardData[];
   selectedCard: string | null;
   onAddCard: () => void;
-  onConfirmPayment: () => void;
+  onConfirmPayment: (coupon?: string) => void;
   handleSelectCard: (cardId: string) => void;
+  isNewSubscription?: boolean;
 }
 
 const Cards: React.FC<CardsProps> = ({
@@ -29,17 +30,24 @@ const Cards: React.FC<CardsProps> = ({
   onAddCard,
   onConfirmPayment,
   handleSelectCard,
+  isNewSubscription = true,
 }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState<string>("");
 
   const handleConfirmPayment = () => {
     if (!selectedCard) {
-      setErrorMessage("Please select a payment method."); // Set error message if no card is selected
+      setErrorMessage("Please select a payment method.");
       return;
     }
 
     setErrorMessage(null);
-    onConfirmPayment();
+    
+    if (isNewSubscription && couponCode.trim()) {
+      onConfirmPayment(couponCode.trim());
+    } else {
+      onConfirmPayment();
+    }
   };
 
   return (
@@ -80,6 +88,21 @@ const Cards: React.FC<CardsProps> = ({
                 <ChevronRight size={18} stroke="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
+
+            {/* Coupon code field - only visible for new subscriptions */}
+            {isNewSubscription && (
+              <View className="mt-4">
+                <Text className="text-dark-100 text-sm font-ManropeMedium mb-1">
+                  Have a coupon code?
+                </Text>
+                <TextInput
+                  className="border border-gray-300 rounded-lg p-3 text-sm"
+                  placeholder="Enter coupon code"
+                  value={couponCode}
+                  onChangeText={setCouponCode}
+                />
+              </View>
+            )}
           </View>
         ) : (
           <View className="flex-grow flex-col items-center justify-center px-4">
@@ -90,7 +113,7 @@ const Cards: React.FC<CardsProps> = ({
               className="mx-auto"
             />
             <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center mt-6 px-4">
-              We can’t find any payment method, please add one!
+              We can't find any payment method, please add one!
             </Text>
             <View className="w-[158px] mx-auto mt-5">
               <CustomButton title="Add Card" onPress={onAddCard} />

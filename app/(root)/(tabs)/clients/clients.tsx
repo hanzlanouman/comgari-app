@@ -57,9 +57,10 @@ const Clients: React.FC = () => {
         limit,
       };
 
-      const response = await clientRepo.getClients(clientListingPayload, {
-        user,
-      });
+      const response = await clientRepo.getClients(clientListingPayload)
+      //   , {
+      //   user,
+      // });
       return response;
     },
     {

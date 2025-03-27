@@ -1,14 +1,14 @@
 // app/(root)/tabs/clients/_layout.tsx
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
+import {  TouchableOpacity } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plus } from "lucide-react-native";
-import WithRole from "@/common/components/withRole";
+// import WithRole from "@/common/components/withRole";
 
 const Layout = () => {
   const { id } = useLocalSearchParams();
-  const clientId = parseInt(id);
+  const clientId = Number(id);
 
   return (
     <Stack
@@ -18,9 +18,9 @@ const Layout = () => {
           fontFamily: "Manrope-SemiBold",
         },
         headerStyle: {
-          borderBottomWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
+          // borderBottomWidth: 0,
+          // elevation: 0,
+          // shadowOpacity: 0,
         },
         headerShadowVisible: false,
       }}>
