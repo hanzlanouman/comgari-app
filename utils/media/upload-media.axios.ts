@@ -1,49 +1,43 @@
-import { BaseUrl, UserUrl } from '@/common'
-import axios from 'axios'
-import { M, Media, TUploadMediaResponse } from '@/utils/media/types'
+// import axios from 'axios'
+import { Media, TUploadMediaResponse } from '@/utils/media/types'
 
-const postUrl = BaseUrl + UserUrl + '/upload'
+export default async function uploadMedia(url: string, media: Media, fieldName?: string, up?: (percentage: number) => void): Promise<TUploadMediaResponse>
 
-export default async function uploadMedia<TMedia extends M>(media: TMedia, fieldName?: string, up?: (percentage: number) => void): Promise<TUploadMediaResponse<TMedia>>
+export default async function uploadMedia(url: string, media: Media, fieldName = 'data', up?: (percentage: number) => void): Promise<TUploadMediaResponse> {
+    try {
+        fetch(url, {
+            method: 'PUT',
+            // @ts-ignore
+            body: media,
+            headers: {
+                'Content-Type': media.type,
+            },
+        });
 
-export default async function uploadMedia(media: M, fieldName = 'files', up?: (percentage: number) => void): Promise<TUploadMediaResponse<M>> {
-    let mediaPayload: Media[] = [];
-    if (!Array.isArray(media)) {
-        mediaPayload = [media]
-    } else {
-        mediaPayload = media
-    }
-    const formData = new FormData()
-    // @ts-ignore
-    mediaPayload.forEach(m => formData.append(fieldName, m))
+        // not using axios for r2
+        // const formData = new FormData()
+        // // @ts-ignore
+        // formData.append(fieldName, media)
 
-    const json = await axios.post(postUrl, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent: any) => {
-            if (up) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total
-                );
-                up(percentCompleted)
-            }
-        }
-    })
+        // await axios.put(url, media, {
+        //     headers: {
+        //         'Content-Type': media.type,
+        //     },
+        //     onUploadProgress: (progressEvent: any) => {
+        //         if (up) {
+        //             const percentCompleted = Math.round(
+        //                 (progressEvent.loaded * 100) / progressEvent.total
+        //             );
+        //             up(percentCompleted)
+        //         }
+        //     }
+        // })
 
-    if (!json?.data?.data || json?.data?.data?.length < 1) {
+        return { isSuccess: true, error: undefined }
+    } catch (e: any) {
         return {
             isSuccess: false,
-            result: undefined,
-            error: "Could not upload media"
+            error: e?.message || "Could not upload media"
         }
     }
-
-    if (json?.data?.data?.length === 1) {
-        return { isSuccess: true, result: json?.data?.data[0].filename, error: undefined }
-    }
-
-    const result = (json?.data?.data as { filename: string }[])?.map(d => d.filename)
-
-    return { isSuccess: true, result, error: undefined }
 }

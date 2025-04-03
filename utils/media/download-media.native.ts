@@ -2,7 +2,7 @@ import ReactNativeBlobUtil, { ReactNativeBlobUtilConfig } from 'react-native-blo
 
 import { PermissionsAndroid } from 'react-native';
 
-import { getMimeTypeFromFileName, isIos } from '../helpers';
+import { getMimeTypeFromFileName, IS_ANDROID, isIos } from '../helpers';
 
 import { TDownloadResponse } from './types';
 
@@ -63,14 +63,16 @@ async function downloadImage(url: string): Promise<TDownloadResponse> {
     return config(options)
         .fetch('GET', url)
         .then(async (res) => {
-            await MediaCollection.copyToMediaStore({
-                name: filename,
-                parentFolder: '',
-                mimeType: getMimeTypeFromFileName(filename),
-            },
-                'Download',
-                res.path()
-            );
+            if (IS_ANDROID) {
+                await MediaCollection.copyToMediaStore({
+                    name: filename,
+                    parentFolder: '',
+                    mimeType: getMimeTypeFromFileName(filename),
+                },
+                    'Download',
+                    res.path()
+                );
+            }
             return {
                 success: true,
                 message: 'File Downloaded Successfully.',

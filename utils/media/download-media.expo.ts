@@ -59,6 +59,11 @@ const MoveFile = async (uri: string): Promise<TDownloadResponse> => {
                     success: true,
                     message: 'File Downloaded Successfully.'
                 };
+            } else {
+                return {
+                    success: false,
+                    message: 'Sharing is not available on this device.'
+                }
             }
         }
 

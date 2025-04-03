@@ -60,7 +60,7 @@ const Home = () => {
         receivedAmount: invoiceConversion.recivedAmount || 0,
         pendingAmount: invoiceConversion.pendingAmount || 0,
       });
-    } catch (error) {
+    } catch (_e:any) {
       setIsError(true);
       setError("Failed to fetch dashboard data. Please try again.");
     } finally {

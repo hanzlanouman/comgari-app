@@ -14,9 +14,8 @@ export type MediaArray = Media[]
 
 export type M = Media | MediaArray
 
-export type TUploadMediaSuccess<T> = {
+export type TUploadMediaSuccess = {
     isSuccess: true,
-    result: T,
     error: undefined
 }
 
@@ -33,14 +32,7 @@ export type TPickerResponse<TMultiple extends boolean> =
         PickerSuccess<Media>
     ) | TMediaError
 
-export type TUploadMediaResponse<TMedia extends M> =
-    (
-        TMedia extends MediaArray ?
-        TUploadMediaSuccess<string[]>
-        :
-        TUploadMediaSuccess<string>
-    )
-    | TMediaError
+export type TUploadMediaResponse = TUploadMediaSuccess | Omit<TMediaError, 'result'>
 
 
 export type TDownloadResponse = {

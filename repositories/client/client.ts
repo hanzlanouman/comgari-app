@@ -22,7 +22,9 @@ import {
   CreateProjectPayload,
   UpdateClientPayload,
   ClientListingPayload,
+  TPresignedUrlPayload,
 } from "./schemas";
+import { TPresignedUrlResponse } from "./types";
 
 type TClientReponse = {
   statusCode: boolean;
@@ -32,6 +34,7 @@ type TClientReponse = {
 
 interface IClientRepository {
   uploadMedia(file: any): Promise<TReponse>;
+  getPresignedUrl(payload: TPresignedUrlPayload): Promise<TPresignedUrlResponse>;
   createClient(req: Request, payload: CreateClientPayload): Promise<TReponse>;
   deleteClient(req: Request, clientId: number): Promise<TReponse>;
   updateClient(
@@ -255,6 +258,20 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
+
+  async getPresignedUrl(payload: TPresignedUrlPayload): Promise<TPresignedUrlResponse> {
+    try {
+      const res = await post(
+        `${BaseUrl}${END_POINTS.Client.GET_PRESIGNED_URL.route}`,
+        { files: payload }
+      );
+
+      return res.data;
+    } catch (e) {
+      throw getErrorMessage(e);
+    }
+  }
+
   async createClient(
     req: Request,
     payload: CreateClientPayload
@@ -509,3 +526,6 @@ export class ClientRepository implements IClientRepository {
     }
   }
 }
+
+
+export const clientRepo = ClientRepository.getInstance();

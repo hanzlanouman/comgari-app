@@ -47,7 +47,7 @@ export const InputField = ({
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="w-full">
           {label && (
-            <Text className={`text-sm font-ManropMedium ${labelStyle}`}>
+            <Text className={`text-sm font-ManropeMedium mb-1.5 ${labelStyle}`}>
               {label}
             </Text>
           )}

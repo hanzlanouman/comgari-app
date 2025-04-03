@@ -8,6 +8,8 @@ export const CustomButton = ({
   onPress,
   title,
   className,
+  IconRight,
+  iconSize,
   ...props
 }: ButtonProps) => {
   return (
@@ -23,6 +25,13 @@ export const CustomButton = ({
         <Text className="text-sm sm:text-base font-ManropSemibold text-white text-center">
           {title}
         </Text>
+        {IconRight && (
+          <IconRight
+            size={iconSize}
+            color="#ffffff"
+            className="mr-2 relative top-px"
+          />
+        )}
       </TouchableOpacity>
     </LinearGradient>
   );

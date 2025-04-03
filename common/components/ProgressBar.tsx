@@ -1,35 +1,14 @@
-import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
+import { View } from "react-native";
 
-interface ProgressBarProps {
-  progress: number; 
-  color?: string; 
-  height?: number; 
-  style?: ViewStyle; 
-}
-
-const ProgressBar: React.FC<ProgressBarProps> = ({ progress, color = "#2196F3", height = 8, style }) => {
+export const ProgressBar = ({ progress }) => {
   return (
-    <View style={[styles.progressContainer, { height, ...style }]}>
+    <View className="bg-gray-dark w-full h-2 rounded-lg">
       <View
-        style={[
-          styles.progressBar,
-          { width: `${progress}%`, backgroundColor: color, borderRadius: height / 2 },
-        ]}
+        className="bg-blue h-full rounded-lg"
+        style={{ width: `${progress}%` }}
       />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  progressContainer: {
-    backgroundColor: "#E5E7EB", 
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  progressBar: {
-    height: "100%",
-  },
-});
-
-export { ProgressBar };
+export default ProgressBar;

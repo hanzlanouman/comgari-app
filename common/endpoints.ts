@@ -156,6 +156,11 @@ export const END_POINTS = {
     }
   },
   Client: {
+    GET_PRESIGNED_URL: {
+      route: UserUrl + '/upload/presigned-url',
+      method: 'POST',
+      description: 'Get presigned url for uploading files'
+    },
     CREATE_CLIENT: {
       route: UserUrl + "/client",
       method: "POST",

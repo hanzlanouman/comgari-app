@@ -1,9 +1,9 @@
 //app\(root)\(tabs)\clients\_layout.tsx
-import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
+import { router, Stack } from "expo-router";
+import { TouchableOpacity } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pencil, Plus, Upload } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
 import WithRole from "@/common/components/withRole";
 import { useAppSelector } from "@/hooks/redux";
 

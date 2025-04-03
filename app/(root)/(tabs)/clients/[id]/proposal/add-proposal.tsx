@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -13,7 +13,6 @@ import { ClientRepository } from "@/repositories/client/client";
 
 const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
-  const queryClient = useQueryClient();
 
   // Get route params
   const { proposalId: proposalId, ...initialParams } = useLocalSearchParams();
@@ -59,6 +58,7 @@ const AddProposal = () => {
       }));
     }
   }, [isEditing]);
+
 
   // Mutation for creating a proposal
   const createProposalMutation = useMutation(

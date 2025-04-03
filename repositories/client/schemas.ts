@@ -192,18 +192,18 @@ export const createProposalSchema = Yup.object().shape({
   estimated_days: Yup.number()
     .integer('Estimated Days must be an integer')
     .required('Estimated Days is required'),
-    estimated_cost: Yup.string()
+  estimated_cost: Yup.string()
     .matches(
       /^\d+(\.\d{1,2})?$/,
       "Estimated cost must be a valid decimal number (e.g., 100.00)"
     )
     .required("Estimated cost is required"),
-      project_id: Yup.number()
+  project_id: Yup.number()
     .integer('Project ID must be an integer')
     .required('Project ID is required'),
 });
 enum InvoiceStatus {
-ccc
+  ccc
 }
 
 export const createInvoiceSchema = Yup.object().shape({
@@ -219,13 +219,22 @@ export const createInvoiceSchema = Yup.object().shape({
       (value) => value !== undefined && /^\d+(\.\d{1,2})?$/.test(value.toString())
     )
     .required('Total amount is required'),
-    status: Yup.string()
-      .oneOf(Object.values(InvoiceStatus), "Invalid status")
-      .required("Status is required"),
+  status: Yup.string()
+    .oneOf(Object.values(InvoiceStatus), "Invalid status")
+    .required("Status is required"),
   project_id: Yup.number()
     .integer('Project ID must be an integer')
     .required('Project ID is required'),
 });
+
+export const PresignedUrlPayload = Yup.array().of(
+  Yup.object().shape({
+    name: Yup.string().required("name is required"),
+    extension: Yup.string().required("extension is required"),
+  })
+);
+
+export type TPresignedUrlPayload = Yup.InferType<typeof PresignedUrlPayload>;
 export type CreateInvoicePayload = Yup.InferType<typeof createInvoiceSchema>;
 export type CreateProposalPayload = Yup.InferType<typeof createProposalSchema>;
 export type CreateClientPayload = Yup.InferType<typeof createClientSchema>;

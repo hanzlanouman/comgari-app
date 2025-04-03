@@ -50,3 +50,7 @@ export const sentanceCase = (str: string | undefined | null) => {
     if (typeof str !== 'string') return str
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export const getExtension = (fileName: string) => {
+    return fileName.split('.').pop();
+}
