@@ -101,8 +101,8 @@ const NoteDetails = () => {
               <View className="flex-row items-center">
                 <Image
                   source={
-                    note.project?.created_by?.avatar
-                      ? { uri: getImageUrl(note.project.created_by.avatar) }
+                    note.author.user?.avatar
+                      ? { uri: getImageUrl(note.author.user?.avatar) }
                       : images.user
                   }
                   resizeMode="cover"
@@ -111,7 +111,7 @@ const NoteDetails = () => {
                 />
                 <View className="pl-4">
                   <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                    {note.project?.created_by?.user?.full_name || "Unknown User"}
+                    {note.author.user?.full_name || "Unknown User"}
                   </Text>
                   <Text className="text-base font-ManropeMedium text-dark-100 mt-1">
                     {new Date(note.created_at).toLocaleDateString()}

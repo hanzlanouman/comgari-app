@@ -56,7 +56,7 @@ export function DateTimePicker({ minimumTime, minimumTimeMessage, date, setDate,
                 mode="datetime"
                 onConfirm={handleConfirm}
                 onCancel={hideDatePicker}
-                buttonTextColorIOS="#000"
+                buttonTextColorIOS="#FFFFFF"
             />
         </>
     );

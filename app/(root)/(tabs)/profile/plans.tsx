@@ -9,7 +9,7 @@ import {
 import { router } from "expo-router";
 import { CustomButton } from "@/common/components";
 import PlanCard from "@/app/(root)/(tabs)/profile/components/PlanCardPro";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
@@ -41,6 +41,8 @@ const GoPro = () => {
     const [priceId, setPriceId] = useState<string | undefined>(undefined);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const queryClient = useQueryClient();
+
     const paymentRepo = PaymentRepository.getInstance();
 
     const { data: subscriptions } = useQuery<TReponse>(
@@ -63,6 +65,7 @@ const GoPro = () => {
         (payload: TCreateSubscriptionPayload) => paymentRepo.updateAgencySubscription(payload),
         {
             onSuccess: () => {
+                queryClient.invalidateQueries(["subscription"]);
                 
                 alert("Subscription upgraded successfully!");
             },

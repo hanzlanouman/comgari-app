@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
@@ -9,6 +11,7 @@ import {
   Image,
   RefreshControl,
   Alert,
+  Platform,
 } from "react-native";
 import { ChevronDown, ChevronUp, Download } from "lucide-react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -17,6 +20,7 @@ import { CustomButton } from "@/common/components";
 import { images, UNITS } from "@/constants";
 import * as Print from 'expo-print';
 import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
+import * as Sharing from 'expo-sharing';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -129,7 +133,7 @@ const InvoicesScreen = () => {
       const response = await clientRepo.getInvoices(Number(projectId));
       const fetchedInvoices = response.data || [];
       const sortedInvoices = fetchedInvoices.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       setInvoices(sortedInvoices);
     } catch (error) {
@@ -186,14 +190,29 @@ const InvoicesScreen = () => {
   };
 
   const handleDownloadInvoice = async (invoice) => {
-    const uri = await generateInvoicePDF(invoice);
-    if (!uri) return;
+    try {
+      const uri = await generateInvoicePDF(invoice);
+      if (!uri) return;
 
-    const resp = await moveFile(uri);
-    if (!resp.success)
-      showErrorAlert(resp.message);
-    else
-      showSuccessAlert(resp.message);
+      if (Platform.OS === 'ios') {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Save Invoice',
+          UTI: 'com.adobe.pdf'
+        });
+        showSuccessAlert('Invoice ready to save');
+      } else {
+        const resp = await moveFile(uri);
+        if (!resp.success) {
+          showErrorAlert(resp.message);
+        } else {
+          showSuccessAlert(resp.message);
+        }
+      }
+    } catch (error) {
+      
+      showErrorAlert('Failed to download invoice');
+    }
   }
 
   useFocusEffect(

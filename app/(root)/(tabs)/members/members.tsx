@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  Modal,
+  StyleSheet,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/constants";
@@ -47,6 +49,8 @@ const Members = () => {
   const [member, setMembers] = useState<TMember[]>([]);
   const queryClient = useQueryClient();
   const [selectedMember, setSelectedMember] = useState<TMember | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
   const { user } = useAppSelector((state) => state.auth);
   const { getPermission } = useAuthorization();
   const actionModalRef = useRef<BottomSheetModal>(null);
@@ -54,26 +58,18 @@ const Members = () => {
   const { data, isError, error, refetch } = useQuery(["member"], MemberRepo.getMember);
 
   const deleteMemberMutation = useMutation({
-    mutationFn: () => {
-      if (!selectedMember) throw new Error("No member selected");
-      return MemberRepo.deleteMember(selectedMember.id);
+    mutationFn: (memberId: number) => {
+      return MemberRepo.deleteMember(memberId);
     },
-    onSuccess: async () => {
-      queryClient.setQueryData(["member"], (oldMembers: TMember[] = []) =>
-        oldMembers.filter((member) => member.id !== selectedMember?.id)
-      );
-
-      await queryClient.invalidateQueries({
-        queryKey: ["member"],
-      });
-
+    onSuccess:  () => {
+      queryClient.invalidateQueries(["member"]);
+      setDeleteModalOpen(false);
       actionModalRef.current?.dismiss();
     },
     onError: (error) => {
       console.error("Error deleting member:", error);
-      queryClient.invalidateQueries({
-        queryKey: ["member"],
-      });
+      setDeleteModalOpen(false);
+      queryClient.invalidateQueries(["member"]);
     },
   });
 
@@ -98,9 +94,20 @@ const Members = () => {
 
   const handleDeletePress = useCallback(() => {
     if (selectedMember) {
-      deleteMemberMutation.mutate();
+      setMemberToDelete(selectedMember.id);
+      setDeleteModalOpen(true);
     }
-  }, [selectedMember, deleteMemberMutation]);
+  }, [selectedMember]);
+
+  const confirmDelete = useCallback(() => {
+    if (memberToDelete !== null) {
+      deleteMemberMutation.mutate(memberToDelete);
+    }
+  }, [memberToDelete, deleteMemberMutation]);
+
+  const cancelDelete = useCallback(() => {
+    setDeleteModalOpen(false);
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -125,7 +132,7 @@ const Members = () => {
               ?.map((p: any) => p?.permission?.id || p?.permissionId)
               ?.filter((id: any) => id !== undefined) || [],
           }))
-          ?.sort((a, b) => b.id - a.id) 
+          ?.sort((a: any, b: any) => b.id - a.id)
       );
     }
   }, [data]);
@@ -175,9 +182,97 @@ const Members = () => {
           onUpdate={handleUpdatePress}
           onDelete={handleDeletePress}
         />
+        
+        {/* Delete Confirmation Modal */}
+        <Modal
+          visible={deleteModalOpen}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={cancelDelete}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Delete Member</Text>
+              <Text style={styles.modalText}>
+                Are you sure you want to delete this member? This action cannot be undone.
+              </Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.deleteButton]}
+                  onPress={confirmDelete}
+                >
+                  <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={cancelDelete}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </AppContainer>
     </SafeAreaView>
   );
 };
 
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
+  },
+  cancelButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#dc3545',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  cancelButtonText: {
+    color: '#dc3545',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});
+
 export default Members;
+
+
+

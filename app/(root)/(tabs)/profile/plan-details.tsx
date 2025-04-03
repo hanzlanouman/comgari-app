@@ -2,7 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { ComfimationModelWithTrigger, ProgressBar } from "@/common/components";
 import { OctagonAlert } from "lucide-react-native";
 import CustomButton from "@/common/components/CustomButton";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { differenceInDays, format } from "date-fns";
@@ -10,6 +10,7 @@ import { getDaysSinceStart, getRemainingDaysAndTotal } from "@/utils";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
+import { useCallback } from "react";
 const paymentRepo = PaymentRepository.getInstance()
 
 const SubscribedPlanDetails = () => {
@@ -36,6 +37,14 @@ const SubscribedPlanDetails = () => {
             return response.data[0]
         }
     })
+
+    useFocusEffect(
+        useCallback(() => {
+            
+            refetch();
+            console.log("Refetching subscription data on focus");
+        }, [refetch])
+    );
 
     const daysSince = currentPlan?.createdAt ? getDaysSinceStart(currentPlan?.createdAt) : 0
     const totalTrialDays = currentPlan?.avaliableTrails || 7

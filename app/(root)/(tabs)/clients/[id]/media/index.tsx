@@ -129,7 +129,7 @@ const Media: React.FC = () => {
       start={[0, 0]}
       end={[1, 1]}>
       <TouchableOpacity
-        onPress={pickMedia}
+        onPressIn={pickMedia}
         style={{
           width: "100%",
           height: "100%",

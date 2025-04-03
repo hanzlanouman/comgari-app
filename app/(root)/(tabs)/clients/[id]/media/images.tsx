@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -11,12 +11,15 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { Trash2, X } from "lucide-react-native";
+import { useLocalSearchParams, useNavigation } from "expo-router";
+import { Trash2, X, Upload } from "lucide-react-native";
 import { Action } from "@/common/enum";
 import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
-import { IS_ANDROID } from "@/utils";
+import { IS_ANDROID, pickDocument, showErrorAlert } from "@/utils";
+import { LinearGradient } from "expo-linear-gradient";
+import { useMutation } from "react-query";
+import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {
   id?: number;
@@ -40,7 +43,10 @@ const ImagesMediaDetailScreen = () => {
   );
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const clientRepo = ClientRepository.getInstance();
+  const navigation = useNavigation();
+  const { uploadAsync } = useUpload();
 
   const windowWidth = Dimensions.get("window").width;
   const spacingBetweenImages = 16;
@@ -228,6 +234,102 @@ const ImagesMediaDetailScreen = () => {
       </Modal>
     );
   };
+
+  const saveMediaMutation = useMutation(async (mediaItems: MediaItem[]) => {
+    const payload = {
+      files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
+        url,
+        mimeType,
+        clientId,
+        ownerId,
+        ownerType,
+      })),
+    };
+    return await clientRepo.saveClientMedia(payload);
+  });
+
+  const pickMedia = async () => {
+    try {
+      const resp = await pickDocument(true, { type: "image/*" })
+      if (!resp.isSuccess) {
+        showErrorAlert(resp.error)
+        return
+      }
+      setIsUploading(true);
+      const uploadedMediaItems = []
+      for (const file of resp.result) {
+        const res = await uploadAsync(file)
+        if (res.isSuccess) {
+          uploadedMediaItems.push({
+            url: res.result,
+            mimeType: file.type,
+            clientId: Number(id),
+            ownerId: Number(id),
+            ownerType: "client",
+          })
+        }
+      }
+      await saveMediaMutation.mutateAsync(uploadedMediaItems);
+      
+      try {
+        // Refresh the list with newly added items
+        const response = await clientRepo.getClientMedia({
+          client_id: Number(id),
+          owner_id: Number(id),
+          owner_type: "client",
+        });
+        
+        // Handle the response safely
+        const mediaItems = Array.isArray(response) ? response : [];
+        
+        // Filter for image type
+        const updatedImageItems = mediaItems.filter((item: any) => 
+          item.mimeType && item.mimeType.startsWith("image/")
+        );
+        
+        setParsedItems(updatedImageItems);
+      } catch (fetchError) {
+        console.error("Error fetching updated media:", fetchError);
+      }
+      
+      setIsUploading(false);
+    } catch (error: any) {
+      showErrorAlert(error?.message)
+      setIsUploading(false);
+    }
+  };
+
+  const UploadButton = () => (
+    <LinearGradient
+      colors={["#1B78B9", "#63348F"]}
+      style={{
+        borderRadius: 999,
+        width: 32,
+        height: 32,
+      }}
+      start={[0, 0]}
+      end={[1, 1]}>
+      <TouchableOpacity
+        onPressIn={pickMedia}
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        disabled={isUploading}>
+        <Upload size={18} color="#ffffff" />
+      </TouchableOpacity>
+    </LinearGradient>
+  );
+  
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: "Images",
+      headerRight: () => <UploadButton />,
+    });
+  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
