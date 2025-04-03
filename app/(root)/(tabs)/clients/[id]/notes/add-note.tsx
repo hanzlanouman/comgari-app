@@ -183,7 +183,7 @@ const AddNote = () => {
       const newUploadedMediaItems: MediaItem[] = [];
       for (const file of resp.result) {
         const res = await uploadAsync(file)
-        if (res.isSuccess) {
+        if (res.isSuccess && res.result) {
           newUploadedMediaItems.push({
             url: res.result,
             mimeType: file.type,

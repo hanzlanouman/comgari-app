@@ -1,71 +1,89 @@
-import { hideProgress, Media, showErrorAlert, showProgress, uploadMedia } from "@/utils"
+import { clientRepo } from "@/repositories"
+import { TPresignedUrlPayload } from "@/repositories/client/schemas"
+import { getExtension, hideProgress, Media, showErrorAlert, showProgress, uploadMedia } from "@/utils"
 import { useMutation } from "react-query"
 
+type TUploadMediaAsync = { url: string, media: Media, uploadProgress: (per: number) => void }
+
 export const useUpload = () => {
-    const { mutate, reset, mutateAsync } = useMutation({
-        mutationFn: async ({ media, uploadProgress }: { media: Media, uploadProgress: (per: number) => void }) => uploadMedia(media, undefined, true, uploadProgress),
+    const {
+        reset: resetPresignedUrl,
+        mutateAsync: getPresignedUrlAsync
+    } = useMutation({
+        mutationFn: (payload: TPresignedUrlPayload) => clientRepo.getPresignedUrl(payload),
+        onError: (error: any) => {
+            showErrorAlert(error?.message)
+        },
+    })
+
+    const { reset, mutateAsync } = useMutation({
+        mutationFn: async ({ url, media, uploadProgress }: TUploadMediaAsync) =>
+            uploadMedia(url, media, undefined, true, uploadProgress),
         retry: 3,
-        retryDelay: 500,
+        retryDelay: 1000,
         onError: (error: any) => {
             hideProgress()
             showErrorAlert(error?.message)
         },
     })
 
-    const { mutate: mutateMultiple, reset: resetMultiple, mutateAsync: mutateMutlipleAsync } = useMutation({
-        mutationFn: async ({ media, uploadProgress }: { media: Media[], uploadProgress: (per: number) => void }) => uploadMedia(media, undefined, true, uploadProgress),
-        retry: 3,
-        retryDelay: 500,
-        onError: (error: any) => {
-            hideProgress()
-            showErrorAlert(error?.message)
-        },
-    })
+    const formatPayload = (media: Media[]) => {
+        return media.map((item) => {
+            const extension = getExtension(item.name)
+            if (!extension) throw new Error("Invalid file extension")
 
-    const upload = (media: Media, onSuccess: (data: string) => void) => {
-        reset()
-        mutate({ media, uploadProgress }, {
-            onSuccess: (data) => {
-                hideProgress()
-                if (!data.isSuccess) {
-                    showErrorAlert(data.error)
-                } else {
-                    onSuccess(data.result)
-                }
-            }
-        })
-    }
-
-    const uploadMultiple = (media: Media[], onSuccess: (data: string[]) => void) => {
-        resetMultiple()
-        mutateMultiple({ media, uploadProgress }, {
-            onSuccess: (data) => {
-                hideProgress()
-                if (!data.isSuccess) {
-                    showErrorAlert(data.error)
-                } else {
-                    onSuccess(data.result)
-                }
+            return {
+                name: item.name,
+                extension: getExtension(item.name) || "jpg",
             }
         })
     }
 
     const uploadAsync = async (media: Media) => {
-        const resp = await mutateAsync({ media, uploadProgress })
-        hideProgress()
-        if (!resp.isSuccess) {
-            showErrorAlert(resp.error)
-        }
-        return resp
-    }
+        try {
+            resetPresignedUrl()
+            reset()
 
-    const uploadMutlipleAsync = async (media: Media[]) => {
-        const resp = await mutateMutlipleAsync({ media, uploadProgress })
-        hideProgress()
-        if (!resp.isSuccess) {
-            showErrorAlert(resp.error)
+            const payload = formatPayload([media])
+            const result = await getPresignedUrlAsync(payload)
+            if (!result || result.length < 1) throw new Error("Invalid response")
+
+            const presignedUrlResp = result[0]
+            const transformedMedia: Media = {
+                ...media,
+                name: presignedUrlResp.updatedName,
+            }
+
+            const resp = await mutateAsync({
+                url: presignedUrlResp.signedUrl,
+                media: transformedMedia,
+                uploadProgress
+            })
+
+            hideProgress()
+            if (!resp.isSuccess) {
+                showErrorAlert(resp.error)
+
+                return {
+                    isSuccess: false,
+                    result: undefined,
+                    error: resp.error
+                }
+            }
+
+            return {
+                isSuccess: true,
+                result: presignedUrlResp.fileUrl,
+                error: undefined
+            }
+        } catch (e: any) {
+            showErrorAlert(e?.message || "Something went wrong")
+            return {
+                isSuccess: false,
+                result: undefined,
+                error: e?.message || "Something went wrong"
+            }
         }
-        return resp
     }
 
     const uploadProgress = (percentage: number) => {
@@ -76,5 +94,5 @@ export const useUpload = () => {
         }
     }
 
-    return { upload, uploadMultiple, uploadAsync, uploadMutlipleAsync }
+    return { uploadAsync }
 }

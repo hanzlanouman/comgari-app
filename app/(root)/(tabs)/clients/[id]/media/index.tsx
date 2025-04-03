@@ -99,7 +99,7 @@ const Media: React.FC = () => {
       const uploadedMediaItems = []
       for (const file of resp.result) {
         const res = await uploadAsync(file)
-        if (res.isSuccess) {
+        if (res.isSuccess && res.result) {
           uploadedMediaItems.push({
             url: res.result,
             mimeType: file.type,

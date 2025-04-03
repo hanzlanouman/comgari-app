@@ -23,7 +23,7 @@ const authRepo = AuthRepository.getInstance();
 const Profile = () => {
     const dispatch = useAppDispatch();
     const { user } = useAppSelector(state => state.auth)
-    const { upload } = useUpload()
+    const { uploadAsync } = useUpload()
 
     const [fullName, setFullName] = useState("");
     const [oldPassword, setOldPassword] = useState("");
@@ -71,10 +71,11 @@ const Profile = () => {
                 showErrorAlert(error);
                 return;
             }
-            upload(result, async (url: string) => {
-                await authRepo.updateProfilePic({ avatar: url });
-                updateUserProperty('avatar', url)
-            })
+            const res = await uploadAsync(result)
+            if (res.isSuccess && res.result) {
+                await authRepo.updateProfilePic({ avatar: res.result });
+                updateUserProperty('avatar', res.result)
+            }
         } catch (e: any) {
             showErrorAlert(e?.message)
         }

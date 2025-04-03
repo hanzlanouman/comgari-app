@@ -7,7 +7,6 @@ import { InputField, MutlitSelectWithDefault } from "@/common/components";
 import { OptionType, ClientType, ClientStatus } from "@/common/types";
 import { Action } from "@/common/enum";
 import DropdownSelect from "@/common/components/Select";
-import MultiSelectDropdown from "@/common/components/MultiSelect";
 import { ClientRepository } from "@/repositories/client/client";
 import { images, getImageUrl } from "@/constants";
 import { useUpload } from "@/hooks/use-upload";
@@ -45,8 +44,7 @@ export default function AddClientForm({
   memberOptions,
   isEditing,
 }: AddClientFormProps) {
-  const clientRepo = ClientRepository.getInstance();
-  const { upload } = useUpload()
+  const { uploadAsync } = useUpload()
   const [selectedMembers, setSelectedMembers] = useState<number[]>(
     formik.values.member_ids || []
   );
@@ -106,10 +104,11 @@ export default function AddClientForm({
         showErrorAlert(rep.error)
         return
       }
-      upload(rep.result, async (url: string) => {
-        formik.setFieldValue("logo", url)
-        setImagePreview(getImageUrl(url))
-      })
+      const res = await uploadAsync(rep.result)
+      if (res.isSuccess && res.result) {
+        formik.setFieldValue("logo", res.result)
+        setImagePreview(res.result)
+      }
     } catch (error: any) {
       showErrorAlert(error?.message)
     }
