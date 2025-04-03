@@ -18,6 +18,17 @@ type ClientCardProps = {
       id: number;
       member_id: number;
       client_id: number;
+      auth?: {
+        user?: {
+          id: number;
+          full_name: string;
+          avatar: string | null;
+          authId: number;
+          notification_token: string | null;
+          created_at: string;
+          updated_at: string;
+        }
+      };
     }>;
   };
   onPress: () => void;
@@ -98,16 +109,22 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
       </Text>
 
       <View className="flex-row items-center mt-3.5">
-        {(client.client_user || []).slice(0, 2).map((member, index) => (
-          <Image
-            key={member.id}
-            source={images.user}
-            resizeMode="cover"
-            className={`rounded-full border-2 border-white ${index > 0 ? "relative -ml-3.5" : ""
-              }`}
-            style={{ width: vs(35), height: vs(35) }}
-          />
-        ))}
+        {(client.client_user || []).slice(0, 2).map((member, index) => {
+          const avatar = member.auth?.user?.avatar;
+          const source = avatar ? {uri: getImageUrl(avatar)} : images.user;
+          return (
+            <Image
+              key={member.id}
+              source={source}
+              resizeMode="cover"
+              className={`rounded-full border-2 border-white ${index > 0 ? "relative -ml-3.5" : ""
+                }`}
+              style={{ width: vs(35), height: vs(35) }}
+            />
+          )
+        })
+        }
+       
         <Text className="text-base font-ManropeMedium text-dark ml-3.5">
           Members
         </Text>

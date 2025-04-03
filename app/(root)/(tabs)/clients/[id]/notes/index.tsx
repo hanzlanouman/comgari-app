@@ -1,4 +1,5 @@
-//app\(root)\(tabs)\clients\[id]\notes\index.tsx
+
+
 import React from "react";
 import {
   SafeAreaView,
@@ -36,7 +37,7 @@ const Notes = () => {
       end={[1, 1]}
     >
       <TouchableOpacity
-        onPress={() => router.push(
+        onPressIn={() => router.push(
           `/clients/${clientId}/notes/add-note`,
         )}
         style={{
@@ -82,47 +83,50 @@ const Notes = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }} className="px-4">
         {hasData ? (
           <View className="pb-4">
-            {clientNotes?.map((note) => (
-              <TouchableOpacity
-                key={note.id}
-                onPress={() => router.push({
-                  pathname: "/(root)/(tabs)/clients/[id]/notes/[noteId]",
-                  params: {
-                    id: clientId,
-                    noteId: note.id,
-                    noteDetails: JSON.stringify(note)
-                  }
-                })}
-                className="border border-light p-3.5 rounded-[20px] mt-2.5"
-              >
-                <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
-                  {processNoteText(note?.notes)}
-                </Text>
-                <View className="flex-row items-center justify-between mt-2.5">
-
-                  <View className="flex-row items-center">
-                    <Image
-                      source={
-                        note.project?.created_by?.avatar
-                          ? { uri: getImageUrl(note?.project?.created_by?.user?.avatar) }
-                          : images.user
-                      }
-                      resizeMode="cover"
-                      className="rounded-full"
-                      style={{ width: vs(30), height: vs(30) }}
-                    />
-                    <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
-                      {note.project?.created_by?.user?.full_name ||
-                        "Unknown User"}
+            {clientNotes
+              ?.slice() // Create a shallow copy to avoid mutating the original array
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Sort by latest first
+              .map((note) => (
+                <TouchableOpacity
+                  key={note.id}
+                  onPress={() => router.push({
+                    pathname: "/(root)/(tabs)/clients/[id]/notes/[noteId]",
+                    params: {
+                      id: clientId,
+                      noteId: note.id,
+                      noteDetails: JSON.stringify({
+                        ...note,
+                        media: note.media.map(m => ({ ...m, localUri: getImageUrl(m.url) }))
+                      })
+                    }
+                  })}
+                  className="border border-light p-3.5 rounded-[20px] mt-2.5"
+                >
+                  <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
+                    {processNoteText(note?.notes)}
+                  </Text>
+                  <View className="flex-row items-center justify-between mt-2.5">
+                    <View className="flex-row items-center">
+                      <Image
+                        source={
+                          note.project?.created_by?.avatar
+                            ? { uri: getImageUrl(note?.project?.created_by?.user?.avatar) }
+                            : images.user
+                        }
+                        resizeMode="cover"
+                        className="rounded-full"
+                        style={{ width: vs(30), height: vs(30) }}
+                      />
+                      <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
+                        {note.project?.created_by?.user?.full_name || "Unknown User"}
+                      </Text>
+                    </View>
+                    <Text className="text-sm text-dark-100 font-ManropeMedium">
+                      {new Date(note.created_at)?.toLocaleDateString()}
                     </Text>
                   </View>
-                  <Text className="text-sm text-dark-100 font-ManropeMedium">
-                    {new Date(note.created_at)?.toLocaleDateString()}
-                  </Text>
-                </View>
-
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))}
           </View>
         ) : (
           <View className="flex-grow flex-col items-center justify-center px-4">

@@ -35,6 +35,7 @@ interface AddClientFormProps {
   statusOptions: OptionType[];
   memberOptions: OptionType[];
   isEditing?: boolean;
+  ClientStatus: typeof ClientStatus;
 }
 
 export default function AddClientForm({
@@ -43,6 +44,7 @@ export default function AddClientForm({
   statusOptions,
   memberOptions,
   isEditing,
+  ClientStatus,
 }: AddClientFormProps) {
   const { uploadAsync } = useUpload()
   const [selectedMembers, setSelectedMembers] = useState<number[]>(
@@ -208,8 +210,9 @@ export default function AddClientForm({
           fieldName="type"
         />
       </View>
+      {isEditing && (
 
-      <View className="mt-3">
+        <View className="mt-3">
         <DropdownSelect
           placeholder="Status"
           data={statusOptions}
@@ -219,12 +222,13 @@ export default function AddClientForm({
           }}
           error={
             typeof formik.errors.status === "string"
-              ? formik.errors.status
-              : undefined
+            ? formik.errors.status
+            : undefined
           }
           fieldName="status"
-        />
+          />
       </View>
+        )}
 
       <View className="mt-3">
         <TextInput

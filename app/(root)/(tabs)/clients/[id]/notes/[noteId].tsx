@@ -21,12 +21,15 @@ import { useLocalSearchParams, useNavigation, router } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import ActionModal from "../../components/ActionModal";
 import { AssetPreview } from "@/common/components";
+import { useQueryClient } from "react-query";
 
 const NoteDetails = () => {
   const { id, noteId, noteDetails } = useLocalSearchParams();
   const note = noteDetails ? JSON.parse(noteDetails as string) : null;
 
   const clientRepo = ClientRepository.getInstance();
+  const queryClient = useQueryClient();
+
   const navigation = useNavigation();
   const actionModalRef = useRef<BottomSheetModal>(null);
 
@@ -45,6 +48,7 @@ const NoteDetails = () => {
   const handleDeletePress = async () => {
     try {
       await clientRepo.deleteNote(noteId);
+      queryClient.invalidateQueries(["clientNotes"])
       navigation.goBack();
     } catch (error) {
       console.error("Failed to delete note", error);
@@ -63,7 +67,7 @@ const NoteDetails = () => {
           end={[1, 1]}
         >
           <TouchableOpacity
-            onPress={() => actionModalRef.current?.present()}
+            onPressIn={() => actionModalRef.current?.present()}
             className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px"
           >
             <Pencil size={17} color="#ffffff" />

@@ -52,7 +52,7 @@ const Layout = () => {
               start={[0, 0]}
               end={[1, 1]}>
               <TouchableOpacity
-                onPress={() =>
+                onPressIn={() =>
                   router.push(
                     "/(root)/(tabs)/clients/[id]/proposal/job-details"
                   )

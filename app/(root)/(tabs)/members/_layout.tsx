@@ -34,7 +34,7 @@ const Layout = () => {
                 start={[0, 0]}
                 end={[1, 1]}>
                 <TouchableOpacity
-                  onPress={() =>
+                  onPressIn={() =>
                     router.push("/(root)/(tabs)/members/add-member")
                   }
                   className="w-full h-full rounded-full flex flex-row justify-center items-center">
