@@ -109,8 +109,8 @@ const Notes = () => {
                     <View className="flex-row items-center">
                       <Image
                         source={
-                          note.project?.created_by?.avatar
-                            ? { uri: getImageUrl(note?.project?.created_by?.user?.avatar) }
+                          note.author.user.avatar
+                            ? { uri: getImageUrl(note?.author.user?.avatar) }
                             : images.user
                         }
                         resizeMode="cover"
@@ -118,7 +118,7 @@ const Notes = () => {
                         style={{ width: vs(30), height: vs(30) }}
                       />
                       <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
-                        {note.project?.created_by?.user?.full_name || "Unknown User"}
+                        {note.author.user?.full_name || "Unknown User"}
                       </Text>
                     </View>
                     <Text className="text-sm text-dark-100 font-ManropeMedium">

@@ -101,7 +101,7 @@ const navigationItems = [
     id: 4,
     icon: "media",
     title: "Media",
-    description: "Find all media files here",
+    description: "Find and upload media",
     route: "/(root)/(tabs)/clients/{projectId}/media",
   },
   {
