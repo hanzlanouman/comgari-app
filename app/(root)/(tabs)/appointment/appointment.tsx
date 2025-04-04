@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
 import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
@@ -6,62 +6,71 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router, useFocusEffect } from "expo-router";
 import ActionModal from "../clients/components/ActionModal";
 import { format } from 'date-fns';
+import { useQuery, useQueryClient } from 'react-query';
+import { SimpleActivityIndicator } from "@/common/components/Loader";
 
 const Appointment = () => {
-  const [items, setItems] = useState({});
+  const [items, setItems] = useState<Record<string, any[]>>({});
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const clientRepo = ClientRepository.getInstance();
   const actionModalRef = useRef<BottomSheetModal>(null);
+  const queryClient = useQueryClient();
 
-  const fetchAppointments = async () => {
-    try {
+  const { isLoading, isFetching } = useQuery(
+    'appointments',
+    async () => {
       const response = await clientRepo.getAppointment();
-      if (!response.data || response.data.length === 0) {
-        setItems({});
-        setIsLoading(false);
-        return;
-      }
-      const transformedItems = response.data.reduce((acc, appointment) => {
-        const formattedDate = format(new Date(appointment.date), 'yyyy-MM-dd');
-
-        if (!acc[formattedDate]) {
-          acc[formattedDate] = [];
+      return response.data || [];
+    },
+    {
+      onSuccess: (appointmentsData) => {
+        if (!appointmentsData || appointmentsData.length === 0) {
+          setItems({});
+          return;
         }
+        
+        const transformedItems = appointmentsData.reduce((acc: Record<string, any[]>, appointment: any) => {
+          const formattedDate = format(new Date(appointment.date), 'yyyy-MM-dd');
 
-        // Extract member names
-        const memberNames = appointment.appointment_member
-          .map(member => member.Auth.user?.full_name || 'Unknown')
-          .join(', ');
+          if (!acc[formattedDate]) {
+            acc[formattedDate] = [];
+          }
 
-        acc[formattedDate].push({
-          id: appointment.id,
-          name: appointment.title,
-          startTime: new Date(appointment.start_time),
-          endTime: new Date(appointment.end_time),
-          address: appointment.notes || 'None',
-          status: appointment.status,
-          clientName: appointment.client.name,
-          memberNames: memberNames,
-          fullAppointmentData: appointment
-        });
+          // Extract member names
+          const memberNames = appointment.appointment_member
+            .map((member: any) => member.Auth.user?.full_name || 'Unknown')
+            .join(', ');
 
-        return acc;
-      }, {});
+          acc[formattedDate].push({
+            id: appointment.id,
+            name: appointment.title,
+            startTime: new Date(appointment.start_time),
+            endTime: new Date(appointment.end_time),
+            address: appointment.notes || 'None',
+            status: appointment.status,
+            clientName: appointment.client.name,
+            memberNames: memberNames,
+            fullAppointmentData: appointment
+          });
 
-      setItems(transformedItems);
-    } catch (error) {
-      console.error('Failed to fetch appointments', error);
-      setItems({});
-    } finally {
-      setIsLoading(false);
+          return acc;
+        }, {});
+
+        setItems(transformedItems);
+      },
+      staleTime: 0, // Always consider data stale to ensure refetching
+      cacheTime: 1000 * 60 * 5 // Cache for 5 minutes
     }
-  };
+  );
 
-  useFocusEffect(useCallback(() => { fetchAppointments() }, []));
+  useFocusEffect(
+    React.useCallback(() => {
+      queryClient.invalidateQueries('appointments');
+    }, [queryClient])
+  );
 
-  const handleAppointmentPress = (item) => {
+  const handleAppointmentPress = (item: any) => {
     setSelectedAppointment(item);
     actionModalRef.current?.present();
   };
@@ -70,7 +79,7 @@ const Appointment = () => {
     if (!selectedAppointment) return;
     const appointment = selectedAppointment.fullAppointmentData;
 
-    const members = appointment.appointment_member.map(member => ({
+    const members = appointment.appointment_member.map((member: any) => ({
       id: member.member_id,
       name: member.Auth.user?.full_name || 'Unknown',
     }));
@@ -99,45 +108,16 @@ const Appointment = () => {
     if (selectedAppointment) {
       try {
         await clientRepo.deleteAppointment(selectedAppointment.id);
-        // Refresh appointments after deletion
-        const response = await clientRepo.getAppointment();
-        const transformedItems = response.data.reduce((acc, appointment) => {
-          const formattedDate = new Date(appointment.date).toISOString().split('T')[0];
-
-          if (!acc[formattedDate]) {
-            acc[formattedDate] = [];
-          }
-
-          const memberNames = appointment.appointment_member
-            .map(member => member.Auth.user?.full_name || 'Unknown')
-            .join(', ');
-
-          const appointmentItem = {
-            id: appointment.id,
-            name: appointment.title,
-            startTime: appointment.start_time,
-            endTime: appointment.end_time,
-            address: appointment.notes || 'None',
-            status: appointment.status,
-            clientName: appointment.client.name,
-            memberNames: memberNames,
-            fullAppointmentData: appointment
-          };
-
-          acc[formattedDate].push(appointmentItem);
-
-          return acc;
-        }, {});
+        // Invalidate and refetch after deletion
+        queryClient.invalidateQueries('appointments');
         actionModalRef.current?.dismiss();
-
-        setItems(transformedItems);
       } catch (error) {
         console.error('Failed to delete appointment', error);
       }
     }
   };
 
-  const formatTime = (isoTime) => {
+  const formatTime = (isoTime: string) => {
     const date = new Date(isoTime);
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -146,16 +126,15 @@ const Appointment = () => {
     });
   };
 
-  const getInitials = (name) => {
+  const getInitials = (name: string) => {
     const nameParts = name.split(" ");
-    return nameParts.map(part => part[0]).join("").toUpperCase();
+    return nameParts.map((part: string) => part[0]).join("").toUpperCase();
   };
 
-  const renderAgendaItem = (item) => {
-
+  const renderAgendaItem = (item: any) => {
     return (
       <TouchableOpacity
-        onPress={() => handleAppointmentPress(item)}
+        onPressIn={() => handleAppointmentPress(item)}
         className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md"
       >
         {/* Appointment details */}
@@ -191,10 +170,10 @@ const Appointment = () => {
     </View>
   );
 
-  const markedDates = Object.keys(items).reduce((acc, date) => {
+  const markedDates = Object.keys(items).reduce((acc: Record<string, any>, date: string) => {
     acc[date] = {
       marked: true,
-      dotColor: items[date].length > 0 ? '#1B78B9' : undefined
+      dotColor: items[date]?.length > 0 ? '#1B78B9' : undefined
     };
     return acc;
   }, {});
@@ -202,29 +181,33 @@ const Appointment = () => {
   return (
     <SafeAreaView className="flex-1">
       <View className="mb-4 flex-1">
-        <Agenda
-          items={items}
-          selected={selectedDate}
-          renderItem={renderAgendaItem}
-          renderEmptyData={renderEmptyDate}
-          onDayPress={(day) => {
-            setSelectedDate(day.dateString);
-          }}
-          markedDates={markedDates}
-          theme={{
-            selectedDayBackgroundColor: "#1B78B9",
-            selectedDayTextColor: "#ffffff",
-            todayTextColor: "#1C1C1C",
-            agendaDayTextColor: "#1C1C1C",
-            agendaDayNumColor: "#1C1C1C",
-            agendaTodayColor: "#1C1C1C",
-            agendaKnobColor: "#1C1C1C",
-          }}
-          hideKnob={false}
-          renderKnob={() => (
-            <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
-          )}
-        />
+        {(isLoading || isFetching) ? (
+          <SimpleActivityIndicator />
+        ) : (
+          <Agenda
+            items={items}
+            selected={selectedDate}
+            renderItem={renderAgendaItem}
+            renderEmptyData={renderEmptyDate}
+            onDayPress={(day: any) => {
+              setSelectedDate(day.dateString);
+            }}
+            markedDates={markedDates}
+            theme={{
+              selectedDayBackgroundColor: "#1B78B9",
+              selectedDayTextColor: "#ffffff",
+              todayTextColor: "#1C1C1C",
+              agendaDayTextColor: "#1C1C1C",
+              agendaDayNumColor: "#1C1C1C",
+              agendaTodayColor: "#1C1C1C",
+              agendaKnobColor: "#1C1C1C",
+            }}
+            hideKnob={false}
+            renderKnob={() => (
+              <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
+            )}
+          />
+        )}
         <ActionModal
           ref={actionModalRef}
           onUpdate={handleUpdatePress}
