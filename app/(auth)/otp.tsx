@@ -45,12 +45,25 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     isError,
     error,
   } = useMutation({
-    mutationFn: async (payload: TVerifyCredPayload) =>
-      await AuthRepo.verifyCred(payload, authResponse),
+    mutationFn: async (payload: TVerifyCredPayload) => {
+      try {
+        // Parse authResponse if it's a string
+        const parsedAuthResponse = typeof authResponse === 'string' && authResponse 
+          ? JSON.parse(authResponse) 
+          : authResponse;
+          
+        return await AuthRepo.verifyCred(payload, parsedAuthResponse);
+      } catch (err) {
+        console.error("Error in verifyCred:", err);
+        throw err;
+      }
+    },
     onSuccess: () => {
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
+        console.log("OTP verification successful, authResponse type:", typeof authResponse);
+        
         router.push({
           pathname: "/(auth)/go-pro",
           params: {
@@ -117,7 +130,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     }
   };
   return (
-    <AppContainer isError={isError} message={error?.message}>
+    <AppContainer isError={isError} message={error?.message as string}>
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
@@ -144,7 +157,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
             }
           />
           <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
-            Don’t receive OTP:{" "}
+            Don't receive OTP:{" "}
             <Text
               className="text-blue underline font-ManropeSemibold"
               onPress={resendOtp}

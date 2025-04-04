@@ -52,6 +52,8 @@ const AddAppointment = () => {
   const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [appointmentAdded, setAppointmentAdded] = useState(false);
 
+  const queryClient = useQueryClient()
+
   const fetchClients = async () => {
     setIsClientsLoading(true);
     try {
