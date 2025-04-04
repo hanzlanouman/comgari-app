@@ -58,9 +58,9 @@ export class PaymentRepository implements IPaymentRepository {
         `${BaseUrl + END_POINTS.PAYMENT.GET_SUBSCRIPTION.route}`,
         {
           show_loader: true,
-          // headers: authResponse
-          //   ? { Authorization: `Bearer ${JSON.parse(authResponse).access_token}` }
-          //   : undefined,
+          headers: authResponse
+            ? { Authorization: `Bearer ${authResponse.access_token}` }
+            : undefined,
         }
       );
 

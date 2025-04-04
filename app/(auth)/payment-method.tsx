@@ -3,6 +3,8 @@ import {
   View,
   Text,
   SafeAreaView,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
@@ -58,13 +60,26 @@ export default function Paymentmethod() {
     }
   );
 
-  const { data: buyerResponse, refetch } = useQuery(
+  const { data: buyerResponse, refetch, isLoading: buyerLoading, isError: buyerError } = useQuery(
     ["create-buyer"],
-    () =>
-      parsedAuthResponse
-        ? paymentRepo.createBuyer(parsedAuthResponse)
-        : paymentRepo.createBuyer(),
-    { enabled: false }
+    async () => {
+      try {
+        const response = parsedAuthResponse
+          ? await paymentRepo.createBuyer(parsedAuthResponse)
+          : await paymentRepo.createBuyer();
+        
+        // Validate the response has the required data
+        if (!response?.data?.customer) {
+          throw new Error('Buyer creation response is missing customer ID');
+        }
+        
+        return response;
+      } catch (error) {
+        console.error('Error creating buyer:', error);
+        throw error;
+      }
+    },
+    { enabled: false, retry: 2 }
   );
 
   const onConfirmPayment = async () => {
@@ -83,6 +98,8 @@ export default function Paymentmethod() {
       ? await paymentRepo.createSubscription(payload, parsedAuthResponse)
       : await paymentRepo.createSubscription(payload);
   };
+
+  console.log(selectedCard, "SELECTED CARD");
 
   const { mutate: confirmPayment, isLoading, isError } = useMutation(
     onConfirmPayment,
@@ -110,20 +127,33 @@ export default function Paymentmethod() {
 
   const paymentProcess = async (res: any) => {
     try {
+      console.log('Full buyerResponse:', JSON.stringify(res));
+      
+      if (!res?.data || !res?.data.customer) {
+        console.error('Missing customer data in buyerResponse:', res);
+        Alert.alert("Payment Error", "Unable to initialize payment. Customer data is missing.");
+        return;
+      }
+      
       const { setupIntent, customer, ephemeralKeys } = res?.data;
+      console.log('Customer ID:', customer);
+      
       const { error } = await initPaymentSheet({
         customerId: customer,
         customerEphemeralKeySecret: ephemeralKeys,
         setupIntentClientSecret: setupIntent,
         merchantDisplayName: "Comgari",
       });
+      
       if (error) {
         console.error("Payment sheet initialization error:", error);
+        Alert.alert("Payment Error", error.message || "Failed to initialize payment system");
       } else {
         openPaymentSheet();
       }
     } catch (e) {
       console.error("Payment process error:", e);
+      Alert.alert("Payment Error", "An unexpected error occurred during payment setup");
     }
   };
 
@@ -160,6 +190,19 @@ export default function Paymentmethod() {
             Choose a saved card or add a new one below.
           </Text>
         </View>
+
+        {buyerLoading && (
+          <View className="items-center justify-center my-4">
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text className="mt-2">Preparing payment system...</Text>
+          </View>
+        )}
+
+        {buyerError && (
+          <View className="items-center justify-center my-4 p-3 bg-red-50 rounded-md">
+            <Text className="text-red-500">Error initializing payment system. Please try again.</Text>
+          </View>
+        )}
 
         <Cards
           cards={cards?.data || []}
