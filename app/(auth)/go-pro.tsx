@@ -46,6 +46,7 @@ const GoPro = () => {
     }
   );
 
+
   const handlePress = (plan: string, price: string) => {
     setSelectedPlan(plan);
     setPriceId(price);
