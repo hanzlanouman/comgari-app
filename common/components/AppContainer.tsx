@@ -13,7 +13,7 @@ import {
 
 import { ms } from "react-native-size-matters";
 
-import ThemeButton, { CustomButton } from "@/common/components/CustomButton";
+import  { CustomButton } from "@/common/components/CustomButton";
 
 import { Colors } from "@/common/Colors";
 

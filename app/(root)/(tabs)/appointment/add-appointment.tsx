@@ -206,6 +206,7 @@ import { MemberRepository } from "@/repositories/member/member";
 // import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from "@/common/types";
 import { AppContainer } from "@/common/components";
+import { useQueryClient } from "react-query";
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -242,6 +243,8 @@ const AddAppointment = () => {
   const [isClientsLoading, setIsClientsLoading] = useState(false);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [appointmentAdded, setAppointmentAdded] = useState(false);
+
+  const queryClient =  useQueryClient()
 
   const fetchClients = async () => {
     setIsClientsLoading(true);
@@ -288,6 +291,7 @@ const AddAppointment = () => {
 
   const handleSubmitSuccess = () => {
     router.push("/(root)/(tabs)/appointment/appointment");
+    queryClient.invalidateQueries("appointments")
   };
 
   return (
