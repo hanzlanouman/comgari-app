@@ -124,8 +124,6 @@ const AddMember = () => {
 
         updatePayload.status = values.status;
 
-        console.log(updatePayload);
-
         updateMutation.mutate(updatePayload, {
           onSuccess: () => {
             router.back()
