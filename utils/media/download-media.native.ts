@@ -32,7 +32,7 @@ async function Download(url: string): Promise<TDownloadResponse> {
                 };
             }
         } catch (err: any) {
-            console.log(err);
+            console.error(err);
             return {
                 success: false,
                 message: 'An error occurred while downloading the file. Please try again later.',
