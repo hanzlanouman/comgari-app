@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
 import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
@@ -17,58 +17,72 @@ const Appointment = () => {
   const actionModalRef = useRef<BottomSheetModal>(null);
   const queryClient = useQueryClient();
 
-  const { isLoading, isFetching } = useQuery(
+  const { isLoading, isFetching, data: appointmentsData } = useQuery(
     'appointments',
     async () => {
       const response = await clientRepo.getAppointment();
       return response.data || [];
     },
     {
-      onSuccess: (appointmentsData) => {
-        if (!appointmentsData || appointmentsData.length === 0) {
-          setItems({});
-          return;
-        }
-        
-        const transformedItems = appointmentsData.reduce((acc: Record<string, any[]>, appointment: any) => {
-          const formattedDate = format(new Date(appointment.date), 'yyyy-MM-dd');
-
-          if (!acc[formattedDate]) {
-            acc[formattedDate] = [];
-          }
-
-          // Extract member names
-          const memberNames = appointment.appointment_member
-            .map((member: any) => member.Auth.user?.full_name || 'Unknown')
-            .join(', ');
-
-          acc[formattedDate].push({
-            id: appointment.id,
-            name: appointment.title,
-            startTime: new Date(appointment.start_time),
-            endTime: new Date(appointment.end_time),
-            address: appointment.notes || 'None',
-            status: appointment.status,
-            clientName: appointment.client.name,
-            memberNames: memberNames,
-            fullAppointmentData: appointment
-          });
-
-          return acc;
-        }, {});
-
-        setItems(transformedItems);
-      },
-      staleTime: 0, // Always consider data stale to ensure refetching
-      cacheTime: 1000 * 60 * 5 // Cache for 5 minutes
+      staleTime: 0,
+      cacheTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true
     }
   );
+
+  // Transform appointments data whenever it changes
+  const transformAppointments = useCallback((appointments: any[]) => {
+    if (!appointments || appointments.length === 0) {
+      setItems({});
+      return;
+    }
+
+    const transformedItems = appointments.reduce((acc: Record<string, any[]>, appointment: any) => {
+      const formattedDate = format(new Date(appointment.date), 'yyyy-MM-dd');
+
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = [];
+      }
+
+      const memberNames = appointment.appointment_member
+        .map((member: any) => member.Auth.user?.full_name || 'Unknown')
+        .join(', ');
+
+      acc[formattedDate].push({
+        id: appointment.id,
+        name: appointment.title,
+        startTime: new Date(appointment.start_time),
+        endTime: new Date(appointment.end_time),
+        address: appointment.notes || 'None',
+        status: appointment.status,
+        clientName: appointment.client.name,
+        memberNames: memberNames,
+        fullAppointmentData: appointment
+      });
+
+      return acc;
+    }, {});
+
+    setItems(transformedItems);
+  }, []);
+
+  // Update items whenever appointments data changes
+  React.useEffect(() => {
+    if (appointmentsData) {
+      transformAppointments(appointmentsData);
+    }
+  }, [appointmentsData, transformAppointments]);
 
   useFocusEffect(
     React.useCallback(() => {
       queryClient.invalidateQueries('appointments');
     }, [queryClient])
   );
+
+  const handleDayPress = useCallback((day: any) => {
+    setSelectedDate(day.dateString);
+  }, []);
 
   const handleAppointmentPress = (item: any) => {
     setSelectedAppointment(item);
@@ -189,9 +203,7 @@ const Appointment = () => {
             selected={selectedDate}
             renderItem={renderAgendaItem}
             renderEmptyData={renderEmptyDate}
-            onDayPress={(day: any) => {
-              setSelectedDate(day.dateString);
-            }}
+            onDayPress={handleDayPress}
             markedDates={markedDates}
             theme={{
               selectedDayBackgroundColor: "#1B78B9",
@@ -203,6 +215,9 @@ const Appointment = () => {
               agendaKnobColor: "#1C1C1C",
             }}
             hideKnob={false}
+            showOnlySelectedDayItems={true}
+            pastScrollRange={1}
+            futureScrollRange={1}
             renderKnob={() => (
               <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
             )}

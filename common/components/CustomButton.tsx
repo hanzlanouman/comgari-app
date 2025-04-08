@@ -19,7 +19,7 @@ export const CustomButton = ({
       start={[0, 0]}
       end={[1, 1]}>
       <TouchableOpacity
-        onPress={onPress}
+        onPressIn={onPress}
         {...props}
         className="w-full h-full rounded-xl pb-0.5 flex flex-row justify-center items-center">
         <Text className="text-sm sm:text-base font-ManropSemibold text-white text-center">

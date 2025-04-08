@@ -68,7 +68,6 @@ export default function Paymentmethod() {
           ? await paymentRepo.createBuyer(parsedAuthResponse)
           : await paymentRepo.createBuyer();
         
-        // Validate the response has the required data
         if (!response?.data?.customer) {
           throw new Error('Buyer creation response is missing customer ID');
         }
@@ -89,7 +88,6 @@ export default function Paymentmethod() {
       totalClient: 20,
     };
     
-    // Add coupon code to payload if provided and this is a new subscription
     if (isNewSubscription && couponCode.trim()) {
       payload.coupon = couponCode.trim();
     }

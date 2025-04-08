@@ -134,7 +134,7 @@ const MediaDocuments = () => {
 
   const pickMedia = async () => {
     try {
-      // Accept application types for documents
+      // Accept only PDF and Word document types
       const resp = await pickDocument(true, { 
         type: "application/*" 
       });
@@ -148,15 +148,24 @@ const MediaDocuments = () => {
       const uploadedMediaItems = []
       
       for (const file of resp.result) {
-        const res = await uploadAsync(file)
-        if (res.isSuccess) {
-          uploadedMediaItems.push({
-            url: res.result,
-            mimeType: file.type,
-            clientId: Number(id),
-            ownerId: Number(id),
-            ownerType: "client",
-          })
+        // Verify file type is PDF or Word
+        if (
+          file.type === "application/pdf" || 
+          file.type === "application/msword" || 
+          file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ) {
+          const res = await uploadAsync(file)
+          if (res.isSuccess) {
+            uploadedMediaItems.push({
+              url: res.result,
+              mimeType: file.type,
+              clientId: Number(id),
+              ownerId: Number(id),
+              ownerType: "client",
+            })
+          }
+        } else {
+          showErrorAlert("Only PDF and Word documents are allowed")
         }
       }
       
@@ -173,11 +182,12 @@ const MediaDocuments = () => {
         // Handle the response safely
         const mediaItems = Array.isArray(response) ? response : [];
         
-        // Filter for documents (not images or videos)
+        // Filter for PDF and Word documents only
         const updatedDocItems = mediaItems.filter((item: any) => 
           item.mimeType && 
-          !item.mimeType.startsWith("image/") && 
-          !item.mimeType.startsWith("video/")
+          (item.mimeType === "application/pdf" || 
+           item.mimeType === "application/msword" || 
+           item.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
         );
         
         setDocumentItems(updatedDocItems);

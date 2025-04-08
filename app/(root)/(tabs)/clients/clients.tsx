@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   SafeAreaView,
-  ScrollView,
   View,
   Text,
   Image,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { useQuery } from "react-query";
 import { scale, vs } from "react-native-size-matters";
@@ -41,51 +43,66 @@ interface Client {
 const Clients: React.FC = () => {
   const clientRepo = ClientRepository.getInstance();
   const [clients, setClients] = useState<Client[]>([]);
-  const [start, setStart] = useState(0);
-  const [limit] = useState(10);
-
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const pageSize = 10;
+  
   const user = useAppSelector((state) => state.auth.user);
-
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  const { data, isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
-    ["clients", start],
+  const { isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
+    ["clients", page, pageSize],
     async () => {
-
       const clientListingPayload: ClientListingPayload = {
-        start,
-        limit,
+        start: page * pageSize,
+        limit: pageSize,
       };
 
-      const response = await clientRepo.getClients(clientListingPayload)
-      //   , {
-      //   user,
-      // });
-      return response;
+      const response = await clientRepo.getClients(clientListingPayload);
+      return Array.isArray(response) ? response : [];
     },
     {
       keepPreviousData: true,
       enabled: !!user && isAuthenticated,
+      onSuccess: (data) => {
+        // Only set clients if we have data
+        if (data) {
+          if (page === 0) {
+            setClients(data);
+          } else {
+            setClients(prevClients => [...prevClients, ...data]);
+          }
+          
+          // Check if we have more data to load
+          setHasMore(data.length === pageSize);
+        }
+        setIsLoadingMore(false);
+        setRefreshing(false);
+      },
+      onError: () => {
+        setIsLoadingMore(false);
+        setRefreshing(false);
+      }
     }
   );
 
-  useEffect(() => {
-    if (data) {
-      setClients(start === 0 ? data : (prevClients) => [...prevClients, ...data]);
-    }
-  }, [data, start]);
-
-  const handleRefresh = async () => {
-    setStart(0);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    setPage(0);
     setClients([]);
+    setHasMore(true);
     await refetch();
-  };
+  }, [refetch]);
 
-  const handleLoadMore = () => {
-    if (!isFetching && data?.length === limit) {
-      setStart((prevStart) => prevStart + limit);
+  const loadMoreClients = useCallback(() => {
+    if (!isFetching && hasMore && !isLoadingMore) {
+      console.log("Loading more clients from page:", page + 1);
+      setIsLoadingMore(true);
+      setPage(prevPage => prevPage + 1);
     }
-  };
+  }, [isFetching, hasMore, isLoadingMore, page]);
 
   const handleAddClient = () => {
     router.push("/(root)/(tabs)/clients/add-client");
@@ -96,7 +113,7 @@ const Clients: React.FC = () => {
   };
 
   const renderEmptyState = () => (
-    <View className="flex-grow flex-col items-center justify-center px-4">
+    <View className="flex-grow flex-col items-center justify-center px-4 py-10">
       <Image
         source={images.member}
         resizeMode="contain"
@@ -122,42 +139,64 @@ const Clients: React.FC = () => {
     </View>
   );
 
-  const renderClientsList = () => (
-    <View className="pb-20">
-      {clients.map((client) => (
-        <ClientCard
-          key={client.id}
-          client={{
-            ...client,
-            description: client.description,
-            category: client.type,
-            status: client.status,
-            progress: 75,
-          }}
-          onPress={() => handleClientPress(client.id)}
-        />
-      ))}
-    </View>
+  const renderFooter = () => {
+    if (!isLoadingMore) return null;
+    
+    return (
+      <View className="py-4 items-center">
+        <ActivityIndicator size="small" color="#1B78B9" />
+        <Text className="text-center mt-2 text-gray-500">Loading more clients...</Text>
+      </View>
+    );
+  };
+
+  const renderItem = ({ item }: { item: Client }) => (
+    <ClientCard
+      key={item.id}
+      client={{
+        ...item,
+        description: item.description,
+        category: item.type,
+        status: item.status,
+        progress: 75,
+      }}
+      onPress={() => handleClientPress(item.id)}
+    />
   );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <AppContainer
-        isError={isError}
-      >
-        <ScrollView
-          className="flex-1 px-5"
-          onRefresh={handleRefresh}
-          refreshing={isLoading}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          contentContainerStyle={{ paddingBottom: vs(50) }}
-        >
-          <Text className="text-sm  text-dark-100 mt-3">
+      <AppContainer isError={isError}>
+        <View className="flex-1 px-5">
+          <Text className="text-sm text-dark-100 mt-3 mb-2">
             Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
           </Text>
-          {clients.length > 0 ? renderClientsList() : renderEmptyState()}
-        </ScrollView>
+          
+          {isLoading && !refreshing && page === 0 ? (
+            <View className="flex-1 justify-center items-center">
+              <ActivityIndicator size="large" color="#1B78B9" />
+            </View>
+          ) : clients.length > 0 ? (
+            <FlatList
+              data={clients}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={{ paddingBottom: vs(50) }}
+              onEndReached={loadMoreClients}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={renderFooter}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={["#1B78B9"]}
+                />
+              }
+            />
+          ) : (
+            renderEmptyState()
+          )}
+        </View>
       </AppContainer>
     </SafeAreaView>
   );
