@@ -24,9 +24,6 @@ type TPlanProps = {
 const GoPro = () => {
   useRedirectIfIOS();
   const { authResponse } = useLocalSearchParams<TPlanProps>();
-  
-  // Debug log for authResponse
-  console.log("authResponse received:", typeof authResponse, authResponse?.substring?.(0, 50));
 
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -41,7 +38,7 @@ const GoPro = () => {
       if (authResponse) {
         try {
           let parsedAuthResponse;
-          
+
           // Handle different authResponse formats
           if (typeof authResponse === 'string') {
             // Try to parse the string as JSON
@@ -53,18 +50,18 @@ const GoPro = () => {
           } else {
             // Already an object
             parsedAuthResponse = authResponse;
-           
+
           }
-          
+
           // Verify the parsed response has the required fields
           if (!parsedAuthResponse?.access_token) {
-           
+
             throw new Error("Invalid auth response: missing token");
           }
-          
+
           return await paymentRepo.getSubscription(parsedAuthResponse);
         } catch (error) {
-          console.error("Error processing authResponse:", error, "authResponse:", 
+          console.error("Error processing authResponse:", error, "authResponse:",
             typeof authResponse === 'string' ? authResponse : JSON.stringify(authResponse));
           // Fallback to non-auth request if parsing fails
           return await paymentRepo.getSubscription();
@@ -95,11 +92,6 @@ const GoPro = () => {
       ? subscription.pricing[0].paymentSchedule === "month"
       : subscription.pricing[0].paymentSchedule === "year"
   );
-
-  // Debug log for subscription data
-  console.log("Subscriptions data:", 
-    subscriptions ? `Received with ${subscriptions?.data?.length || 0} plans` : "Not received",
-    "Filtered plans:", plans?.length || 0);
 
   const handleBuyNow = () => {
     if (!selectedPlan) {

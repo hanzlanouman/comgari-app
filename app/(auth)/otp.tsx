@@ -48,10 +48,10 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     mutationFn: async (payload: TVerifyCredPayload) => {
       try {
         // Parse authResponse if it's a string
-        const parsedAuthResponse = typeof authResponse === 'string' && authResponse 
-          ? JSON.parse(authResponse) 
+        const parsedAuthResponse = typeof authResponse === 'string' && authResponse
+          ? JSON.parse(authResponse)
           : authResponse;
-          
+
         return await AuthRepo.verifyCred(payload, parsedAuthResponse);
       } catch (err) {
         console.error("Error in verifyCred:", err);
@@ -62,8 +62,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
-        console.log("OTP verification successful, authResponse type:", typeof authResponse);
-        
+
         router.push({
           pathname: "/(auth)/go-pro",
           params: {
