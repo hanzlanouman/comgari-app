@@ -276,43 +276,60 @@ const VideosMediaDetailScreen = () => {
       setIsUploading(true);
       const uploadedMediaItems = []
       for (const file of resp.result) {
-        const res = await uploadAsync(file)
-        if (res.isSuccess) {
-          uploadedMediaItems.push({
-            url: res.result,
-            mimeType: file.type,
-            clientId: Number(id),
-            ownerId: Number(id),
-            ownerType: "client",
-          })
+        try {
+          // Validate the file is a video type
+          if (!file.type?.startsWith("video/")) {
+            showErrorAlert("Only video files are allowed")
+            continue
+          }
+          
+          const res = await uploadAsync(file)
+          if (res.isSuccess && res.result) {
+            uploadedMediaItems.push({
+              url: res.result,
+              mimeType: file.type,
+              clientId: Number(id),
+              ownerId: Number(id),
+              ownerType: "client",
+            })
+          } else if (!res.isSuccess) {
+            showErrorAlert(res.error || "Failed to upload video")
+          }
+        } catch (fileError) {
+          console.error("Error processing file:", fileError)
+          // Continue with other files
         }
       }
-      await saveMediaMutation.mutateAsync(uploadedMediaItems);
       
-      try {
-        // Refresh the list with newly added items
-        const response = await clientRepo.getClientMedia({
-          client_id: Number(id),
-          owner_id: Number(id),
-          owner_type: "client",
-        });
-        
-        // Handle the response safely
-        const mediaItems = Array.isArray(response) ? response : [];
-        
-        // Filter for video type
-        const updatedVideoItems = mediaItems.filter((item: any) => 
-          item.mimeType && item.mimeType.startsWith("video/")
-        );
-        
-        setParsedItems(updatedVideoItems);
-      } catch (fetchError) {
-        console.error("Error fetching updated media:", fetchError);
+      if (uploadedMediaItems.length > 0) {
+        try {
+          await saveMediaMutation.mutateAsync(uploadedMediaItems);
+          
+          // Refresh the list with newly added items
+          const response = await clientRepo.getClientMedia({
+            client_id: Number(id),
+            owner_id: Number(id),
+            owner_type: "client",
+          });
+          
+          // Handle the response safely
+          const mediaItems = Array.isArray(response) ? response : [];
+          
+          // Filter for video type
+          const updatedVideoItems = mediaItems.filter((item: any) => 
+            item.mimeType && item.mimeType.startsWith("video/")
+          );
+          
+          setParsedItems(updatedVideoItems);
+        } catch (apiError) {
+          console.error("API Error:", apiError);
+          showErrorAlert("Failed to save uploaded videos")
+        }
       }
       
       setIsUploading(false);
     } catch (error: any) {
-      showErrorAlert(error?.message)
+      showErrorAlert(error?.message || "An unexpected error occurred")
       setIsUploading(false);
     }
   };
