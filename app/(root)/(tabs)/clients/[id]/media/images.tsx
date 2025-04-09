@@ -16,7 +16,7 @@ import { Trash2, X, Upload } from "lucide-react-native";
 import { Action } from "@/common/enum";
 import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
-import { IS_ANDROID, pickDocument, showErrorAlert } from "@/utils";
+import { IS_ANDROID, pickImage, showErrorAlert } from "@/utils";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation } from "react-query";
 import { useUpload } from "@/hooks/use-upload";
@@ -250,7 +250,7 @@ const ImagesMediaDetailScreen = () => {
 
   const pickMedia = async () => {
     try {
-      const resp = await pickDocument(true, { type: "image/*" })
+      const resp = await pickImage(true)
       if (!resp.isSuccess) {
         showErrorAlert(resp.error)
         return
@@ -258,43 +258,54 @@ const ImagesMediaDetailScreen = () => {
       setIsUploading(true);
       const uploadedMediaItems = []
       for (const file of resp.result) {
-        const res = await uploadAsync(file)
-        if (res.isSuccess) {
-          uploadedMediaItems.push({
-            url: res.result,
-            mimeType: file.type,
-            clientId: Number(id),
-            ownerId: Number(id),
-            ownerType: "client",
-          })
+        try {
+          const res = await uploadAsync(file)
+          if (res.isSuccess && res.result) {
+            uploadedMediaItems.push({
+              url: res.result,
+              mimeType: file.type,
+              clientId: Number(id),
+              ownerId: Number(id),
+              ownerType: "client",
+            })
+          } else if (!res.isSuccess) {
+            showErrorAlert(res.error || "Failed to upload image")
+          }
+        } catch (fileError) {
+          console.error("Error processing file:", fileError)
+          // Continue with other files
         }
       }
-      await saveMediaMutation.mutateAsync(uploadedMediaItems);
       
-      try {
-        // Refresh the list with newly added items
-        const response = await clientRepo.getClientMedia({
-          client_id: Number(id),
-          owner_id: Number(id),
-          owner_type: "client",
-        });
-        
-        // Handle the response safely
-        const mediaItems = Array.isArray(response) ? response : [];
-        
-        // Filter for image type
-        const updatedImageItems = mediaItems.filter((item: any) => 
-          item.mimeType && item.mimeType.startsWith("image/")
-        );
-        
-        setParsedItems(updatedImageItems);
-      } catch (fetchError) {
-        console.error("Error fetching updated media:", fetchError);
+      if (uploadedMediaItems.length > 0) {
+        try {
+          await saveMediaMutation.mutateAsync(uploadedMediaItems);
+          
+          // Refresh the list with newly added items
+          const response = await clientRepo.getClientMedia({
+            client_id: Number(id),
+            owner_id: Number(id),
+            owner_type: "client",
+          });
+          
+          // Handle the response safely
+          const mediaItems = Array.isArray(response) ? response : [];
+          
+          // Filter for image type
+          const updatedImageItems = mediaItems.filter((item: any) => 
+            item.mimeType && item.mimeType.startsWith("image/")
+          );
+          
+          setParsedItems(updatedImageItems);
+        } catch (apiError) {
+          console.error("API Error:", apiError);
+          showErrorAlert("Failed to save uploaded images")
+        }
       }
       
       setIsUploading(false);
     } catch (error: any) {
-      showErrorAlert(error?.message)
+      showErrorAlert(error?.message || "An unexpected error occurred")
       setIsUploading(false);
     }
   };

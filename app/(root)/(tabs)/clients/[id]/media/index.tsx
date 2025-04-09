@@ -5,12 +5,8 @@ import { SafeAreaView, ScrollView } from "react-native";
 import { vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
-import { Upload } from "lucide-react-native";
-import { useMutation } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
 import { useFocusEffect } from "@react-navigation/native";
-import { pickDocument, showErrorAlert } from "@/utils";
-import { useUpload } from "@/hooks/use-upload";
 
 type MediaItem = {
   id?: number;
@@ -23,15 +19,18 @@ type MediaItem = {
   updatedAt?: string;
 };
 
+type MediaGroups = {
+  images: MediaItem[];
+  videos: MediaItem[];
+  documents: MediaItem[];
+};
+
 const Media: React.FC = () => {
   const clientRepo = ClientRepository.getInstance();
-  const [isUploading, setIsUploading] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const { clientId } = useLocalSearchParams();
   const navigation = useNavigation();
   const id = Number(clientId);
-
-  const { uploadAsync } = useUpload()
 
   const fetchClientMedia = useCallback(async () => {
     try {
@@ -40,7 +39,7 @@ const Media: React.FC = () => {
         owner_id: id,
         owner_type: "client",
       });
-      setMediaItems(response || []);
+      setMediaItems(Array.isArray(response) ? response : []);
     } catch (error: any) {
       Alert.alert("Error", "Failed to fetch media. Please try again later.");
       console.error("Fetch Media Error:", error);
@@ -57,11 +56,10 @@ const Media: React.FC = () => {
     navigation.setOptions({
       headerShown: true,
       title: "Media",
-      headerRight: () => <UploadButton />,
     });
   }, [navigation]);
 
-  const groupedMediaItems = mediaItems.reduce(
+  const groupedMediaItems = mediaItems.reduce<MediaGroups>(
     (acc, item) => {
       if (item.mimeType.startsWith("image/")) {
         acc.images.push(item);
@@ -75,79 +73,22 @@ const Media: React.FC = () => {
     { images: [], videos: [], documents: [] }
   );
 
-  const saveMediaMutation = useMutation(async (mediaItems: MediaItem[]) => {
-    const payload = {
-      files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
-        url,
-        mimeType,
-        clientId,
-        ownerId,
-        ownerType,
-      })),
-    };
-    return await clientRepo.saveClientMedia(payload);
-  });
-
-  const pickMedia = async () => {
-    try {
-      const resp = await pickDocument(true, { type: "*/*" })
-      if (!resp.isSuccess) {
-        showErrorAlert(resp.error)
-        return
-      }
-      setIsUploading(true);
-      const uploadedMediaItems = []
-      for (const file of resp.result) {
-        const res = await uploadAsync(file)
-        if (res.isSuccess && res.result) {
-          uploadedMediaItems.push({
-            url: res.result,
-            mimeType: file.type,
-            clientId: id,
-            ownerId: id,
-            ownerType: "client",
-          })
-        }
-      }
-      await saveMediaMutation.mutateAsync(uploadedMediaItems);
-      fetchClientMedia();
-      setIsUploading(false);
-    } catch (error: any) {
-      showErrorAlert(error?.message)
-      setIsUploading(false);
-    }
-  };
-
-  const UploadButton = () => (
-    <LinearGradient
-      colors={["#1B78B9", "#63348F"]}
-      style={{
-        borderRadius: 999,
-        width: 32,
-        height: 32,
-      }}
-      start={[0, 0]}
-      end={[1, 1]}>
-      <TouchableOpacity
-        onPressIn={pickMedia}
-        style={{
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        disabled={isUploading}>
-        <Upload size={18} color="#ffffff" />
-      </TouchableOpacity>
-    </LinearGradient>
-  );
-
   const navigateToCategory = (id: number, type: string, items: MediaItem[]) => {
     router.push({
-      pathname: `/clients/${id}/media/${type}`,
+      pathname: `/clients/${id}/media/${type}` as any,
       params: { id, items: JSON.stringify(items) },
     });
   };
+
+  // Create a right arrow icon component to reuse
+  const RightArrowIcon = () => (
+    <Image
+      source={icons.video} // Use an existing icon as fallback since arrowRight is missing
+      resizeMode="contain"
+      className="w-5 h-5 text-gray-500"
+      style={{ transform: [{ rotate: "90deg" }] }} // Rotate the icon to make it point right
+    />
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -185,11 +126,7 @@ const Media: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Image
-            source={icons.arrowRight}
-            resizeMode="contain"
-            className="w-5 h-5 text-gray-500"
-          />
+          <RightArrowIcon />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -214,11 +151,7 @@ const Media: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Image
-            source={icons.arrowRight}
-            resizeMode="contain"
-            className="w-5 h-5 text-gray-500"
-          />
+          <RightArrowIcon />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -243,11 +176,7 @@ const Media: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Image
-            source={icons.arrowRight}
-            resizeMode="contain"
-            className="w-5 h-5 text-gray-500"
-          />
+          <RightArrowIcon />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
