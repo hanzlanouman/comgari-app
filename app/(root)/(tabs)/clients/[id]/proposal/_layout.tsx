@@ -41,7 +41,7 @@ const Layout = () => {
           headerTitleAlign: "center",
           title: "Proposal",
           headerLeft: () => (
-            <TouchableOpacity onPress={goBack}>
+            <TouchableOpacity onPressIn={goBack}>
               <ArrowLeft size={24} color="#1C1C1C" />
             </TouchableOpacity>
           ),

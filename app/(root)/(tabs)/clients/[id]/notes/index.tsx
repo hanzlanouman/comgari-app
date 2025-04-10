@@ -18,6 +18,8 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { useQuery } from "react-query";
 import { ClientRepository } from "@/repositories/client/client";
+import { decode } from 'html-entities'; 
+
 const clientRepo = ClientRepository.getInstance();
 
 const Notes = () => {
@@ -74,8 +76,9 @@ const Notes = () => {
 
   const processNoteText = (html: string) => {
     if (!html) return "";
-    const strippedText = html.replace(/<[^>]*>/g, ''); // Remove HTML tags
-    return strippedText.length > 30 ? `${strippedText.slice(0, 30)}...` : strippedText;
+    const strippedText = html.replace(/<[^>]*>/g, ''); 
+    const decodedText = decode(strippedText); 
+    return decodedText.length > 30 ? `${decodedText.slice(0, 30)}...` : decodedText;
   };
 
   return (
@@ -84,8 +87,8 @@ const Notes = () => {
         {hasData ? (
           <View className="pb-4">
             {clientNotes
-              ?.slice() // Create a shallow copy to avoid mutating the original array
-              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Sort by latest first
+              ?.slice() 
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) 
               .map((note) => (
                 <TouchableOpacity
                   key={note.id}
@@ -96,7 +99,7 @@ const Notes = () => {
                       noteId: note.id,
                       noteDetails: JSON.stringify({
                         ...note,
-                        media: note.media.map(m => ({ ...m, localUri: getImageUrl(m.url) }))
+                        media: note.media.map((m:any) => ({ ...m, localUri: getImageUrl(m.url) }))
                       })
                     }
                   })}
@@ -109,8 +112,8 @@ const Notes = () => {
                     <View className="flex-row items-center">
                       <Image
                         source={
-                          note.author.user.avatar
-                            ? { uri: getImageUrl(note?.author.user?.avatar) }
+                          note?.author?.user?.avatar
+                            ? { uri: getImageUrl(note.author.user.avatar) }
                             : images.user
                         }
                         resizeMode="cover"

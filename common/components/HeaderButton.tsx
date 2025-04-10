@@ -21,7 +21,7 @@ export function HeaderButton({ onPress, disabled, icon }: HeaderButtonProps) {
             start={[0, 0]}
             end={[1, 1]}>
             <TouchableOpacity
-                onPress={onPress}
+                onPressIn={onPress}
                 style={{
                     width: "100%",
                     height: "100%",

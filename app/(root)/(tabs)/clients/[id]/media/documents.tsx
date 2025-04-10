@@ -119,24 +119,26 @@ const MediaDocuments = () => {
     bottomSheetModalRef.current?.present();
   }, []);
 
-  const saveMediaMutation = useMutation(async (mediaItems) => {
-    const payload = {
-      files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }: any) => ({
-        url,
-        mimeType,
-        clientId,
-        ownerId,
-        ownerType,
-      })),
-    };
-    return await clientRepo.saveClientMedia(payload);
+  const saveMediaMutation = useMutation({
+    mutationFn: async (mediaItems: any[]) => {
+      const payload = {
+        files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
+          url,
+          mimeType,
+          clientId,
+          ownerId,
+          ownerType,
+        })),
+      };
+      return await clientRepo.saveClientMedia(payload);
+    }
   });
 
   const pickMedia = async () => {
     try {
-      // Accept only PDF and Word document types
+      // For iOS compatibility, use a less restrictive mime type approach
       const resp = await pickDocument(true, { 
-        type: "application/*" 
+        type: "*/*" 
       });
       
       if (!resp.isSuccess) {
@@ -145,7 +147,7 @@ const MediaDocuments = () => {
       }
       
       setIsUploading(true);
-      const uploadedMediaItems = []
+      const uploadedMediaItems: any[] = [];
       
       for (const file of resp.result) {
         // Verify file type is PDF or Word
@@ -169,35 +171,38 @@ const MediaDocuments = () => {
         }
       }
       
-      await saveMediaMutation.mutateAsync(uploadedMediaItems);
-      
-      try {
-        // Refresh the list with newly added items
-        const response = await clientRepo.getClientMedia({
-          client_id: Number(id),
-          owner_id: Number(id),
-          owner_type: "client",
-        });
+      if (uploadedMediaItems.length > 0) {
+        await saveMediaMutation.mutateAsync(uploadedMediaItems);
         
-        // Handle the response safely
-        const mediaItems = Array.isArray(response) ? response : [];
-        
-        // Filter for PDF and Word documents only
-        const updatedDocItems = mediaItems.filter((item: any) => 
-          item.mimeType && 
-          (item.mimeType === "application/pdf" || 
-           item.mimeType === "application/msword" || 
-           item.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-        );
-        
-        setDocumentItems(updatedDocItems);
-      } catch (fetchError) {
-        console.error("Error fetching updated media:", fetchError);
+        try {
+          // Refresh the list with newly added items
+          const response = await clientRepo.getClientMedia({
+            client_id: Number(id),
+            owner_id: Number(id),
+            owner_type: "client",
+          });
+          
+          // Handle the response safely
+          const mediaItems = Array.isArray(response) ? response : [];
+          
+          // Filter for PDF and Word documents only
+          const updatedDocItems = mediaItems.filter((item: any) => 
+            item.mimeType && 
+            (item.mimeType === "application/pdf" || 
+             item.mimeType === "application/msword" || 
+             item.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+          );
+          
+          setDocumentItems(updatedDocItems);
+        } catch (fetchError) {
+          console.error("Error fetching updated media:", fetchError);
+        }
       }
       
       setIsUploading(false);
-    } catch (error) {
-      showErrorAlert(error?.message || "Error uploading documents")
+    } catch (error: any) {
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? error.message : "Error uploading documents";
+      showErrorAlert(errorMessage);
       setIsUploading(false);
     }
   };

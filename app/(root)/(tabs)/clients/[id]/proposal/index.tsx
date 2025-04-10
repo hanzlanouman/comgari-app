@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { useQuery } from "react-query";
 import { vs } from "react-native-size-matters";
-import { images } from "@/constants";
-import { CustomButton } from "@/common/components";
+import { images, getImageUrl } from "@/constants";
+import { CustomButton, SimpleActivityIndicator } from "@/common/components";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { CalendarDays, NotepadText, Plus } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,6 +21,7 @@ interface Client {
   id: number;
   name: string;
   type: string;
+  logo?: string;
 }
 
 interface Project {
@@ -65,6 +66,7 @@ const Proposal = () => {
     }
   );
 
+  // eslint-disable-next-line react/display-name
   const AddButton = React.useMemo(() => () => (
     <LinearGradient
       colors={["#1B78B9", "#63348F"]}
@@ -77,7 +79,7 @@ const Proposal = () => {
       end={[1, 1]}
     >
       <TouchableOpacity
-        onPress={() => {
+        onPressIn={() => {
           router.push({
             pathname: `/(root)/(tabs)/clients/${projectId}/proposal/add-proposal`,
             params: { projectId }
@@ -112,13 +114,13 @@ const Proposal = () => {
     });
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 items-center justify-center">
-  //       <Text>Loading proposals...</Text>
-  //     </View>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <SimpleActivityIndicator />
+      </View>
+    );
+  }
 
   if (isError) {
     return (
@@ -246,7 +248,7 @@ const Proposal = () => {
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Image
-                    source={images.user}
+                    source={proposal.client?.logo ? { uri: getImageUrl(proposal.client.logo) } : images.user}
                     resizeMode="cover"
                     className="rounded-full border-2 border-white"
                     style={{ width: vs(30), height: vs(30) }}

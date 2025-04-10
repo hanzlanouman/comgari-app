@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native';
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation } from 'react-query';
 
 import StepsIndicator from './components/steps-indicator';
 import JobDetails from './components/job-details';
@@ -15,11 +15,11 @@ const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
 
   // Get route params
-  const { proposalId: proposalId, ...initialParams } = useLocalSearchParams();
+  const { proposalId: proposalId, id: projectId, ...initialParams } = useLocalSearchParams();
   const isEditing = Boolean(proposalId && !isNaN(Number(proposalId)));
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    client_id: 0,
+    client_id: Number(projectId),
     date: '',
     address: '',
     city: '',
@@ -30,7 +30,7 @@ const AddProposal = () => {
     estimated_days: undefined,
     estimated_cost: undefined,
     specification: '',
-    project_id: 0,
+    project_id: Number(projectId),
   });
 
   // Steps for the wizard
@@ -42,12 +42,13 @@ const AddProposal = () => {
       headerShown: true,
       title: isEditing ? "Edit Proposal" : "Add Proposal",
       headerLeft: () => (
-        <TouchableOpacity onPress={() => router.back()} style={{}}>
+        <TouchableOpacity onPressIn={() => router.back()} style={{}}>
           <ArrowLeft size={24} color="#1C1C1C" />
         </TouchableOpacity>
       ),
       headerTitleAlign: "center",
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ const AddProposal = () => {
         ...initialParams,
       }));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
 
 
