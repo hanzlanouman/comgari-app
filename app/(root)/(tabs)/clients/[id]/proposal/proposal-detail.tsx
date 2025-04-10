@@ -17,7 +17,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react-native";
-import { images } from "@/constants";
+import { images, getImageUrl } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
@@ -172,8 +172,9 @@ const Proposal = () => {
   const handleEditProposal = () => {
     bottomSheetModalRef.current?.close();
     router.push({
-      pathname: '(tabs)/clients/[id]/proposal/add-proposal',
+      pathname: '/(root)/(tabs)/clients/[id]/proposal/add-proposal',
       params: {
+        id: Number(id),
         proposalId: id,
         job_name: jobName,
         job_phone: jobPhone,
@@ -313,7 +314,7 @@ const Proposal = () => {
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <Image
-                      source={images.user}
+                      source={clientName?.logo ? { uri: getImageUrl(clientName.logo) } : images.user}
                       resizeMode="cover"
                       className="rounded-full"
                       style={{ width: vs(25), height: vs(25) }}

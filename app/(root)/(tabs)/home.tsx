@@ -97,7 +97,7 @@ const Home = () => {
             <View className="w-1/2 px-1.5 mt-3">
               <TouchableOpacity className="bg-[#FFF1ED] rounded-[16px] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
-                  Total Leads
+                  Total Clients
                 </Text>
                 <Text className="text-xl sm:text-lg text-red font-ManropeBold mt-1">
                   {dashboardData?.totalLeads}
