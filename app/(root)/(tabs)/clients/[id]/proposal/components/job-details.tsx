@@ -160,7 +160,7 @@ const JobDetails = ({ initialData, onNext }: {
 
           <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
             <View className="px-4">
-              <View className="mt-4">
+              {/* <View className="mt-4">
                 <DropdownSelect
                   placeholder="Select Client"
                   data={clientOptions}
@@ -174,7 +174,7 @@ const JobDetails = ({ initialData, onNext }: {
                 {formikProps.touched.client_id && formikProps.errors.client_id && (
                   <Text className="text-red mt-1">{formikProps.errors.client_id}</Text>
                 )}
-              </View>
+              </View> */}
 
               {/* Date Picker */}
               <TouchableOpacity

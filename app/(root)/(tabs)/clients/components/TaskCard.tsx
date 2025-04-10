@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { vs } from "react-native-size-matters";
 import { ChevronsUp, ChevronDown, ChevronUp } from "lucide-react-native";
-import { images } from "@/constants";
+import { images, getImageUrl } from "@/constants";
 import { STATUS_OPTIONS, PRIORITY_OPTIONS } from "@/repositories/client/constants"; // Import options
 
 interface Member {
@@ -10,6 +10,9 @@ interface Member {
   member: {
     Auth: {
       username: string;
+      user: {
+        avatar: string | null;
+      };
     };
   };
 }
@@ -63,7 +66,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
               style={{ zIndex: maxVisibleMembers - index }}
             >
               <Image
-                source={images.user}
+                source={member.member.Auth.user.avatar ? { uri: getImageUrl(member.member.Auth.user.avatar) } : images.user}
                 resizeMode="cover"
                 className="rounded-full border-2 border-white"
                 style={{ width: vs(30), height: vs(30) }}
