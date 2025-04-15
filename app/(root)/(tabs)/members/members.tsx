@@ -42,6 +42,7 @@ export type TMember = {
   phone?: string;
   status: UserStatus;
   permission_ids?: number[];
+  created_by?: number;
 };
 
 const Members = () => {
@@ -54,6 +55,8 @@ const Members = () => {
   const hasPermission = getPermission(user!, "manage", "member");
   const { data, isError, error, refetch } = useQuery(["member"], MemberRepo.getMember);
 
+  console.log(user,"user for the members")
+
   const deleteMemberMutation = useMutation({
     mutationFn: () => {
       actionModalRef.current?.dismiss();
@@ -64,10 +67,10 @@ const Members = () => {
       refetch();
       actionModalRef.current?.dismiss();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error deleting member:", error);
       refetch();
-      showAlertBox("Error", error?.message || "Something went wrong");
+      showAlertBox("Error", error || "Something went wrong");
     },
   });
 
@@ -116,11 +119,12 @@ const Members = () => {
             email: item?.Auth?.email || '',
             role_id: item?.Auth?.user?.user_roles[0]?.role_id,
             status: item?.Auth?.status,
+            created_by: item?.created_by,
             permission_ids: item?.Auth?.user?.permission_by_user
               ?.map((p: any) => p?.permission?.id || p?.permissionId)
               ?.filter((id: any) => id !== undefined) || [],
           }))
-          ?.sort((a, b) => b.id - a.id) // Sort members by descending order of `id`
+          ?.sort((a: TMember, b: TMember) => b.id - a.id) // Sort members by descending order of `id`
       );
     }
   }, [data]);
@@ -128,7 +132,7 @@ const Members = () => {
 
   return (
     <SafeAreaView>
-      <AppContainer isError={isError} message={error}>
+      <AppContainer isError={isError} message={error as string}>
         <FlatList
           data={member}
           keyExtractor={(item) => item?.id?.toString()}
@@ -167,6 +171,8 @@ const Members = () => {
         />
         <ActionModal
           ref={actionModalRef}
+          user={user}
+          selectedMember={selectedMember}
           onUpdate={handleUpdatePress}
           onDelete={handleDeletePress}
         />

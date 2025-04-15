@@ -9,7 +9,7 @@ import Specifications from './components/specifications';
 import Review from './components/review';
 import { ArrowLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
-import { ClientRepository } from "@/repositories/client/client";
+import { clientRepo, ClientRepository } from "@/repositories/client/client";
 
 const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
@@ -18,6 +18,8 @@ const AddProposal = () => {
   const { proposalId: proposalId, id: projectId, ...initialParams } = useLocalSearchParams();
   const isEditing = Boolean(proposalId && !isNaN(Number(proposalId)));
   const [currentStep, setCurrentStep] = useState(1);
+
+  console.log(projectId,"project ID")
   const [formData, setFormData] = useState({
     client_id: Number(projectId),
     date: '',
@@ -135,6 +137,8 @@ const AddProposal = () => {
       project_id: formData.project_id,
     };
 
+    console.log(payload,"payload")
+ 
     // Trigger the appropriate mutation
     if (isEditing) {
       updateProposalMutation.mutate({ proposalId: Number(proposalId), payload });
@@ -142,6 +146,8 @@ const AddProposal = () => {
       createProposalMutation.mutate(payload);
     }
   };
+
+
 
 
   return (
