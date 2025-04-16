@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import {
   SafeAreaView,
@@ -81,6 +79,14 @@ const Notes = () => {
     return decodedText.length > 30 ? `${decodedText.slice(0, 30)}...` : decodedText;
   };
 
+  // Ensure image URLs are properly formatted for iOS
+  const getFormattedImageUrl = (url: string | undefined) => {
+    if (!url) return '';
+    const imageUrl = getImageUrl(url);
+    // Make sure URL is properly encoded for iOS
+    return imageUrl.replace(/\s/g, '%20');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }} className="px-4">
@@ -99,7 +105,7 @@ const Notes = () => {
                       noteId: note.id,
                       noteDetails: JSON.stringify({
                         ...note,
-                        media: note.media.map((m:any) => ({ ...m, localUri: getImageUrl(m.url) }))
+                        media: note.media.map((m:any) => ({ ...m, localUri: getFormattedImageUrl(m.url) }))
                       })
                     }
                   })}
@@ -113,7 +119,7 @@ const Notes = () => {
                       <Image
                         source={
                           note?.author?.user?.avatar
-                            ? { uri: getImageUrl(note.author.user.avatar) }
+                            ? { uri: getFormattedImageUrl(note.author.user.avatar) }
                             : images.user
                         }
                         resizeMode="cover"
@@ -149,7 +155,7 @@ const Notes = () => {
                   onPress={() => router.push(
                     `/clients/${clientId}/notes/add-note`,
                   )}
-                  IconLeft={Plus}
+                  IconLeft={Plus as any}
                   iconSize={20}
                 />
               </View>

@@ -237,6 +237,7 @@ const MediaDocuments = () => {
       title: "Documents",
       headerRight: () => <UploadButton />,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
   return (
@@ -260,13 +261,13 @@ const MediaDocuments = () => {
                     }
                     className="w-9 h-9"
                   />
-                  <View className="pl-2.5">
+                  <View className="pl-2.5 flex-1">
                     <Text
-                      className="text-sm sm:text-base text-dark font-ManropeMedium w-3/5"
+                      className="text-sm sm:text-base text-dark font-ManropeMedium"
                       numberOfLines={1}
                       ellipsizeMode="tail"
                     >
-                      {doc.url || 'Untitled Document'}
+                      {doc.url ? doc.url.split('/').pop() || 'Untitled Document' : 'Untitled Document'}
                     </Text>
                   </View>
                 </View>

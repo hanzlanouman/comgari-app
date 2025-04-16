@@ -155,7 +155,7 @@ const Proposal = () => {
                 title="Add Proposal"
                 onPress={() =>
                   router.push({
-                    pathname: "/(root)/(tabs)/clients/[id]/proposal/add-proposal",
+                    pathname: `/(root)/(tabs)/clients/${projectId}/proposal/add-proposal`,
                     params: { projectId }
                   })
                 }
