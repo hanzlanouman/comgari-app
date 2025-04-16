@@ -130,6 +130,7 @@ const ClientDetailPage: React.FC = () => {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  console.log(clientIdNum,"clientId")
   const request = {
     user: {
       id: user?.id,

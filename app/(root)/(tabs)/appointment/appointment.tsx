@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -13,6 +13,7 @@ const Appointment = () => {
   const [items, setItems] = useState<Record<string, any[]>>({});
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [showAgenda, setShowAgenda] = useState(false);
   const clientRepo = ClientRepository.getInstance();
   const actionModalRef = useRef<BottomSheetModal>(null);
   const queryClient = useQueryClient();
@@ -27,7 +28,13 @@ const Appointment = () => {
       staleTime: 0,
       cacheTime: 1000 * 60 * 5,
       refetchOnWindowFocus: true,
-      refetchOnMount: true
+      refetchOnMount: true,
+      onSuccess: () => {
+        setShowAgenda(true);
+      },
+      onError: () => {
+        setShowAgenda(true);
+      }
     }
   );
 
@@ -46,7 +53,7 @@ const Appointment = () => {
       }
 
       const memberNames = appointment.appointment_member
-        .map((member: any) => member.Auth.user?.full_name || 'Unknown')
+        .map((member: any) => member.Auth?.user?.full_name || 'Unknown')
         .join(', ');
 
       acc[formattedDate].push({
@@ -56,7 +63,7 @@ const Appointment = () => {
         endTime: new Date(appointment.end_time),
         address: appointment.notes || 'None',
         status: appointment.status,
-        clientName: appointment.client.name,
+        clientName: appointment.client?.name || 'Unknown Client',
         memberNames: memberNames,
         fullAppointmentData: appointment
       });
@@ -77,6 +84,8 @@ const Appointment = () => {
   useFocusEffect(
     React.useCallback(() => {
       queryClient.invalidateQueries('appointments');
+      // Reset states when screen is focused
+      setShowAgenda(false);
     }, [queryClient])
   );
 
@@ -95,7 +104,7 @@ const Appointment = () => {
 
     const members = appointment.appointment_member.map((member: any) => ({
       id: member.member_id,
-      name: member.Auth.user?.full_name || 'Unknown',
+      name: member.Auth?.user?.full_name || 'Unknown',
     }));
 
     const initialData = {
@@ -132,17 +141,23 @@ const Appointment = () => {
   };
 
   const formatTime = (isoTime: string) => {
-    const date = new Date(isoTime);
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+    try {
+      const date = new Date(isoTime);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch (e) {
+      console.error('Error formatting time:', e);
+      return "Invalid time";
+    }
   };
 
   const getInitials = (name: string) => {
+    if (!name) return "?";
     const nameParts = name.split(" ");
-    return nameParts.map((part: string) => part[0]).join("").toUpperCase();
+    return nameParts.map((part: string) => part[0] || "").join("").toUpperCase();
   };
 
   const renderAgendaItem = (item: any) => {
@@ -193,11 +208,13 @@ const Appointment = () => {
   }, {});
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="mb-4 flex-1">
-        {(isLoading || isFetching) ? (
-          <SimpleActivityIndicator />
-        ) : (
+        {(isLoading || isFetching) && !showAgenda ? (
+          <View className="flex-1 justify-center items-center">
+            <SimpleActivityIndicator />
+          </View>
+        ) : showAgenda ? (
           <Agenda
             items={items}
             selected={selectedDate}
@@ -222,6 +239,10 @@ const Appointment = () => {
               <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
             )}
           />
+        ) : (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#1B78B9" />
+          </View>
         )}
         <ActionModal
           ref={actionModalRef}
