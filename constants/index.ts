@@ -97,13 +97,21 @@ export const data = {
 export const STRIPE_PUBLIC_KEY =
   "pk_test_51QQYK5G8sQYF8V0vXjymMsGlVSlVZN9kNDoQmeeBu3OsR3TD4KS1MCQ2JUTKoVtKcdQ0hm0ec0dTdrSb0YzabtQ5009pBAjnaP";
 
-export const getImageUrl = (url: string) => {
-  if (url.startsWith("http")) {
-    return url;
+export const getImageUrl = (url: string | null | undefined) => {
+  if (!url) {
+    return ""; // Return empty string for null or undefined URLs
   }
+  
+  // Handle spaces in URLs for iOS compatibility
+  const formattedUrl = url.replace(/\s/g, '%20');
+  
+  if (formattedUrl.startsWith("http")) {
+    return formattedUrl;
+  }
+  
   if (environment === "development") {
-    return `${BaseUrl}:3010/public/${url}`;
+    return `${BaseUrl}:3010/public/${formattedUrl}`;
   } else {
-    return `${BaseUrl}/public/${url}`;
+    return `${BaseUrl}/public/${formattedUrl}`;
   }
 };
