@@ -249,7 +249,7 @@ const AddNote = () => {
   };
 
   // Handle content change in rich text editor
-  const handleContentChange = (content) => {
+  const handleContentChange = (content: any) => {
     formik.setFieldValue("notes", content);
   };
 
@@ -265,44 +265,49 @@ const AddNote = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <RichToolbar
-        editor={richText}
-        actions={[
-          actions.undo,
-          actions.redo,
-          actions.setBold,
-          actions.setItalic,
-          actions.setUnderline,
-          actions.heading1,
-          actions.insertBulletsList,
-          actions.insertOrderedList,
-          "customInsertLink",
-          actions.checkboxList,
-        ]}
-        iconMap={{
-          [actions.heading1]: handleHead,
-          customInsertLink: () => (
-            <TouchableOpacity onPress={openLinkModal}>
-              <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
-            </TouchableOpacity>
-          ),
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 150 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={true}
+      >
+        <RichToolbar
+          editor={richText}
+          actions={[
+            actions.undo,
+            actions.redo,
+            actions.setBold,
+            actions.setItalic,
+            actions.setUnderline,
+            actions.heading1,
+            actions.insertBulletsList,
+            actions.insertOrderedList,
+            "customInsertLink",
+            actions.checkboxList,
+          ]}
+          iconMap={{
+            [actions.heading1]: handleHead,
+            customInsertLink: () => (
+              <TouchableOpacity onPress={openLinkModal}>
+                <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
+              </TouchableOpacity>
+            ),
 
-        }}
-        onPressAction={(action) => {
-          if (action === "customInsertLink") {
-            openLinkModal();
-          }
-        }}
-        style={{
-          backgroundColor: "#ffffff",
-          borderTopColor: "#EDEDED",
-          borderBottomColor: "#EDEDED",
-          borderWidth: 1,
-          borderLeftColor: 0,
-          borderRightColor: 0,
-        }}
-      />
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          }}
+          onPressAction={(action: any) => {
+            if (action === "customInsertLink") {
+              openLinkModal();
+            }
+          }}
+          style={{
+            backgroundColor: "#ffffff",
+            borderTopColor: "#EDEDED",
+            borderBottomColor: "#EDEDED",
+            borderWidth: 1,
+            borderLeftColor: 0,
+            borderRightColor: 0,
+          }}
+        />
         <RichEditor
           ref={richText}
           initialHeight={45}
@@ -343,13 +348,27 @@ const AddNote = () => {
           </View>
         </View>
       </ScrollView>
-      {isAndroid() && <View className="p-4 bg-white">
+      <View 
+        className="p-4 bg-white border-t border-light" 
+        style={{ 
+          position: 'absolute', 
+          bottom: 0, 
+          left: 0, 
+          right: 0,
+          paddingBottom: 30,
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+        }}
+      >
         <CustomButton
           title={isEditMode ? "Update Note" : "Add Note"}
           onPress={() => formik.handleSubmit()}
           disabled={isUploading}
         />
-      </View>}
+      </View>
       <InsertLinkModal
         visible={isLinkModalVisible}
         onClose={closeLinkModal}
