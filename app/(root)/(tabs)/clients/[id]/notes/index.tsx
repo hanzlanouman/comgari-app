@@ -72,7 +72,7 @@ const Notes = () => {
   const hasData =
     clientNotes && Array.isArray(clientNotes) && clientNotes.length > 0;
 
-  const processNoteText = (html: string) => {
+  const processNoteText = (html: string | null | undefined) => {
     if (!html) return "";
     const strippedText = html.replace(/<[^>]*>/g, ''); 
     const decodedText = decode(strippedText); 
@@ -105,21 +105,24 @@ const Notes = () => {
                       noteId: note.id,
                       noteDetails: JSON.stringify({
                         ...note,
-                        media: note.media.map((m:any) => ({ ...m, localUri: getFormattedImageUrl(m.url) }))
+                        notes: note?.notes || '',
+                        media: Array.isArray(note.media) 
+                          ? note.media.map((m:any) => ({ ...m, localUri: getImageUrl(m.url) })) 
+                          : []
                       })
                     }
                   })}
                   className="border border-light p-3.5 rounded-[20px] mt-2.5"
                 >
                   <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
-                    {processNoteText(note?.notes)}
+                    {processNoteText(note?.notes || '')}
                   </Text>
                   <View className="flex-row items-center justify-between mt-2.5">
                     <View className="flex-row items-center">
                       <Image
                         source={
                           note?.author?.user?.avatar
-                            ? { uri: getFormattedImageUrl(note.author.user.avatar) }
+                            ? { uri: getImageUrl(note.author.user.avatar) }
                             : images.user
                         }
                         resizeMode="cover"
@@ -127,11 +130,11 @@ const Notes = () => {
                         style={{ width: vs(30), height: vs(30) }}
                       />
                       <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
-                        {note.author.user?.full_name || "Unknown User"}
+                        {note?.author?.user?.full_name || "Unknown User"}
                       </Text>
                     </View>
                     <Text className="text-sm text-dark-100 font-ManropeMedium">
-                      {new Date(note.created_at)?.toLocaleDateString()}
+                      {note?.created_at ? new Date(note.created_at)?.toLocaleDateString() : ''}
                     </Text>
                   </View>
                 </TouchableOpacity>
