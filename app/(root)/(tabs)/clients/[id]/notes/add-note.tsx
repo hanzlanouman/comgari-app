@@ -18,12 +18,11 @@ import { Upload, Save } from "lucide-react-native";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
 
-// Import necessary constants and types
 import { AssetPreview, CustomButton, HeaderButton } from "@/common/components";
 import { getImageUrl } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
-import { isAndroid, isIos, pickDocument, showErrorAlert } from "@/utils";
+import {  isIos, pickDocument, showErrorAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 
 export type MediaItem = {

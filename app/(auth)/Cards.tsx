@@ -32,17 +32,9 @@ const Cards: React.FC<CardsProps> = ({
   handleSelectCard,
   isNewSubscription = true,
 }) => {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState<string>("");
 
   const handleConfirmPayment = () => {
-    if (!selectedCard) {
-      setErrorMessage("Please select a payment method.");
-      return;
-    }
-
-    setErrorMessage(null);
-    
     if (isNewSubscription && couponCode.trim()) {
       onConfirmPayment(couponCode.trim());
     } else {
@@ -53,6 +45,19 @@ const Cards: React.FC<CardsProps> = ({
   return (
     <>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+        {isNewSubscription && (
+          <View className="mt-4">
+            <Text className="text-dark-100 text-sm font-ManropeMedium mb-1">
+              Have a coupon code?
+            </Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-3 text-sm"
+              placeholder="Enter coupon code"
+              value={couponCode}
+              onChangeText={setCouponCode}
+            />
+          </View>
+        )}
         {cards.length > 0 ? (
           <View className="flex-grow flex-col gap-y-4 mt-4">
             {cards.map((card) => (
@@ -75,10 +80,12 @@ const Cards: React.FC<CardsProps> = ({
               colors={["#1C78B9", "#4B4C9E"]}
               className="rounded-xl h-[52px] mt-23"
               start={[0, 0]}
-              end={[1, 1]}>
+              end={[1, 1]}
+            >
               <TouchableOpacity
                 onPress={onAddCard}
-                className="flex flex-row items-center justify-between rounded-lg py-4 pl-5 pr-3">
+                className="flex flex-row items-center justify-between rounded-lg py-4 pl-5 pr-3"
+              >
                 <View className="flex flex-row items-center">
                   <CreditCard size={20} color="#ffffff" />
                   <Text className="text-sm sm:text-base font-ManropeSemibold text-white ml-3">
@@ -88,21 +95,6 @@ const Cards: React.FC<CardsProps> = ({
                 <ChevronRight size={18} stroke="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
-
-            {/* Coupon code field - only visible for new subscriptions */}
-            {isNewSubscription && (
-              <View className="mt-4">
-                <Text className="text-dark-100 text-sm font-ManropeMedium mb-1">
-                  Have a coupon code?
-                </Text>
-                <TextInput
-                  className="border border-gray-300 rounded-lg p-3 text-sm"
-                  placeholder="Enter coupon code"
-                  value={couponCode}
-                  onChangeText={setCouponCode}
-                />
-              </View>
-            )}
           </View>
         ) : (
           <View className="flex-grow flex-col items-center justify-center px-4">
@@ -120,22 +112,10 @@ const Cards: React.FC<CardsProps> = ({
             </View>
           </View>
         )}
-
-        {/* Display error message */}
-        {errorMessage && (
-          <Text className="text-red mt-2 text-center">{errorMessage}</Text>
-        )}
       </ScrollView>
-
-      {/* Conditionally render the Confirm Payment button */}
-      {cards.length > 0 && (
-        <View className="p-4 pb-0">
-          <CustomButton
-            title="Confirm Payment"
-            onPress={handleConfirmPayment}
-          />
-        </View>
-      )}
+      <View className="p-4 pb-0">
+        <CustomButton title="Confirm Payment" onPress={handleConfirmPayment} />
+      </View>
     </>
   );
 };

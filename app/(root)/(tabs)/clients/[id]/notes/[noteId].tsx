@@ -42,16 +42,16 @@ const NoteDetails = () => {
   const navigation = useNavigation();
   const actionModalRef = useRef<BottomSheetModal>(null);
 
-  // Parse note details when component mounts
+  
   useEffect(() => {
     if (noteDetails) {
       try {
         const parsedNote = JSON.parse(noteDetails);
 
-        // Fix media URLs if they're not already formatted
+        
         if (parsedNote.media && Array.isArray(parsedNote.media)) {
           parsedNote.media = parsedNote.media.map((m: any) => {
-            // Ensure we have localUri for each media item
+            
             if (!m.localUri && m.url) {
               m.localUri = m.url;
             }
@@ -130,7 +130,7 @@ const NoteDetails = () => {
         <SafeAreaView className="flex-1 bg-white">
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4 mt-4">
-              {/* User Info */}
+             
               <View className="flex-row items-center">
                 <Image
                   source={

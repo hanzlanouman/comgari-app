@@ -79,14 +79,6 @@ const Notes = () => {
     return decodedText.length > 30 ? `${decodedText.slice(0, 30)}...` : decodedText;
   };
 
-  // Ensure image URLs are properly formatted for iOS
-  const getFormattedImageUrl = (url: string | undefined) => {
-    if (!url) return '';
-    const imageUrl = getImageUrl(url);
-    // Make sure URL is properly encoded for iOS
-    return imageUrl.replace(/\s/g, '%20');
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }} className="px-4">
@@ -107,7 +99,7 @@ const Notes = () => {
                         ...note,
                         notes: note?.notes || '',
                         media: Array.isArray(note.media) 
-                          ? note.media.map((m:any) => ({ ...m, localUri: getImageUrl(m.url) })) 
+                          ? note.media.map((m:any) => ({ ...m, localUri: m.url })) 
                           : []
                       })
                     }

@@ -5,10 +5,7 @@ import InputField from "@/common/components/InputField";
 import { router } from "expo-router";
 import CustomButton from "@/common/components/CustomButton";
 import { useFormik } from "formik";
-import {
-  LoginPayload,
-  LoginSchema,
-} from "@/repositories/auth/schemas";
+import { LoginPayload, LoginSchema } from "@/repositories/auth/schemas";
 import AppContainer from "@/common/components/AppContainer";
 import { AuthRepository } from "@/repositories/auth/auth";
 import { useMutation } from "react-query";
@@ -16,7 +13,7 @@ import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
 import { OTP_TYPE } from "@/common/enum";
-import { IS_ANDROID } from "@/utils";
+import { IS_ANDROID, IS_IOS } from "@/utils";
 
 const SignIn = () => {
   const AuthRepo = AuthRepository.getInstance();
@@ -52,17 +49,25 @@ const SignIn = () => {
       }
 
       mutate(values, {
-
         onSuccess: (data) => {
           dispatch(login(data));
           dispatch(setSubscribed(data.user.subscription));
-          if (!data.user.subscription) {
 
+          // Handle iOS-specific logic
+          if (IS_IOS && !data.user.subscription) {
+            // Redirect iOS users without subscription to subscription message
+            router.push({
+              pathname: "/(auth)/go-pro",
+            });
+            return;
+          }
+
+          // Handle normal flow for Android or subscribed iOS users
+          if (!data.user.subscription) {
             router.push({
               pathname: "/(auth)/go-pro",
             });
           }
-
         },
         onError: (error) => {
           // Specific error handling for account verification
@@ -108,11 +113,13 @@ const SignIn = () => {
       hasScroll
       isError={isError}
       message={error?.message}
-      onPress={otpScreen ? onClick : undefined}>
+      onPress={otpScreen ? onClick : undefined}
+    >
       <ImageBackground
         source={images.login}
         resizeMode="cover"
-        className="w-full h-screen">
+        className="w-full h-screen"
+      >
         <View className="bg-white rounded-t-3xl p-5 absolute left-0 bottom-0 w-full">
           <Text className="text-dark text-center font-ManropeBold text-xl sm:text-2xl">
             Let's Connect With Us!
@@ -136,14 +143,17 @@ const SignIn = () => {
               placeholder="Password"
               secureTextEntry={true}
               onBlur={formik.handleBlur("password")}
-              error={formik.touched.password ? formik.errors.password : undefined}
+              error={
+                formik.touched.password ? formik.errors.password : undefined
+              }
             />
           </View>
           <TouchableOpacity
             onPress={() => {
               router.push(route.auth.forgotPassword);
             }}
-            className="flex-row justify-end mt-3">
+            className="flex-row justify-end mt-3"
+          >
             <Text className="text-sm sm:text-base text-blue font-ManropeMedium">
               Forgot Password?
             </Text>
@@ -154,20 +164,23 @@ const SignIn = () => {
               onPress={() => formik.handleSubmit()}
             />
           </View>
-          {IS_ANDROID && <View className="flex-row items-center justify-center my-5">
-            <Text className="text-sm sm:text-base text-dark font-ManropeMedium">
-              Doesn't have an account?
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                router.replace(route.auth.register);
-              }}
-              className="ml-1 relative -top-[1]">
-              <Text className="text-blue text-sm sm:text-base font-ManropeSemibold">
-                Sign Up
+          {IS_ANDROID && (
+            <View className="flex-row items-center justify-center my-5">
+              <Text className="text-sm sm:text-base text-dark font-ManropeMedium">
+                Doesn't have an account?
               </Text>
-            </TouchableOpacity>
-          </View>}
+              <TouchableOpacity
+                onPress={() => {
+                  router.replace(route.auth.register);
+                }}
+                className="ml-1 relative -top-[1]"
+              >
+                <Text className="text-blue text-sm sm:text-base font-ManropeSemibold">
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ImageBackground>
     </AppContainer>

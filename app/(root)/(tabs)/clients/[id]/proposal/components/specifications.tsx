@@ -1,9 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-} from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import { CustomButton, HeaderButton } from "@/common/components";
 import {
   actions,
@@ -20,17 +16,21 @@ const handleHead = ({ tintColor }: { tintColor: string }) => (
 
 const Specifications = ({ initialData, onNext, onPrevious, currentStep }) => {
   const navigation = useNavigation();
-  const richText = React.useRef<RichEditor>();
+  const richText = React.useRef<any>(null);
   const descriptionRef = React.useRef<string>(initialData.specification || "");
 
   const handleSubmit = () => {
-    if (descriptionRef.current.trim()) {
+    if (
+      descriptionRef.current &&
+      descriptionRef.current.trim() &&
+      descriptionRef.current !== "<p></p>" &&
+      descriptionRef.current !== "<br>"
+    ) {
       onNext({ specification: descriptionRef.current });
     } else {
       alert("Please enter specifications");
     }
   };
-
 
   useEffect(() => {
     if (isAndroid() || currentStep !== 2)
@@ -39,11 +39,13 @@ const Specifications = ({ initialData, onNext, onPrevious, currentStep }) => {
       });
     else
       navigation.setOptions({
-        headerRight: () => <HeaderButton
-          onPress={handleSubmit}
-          disabled={false}
-          icon={<ArrowRight size={18} color="#ffffff" />}
-        />
+        headerRight: () => (
+          <HeaderButton
+            onPress={handleSubmit}
+            disabled={false}
+            icon={<ArrowRight size={18} color="#ffffff" />}
+          />
+        ),
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, currentStep]);
@@ -101,17 +103,17 @@ const Specifications = ({ initialData, onNext, onPrevious, currentStep }) => {
           onChange={(descriptionText) => {
             descriptionRef.current = descriptionText;
           }}
+          pasteAsPlainText={true}
+          useContainer={true}
         />
       </ScrollView>
-      {isAndroid() && <View className="p-4 bg-white">
-        <CustomButton
-          title="Next"
-          onPress={handleSubmit}
-        />
-      </View>}
+      {isAndroid() && (
+        <View className="p-4 bg-white">
+          <CustomButton title="Next" onPress={handleSubmit} />
+        </View>
+      )}
     </>
   );
 };
 
 export default Specifications;
-
