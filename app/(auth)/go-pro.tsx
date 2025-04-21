@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import {
   SafeAreaView,
@@ -6,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Linking,
 } from "react-native";
 import { images } from "@/constants";
 import { scale, vs } from "react-native-size-matters";
@@ -14,21 +16,22 @@ import { CustomButton } from "@/common/components";
 import PlanCard from "./components/PlanCard";
 import { useQuery } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
-import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
+import { IS_IOS } from "@/utils";
 
-// Define the plan types
+
 type TPlanProps = {
   authResponse?: string;
 };
 
 const GoPro = () => {
-  useRedirectIfIOS();
+
   const { authResponse } = useLocalSearchParams<TPlanProps>();
+
 
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); 
 
   const paymentRepo = PaymentRepository.getInstance();
 
@@ -39,21 +42,23 @@ const GoPro = () => {
         try {
           let parsedAuthResponse;
 
-          // Handle different authResponse formats
-          if (typeof authResponse === 'string') {
-            // Try to parse the string as JSON
+
+        
+          if (typeof authResponse === "string") {
+          
+
             try {
               parsedAuthResponse = JSON.parse(authResponse);
             } catch (parseError) {
               throw new Error("Invalid auth response format");
             }
           } else {
-            // Already an object
+          
             parsedAuthResponse = authResponse;
 
           }
 
-          // Verify the parsed response has the required fields
+        
           if (!parsedAuthResponse?.access_token) {
 
             throw new Error("Invalid auth response: missing token");
@@ -61,9 +66,17 @@ const GoPro = () => {
 
           return await paymentRepo.getSubscription(parsedAuthResponse);
         } catch (error) {
-          console.error("Error processing authResponse:", error, "authResponse:",
-            typeof authResponse === 'string' ? authResponse : JSON.stringify(authResponse));
-          // Fallback to non-auth request if parsing fails
+
+          console.error(
+            "Error processing authResponse:",
+            error,
+            "authResponse:",
+            typeof authResponse === "string"
+              ? authResponse
+              : JSON.stringify(authResponse)
+          );
+          
+
           return await paymentRepo.getSubscription();
         }
       } else {
@@ -71,22 +84,21 @@ const GoPro = () => {
       }
     },
     {
-      enabled: true, // Keep the query enabled
-      retry: 1,      // Only retry once
+      enabled: true, 
+      retry: 1, 
       onError: (error) => {
         console.error("Subscription query error:", error);
-      }
+      },
     }
   );
-
 
   const handlePress = (plan: string, price: string) => {
     setSelectedPlan(plan);
     setPriceId(price);
-    setErrorMessage(null); // Clear error message when a plan is selected
+    setErrorMessage(null); 
   };
 
-  // Filter plans based on active tab
+ 
   const plans = subscriptions?.data?.filter((subscription: any) =>
     activeTab === "monthly"
       ? subscription.pricing[0].paymentSchedule === "month"
@@ -95,7 +107,7 @@ const GoPro = () => {
 
   const handleBuyNow = () => {
     if (!selectedPlan) {
-      setErrorMessage("Please select a plan."); // Set error message if no plan is selected
+      setErrorMessage("Please select a plan."); 
       return;
     }
 
@@ -106,8 +118,36 @@ const GoPro = () => {
         selectedPlanPrice: priceId,
       },
     });
-
   };
+
+  const openWebAppLink = () => {
+    Linking.openURL("https://app.comgari.com/");
+  };
+
+  if (IS_IOS) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView>
+          <View className="flex-1 px-4 py-8 items-center justify-center">
+            <Image
+              source={images.donat}
+              resizeMode="contain"
+              style={{ width: scale(200), height: vs(200) }}
+              className="mb-6"
+            />
+            <Text className="text-dark text-center font-ManropeBold text-xl mb-4">
+              Subscription Required
+            </Text>
+            <Text className="text-dark-100 text-center text-sm sm:text-base font-ManropeRegular mb-8">
+              Please purchase a subscription plan from our web application to
+              continue using Comgari on your iOS device.
+            </Text>
+            <CustomButton title="Go to Web App" onPress={openWebAppLink} />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -125,14 +165,16 @@ const GoPro = () => {
           <View className="flex flex-row items-center justify-between bg-gray p-1.5 rounded-xl mt-5">
             <TouchableOpacity
               onPress={() => setActiveTab("monthly")}
-              className={`${activeTab === "monthly" ? "bg-white" : "bg-light-50"} w-2/4 rounded-lg p-2 sm:p-3`}>
+              className={`${activeTab === "monthly" ? "bg-white" : "bg-light-50"} w-2/4 rounded-lg p-2 sm:p-3`}
+            >
               <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
                 Monthly
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setActiveTab("yearly")}
-              className={`${activeTab === "yearly" ? "bg-white" : "bg-light-50"} w-2/4 rounded-lg p-2 sm:p-3`}>
+              className={`${activeTab === "yearly" ? "bg-white" : "bg-light-50"} w-2/4 rounded-lg p-2 sm:p-3`}
+            >
               <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
                 Yearly
               </Text>
@@ -161,7 +203,7 @@ const GoPro = () => {
           <View className="mt-4">
             <CustomButton
               title="Upgrade Now"
-              onPress={handleBuyNow} // Use the new handleBuyNow function
+              onPress={handleBuyNow}
             />
           </View>
         </View>

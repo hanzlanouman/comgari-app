@@ -22,7 +22,7 @@ import * as Print from 'expo-print';
 import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
 import * as Sharing from 'expo-sharing';
 
-const formatDate = (dateString) => {
+const formatDate = (dateString: string )=> {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     day: '2-digit',
@@ -32,7 +32,7 @@ const formatDate = (dateString) => {
 };
 
 // Create HTML template for the invoice PDF
-const createInvoiceTemplate = (data) => {
+const createInvoiceTemplate = (data: any) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -175,7 +175,7 @@ const InvoicesScreen = () => {
     }
   };
   // Generate PDF function
-  const generateInvoicePDF = async (invoiceData) => {
+  const generateInvoicePDF = async (invoiceData: Invoice) => {
     try {
       const html = createInvoiceTemplate(invoiceData);
       const { uri } = await Print.printToFileAsync({
@@ -189,7 +189,7 @@ const InvoicesScreen = () => {
     }
   };
 
-  const handleDownloadInvoice = async (invoice) => {
+  const handleDownloadInvoice = async (invoice: Invoice) => {
     try {
       const uri = await generateInvoicePDF(invoice);
       if (!uri) return;

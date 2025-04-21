@@ -94,9 +94,9 @@ const GoPro = () => {
             return;
         }
 
-        // Check if user has an existing subscription
+       
         if (agencySubscription?.data?.hasSubscription) {
-            // Upgrade existing subscription
+            
             if (!priceId) {
                 setErrorMessage("Invalid plan selection.");
                 return;
@@ -109,7 +109,7 @@ const GoPro = () => {
             
             upgradeSubscription(payload);
         } else {
-            // New subscription - navigate to payment method page
+           
             router.push({
                 pathname: "/(root)/(tabs)/profile/payment-method",
                 params: {

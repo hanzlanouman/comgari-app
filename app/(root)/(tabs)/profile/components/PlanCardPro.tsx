@@ -1,8 +1,9 @@
 import React from "react";
 import { TouchableOpacity, View, Text } from "react-native";
-import { LinearGradient } from "expo-linear-gradient"; // Ensure you have this package installed
+import { LinearGradient } from "expo-linear-gradient"; 
 import { Check } from "lucide-react-native";
 import { sentanceCase } from "@/utils";
+import { UNITS } from "@/constants";
 
 interface PlanCardProps {
     plan: string;
@@ -62,7 +63,7 @@ const renderCardContent = (
         <Text
             className={`text-base sm:text-lg font-ManropeSemibold mt-2.5 ${isSelected ? "text-white" : "text-blue"}`}
         >
-            €{price}/{sentanceCase(shcedule)}
+            {UNITS.CURRENCY}{price}/{sentanceCase(shcedule)}
         </Text>
         <View className="flex-row items-center justify-between mt-4 -mx-2">
             <View className="flex-row items-center w-2/4 px-2 ">

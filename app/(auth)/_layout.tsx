@@ -5,6 +5,7 @@ import "react-native-reanimated";
 import { useAppSelector } from "@/hooks/redux";
 import { route } from "@/common";
 import { useEffect } from "react";
+import { IS_IOS } from "@/utils";
 
 const Layout = () => {
   const { isAuthenticated = false, isSubscribed = false } = useAppSelector(
@@ -16,6 +17,14 @@ const Layout = () => {
       router.replace("/welcome");
       return;
     }
+
+    // Handle iOS specific logic for unsubscribed users
+    if (isAuthenticated && !isSubscribed && IS_IOS) {
+      router.replace("/(auth)/go-pro");
+      return;
+    }
+
+    // Normal flow for Android or subscribed iOS users
     if (isAuthenticated && !isSubscribed) {
       router.replace("/(auth)/go-pro");
       return;
@@ -76,17 +85,6 @@ const Layout = () => {
           title: "Sign Up to Comgari",
           headerBackTitle: "Welcome",
           headerRight: () => (
-            // <TouchableOpacity
-            // onPress={() => router.push("/(auth)/sign-in")}
-            // hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-            // >
-            //   <Text
-            //     className="text-sm sm:text-base font-ManropeSemibold text-blue"
-
-            //   >
-            //     Sign In
-            //   </Text>
-            // </TouchableOpacity>
             <TouchableOpacity
               onPressIn={() => router.push("/(auth)/sign-in")}
               hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
