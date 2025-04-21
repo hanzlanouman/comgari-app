@@ -1,17 +1,26 @@
-import { useEffect } from "react"
-import { useAppSelector } from "./redux"
-import { IS_ANDROID } from "@/utils"
-import { router } from "expo-router"
+import { useEffect } from "react";
+import { useAppSelector } from "./redux";
+import { IS_ANDROID } from "@/utils";
+import { router } from "expo-router";
 
 export const useRedirectIfIOS = () => {
-    const { isAuthenticated } = useAppSelector(state => state.auth)
+  const { isAuthenticated, isSubscribed } = useAppSelector(
+    (state) => state.auth
+  );
 
-    useEffect(() => {
-        if (IS_ANDROID) return;
-        if (isAuthenticated) {
-            router.replace('/(root)/(tabs)/home')
-        } else {
-            router.replace('/(auth)/sign-in')
-        }
-    }, [isAuthenticated])
-}
+  useEffect(() => {
+    if (IS_ANDROID) return;
+
+    if (isAuthenticated) {
+      if (!isSubscribed) {
+       
+        router.replace("/(auth)/go-pro");
+      } else {
+        
+        router.replace("/(root)/(tabs)/home");
+      }
+    } else {
+      router.replace("/(auth)/sign-in");
+    }
+  }, [isAuthenticated, isSubscribed]);
+};

@@ -27,7 +27,7 @@ const handleHead = ({ tintColor }: { tintColor: string }) => (
 const Brief = () => {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
-  const richText = useRef(null);
+  const richText = useRef<any>(null);
 
   const [content, setContent] = useState<string>("");
   const [isMutating, setIsMutating] = useState<boolean>(false);
@@ -49,7 +49,7 @@ const Brief = () => {
         />
       ),
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, isMutating]);
 
   useEffect(() => {
@@ -66,9 +66,11 @@ const Brief = () => {
           const briefContent = (response as any).brief;
           setContent(briefContent);
           setIsCreateMode(false);
-          
+
           setTimeout(() => {
-            richText.current?.setContentHTML(briefContent);
+            if (richText.current) {
+              richText.current.setContentHTML(briefContent);
+            }
           }, 100);
         } else {
           setContent("");
@@ -85,7 +87,7 @@ const Brief = () => {
     };
 
     fetchBrief();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleSave = async () => {
@@ -97,7 +99,13 @@ const Brief = () => {
     try {
       setIsMutating(true);
 
-      if (content.trim() === "") {
+      // Check if content has actual text, not just HTML
+      if (
+        !content ||
+        content.trim() === "" ||
+        content === "<p></p>" ||
+        content === "<br>"
+      ) {
         Alert.alert("Error", "Brief cannot be empty");
         return;
       }
@@ -105,14 +113,14 @@ const Brief = () => {
       if (isCreateMode) {
         await clientRepo.createBrief(payload);
       } else {
-        await clientRepo.createBrief(payload); 
+        await clientRepo.createBrief(payload);
       }
 
       router.push(`/(root)/(tabs)/clients/${id}`);
       setIsCreateMode(false);
       Alert.alert("Success", "Brief saved successfully");
-    } catch (error) {
-      Alert.alert("Error", error.message);
+    } catch (error: any) {
+      Alert.alert("Error", error?.message || "An error occurred");
     } finally {
       setIsMutating(false);
     }
@@ -125,7 +133,9 @@ const Brief = () => {
   const handleInsertLink = () => {
     if (linkURL.trim() && linkText.trim()) {
       const linkHTML = `<a href="${linkURL}" target="_blank">${linkText}</a>`;
-      richText.current?.insertHTML(linkHTML);
+      if (richText.current) {
+        richText.current.insertHTML(linkHTML);
+      }
       setIsLinkModalVisible(false);
       setLinkURL("");
       setLinkText("");
@@ -168,7 +178,7 @@ const Brief = () => {
             </TouchableOpacity>
           ),
         }}
-        onPressAction={(action : any) => {
+        onPressAction={(action: any) => {
           if (action === "customInsertLink") {
             openLinkModal();
           }
@@ -182,9 +192,8 @@ const Brief = () => {
             color: "#4A4A4A",
             placeholderColor: "#1C1C1C",
             backgroundColor: "#ffffff",
-            pasteAsPlainText: true
           }}
-          initialContentHTML={content} 
+          initialContentHTML={content}
           placeholder="Start typing here..."
           onChange={handleContentChange}
           onBlur={() => Keyboard.dismiss()}
