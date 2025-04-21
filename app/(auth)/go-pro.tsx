@@ -18,7 +18,7 @@ import { useQuery } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { IS_IOS } from "@/utils";
 
-// Define the plan types
+
 type TPlanProps = {
   authResponse?: string;
 };
@@ -31,7 +31,7 @@ const GoPro = () => {
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); 
 
   const paymentRepo = PaymentRepository.getInstance();
 
@@ -42,9 +42,11 @@ const GoPro = () => {
         try {
           let parsedAuthResponse;
 
+
         
           if (typeof authResponse === "string") {
           
+
             try {
               parsedAuthResponse = JSON.parse(authResponse);
             } catch (parseError) {
@@ -53,15 +55,18 @@ const GoPro = () => {
           } else {
           
             parsedAuthResponse = authResponse;
+
           }
 
         
           if (!parsedAuthResponse?.access_token) {
+
             throw new Error("Invalid auth response: missing token");
           }
 
           return await paymentRepo.getSubscription(parsedAuthResponse);
         } catch (error) {
+
           console.error(
             "Error processing authResponse:",
             error,
@@ -71,6 +76,7 @@ const GoPro = () => {
               : JSON.stringify(authResponse)
           );
           
+
           return await paymentRepo.getSubscription();
         }
       } else {
@@ -98,7 +104,6 @@ const GoPro = () => {
       ? subscription.pricing[0].paymentSchedule === "month"
       : subscription.pricing[0].paymentSchedule === "year"
   );
-
 
   const handleBuyNow = () => {
     if (!selectedPlan) {

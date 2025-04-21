@@ -37,7 +37,6 @@ const Layout = () => {
               >
                 <TouchableOpacity
                   onPressIn={() => {
-                    console.log("Pressed");
                     router.push("/(root)/(tabs)/appointment/add-appointment");
                   }}
                   className="w-full h-full rounded-full flex flex-row justify-center items-center"

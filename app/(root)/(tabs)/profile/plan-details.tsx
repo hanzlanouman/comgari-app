@@ -33,16 +33,13 @@ const SubscribedPlanDetails = () => {
         queryKey: ['subscription'],
         queryFn: async () => {
             const response = await paymentRepo.getAgencySubscription()
-            console.log(response,"Agency Subscription Plan")
             return response.data[0]
         }
     })
 
     useFocusEffect(
         useCallback(() => {
-            
             refetch();
-            console.log("Refetching subscription data on focus");
         }, [refetch])
     );
 
