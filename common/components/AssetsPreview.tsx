@@ -12,7 +12,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IS_ANDROID } from "@/utils";
 
 const windowWidth = Dimensions.get("window").width;
@@ -49,19 +49,6 @@ export const AssetPreview = ({
     media?.mimeType?.toLowerCase().includes("docx") ||
     media?.mimeType?.toLowerCase().includes("officedocument") ||
     false;
-
-  // Log media information for debugging
-  useEffect(() => {
-    console.log(`Media ${index}:`, {
-      type: media?.mimeType,
-      url: mediaUrl,
-      isImage,
-      isVideo,
-      isPDF,
-      isWord,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Ensure we have valid media object with required properties
   if (!media || !media.mimeType) {

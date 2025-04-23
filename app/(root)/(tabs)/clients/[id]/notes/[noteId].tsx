@@ -42,16 +42,16 @@ const NoteDetails = () => {
   const navigation = useNavigation();
   const actionModalRef = useRef<BottomSheetModal>(null);
 
-  
+
   useEffect(() => {
     if (noteDetails) {
       try {
         const parsedNote = JSON.parse(noteDetails);
 
-        
+
         if (parsedNote.media && Array.isArray(parsedNote.media)) {
           parsedNote.media = parsedNote.media.map((m: any) => {
-            
+
             if (!m.localUri && m.url) {
               m.localUri = m.url;
             }
@@ -59,7 +59,6 @@ const NoteDetails = () => {
           });
         }
 
-        console.log("Media items:", parsedNote.media);
         setNote(parsedNote);
       } catch (error) {
         console.error("Error parsing note details:", error);
@@ -130,7 +129,7 @@ const NoteDetails = () => {
         <SafeAreaView className="flex-1 bg-white">
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4 mt-4">
-             
+
               <View className="flex-row items-center">
                 <Image
                   source={

@@ -9,7 +9,7 @@ import Specifications from './components/specifications';
 import Review from './components/review';
 import { ArrowLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
-import { clientRepo, ClientRepository } from "@/repositories/client/client";
+import { ClientRepository } from "@/repositories/client/client";
 
 const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
@@ -19,7 +19,6 @@ const AddProposal = () => {
   const isEditing = Boolean(proposalId && !isNaN(Number(proposalId)));
   const [currentStep, setCurrentStep] = useState(1);
 
-  console.log(projectId,"project ID")
   const [formData, setFormData] = useState({
     client_id: Number(projectId),
     date: '',
@@ -50,7 +49,7 @@ const AddProposal = () => {
       ),
       headerTitleAlign: "center",
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
   useEffect(() => {
@@ -60,7 +59,7 @@ const AddProposal = () => {
         ...initialParams,
       }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
 
 
@@ -137,8 +136,6 @@ const AddProposal = () => {
       project_id: formData.project_id,
     };
 
-    console.log(payload,"payload")
- 
     // Trigger the appropriate mutation
     if (isEditing) {
       updateProposalMutation.mutate({ proposalId: Number(proposalId), payload });

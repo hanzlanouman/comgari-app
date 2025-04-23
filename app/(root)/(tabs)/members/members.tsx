@@ -55,8 +55,6 @@ const Members = () => {
   const hasPermission = getPermission(user!, "manage", "member");
   const { data, isError, error, refetch } = useQuery(["member"], MemberRepo.getMember);
 
-  console.log(user,"user for the members")
-
   const deleteMemberMutation = useMutation({
     mutationFn: () => {
       actionModalRef.current?.dismiss();

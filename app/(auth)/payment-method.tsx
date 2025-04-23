@@ -66,7 +66,6 @@ export default function Paymentmethod() {
       paymentRepo.validateCoupon(coupon, parsedAuthResponse)
       : paymentRepo.validateCoupon(coupon),
     onSuccess: (data) => {
-      console.log("Coupon validation response:", data);
       if (!data.valid) {
         showErrorAlert("Invalid coupon code.");
         return;
@@ -75,7 +74,6 @@ export default function Paymentmethod() {
       setFree(isFullOffForever(totalPrice, data.coupon));
     },
     onError: (error: any) => {
-      console.error("Coupon validation error:", error);
       showErrorAlert(error?.message || "An error occurred while validating the coupon code.");
     },
   })

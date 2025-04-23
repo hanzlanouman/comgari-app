@@ -48,7 +48,7 @@ const Clients: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const pageSize = 10;
-  
+
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
@@ -74,7 +74,7 @@ const Clients: React.FC = () => {
           } else {
             setClients(prevClients => [...prevClients, ...data]);
           }
-          
+
           // Check if we have more data to load
           setHasMore(data.length === pageSize);
         }
@@ -98,7 +98,6 @@ const Clients: React.FC = () => {
 
   const loadMoreClients = useCallback(() => {
     if (!isFetching && hasMore && !isLoadingMore) {
-      console.log("Loading more clients from page:", page + 1);
       setIsLoadingMore(true);
       setPage(prevPage => prevPage + 1);
     }
@@ -141,7 +140,7 @@ const Clients: React.FC = () => {
 
   const renderFooter = () => {
     if (!isLoadingMore) return null;
-    
+
     return (
       <View className="py-4 items-center">
         <ActivityIndicator size="small" color="#1B78B9" />
@@ -171,7 +170,7 @@ const Clients: React.FC = () => {
           <Text className="text-sm text-dark-100 mt-3 mb-2">
             Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
           </Text>
-          
+
           {isLoading && !refreshing && page === 0 ? (
             <View className="flex-1 justify-center items-center">
               <ActivityIndicator size="large" color="#1B78B9" />
