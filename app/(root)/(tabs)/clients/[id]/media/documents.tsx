@@ -93,9 +93,9 @@ const MediaDocuments = () => {
                   }]
                 };
 
-                // Call update client media API for deletion
+                
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
-                // Update local state to remove the deleted document
+                
                 const updatedDocuments = documentItems.filter((item:any) => item.id !== doc.id);
                 setDocumentItems(updatedDocuments);
                 bottomSheetModalRef.current?.close();
@@ -136,7 +136,7 @@ const MediaDocuments = () => {
 
   const pickMedia = async () => {
     try {
-      // For iOS compatibility, use a less restrictive mime type approach
+    
       const resp = await pickDocument(true, { 
         type: "*/*" 
       });
