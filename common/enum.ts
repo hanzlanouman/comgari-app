@@ -20,3 +20,14 @@ export enum TaskPriority {
   medium = "medium",
   high = "high",
 }
+
+
+export enum DiscountType {
+  PERCENTAGE = "PERCENTAGE",
+  FIXED = "FIXED",
+}
+
+export enum CouponDuration {
+  forever = "forever",
+  once = "once",
+}

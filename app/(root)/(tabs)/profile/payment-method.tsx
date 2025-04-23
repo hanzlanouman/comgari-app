@@ -6,7 +6,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@/constants";
-import Cards from "@/app/(auth)/Cards";
+import Cards from "@/app/(auth)/components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -33,7 +33,6 @@ export default function Paymentmethod() {
   const queryClient = useQueryClient();
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [couponCode, setCouponCode] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // First check if user already has a subscription
@@ -43,7 +42,7 @@ export default function Paymentmethod() {
     {
       enabled: true,
       onSuccess: (data) => {
-      
+
         if (data?.data?.hasSubscription && !isNewSubscription) {
           router.replace("/(root)/(tabs)/profile/plans");
         }
@@ -69,7 +68,7 @@ export default function Paymentmethod() {
   );
 
   const onConfirmPayment = async () => {
-   
+
     if (agencySubscription?.data?.hasSubscription) {
       setErrorMessage("You already have a subscription. Please use upgrade option from the plans page.");
       return;
@@ -80,12 +79,7 @@ export default function Paymentmethod() {
       paymentMethod_id: selectedCard || "",
       totalClient: 20,
     };
-    
-    // Add coupon code if provided
-    if (couponCode.trim()) {
-      payload.coupon = couponCode.trim();
-    }
-    
+
     return paymentRepo.createSubscription(payload);
   };
 
@@ -145,10 +139,7 @@ export default function Paymentmethod() {
     setSelectedCard(cardId);
   };
 
-  const handleConfirmPayment = (coupon?: string) => {
-    if (coupon) {
-      setCouponCode(coupon);
-    }
+  const handleConfirmPayment = () => {
     confirmPayment();
   };
 
@@ -175,7 +166,6 @@ export default function Paymentmethod() {
           handleSelectCard={handleSelectCard}
           onConfirmPayment={handleConfirmPayment}
           selectedCard={selectedCard}
-          isNewSubscription={isNewSubscription}
         />
       </StripeProvider>
     </SafeAreaView>
