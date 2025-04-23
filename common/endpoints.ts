@@ -153,6 +153,11 @@ export const END_POINTS = {
     },
     AGENCY_SUBSCRIPTION: {
       route: PaymentUrl + '/agency-subscription'
+    },
+    VALIDATE_COUPON: {
+      route: PaymentUrl + '/validate-coupon/',
+      method: 'GET',
+      description: 'Append coupon code at end'
     }
   },
   Client: {

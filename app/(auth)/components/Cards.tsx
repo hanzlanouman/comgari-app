@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity, TextInput } from "react-native";
+import React from "react";
+import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import { images } from "@/constants";
 import { scale, vs } from "react-native-size-matters";
 import { LinearGradient } from "expo-linear-gradient";
 import { CreditCard, ChevronRight } from "lucide-react-native";
-import CardComponent from "./components/payment-cards";
+import CardComponent from "./payment-cards";
 import { CustomButton } from "@/common/components";
 
 interface CardData {
@@ -19,9 +19,9 @@ interface CardsProps {
   cards: CardData[];
   selectedCard: string | null;
   onAddCard: () => void;
-  onConfirmPayment: (coupon?: string) => void;
+  onConfirmPayment: () => void;
   handleSelectCard: (cardId: string) => void;
-  isNewSubscription?: boolean;
+  enabled?: boolean;
 }
 
 const Cards: React.FC<CardsProps> = ({
@@ -30,34 +30,12 @@ const Cards: React.FC<CardsProps> = ({
   onAddCard,
   onConfirmPayment,
   handleSelectCard,
-  isNewSubscription = true,
+  enabled = true
 }) => {
-  const [couponCode, setCouponCode] = useState<string>("");
-
-  const handleConfirmPayment = () => {
-    if (isNewSubscription && couponCode.trim()) {
-      onConfirmPayment(couponCode.trim());
-    } else {
-      onConfirmPayment();
-    }
-  };
 
   return (
     <>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-        {isNewSubscription && (
-          <View className="mt-4">
-            <Text className="text-dark-100 text-sm font-ManropeMedium mb-1">
-              Have a coupon code?
-            </Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg p-3 text-sm"
-              placeholder="Enter coupon code"
-              value={couponCode}
-              onChangeText={setCouponCode}
-            />
-          </View>
-        )}
         {cards.length > 0 ? (
           <View className="flex-grow flex-col gap-y-4 mt-4">
             {cards.map((card) => (
@@ -114,7 +92,12 @@ const Cards: React.FC<CardsProps> = ({
         )}
       </ScrollView>
       <View className="p-4 pb-0">
-        <CustomButton title="Confirm Payment" onPress={handleConfirmPayment} />
+        <CustomButton
+          disabled={!enabled}
+          className={enabled ? "" : "opacity-50"}
+          title="Confirm Payment"
+          onPress={() => onConfirmPayment()}
+        />
       </View>
     </>
   );

@@ -9,15 +9,19 @@ import {
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@/constants";
-import Cards from "./Cards";
+import Cards from "./components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocalSearchParams } from "expo-router";
-import { TLoginResponse } from "@/repositories";
+import { TCoupon, TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
+import { TextInput } from "react-native-gesture-handler";
+import { showErrorAlert } from "@/utils";
+import { CouponDuration, DiscountType } from "@/common";
+import { CustomButton, SimpleActivityIndicator } from "@/common/components";
 
 type TPlanProps = {
   authResponse?: string;
@@ -33,7 +37,6 @@ export default function Paymentmethod() {
   const searchParams = useLocalSearchParams<TPlanProps>();
   const authResponse = searchParams.authResponse;
   const selectedPlanPrice = searchParams.selectedPlanPrice;
-  const isNewSubscription = searchParams.isNewSubscription === "true";
 
   const parsedAuthResponse = React.useMemo(
     () => (authResponse ? (JSON.parse(authResponse) as TLoginResponse) : null),
@@ -45,6 +48,40 @@ export default function Paymentmethod() {
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState<string>("");
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [isFree, setFree] = useState<boolean>(false);
+  const [isCouponApplied, setIsCouponApplied] = useState<boolean>(false);
+
+  const isFullOffForever = (price: number, coupon: TCoupon) => {
+    if (coupon.duration !== CouponDuration.forever) return false;
+    if (coupon.type === DiscountType.PERCENTAGE) {
+      return coupon.value === 100;
+    } else {
+      return coupon.value >= price;
+    }
+  }
+
+  const { mutate: ValidateCoupon } = useMutation({
+    mutationFn: (coupon: string) => parsedAuthResponse ?
+      paymentRepo.validateCoupon(coupon, parsedAuthResponse)
+      : paymentRepo.validateCoupon(coupon),
+    onSuccess: (data) => {
+      if (!data.valid) {
+        showErrorAlert("Invalid coupon code.");
+        return;
+      }
+      setIsCouponApplied(true);
+      setFree(isFullOffForever(totalPrice, data.coupon));
+    },
+    onError: (error: any) => {
+      showErrorAlert(error?.message || "An error occurred while validating the coupon code.");
+    },
+  })
+
+  const { data: subscriptions } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: () => paymentRepo.getSubscription()
+  });
 
   const { data: cards } = useQuery(
     ["cards"],
@@ -88,7 +125,7 @@ export default function Paymentmethod() {
       totalClient: 20,
     };
 
-    if (isNewSubscription && couponCode.trim()) {
+    if (couponCode.trim()) {
       payload.coupon = couponCode.trim();
     }
 
@@ -97,7 +134,7 @@ export default function Paymentmethod() {
       : await paymentRepo.createSubscription(payload);
   };
 
-  const { mutate: confirmPayment, isLoading, isError } = useMutation(
+  const { mutate: confirmPayment } = useMutation(
     onConfirmPayment,
     {
       onSuccess: (data) => {
@@ -106,8 +143,9 @@ export default function Paymentmethod() {
         }
         dispatch(setSubscribed(true));
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error("Payment failed:", error);
+        showErrorAlert(error?.message || "An error occurred during payment processing.");
       },
     }
   );
@@ -157,6 +195,15 @@ export default function Paymentmethod() {
     }
   }, [buyerResponse]);
 
+  useEffect(() => {
+    if (!subscriptions) return;
+    subscriptions?.data?.map((s: any) => {
+      if (s?.pricing?.[0]?.price_id === selectedPlanPrice) {
+        setTotalPrice(s?.pricing?.[0]?.price);
+      }
+    })
+  }, [subscriptions])
+
   const onAddCard = () => {
     refetch();
   };
@@ -165,12 +212,24 @@ export default function Paymentmethod() {
     setSelectedCard(cardId);
   };
 
-  const handleConfirmPayment = (coupon?: string) => {
-    if (coupon) {
-      setCouponCode(coupon);
+  const handleConfirmPayment = () => {
+    if (!selectedCard && !isFree) {
+      showErrorAlert("Please select a card to confirm payment.");
+      return;
     }
+
+    if (couponCode && couponCode?.length > 0 && !isCouponApplied) {
+      showErrorAlert("You have entered a coupon code but not applied it yet. Please apply it first or remove the coupon code.");
+
+      return;
+    }
+
     confirmPayment();
   };
+
+  if (!cards || !subscriptions) {
+    return <SimpleActivityIndicator />;
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
@@ -198,12 +257,32 @@ export default function Paymentmethod() {
           </View>
         )}
 
+        <View className="mt-4">
+          <Text className="text-dark-100 text-sm font-ManropeMedium mb-1">
+            Have a coupon code?
+          </Text>
+          <View className="flex-row items-center border border-gray-100 rounded-xl p-1 h-14">
+            <TextInput
+              className="p-3 text-sm flex-1"
+              placeholder="Enter coupon code"
+              value={couponCode}
+              onChangeText={setCouponCode}
+            />
+            <CustomButton
+              title="Apply"
+              onPress={() => ValidateCoupon(couponCode)}
+              className="mt-2 !w-20 pb-4"
+            />
+          </View>
+        </View>
+
         <Cards
           cards={cards?.data || []}
           onAddCard={onAddCard}
           handleSelectCard={handleSelectCard}
           onConfirmPayment={handleConfirmPayment}
           selectedCard={selectedCard}
+          enabled={Boolean(isFree || selectedCard)}
         />
       </StripeProvider>
     </SafeAreaView>

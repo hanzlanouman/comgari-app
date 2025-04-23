@@ -6,6 +6,7 @@ import { BaseUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
 import { getErrorMessage } from "@/common/utils";
 import { TCreateSubscriptionPayload } from "./schema";
+import { TValidateCouponResponse } from "./types";
 
 interface IPaymentRepository {
   createBuyer(authResponse?: TLoginResponse): Promise<TReponse>;
@@ -15,6 +16,7 @@ interface IPaymentRepository {
     payload: any,
     authResponse?: TLoginResponse
   ): Promise<TReponse>;
+  validateCoupon(coupon: string): Promise<TValidateCouponResponse>;
 }
 
 export class PaymentRepository implements IPaymentRepository {
@@ -134,6 +136,23 @@ export class PaymentRepository implements IPaymentRepository {
       return res
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e)
+    }
+  }
+
+  async validateCoupon(coupon: string, authResponse?: TLoginResponse): Promise<TValidateCouponResponse> {
+    try {
+      const res = await get(
+        `${BaseUrl + END_POINTS.PAYMENT.VALIDATE_COUPON.route + coupon}`,
+        {
+          show_loader: true,
+          headers: authResponse
+            ? { Authorization: `Bearer ${authResponse.access_token}` }
+            : undefined,
+        }
+      );
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
     }
   }
 }

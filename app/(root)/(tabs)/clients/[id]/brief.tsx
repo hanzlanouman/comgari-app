@@ -60,7 +60,6 @@ const Brief = () => {
 
       try {
         const response = await clientRepo.getBrief(Number(id));
-        console.log(response, "Brief");
 
         if (response && (response as any).brief) {
           const briefContent = (response as any).brief;
