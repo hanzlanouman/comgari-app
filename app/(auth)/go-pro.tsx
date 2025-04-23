@@ -17,6 +17,7 @@ import PlanCard from "./components/PlanCard";
 import { useQuery } from "react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { IS_IOS } from "@/utils";
+import SubscriptionUnavailableMessage from "./components/noSubscriptionScreen";
 
 
 type TPlanProps = {
@@ -126,26 +127,7 @@ const GoPro = () => {
 
   if (IS_IOS) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <ScrollView>
-          <View className="flex-1 px-4 py-8 items-center justify-center">
-            <Image
-              source={images.donat}
-              resizeMode="contain"
-              style={{ width: scale(200), height: vs(200) }}
-              className="mb-6"
-            />
-            <Text className="text-dark text-center font-ManropeBold text-xl mb-4">
-              Subscription Required
-            </Text>
-            <Text className="text-dark-100 text-center text-sm sm:text-base font-ManropeRegular mb-8">
-              Please purchase a subscription plan from our web application to
-              continue using Comgari on your iOS device.
-            </Text>
-            <CustomButton title="Go to Web App" onPress={openWebAppLink} />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      <SubscriptionUnavailableMessage/>
     );
   }
 

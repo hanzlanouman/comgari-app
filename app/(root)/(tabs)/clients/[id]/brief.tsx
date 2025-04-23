@@ -60,6 +60,7 @@ const Brief = () => {
 
       try {
         const response = await clientRepo.getBrief(Number(id));
+        console.log(response, "Brief");
 
         if (response && (response as any).brief) {
           const briefContent = (response as any).brief;
@@ -98,13 +99,9 @@ const Brief = () => {
     try {
       setIsMutating(true);
 
-      // Check if content has actual text, not just HTML
-      if (
-        !content ||
-        content.trim() === "" ||
-        content === "<p></p>" ||
-        content === "<br>"
-      ) {
+      
+      const contentWithoutTags = content.replace(/<[^>]*>/g, '').trim();
+      if (!contentWithoutTags) {
         Alert.alert("Error", "Brief cannot be empty");
         return;
       }
