@@ -24,7 +24,7 @@ const SubscriptionUnavailableMessage = () => {
       <ScrollView>
         <View className="flex-1 px-4 py-8 items-center justify-center">
           <Image
-            source={images.logo}
+            source={images.icon}
             resizeMode="contain"
             style={{ width: scale(200), height: vs(200) }}
             className="mb-6"
@@ -34,17 +34,16 @@ const SubscriptionUnavailableMessage = () => {
           </Text>
           <Text className="text-dark-100 text-center text-sm sm:text-base font-ManropeRegular mb-8">
             Please purchase a subscription plan from our web application to
-            continue using Comgari on your iOS device.
+            continue using Comgari on your IOS device.
           </Text>
+          <View className="mb-6 flex-1 w-full justify-end">
+
           <CustomButton title="Go to Web App" onPress={openWebAppLink} />
+          </View>
+        <View className="flex-1  justify-end w-full mb-6">
+          <CustomButton title="Logout" onPress={() => dispatch(logout())} />
+           
         </View>
-        <View className="flex-1 justify-end mb-6">
-          <CustomButton
-            onPress={() => {
-              dispatch(logout());
-            }}
-            title="Logout"
-          />
         </View>
       </ScrollView>
     </SafeAreaView>

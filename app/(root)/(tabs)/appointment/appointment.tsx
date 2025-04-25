@@ -163,7 +163,7 @@ const Appointment = () => {
   const renderAgendaItem = (item: any) => {
     return (
       <TouchableOpacity
-        onPressIn={() => handleAppointmentPress(item)}
+        onPress={() => handleAppointmentPress(item)}
         className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md"
       >
         {/* Appointment details */}
@@ -232,9 +232,12 @@ const Appointment = () => {
               agendaKnobColor: "#1C1C1C",
             }}
             hideKnob={false}
+            hideExtraDays={true}
+            showClosingKnob={true}
             showOnlySelectedDayItems={true}
             pastScrollRange={1}
             futureScrollRange={1}
+            calendarHeight={120}
             renderKnob={() => (
               <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
             )}
