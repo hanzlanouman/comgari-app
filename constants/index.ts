@@ -6,6 +6,7 @@ import onboarding3 from "@/assets/images/onboarding3.jpg";
 import welcome from "@/assets/images/welcome.jpg";
 import logo from "@/assets/images/logo.png";
 import login from "@/assets/images/login.jpg";
+import icon from "@/assets/images/icon.png";
 import donat from "@/assets/images/donat.png";
 import card from "@/assets/images/card.png";
 import masterCard from "@/assets/images/master-card.png";
@@ -34,6 +35,7 @@ export const images = {
   onboarding1,
   onboarding2,
   onboarding3,
+  icon,
   welcome,
   logo,
   login,

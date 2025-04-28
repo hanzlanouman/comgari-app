@@ -14,6 +14,7 @@ import { AppContainer } from "@/common/components";
 import { UNITS } from "@/constants";
 import { useFocusEffect } from "expo-router";
 
+
 const screenWidth = Dimensions.get("window").width;
 
 const repo = MemberRepository.getInstance();
@@ -60,7 +61,8 @@ const Home = () => {
         receivedAmount: invoiceConversion.recivedAmount || 0,
         pendingAmount: invoiceConversion.pendingAmount || 0,
       });
-    } catch (_e:any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e:any) {
       setIsError(true);
       setError("Failed to fetch dashboard data. Please try again.");
     } finally {

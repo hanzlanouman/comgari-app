@@ -19,6 +19,9 @@ import { downloadMedia, pickDocument, showErrorAlert, showSuccessAlert } from "@
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation } from "react-query";
 import { useUpload } from "@/hooks/use-upload";
+import * as Sharing from 'expo-sharing';
+import { isRunningInExpoGo } from 'expo';
+import * as FileSystem from 'expo-file-system';
 
 import {
   BottomSheetModal,
@@ -55,14 +58,69 @@ const MediaDocuments = () => {
 
   const handleDownload = async (doc: any) => {
     bottomSheetModalRef.current?.close();
-    const { success, message } = await downloadMedia(getImageUrl(doc.url));
-    setTimeout(() => {
-      if (success) {
-        showSuccessAlert(message)
+    
+    try {
+      if (isRunningInExpoGo()) {
+       
+        const fileUrl = getImageUrl(doc.url);
+        const fileName = doc.url.split('/').pop() || 'document';
+        const fileUri = FileSystem.cacheDirectory + fileName;
+        
+       
+        await FileSystem.downloadAsync(fileUrl, fileUri);
+        
+       
+        try {
+       
+          const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+          
+          if (permissions.granted) {
+       
+            const base64Data = await FileSystem.readAsStringAsync(fileUri, {
+              encoding: FileSystem.EncodingType.Base64
+            });
+            
+       
+            const mimeType = doc.mimeType || 'application/pdf';
+            const destinationUri = await FileSystem.StorageAccessFramework.createFileAsync(
+              permissions.directoryUri,
+              fileName,
+              mimeType
+            );
+            
+            await FileSystem.StorageAccessFramework.writeAsStringAsync(
+              destinationUri,
+              base64Data,
+              { encoding: FileSystem.EncodingType.Base64 }
+            );
+            
+            showSuccessAlert('Document downloaded successfully');
+          } else {
+            showErrorAlert('Permission to save file was denied');
+          }
+        } catch (err) {
+          console.error('Storage access error:', err);
+       
+          await Sharing.shareAsync(fileUri, {
+            mimeType: doc.mimeType || 'application/pdf',
+            dialogTitle: 'Save Document'
+          });
+        }
       } else {
-        showErrorAlert(message)
+       
+        const { success, message } = await downloadMedia(getImageUrl(doc.url));
+        setTimeout(() => {
+          if (success) {
+            showSuccessAlert(message);
+          } else {
+            showErrorAlert(message);
+          }
+        }, 1000);
       }
-    }, 1000)
+    } catch (error) {
+      showErrorAlert('Error downloading document');
+      console.error('Download error:', error);
+    }
   };
 
 
@@ -81,7 +139,7 @@ const MediaDocuments = () => {
             style: 'destructive',
             onPress: async () => {
               try {
-                // Prepare payload for deletion
+       
                 const deletePayload = {
                   media: [{
                     prev_media_id: doc.id,
@@ -93,9 +151,9 @@ const MediaDocuments = () => {
                   }]
                 };
 
-                // Call update client media API for deletion
+                
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
-                // Update local state to remove the deleted document
+                
                 const updatedDocuments = documentItems.filter((item:any) => item.id !== doc.id);
                 setDocumentItems(updatedDocuments);
                 bottomSheetModalRef.current?.close();
@@ -136,7 +194,7 @@ const MediaDocuments = () => {
 
   const pickMedia = async () => {
     try {
-      // For iOS compatibility, use a less restrictive mime type approach
+    
       const resp = await pickDocument(true, { 
         type: "*/*" 
       });
@@ -150,7 +208,7 @@ const MediaDocuments = () => {
       const uploadedMediaItems: any[] = [];
       
       for (const file of resp.result) {
-        // Verify file type is PDF or Word
+       
         if (
           file.type === "application/pdf" || 
           file.type === "application/msword" || 
@@ -175,17 +233,17 @@ const MediaDocuments = () => {
         await saveMediaMutation.mutateAsync(uploadedMediaItems);
         
         try {
-          // Refresh the list with newly added items
+       
           const response = await clientRepo.getClientMedia({
             client_id: Number(id),
             owner_id: Number(id),
             owner_type: "client",
           });
           
-          // Handle the response safely
+       
           const mediaItems = Array.isArray(response) ? response : [];
           
-          // Filter for PDF and Word documents only
+       
           const updatedDocItems = mediaItems.filter((item: any) => 
             item.mimeType && 
             (item.mimeType === "application/pdf" || 
