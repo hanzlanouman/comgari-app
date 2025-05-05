@@ -63,8 +63,8 @@ export default function Paymentmethod() {
 
   const { mutate: ValidateCoupon } = useMutation({
     mutationFn: (coupon: string) => parsedAuthResponse ?
-      paymentRepo.validateCoupon(coupon, parsedAuthResponse)
-      : paymentRepo.validateCoupon(coupon),
+      paymentRepo.validateCoupon(coupon.trim(), parsedAuthResponse)
+      : paymentRepo.validateCoupon(coupon.trim()),
     onSuccess: (data) => {
       if (!data.valid) {
         showErrorAlert("Invalid coupon code.");
@@ -121,12 +121,11 @@ export default function Paymentmethod() {
   const onConfirmPayment = async () => {
     const payload: Partial<TCreateSubscriptionPayload> & { totalClient: number } = {
       id: selectedPlanPrice,
-      paymentMethod_id: selectedCard || "",
       totalClient: 20,
     };
 
-    if (couponCode.trim()) {
-      payload.coupon = couponCode.trim();
+    if (selectedCard && !isFree) {
+      payload.paymentMethod_id = selectedCard;
     }
 
     return parsedAuthResponse
