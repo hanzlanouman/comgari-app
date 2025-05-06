@@ -86,6 +86,8 @@ const Brief = () => {
       }
     };
 
+    console.log(content, "content");
+
     fetchBrief();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -99,8 +101,7 @@ const Brief = () => {
     try {
       setIsMutating(true);
 
-      
-      const contentWithoutTags = content.replace(/<[^>]*>/g, '').trim();
+      const contentWithoutTags = content.replace(/<[^>]*>/g, "").trim();
       if (!contentWithoutTags) {
         Alert.alert("Error", "Brief cannot be empty");
         return;

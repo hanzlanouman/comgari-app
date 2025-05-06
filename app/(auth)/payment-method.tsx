@@ -51,6 +51,7 @@ export default function Paymentmethod() {
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [isFree, setFree] = useState<boolean>(false);
   const [isCouponApplied, setIsCouponApplied] = useState<boolean>(false);
+  const [couponData, setCouponData] = useState<TCoupon | null>(null);
 
   const isFullOffForever = (price: number, coupon: TCoupon) => {
     if (coupon.duration !== CouponDuration.forever) return false;
@@ -71,6 +72,7 @@ export default function Paymentmethod() {
         return;
       }
       setIsCouponApplied(true);
+      setCouponData(data.coupon);
       setFree(isFullOffForever(totalPrice, data.coupon));
     },
     onError: (error: any) => {
@@ -119,15 +121,14 @@ export default function Paymentmethod() {
   );
 
   const onConfirmPayment = async () => {
-    const payload: Partial<TCreateSubscriptionPayload> & { totalClient: number } = {
+    const payload: TCreateSubscriptionPayload= {
       id: selectedPlanPrice,
-      totalClient: 20,
     };
 
     if (selectedCard && !isFree) {
       payload.paymentMethod_id = selectedCard;
     }
-
+    
     return parsedAuthResponse
       ? await paymentRepo.createSubscription(payload, parsedAuthResponse)
       : await paymentRepo.createSubscription(payload);
@@ -160,7 +161,6 @@ export default function Paymentmethod() {
 
   const paymentProcess = async (res: any) => {
     try {
-
       if (!res?.data || !res?.data.customer) {
         console.error('Missing customer data in buyerResponse:', res);
         Alert.alert("Payment Error", "Unable to initialize payment. Customer data is missing.");
@@ -219,7 +219,6 @@ export default function Paymentmethod() {
 
     if (couponCode && couponCode?.length > 0 && !isCouponApplied) {
       showErrorAlert("You have entered a coupon code but not applied it yet. Please apply it first or remove the coupon code.");
-
       return;
     }
 
@@ -238,8 +237,8 @@ export default function Paymentmethod() {
         urlScheme="comgari"
       >
         <View className="items-center">
-          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-            Choose a saved card or add a new one below.
+          <Text className="text-grey-100 text-sm sm:text-base font-ManropeRegular mt-3">
+            {isFree ? "This plan is free for you!" : "Choose a saved card or add a new one below."}
           </Text>
         </View>
 
@@ -273,16 +272,33 @@ export default function Paymentmethod() {
               className="mt-2 !w-20 pb-4"
             />
           </View>
+          {isCouponApplied && (
+            <Text className="text-green-500 text-sm mt-2">
+              Coupon applied successfully {isFree ? "(100% discount)" : couponData?.type === DiscountType.PERCENTAGE ? (${couponData.value}% off) : couponData ? ($${couponData.value} off) : ""}
+            </Text>
+          )}
         </View>
 
-        <Cards
-          cards={cards?.data || []}
-          onAddCard={onAddCard}
-          handleSelectCard={handleSelectCard}
-          onConfirmPayment={handleConfirmPayment}
-          selectedCard={selectedCard}
-          enabled={Boolean(isFree || selectedCard)}
-        />
+        {!isFree ? (
+          <Cards
+            cards={cards?.data || []}
+            onAddCard={onAddCard}
+            handleSelectCard={handleSelectCard}
+            onConfirmPayment={handleConfirmPayment}
+            selectedCard={selectedCard}
+            enabled={Boolean(isFree || selectedCard || (couponCode && isCouponApplied))}
+          />
+        ) : (
+          <View className="flex-1">
+            <View className="p-4 pb-0 mt-auto">
+              <CustomButton
+                title="Confirm Payment"
+                onPress={() => handleConfirmPayment()}
+                disabled={false}
+              />
+            </View>
+          </View>
+        )}
       </StripeProvider>
     </SafeAreaView>
   );
