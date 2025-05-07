@@ -20,6 +20,7 @@ import { IS_ANDROID, pickImage, showErrorAlert } from "@/utils";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation } from "react-query";
 import { useUpload } from "@/hooks/use-upload";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type MediaItem = {
   id?: number;
@@ -47,6 +48,7 @@ const ImagesMediaDetailScreen = () => {
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
   const { uploadAsync } = useUpload();
+  const insets = useSafeAreaInsets();
 
   const windowWidth = Dimensions.get("window").width;
   const spacingBetweenImages = 16;
@@ -74,14 +76,12 @@ const ImagesMediaDetailScreen = () => {
   };
 
   const groupByDate = (items: MediaItem[]) => {
-    // Sort by date in descending order (latest first)
     const sortedItems = [...items].sort((a, b) => {
       const dateA = new Date(a.createdAt || "").getTime();
       const dateB = new Date(b.createdAt || "").getTime();
       return dateB - dateA;
     });
 
-    // Group by formatted date
     return sortedItems.reduce((acc, item) => {
       const dateKey = formatDate(item.createdAt || "");
       if (!acc[dateKey]) {
@@ -181,7 +181,7 @@ const ImagesMediaDetailScreen = () => {
             <View
               style={{
                 position: "absolute",
-                top: IS_ANDROID ? 24 : 18,
+                top: insets.top + (IS_ANDROID ? 24 : 18),
                 left: 16,
                 right: 16,
                 zIndex: 10,
@@ -281,17 +281,13 @@ const ImagesMediaDetailScreen = () => {
         try {
           await saveMediaMutation.mutateAsync(uploadedMediaItems);
           
-          // Refresh the list with newly added items
           const response = await clientRepo.getClientMedia({
             client_id: Number(id),
             owner_id: Number(id),
             owner_type: "client",
           });
           
-          // Handle the response safely
           const mediaItems = Array.isArray(response) ? response : [];
-          
-          // Filter for image type
           const updatedImageItems = mediaItems.filter((item: any) => 
             item.mimeType && item.mimeType.startsWith("image/")
           );
