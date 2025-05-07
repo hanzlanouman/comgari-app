@@ -103,12 +103,13 @@ export class AuthRepository implements IAuthRepository {
       throw new Error(getErrorMessage(e));
     }
   }
-  async checkOAuth(): Promise<TReponse> {
+  async checkOAuth(): Promise<boolean> {
     try {
       const res = await get(`${BaseUrl + END_POINTS.AUTH.CHECK_O_AUTH.route}`, {
         show_loader: true,
       });
-      return res;
+
+      return res?.data?.hasOauth;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
     }

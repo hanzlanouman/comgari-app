@@ -14,6 +14,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { AppContainer } from "@/common/components";
 import { AuthRepository } from "@/repositories";
 import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment"
+import { showErrorAlert } from "@/utils";
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -117,7 +118,7 @@ const AddAppointment = () => {
   const handlePress = async () => {
     try {
       setAppointmentAdded(true);
-      const exisit = await checkOAuth();
+      const exisit = await authRepo.checkOAuth();
 
       if (exisit) {
         return;
@@ -126,7 +127,10 @@ const AddAppointment = () => {
       const isAvailable = await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-      if (!isAvailable) return;
+      if (!isAvailable) {
+        showErrorAlert("Google Play Services is not available");
+        return;
+      }
 
       const isSignedIn = GoogleSignin.hasPreviousSignIn();
       if (isSignedIn) {
@@ -141,15 +145,12 @@ const AddAppointment = () => {
         server_auth_code: response?.data?.serverAuthCode,
         idToken: response?.data?.idToken,
       };
+
       await authRepo.verifyGoogleToken(payload);
+
     } catch (err: any) {
       Alert.alert("Error", err?.message || "Failed to verify Google Login");
     }
-  };
-
-  const checkOAuth = async () => {
-    const checkOAuth = await authRepo.checkOAuth();
-    return checkOAuth.data;
   };
 
   const onGoogleAppointment = async () => {
