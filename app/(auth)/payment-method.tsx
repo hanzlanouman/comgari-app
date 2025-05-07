@@ -4,7 +4,7 @@ import {
   Text,
   SafeAreaView,
   ActivityIndicator,
-  Alert
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
@@ -60,12 +60,13 @@ export default function Paymentmethod() {
     } else {
       return coupon.value >= price;
     }
-  }
+  };
 
   const { mutate: ValidateCoupon } = useMutation({
-    mutationFn: (coupon: string) => parsedAuthResponse ?
-      paymentRepo.validateCoupon(coupon.trim(), parsedAuthResponse)
-      : paymentRepo.validateCoupon(coupon.trim()),
+    mutationFn: (coupon: string) =>
+      parsedAuthResponse
+        ? paymentRepo.validateCoupon(coupon.trim(), parsedAuthResponse)
+        : paymentRepo.validateCoupon(coupon.trim()),
     onSuccess: (data) => {
       if (!data.valid) {
         showErrorAlert("Invalid coupon code.");
@@ -76,13 +77,15 @@ export default function Paymentmethod() {
       setFree(isFullOffForever(totalPrice, data.coupon));
     },
     onError: (error: any) => {
-      showErrorAlert(error?.message || "An error occurred while validating the coupon code.");
+      showErrorAlert(
+        error?.message || "An error occurred while validating the coupon code."
+      );
     },
-  })
+  });
 
   const { data: subscriptions } = useQuery({
     queryKey: ["subscription"],
-    queryFn: () => paymentRepo.getSubscription()
+    queryFn: () => paymentRepo.getSubscription(),
   });
 
   const { data: cards } = useQuery(
@@ -99,7 +102,12 @@ export default function Paymentmethod() {
     }
   );
 
-  const { data: buyerResponse, refetch, isLoading: buyerLoading, isError: buyerError } = useQuery(
+  const {
+    data: buyerResponse,
+    refetch,
+    isLoading: buyerLoading,
+    isError: buyerError,
+  } = useQuery(
     ["create-buyer"],
     async () => {
       try {
@@ -108,12 +116,12 @@ export default function Paymentmethod() {
           : await paymentRepo.createBuyer();
 
         if (!response?.data?.customer) {
-          throw new Error('Buyer creation response is missing customer ID');
+          throw new Error("Buyer creation response is missing customer ID");
         }
 
         return response;
       } catch (error) {
-        console.error('Error creating buyer:', error);
+        console.error("Error creating buyer:", error);
         throw error;
       }
     },
@@ -121,34 +129,33 @@ export default function Paymentmethod() {
   );
 
   const onConfirmPayment = async () => {
-    const payload: TCreateSubscriptionPayload= {
+    const payload: TCreateSubscriptionPayload = {
       id: selectedPlanPrice,
     };
 
     if (selectedCard && !isFree) {
       payload.paymentMethod_id = selectedCard;
     }
-    
+
     return parsedAuthResponse
       ? await paymentRepo.createSubscription(payload, parsedAuthResponse)
       : await paymentRepo.createSubscription(payload);
   };
 
-  const { mutate: confirmPayment } = useMutation(
-    onConfirmPayment,
-    {
-      onSuccess: (data) => {
-        if (parsedAuthResponse) {
-          dispatch(login(parsedAuthResponse));
-        }
-        dispatch(setSubscribed(true));
-      },
-      onError: (error: any) => {
-        console.error("Payment failed:", error);
-        showErrorAlert(error?.message || "An error occurred during payment processing.");
-      },
-    }
-  );
+  const { mutate: confirmPayment } = useMutation(onConfirmPayment, {
+    onSuccess: (data) => {
+      if (parsedAuthResponse) {
+        dispatch(login(parsedAuthResponse));
+      }
+      dispatch(setSubscribed(true));
+    },
+    onError: (error: any) => {
+      console.error("Payment failed:", error);
+      showErrorAlert(
+        error?.message || "An error occurred during payment processing."
+      );
+    },
+  });
 
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
@@ -162,8 +169,11 @@ export default function Paymentmethod() {
   const paymentProcess = async (res: any) => {
     try {
       if (!res?.data || !res?.data.customer) {
-        console.error('Missing customer data in buyerResponse:', res);
-        Alert.alert("Payment Error", "Unable to initialize payment. Customer data is missing.");
+        console.error("Missing customer data in buyerResponse:", res);
+        Alert.alert(
+          "Payment Error",
+          "Unable to initialize payment. Customer data is missing."
+        );
         return;
       }
 
@@ -178,13 +188,19 @@ export default function Paymentmethod() {
 
       if (error) {
         console.error("Payment sheet initialization error:", error);
-        Alert.alert("Payment Error", error.message || "Failed to initialize payment system");
+        Alert.alert(
+          "Payment Error",
+          error.message || "Failed to initialize payment system"
+        );
       } else {
         openPaymentSheet();
       }
     } catch (e) {
       console.error("Payment process error:", e);
-      Alert.alert("Payment Error", "An unexpected error occurred during payment setup");
+      Alert.alert(
+        "Payment Error",
+        "An unexpected error occurred during payment setup"
+      );
     }
   };
 
@@ -200,8 +216,8 @@ export default function Paymentmethod() {
       if (s?.pricing?.[0]?.price_id === selectedPlanPrice) {
         setTotalPrice(s?.pricing?.[0]?.price);
       }
-    })
-  }, [subscriptions])
+    });
+  }, [subscriptions]);
 
   const onAddCard = () => {
     refetch();
@@ -218,7 +234,9 @@ export default function Paymentmethod() {
     }
 
     if (couponCode && couponCode?.length > 0 && !isCouponApplied) {
-      showErrorAlert("You have entered a coupon code but not applied it yet. Please apply it first or remove the coupon code.");
+      showErrorAlert(
+        "You have entered a coupon code but not applied it yet. Please apply it first or remove the coupon code."
+      );
       return;
     }
 
@@ -238,7 +256,9 @@ export default function Paymentmethod() {
       >
         <View className="items-center">
           <Text className="text-grey-100 text-sm sm:text-base font-ManropeRegular mt-3">
-            {isFree ? "This plan is free for you!" : "Choose a saved card or add a new one below."}
+            {isFree
+              ? "This plan is free for you!"
+              : "Choose a saved card or add a new one below."}
           </Text>
         </View>
 
@@ -251,7 +271,9 @@ export default function Paymentmethod() {
 
         {buyerError && (
           <View className="items-center justify-center my-4 p-3 bg-red-50 rounded-md">
-            <Text className="text-red-500">Error initializing payment system. Please try again.</Text>
+            <Text className="text-red-500">
+              Error initializing payment system. Please try again.
+            </Text>
           </View>
         )}
 
@@ -274,7 +296,14 @@ export default function Paymentmethod() {
           </View>
           {isCouponApplied && (
             <Text className="text-green-500 text-sm mt-2">
-              Coupon applied successfully {isFree ? "(100% discount)" : couponData?.type === DiscountType.PERCENTAGE ? (${couponData.value}% off) : couponData ? ($${couponData.value} off) : ""}
+              Coupon applied successfully{" "}
+              {isFree
+                ? "(100% discount)"
+                : couponData?.type === DiscountType.PERCENTAGE
+                  ? `${couponData?.value}% off`
+                  : couponData
+                    ? `$${couponData.value} off`
+                    : ""}
             </Text>
           )}
         </View>
@@ -286,7 +315,9 @@ export default function Paymentmethod() {
             handleSelectCard={handleSelectCard}
             onConfirmPayment={handleConfirmPayment}
             selectedCard={selectedCard}
-            enabled={Boolean(isFree || selectedCard || (couponCode && isCouponApplied))}
+            enabled={Boolean(
+              isFree || selectedCard || (couponCode && isCouponApplied)
+            )}
           />
         ) : (
           <View className="flex-1">
