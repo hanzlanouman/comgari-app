@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { CustomButton, HeaderButton } from "@/common/components";
 import {
@@ -17,7 +17,26 @@ const handleHead = ({ tintColor }: { tintColor: string }) => (
 const Specifications = ({ initialData, onNext, onPrevious, currentStep }) => {
   const navigation = useNavigation();
   const richText = React.useRef<any>(null);
+  const [initialContent, setInitialContent] = useState(
+    initialData.specification || ""
+  );
   const descriptionRef = React.useRef<string>(initialData.specification || "");
+
+  useEffect(() => {
+    if (initialData.specification) {
+      setInitialContent(initialData.specification);
+      descriptionRef.current = initialData.specification;
+    }
+  }, [initialData.specification]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (richText.current && initialContent && currentStep === 2) {
+        richText.current.setContentHTML(initialContent);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [initialContent, currentStep]);
 
   const handleSubmit = () => {
     if (
@@ -87,7 +106,7 @@ const Specifications = ({ initialData, onNext, onPrevious, currentStep }) => {
         <RichEditor
           ref={richText}
           initialHeight={45}
-          initialContentHTML={descriptionRef.current}
+          initialContentHTML={initialContent}
           editorStyle={{
             color: "#4A4A4A",
             placeholderColor: "#1C1C1C",
