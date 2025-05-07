@@ -8,11 +8,9 @@ import Constants from "expo-constants";
 
 import * as Notifications from "expo-notifications";
 
-import { useAppSelector, useAppDispatch } from "./redux";
-
+import { useAppSelector } from "./redux";
 import { useMutation } from "react-query";
-import { AuthRepo, AuthRepository } from "@/repositories";
-import { setNotificationTokenSent } from "@/store";
+import { AuthRepo } from "@/repositories";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -22,23 +20,18 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export function useNotification(isAuthenticated: boolean) {
-  const dispatch = useAppDispatch();
-  const { notificationTokenSent } = useAppSelector((app) => app.app);
+export function useNotification() {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
   const { mutate: saveToken } = useMutation({
-    mutationFn: async (token: string) => {
-      AuthRepo.addToken(token);
-    },
+    mutationFn: (token: string) => AuthRepo.addToken(token),
     onError: (error) => {
       Alert.alert("Error Updating Notifications token", error?.message);
-    },
-    onSuccess: () => {
-      dispatch(setNotificationTokenSent(true));
-    },
+    }
   });
 
   useEffect(() => {
-    if (!isAuthenticated || notificationTokenSent) return;
+    if (!isAuthenticated) return;
     (async () => {
       const token = await registerForPushNotificationsAsync();
       if (token) {
