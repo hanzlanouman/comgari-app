@@ -39,7 +39,9 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
         "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.DOWNLOAD_COMPLETE"
+        "android.permission.DOWNLOAD_COMPLETE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_MEDIA_LOCATION"
       ]
     },
     "web": {
@@ -88,7 +90,6 @@
       "eas": {
         "projectId": "84b95d5a-9897-419a-bf78-8c5fc7f65718"
       }
-    },
-    "owner": "moaaz_murtaza"
+    }
   }
 }
