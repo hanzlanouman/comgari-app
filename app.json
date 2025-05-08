@@ -8,11 +8,6 @@
     "scheme": "comgari",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.comgari",
@@ -78,7 +73,25 @@
           "isAccessMediaLocationEnabled": true
         }
       ],
-      "@config-plugins/react-native-blob-util"
+      "@config-plugins/react-native-blob-util",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "backgroundColor": "#ffffff",
+          "android":{
+            "image": "./assets/images/icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff",
+            "imageWidth": 300
+          },
+          "ios":{
+            "image": "./assets/images/splash.png",
+            "resizeMode": "cover",
+            "backgroundColor": "#ffffff"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -88,7 +101,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "84b95d5a-9897-419a-bf78-8c5fc7f65718"
+        "projectId": "aceacd83-9f20-4549-a495-bb267de1ca07"
       }
     }
   }
