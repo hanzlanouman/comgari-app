@@ -494,7 +494,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
             action: Action.REMOVE,
           })),
         ];
-        
+
         const updatePayload = {
           title: values.titleOfMeeting || undefined,
           clientId: Number(values.selectedClient),
@@ -505,9 +505,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           status: values.status || "Scheduled",
           projectId: Number(values.selectedClient),
           appointment_member: memberActions.length > 0 ? memberActions : [],
-          is_add_in_google_calendar: false, // Set to false by default
+          is_add_in_google_calendar: isAppointmentAdded,
         };
-        
+
         await clientRepo.updateAppointment(
           Number(appointmentId),
           updatePayload
@@ -524,7 +524,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           endTime: values.endTime,
           notes: values.notes || "No notes",
           projectId: Number(values.selectedClient),
-          is_add_in_google_calendar: false, // Set to false by default
+          is_add_in_google_calendar: isAppointmentAdded,
         };
 
         await clientRepo.createAppointment(createPayload);
@@ -606,7 +606,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
             <CalendarDays size={16} className="text-dark-100" />
           </View>}
       />
-      
+
       <DateTimePicker
         setDate={(date) => date ? setValues((prev) => ({ ...prev, endTime: date })) : {}}
         date={values?.endTime ? values?.endTime : undefined}
