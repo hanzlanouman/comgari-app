@@ -14,9 +14,16 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { icons } from "@/constants";
-import { ChevronRight, Download, Trash2, Upload } from "lucide-react-native";
+import {
+  ChevronRight,
+  Download,
+  Trash2,
+  Upload,
+  Share2,
+} from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
@@ -50,6 +57,7 @@ const MediaDocuments = () => {
   const [isUploading, setIsUploading] = useState(false);
   const navigation = useNavigation();
   const { uploadAsync } = useUpload();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const [documentItems, setDocumentItems] = useState(
     items ? JSON.parse(items as string) : []
@@ -79,8 +87,8 @@ const MediaDocuments = () => {
         const fileName = doc.url.split("/").pop() || "document";
         const fileUri = FileSystem.cacheDirectory + fileName;
 
-        // Show download started message
-        showSuccessAlert("Download started...");
+        // Show loading state
+        setIsDownloading(true);
 
         // Download the file
         const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
@@ -158,6 +166,46 @@ const MediaDocuments = () => {
     } catch (error) {
       showErrorAlert("Error downloading document");
       console.error("Download error:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleShareDocument = async (doc: any) => {
+    bottomSheetModalRef.current?.close();
+
+    try {
+      const fileUrl = getImageUrl(doc.url);
+      const fileName = doc.url.split("/").pop() || "document";
+      const fileUri = FileSystem.cacheDirectory + fileName;
+
+      setIsDownloading(true);
+
+      const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
+
+      if (downloadResult.status !== 200) {
+        throw new Error("Failed to download file for sharing");
+      }
+
+      // Set isDownloading to false before showing the share dialog
+      setIsDownloading(false);
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: doc.mimeType || "application/pdf",
+          dialogTitle: "Share Document",
+          UTI:
+            doc.mimeType && doc.mimeType.includes("pdf")
+              ? "com.adobe.pdf"
+              : "public.item",
+        });
+      } else {
+        showErrorAlert("Sharing is not available on this device");
+      }
+    } catch (error) {
+      showErrorAlert("Error sharing document");
+      console.error("Share error:", error);
+      setIsDownloading(false);
     }
   };
 
@@ -350,6 +398,22 @@ const MediaDocuments = () => {
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
             className="px-4"
           >
+            {isDownloading && (
+              <View
+                className="absolute inset-0 z-50 flex-1"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator size="large" color="#1B78B9" />
+              </View>
+            )}
             {documentItems.map((doc: any, index: number) => (
               <TouchableOpacity
                 key={index}
@@ -392,29 +456,52 @@ const MediaDocuments = () => {
             >
               <BottomSheetView>
                 <View className="p-4 pt-2">
-                  <TouchableOpacity
-                    className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
-                    onPress={() =>
-                      selectedDocument && handleDownload(selectedDocument)
-                    }
-                  >
-                    <View className="flex-row items-center">
-                      <LinearGradient
-                        colors={["#1B78B9", "#63348F"]}
-                        className="rounded-full w-8 h-8"
-                        start={[0, 0]}
-                        end={[1, 1]}
-                      >
-                        <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-                          <Download size={16} color="#ffffff" />
+                  {Platform.OS !== "ios" && (
+                    <TouchableOpacity
+                      className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
+                      onPress={() =>
+                        selectedDocument && handleDownload(selectedDocument)
+                      }
+                    >
+                      <View className="flex-row items-center">
+                        <LinearGradient
+                          colors={["#1B78B9", "#63348F"]}
+                          className="rounded-full w-8 h-8"
+                          start={[0, 0]}
+                          end={[1, 1]}
+                        >
+                          <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
+                            <Download size={16} color="#ffffff" />
+                          </TouchableOpacity>
+                        </LinearGradient>
+                        <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                          Download
+                        </Text>
+                      </View>
+                      <ChevronRight size={16} color="#1C1C1C" />
+                    </TouchableOpacity>
+                  )}
+
+                  {Platform.OS === "ios" && (
+                    <TouchableOpacity
+                      className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
+                      onPress={() =>
+                        selectedDocument &&
+                        handleShareDocument(selectedDocument)
+                      }
+                    >
+                      <View className="flex-row items-center">
+                        <TouchableOpacity className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
+                          <Share2 size={16} color="#ffffff" />
                         </TouchableOpacity>
-                      </LinearGradient>
-                      <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                        Download
-                      </Text>
-                    </View>
-                    <ChevronRight size={16} color="#1C1C1C" />
-                  </TouchableOpacity>
+                        <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                          Share
+                        </Text>
+                      </View>
+                      <ChevronRight size={16} color="#1C1C1C" />
+                    </TouchableOpacity>
+                  )}
+
                   <TouchableOpacity
                     className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
                     onPress={() =>

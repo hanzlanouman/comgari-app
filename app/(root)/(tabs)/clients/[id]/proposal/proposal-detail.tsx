@@ -6,7 +6,8 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Alert
+  Alert,
+  Platform,
 } from "react-native";
 import { vs } from "react-native-size-matters";
 import {
@@ -16,6 +17,7 @@ import {
   Share2,
   Pencil,
   Trash2,
+  Settings,
 } from "lucide-react-native";
 import { images, getImageUrl } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,8 +25,8 @@ import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -33,15 +35,15 @@ import {
 import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
 import { HeaderButton } from "@/common/components";
 
-
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 };
+
 // Create HTML template for the PDF
 const createProposalTemplate = (data: any) => {
   return `
@@ -84,47 +86,48 @@ const createProposalTemplate = (data: any) => {
       </head>
       <body>
         <div class="header">
-          <div class="project-title">${data.jobName || 'Unnamed Project'}</div>
-          <div class="project-type">${data.clientType || 'Construction'}</div>
+          <div class="project-title">${data.jobName || "Unnamed Project"}</div>
+          <div class="project-type">${data.clientType || "Construction"}</div>
           <div>Date: ${formatDate(data.date?.toString() || new Date().toString())}</div>
         </div>
 
         <div class="info-row">
           <span class="label">Client Name:</span>
-          <span class="value">${data.clientName || 'Not Specified'}</span>
+          <span class="value">${data.clientName || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">Project Director:</span>
-          <span class="value">${data.projectDirector || 'Not Specified'}</span>
+          <span class="value">${data.projectDirector || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">Job Phone:</span>
-          <span class="value">${data.jobPhone || 'Not Specified'}</span>
+          <span class="value">${data.jobPhone || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">Address:</span>
-          <span class="value">${data.address || 'Not Specified'}</span>
+          <span class="value">${data.address || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">City:</span>
-          <span class="value">${data.city || 'Not Specified'}</span>
+          <span class="value">${data.city || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">Zip:</span>
-          <span class="value">${data.zip || 'Not Specified'}</span>
+          <span class="value">${data.zip || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">Estimated Days:</span>
-          <span class="value">${data.estimatedDays || 'Not Specified'}</span>
+          <span class="value">${data.estimatedDays || "Not Specified"}</span>
         </div>
         <div class="info-row">
           <span class="label">Estimated Cost:</span>
-          <span class="value">$${data.estimatedCost || 'Not Specified'}</span>
+          <span class="value">$${data.estimatedCost || "Not Specified"}</span>
         </div>
       </body>
     </html>
   `;
 };
+
 const Proposal = () => {
   const {
     id,
@@ -140,7 +143,7 @@ const Proposal = () => {
     clientId,
     estimatedCost,
     projectDirector,
-    specification
+    specification,
   } = useLocalSearchParams();
 
   // Download/Share Ref
@@ -162,7 +165,7 @@ const Proposal = () => {
       headerRight: () => (
         <HeaderButton
           onPress={handlePresentModalPress}
-          icon={<Pencil size={16} color="#ffffff" />}
+          icon={<Settings size={16} color="#ffffff" />}
         />
       ),
     });
@@ -172,7 +175,7 @@ const Proposal = () => {
   const handleEditProposal = () => {
     bottomSheetModalRef.current?.close();
     router.push({
-      pathname: '/(root)/(tabs)/clients/[id]/proposal/add-proposal',
+      pathname: "/(root)/(tabs)/clients/[id]/proposal/add-proposal",
       params: {
         id: Number(id),
         proposalId: id,
@@ -186,23 +189,23 @@ const Proposal = () => {
         client_id: clientId,
         estimated_cost: estimatedCost,
         project_director: projectDirector,
-        specification: specification
-      }
+        specification: specification,
+      },
     });
   };
 
   const handleDeleteProposal = () => {
     Alert.alert(
-      'Delete Proposal',
-      'Are you sure you want to delete this proposal?',
+      "Delete Proposal",
+      "Are you sure you want to delete this proposal?",
       [
         {
-          text: 'Cancel',
-          style: 'cancel'
+          text: "Cancel",
+          style: "cancel",
         },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: async () => {
             try {
               await clientRepo.deleteProposal(Number(id));
@@ -212,11 +215,11 @@ const Proposal = () => {
                 params: { id: clientId },
               });
             } catch (error) {
-              console.error('Error deleting proposal:', error);
-              Alert.alert('Error', 'Failed to delete proposal');
+              console.error("Error deleting proposal:", error);
+              Alert.alert("Error", "Failed to delete proposal");
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -235,19 +238,19 @@ const Proposal = () => {
         address,
         date,
         estimatedCost,
-        projectDirector
+        projectDirector,
       };
 
       const html = createProposalTemplate(proposalData);
       const { uri } = await Print.printToFileAsync({
         html,
-        base64: false
+        base64: false,
       });
 
       return uri;
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      Alert.alert('Error', 'Failed to generate PDF');
+      console.error("Error generating PDF:", error);
+      Alert.alert("Error", "Failed to generate PDF");
       return null;
     }
   };
@@ -257,11 +260,8 @@ const Proposal = () => {
     const uri = await generatePDF();
     if (!uri) return;
     const resp = await moveFile(uri);
-    if (!resp.success)
-      showErrorAlert(resp.message);
-    else
-      showSuccessAlert(resp.message);
-
+    if (!resp.success) showErrorAlert(resp.message);
+    else showSuccessAlert(resp.message);
   };
 
   const handleShareProposal = async () => {
@@ -270,16 +270,16 @@ const Proposal = () => {
       if (uri) {
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(uri, {
-            mimeType: 'application/pdf',
-            dialogTitle: 'Share Proposal',
-            UTI: 'com.adobe.pdf'
+            mimeType: "application/pdf",
+            dialogTitle: "Share Proposal",
+            UTI: "com.adobe.pdf",
           });
           bottomSheetModalRef.current?.close();
         }
       }
     } catch (error) {
-      console.error('Error sharing proposal:', error);
-      Alert.alert('Error', 'Failed to share proposal');
+      console.error("Error sharing proposal:", error);
+      Alert.alert("Error", "Failed to share proposal");
     }
   };
 
@@ -293,7 +293,7 @@ const Proposal = () => {
                 <View className="flex-row items-center">
                   <View className="flex-1">
                     <Text className="text-base sm:text-lg font-ManropeBold text-dark w-full">
-                      {jobName || 'Unnamed Project'}
+                      {jobName || "Unnamed Project"}
                     </Text>
                     <View>
                       <View className="flex-row items-center mt-1.5">
@@ -301,26 +301,30 @@ const Proposal = () => {
                           <View className="bg-blue w-1.5 h-1.5" />
                         </View>
                         <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                          {clientType?.replaceAll("_", " ") || 'Construction'}
+                          {clientType?.replaceAll("_", " ") || "Construction"}
                         </Text>
                       </View>
                     </View>
                   </View>
                 </View>
                 <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                  Project details for {jobName || 'Unnamed Project'}:
+                  Project details for {jobName || "Unnamed Project"}:
                 </Text>
                 <View className="bg-light w-full h-px my-3" />
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <Image
-                      source={clientName?.logo ? { uri: getImageUrl(clientName.logo) } : images.user}
+                      source={
+                        clientName?.logo
+                          ? { uri: getImageUrl(clientName.logo) }
+                          : images.user
+                      }
                       resizeMode="cover"
                       className="rounded-full"
                       style={{ width: vs(25), height: vs(25) }}
                     />
                     <Text className="text-sm text-dark font-ManropeMedium ml-1.5">
-                      {clientName || 'Unknown Client'}
+                      {clientName || "Unknown Client"}
                     </Text>
                   </View>
                   <View className="flex-row items-center">
@@ -330,7 +334,7 @@ const Proposal = () => {
                       className="text-dark"
                     />
                     <Text className="text-sm text-dark-100 font-ManropeMedium ml-1">
-                      {date ? formatDate(date?.toString()) : 'No Date'}
+                      {date ? formatDate(date?.toString()) : "No Date"}
                     </Text>
                   </View>
                 </View>
@@ -340,7 +344,7 @@ const Proposal = () => {
                     Project Director
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {projectDirector || 'Not Specified'}
+                    {projectDirector || "Not Specified"}
                   </Text>
                 </View>
                 <View className="flex-row items-center justify-between border-b border-light py-3.5">
@@ -348,7 +352,7 @@ const Proposal = () => {
                     Job Name
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {jobName || 'Not Specified'}
+                    {jobName || "Not Specified"}
                   </Text>
                 </View>
                 <View className="flex-row items-center justify-between border-b border-light py-3.5">
@@ -356,7 +360,7 @@ const Proposal = () => {
                     Job Phone
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {jobPhone || 'Not Specified'}
+                    {jobPhone || "Not Specified"}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -364,7 +368,7 @@ const Proposal = () => {
                     Address
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {address || 'Not Specified'}
+                    {address || "Not Specified"}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -372,7 +376,7 @@ const Proposal = () => {
                     City
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {city || 'Not Specified'}
+                    {city || "Not Specified"}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -380,7 +384,7 @@ const Proposal = () => {
                     Zip
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {zip || 'Not Specified'}
+                    {zip || "Not Specified"}
                   </Text>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
@@ -388,7 +392,7 @@ const Proposal = () => {
                     Estimated Days
                   </Text>
                   <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {estimatedDays || 'Not Specified'}
+                    {estimatedDays || "Not Specified"}
                   </Text>
                 </View>
               </View>
@@ -404,33 +408,39 @@ const Proposal = () => {
           backdropComponent={Backdrop}
           backgroundStyle={{
             borderRadius: 24,
-          }}>
+          }}
+        >
           <BottomSheetView>
             <View className="p-4 pt-2">
-              <TouchableOpacity onPress={handleDownloadProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5">
+              {Platform.OS !== "ios" && (
+                <TouchableOpacity
+                  onPress={handleDownloadProposal}
+                  className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
+                >
+                  <View className="flex-row items-center">
+                    <LinearGradient
+                      colors={["#1B78B9", "#63348F"]}
+                      className="rounded-full w-8 h-8"
+                      start={[0, 0]}
+                      end={[1, 1]}
+                    >
+                      <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
+                        <ArrowDownToLine size={16} color="#ffffff" />
+                      </TouchableOpacity>
+                    </LinearGradient>
+                    <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                      Download
+                    </Text>
+                  </View>
+                  <ChevronRight size={16} color="#1C1C1C" />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                onPress={handleShareProposal}
+                className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+              >
                 <View className="flex-row items-center">
-                  <LinearGradient
-                    colors={["#1B78B9", "#63348F"]}
-                    className="rounded-full w-8 h-8"
-                    start={[0, 0]}
-                    end={[1, 1]}>
-                    <TouchableOpacity
-
-                      className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-                      <ArrowDownToLine size={16} color="#ffffff" />
-                    </TouchableOpacity>
-                  </LinearGradient>
-                  <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                    Download
-                  </Text>
-                </View>
-                <ChevronRight size={16} color="#1C1C1C" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleShareProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
-                <View className="flex-row items-center">
-                  <TouchableOpacity
-
-                    className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
+                  <TouchableOpacity className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
                     <Share2 size={16} className="text-white" />
                   </TouchableOpacity>
                   <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
@@ -439,15 +449,18 @@ const Proposal = () => {
                 </View>
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleEditProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+              <TouchableOpacity
+                onPress={handleEditProposal}
+                className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+              >
                 <View className="flex-row items-center">
                   <LinearGradient
                     colors={["#1B78B9", "#63348F"]}
                     className="rounded-full w-8 h-8"
                     start={[0, 0]}
-                    end={[1, 1]}>
-                    <TouchableOpacity
-                      className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
+                    end={[1, 1]}
+                  >
+                    <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
                       <Pencil size={16} color="#ffffff" />
                     </TouchableOpacity>
                   </LinearGradient>
@@ -458,15 +471,18 @@ const Proposal = () => {
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
               {/* Delete Proposal Button */}
-              <TouchableOpacity onPress={handleDeleteProposal} className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3">
+              <TouchableOpacity
+                onPress={handleDeleteProposal}
+                className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+              >
                 <View className="flex-row items-center">
                   <LinearGradient
                     colors={["#B72D2D", "#F29D2E"]}
                     className="rounded-full w-8 h-8"
                     start={[0, 0]}
-                    end={[1, 1]}>
-                    <TouchableOpacity
-                      className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
+                    end={[1, 1]}
+                  >
+                    <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
                       <Trash2 size={16} color="#ffffff" />
                     </TouchableOpacity>
                   </LinearGradient>
