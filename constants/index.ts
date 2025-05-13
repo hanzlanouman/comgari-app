@@ -26,6 +26,9 @@ import video from "@/assets/icons/video.png";
 import noNotes from "@/assets/icons/no-notes.png";
 import pdfIcon from "@/assets/icons/pdf-icon.png";
 import docIcon from "@/assets/icons/doc-icon.png";
+import image from "@/assets/icons/image.png";
+import file from "@/assets/icons/file-solid.png";
+import right from "@/assets/icons/arrow-right-solid.png";
 
 import missingImage from "@/assets/images/missing-image.jpg";
 
@@ -53,6 +56,7 @@ export const images = {
 };
 
 export const icons = {
+  image,
   brief,
   tasks,
   notes,
@@ -62,6 +66,8 @@ export const icons = {
   video,
   pdfIcon,
   docIcon,
+  file,
+  right,
 };
 
 export const onboarding = [

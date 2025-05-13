@@ -200,7 +200,7 @@ const InvoicesScreen = () => {
           dialogTitle: 'Save Invoice',
           UTI: 'com.adobe.pdf'
         });
-        showSuccessAlert('Invoice ready to save');
+        showSuccessAlert('Invoice Downloaded Successfully!');
       } else {
         const resp = await moveFile(uri);
         if (!resp.success) {
