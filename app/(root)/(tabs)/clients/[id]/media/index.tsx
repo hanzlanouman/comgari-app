@@ -4,7 +4,6 @@ import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView, ScrollView } from "react-native";
 import { vs } from "react-native-size-matters";
 import { icons } from "@/constants";
-import { LinearGradient } from "expo-linear-gradient";
 import { ClientRepository } from "@/repositories/client/client";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -83,7 +82,7 @@ const Media: React.FC = () => {
   // Create a right arrow icon component to reuse
   const RightArrowIcon = () => (
     <Image
-      source={icons.video} // Use an existing icon as fallback since arrowRight is missing
+      source={icons.right} 
       resizeMode="contain"
       className="w-5 h-5 text-gray-500"
       style={{ transform: [{ rotate: "90deg" }] }} // Rotate the icon to make it point right
@@ -112,7 +111,7 @@ const Media: React.FC = () => {
           <View className="flex-row items-center border-light rounded-[20px]">
             <View className="w-12 h-12 rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow">
               <Image
-                source={icons.video}
+                source={icons.image}
                 resizeMode="contain"
                 className="w-6 h-6"
               />
@@ -162,7 +161,7 @@ const Media: React.FC = () => {
           <View className="flex-row items-center">
             <View className="w-12 h-12 rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow">
               <Image
-                source={icons.video}
+                source={icons.file}
                 resizeMode="contain"
                 className="w-6 h-6"
               />
