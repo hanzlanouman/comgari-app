@@ -44,6 +44,7 @@ const Layout = () => {
   const { getPermission } = useAuthorization();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const focusedRouteName = useNavigationState(getFocusedRouteName);
+  useNotification();
 
   const tabBarStyle = hide.includes(focusedRouteName || "")
     ? style.hide
@@ -136,7 +137,6 @@ const Layout = () => {
       };
     });
   }, [getPermission, user]);
-  useNotification(isAuthenticated);
 
   // Only render <Redirect> after all hooks are called
   if (!isAuthenticated) {
@@ -162,11 +162,11 @@ const Layout = () => {
       {tabScreens.map((screen) => (
         <Tabs.Screen
           key={screen.name}
-          name={screen.href || screen.name} 
+          name={screen.href || screen.name}
           options={{
             title: screen.title,
             headerShown: screen.headerShown,
-            href: screen.href, 
+            href: screen.href,
             tabBarIcon: ({ focused }) => (
               <screen.icon color={focused ? "#1B78B9" : "#1C1C1C"} />
             ),
