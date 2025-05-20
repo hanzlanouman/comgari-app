@@ -29,6 +29,7 @@ import docIcon from "@/assets/icons/doc-icon.png";
 import image from "@/assets/icons/image.png";
 import file from "@/assets/icons/file-solid.png";
 import right from "@/assets/icons/arrow-right-solid.png";
+import frame from "@/assets/icons/Frame.png";
 
 import missingImage from "@/assets/images/missing-image.jpg";
 
@@ -68,6 +69,7 @@ export const icons = {
   docIcon,
   file,
   right,
+  frame
 };
 
 export const onboarding = [
