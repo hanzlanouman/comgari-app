@@ -79,13 +79,12 @@ const Media: React.FC = () => {
     });
   };
 
-  // Create a right arrow icon component to reuse
+ 
   const RightArrowIcon = () => (
     <Image
-      source={icons.right} 
+      source={icons.frame} 
       resizeMode="contain"
-      className="w-5 h-5 text-gray-500"
-      style={{ transform: [{ rotate: "90deg" }] }} // Rotate the icon to make it point right
+      className="w-6 h-6 text-gray-500" 
     />
   );
 

@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useRef } from "react";
 import { MediaItem } from "@/app/(root)/(tabs)/clients/[id]/notes/add-note";
 import { getImageUrl, icons } from "@/constants";
 import { ResizeMode, Video } from "expo-av";
-import { Trash2, Play, FileText, X } from "lucide-react-native";
-import { Text, StyleSheet } from "react-native";
+import {
+  Trash2,
+  Play,
+  FileText,
+  X,
+  Download,
+  Share2,
+  ChevronRight,
+} from "lucide-react-native";
+import { Text, StyleSheet, Platform, ActivityIndicator } from "react-native";
 import {
   Dimensions,
   Image,
@@ -13,7 +21,21 @@ import {
   Pressable,
 } from "react-native";
 import { useState } from "react";
-import { IS_ANDROID } from "@/utils";
+import {
+  IS_ANDROID,
+  downloadMedia,
+  showErrorAlert,
+  showSuccessAlert,
+} from "@/utils";
+import {
+  BottomSheetModal,
+  BottomSheetView,
+  BottomSheetBackdrop,
+} from "@gorhom/bottom-sheet";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Sharing from "expo-sharing";
+import * as FileSystem from "expo-file-system";
+import { isRunningInExpoGo } from "expo";
 
 const windowWidth = Dimensions.get("window").width;
 const spacingBetweenImages = 16;
@@ -35,11 +57,11 @@ export const AssetPreview = ({
   const [modalVisible, setModalVisible] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [videoStatus, setVideoStatus] = useState({});
+  const [isDownloading, setIsDownloading] = useState(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  // Get URL from either localUri or url property
   const mediaUrl = media?.localUri || media?.url || "";
 
-  // Determine media type
   const isImage = media?.mimeType?.toLowerCase().includes("image") || false;
   const isVideo = media?.mimeType?.toLowerCase().includes("video") || false;
   const isPDF = media?.mimeType?.toLowerCase().includes("pdf") || false;
@@ -49,8 +71,129 @@ export const AssetPreview = ({
     media?.mimeType?.toLowerCase().includes("docx") ||
     media?.mimeType?.toLowerCase().includes("officedocument") ||
     false;
+  const isDocument = isPDF || isWord;
 
-  // Ensure we have valid media object with required properties
+  const handleDownload = async () => {
+    bottomSheetModalRef.current?.close();
+
+    try {
+      if (isRunningInExpoGo()) {
+        const fileUrl = getImageUrl(mediaUrl);
+        const fileName = mediaUrl.split("/").pop() || "document";
+        const fileUri = FileSystem.cacheDirectory + fileName;
+
+        setIsDownloading(true);
+
+        const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
+
+        if (downloadResult.status !== 200) {
+          throw new Error("Failed to download file");
+        }
+
+        if (Platform.OS === "android") {
+          try {
+            const permissions =
+              await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+            if (permissions.granted) {
+              const base64Data = await FileSystem.readAsStringAsync(fileUri, {
+                encoding: FileSystem.EncodingType.Base64,
+              });
+
+              const mimeType = media?.mimeType || "application/pdf";
+
+              const destinationUri =
+                await FileSystem.StorageAccessFramework.createFileAsync(
+                  permissions.directoryUri,
+                  fileName,
+                  mimeType
+                );
+
+              await FileSystem.StorageAccessFramework.writeAsStringAsync(
+                destinationUri,
+                base64Data,
+                { encoding: FileSystem.EncodingType.Base64 }
+              );
+
+              showSuccessAlert("Document saved successfully");
+            } else {
+              showErrorAlert("Permission to save file was denied");
+              await Sharing.shareAsync(fileUri, {
+                mimeType: media?.mimeType || "application/pdf",
+                dialogTitle: "Save Document",
+              });
+            }
+          } catch (err) {
+            console.error("Storage access error:", err);
+            showErrorAlert(
+              "Could not save to selected location. Opening share options..."
+            );
+            await Sharing.shareAsync(fileUri, {
+              mimeType: media?.mimeType || "application/pdf",
+              dialogTitle: "Save Document",
+            });
+          }
+        } else {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: media?.mimeType || "application/pdf",
+            dialogTitle: "Save Document",
+          });
+        }
+      } else {
+        const { success, message } = await downloadMedia(getImageUrl(mediaUrl));
+        setTimeout(() => {
+          if (success) {
+            showSuccessAlert(message);
+          } else {
+            showErrorAlert(message);
+          }
+        }, 1000);
+      }
+    } catch (error) {
+      showErrorAlert("Error downloading document");
+      console.error("Download error:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleShareDocument = async () => {
+    bottomSheetModalRef.current?.close();
+
+    try {
+      const fileUrl = getImageUrl(mediaUrl);
+      const fileName = mediaUrl.split("/").pop() || "document";
+      const fileUri = FileSystem.cacheDirectory + fileName;
+
+      setIsDownloading(true);
+
+      const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
+
+      if (downloadResult.status !== 200) {
+        throw new Error("Failed to download file for sharing");
+      }
+
+      setIsDownloading(false);
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: media?.mimeType || "application/pdf",
+          dialogTitle: "Share Document",
+          UTI:
+            media?.mimeType && media?.mimeType.includes("pdf")
+              ? "com.adobe.pdf"
+              : "public.item",
+        });
+      } else {
+        showErrorAlert("Sharing is not available on this device");
+      }
+    } catch (error) {
+      showErrorAlert("Error sharing document");
+      console.error("Share error:", error);
+      setIsDownloading(false);
+    }
+  };
+
   if (!media || !media.mimeType) {
     return (
       <View
@@ -146,7 +289,13 @@ export const AssetPreview = ({
           backgroundColor: "#f3f3f3",
           position: "relative",
         }}
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          if (isDocument) {
+            bottomSheetModalRef.current?.present();
+          } else {
+            setModalVisible(true);
+          }
+        }}
         disabled={disabled}
       >
         {removeMedia && (
@@ -206,6 +355,78 @@ export const AssetPreview = ({
       </TouchableOpacity>
 
       {renderModal()}
+
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={["18%"]}
+        handleComponent={null}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
+            pressBehavior="close"
+          />
+        )}
+        backgroundStyle={{ borderRadius: 24 }}
+      >
+        <BottomSheetView>
+          <View style={{ padding: 16, paddingTop: 8 }}>
+            {isDownloading && (
+              <View
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 10,
+                }}
+              >
+                <ActivityIndicator size="large" color="#1B78B9" />
+              </View>
+            )}
+
+            {Platform.OS !== "ios" && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleDownload}
+              >
+                <View style={styles.actionButtonContent}>
+                  <LinearGradient
+                    colors={["#1B78B9", "#63348F"]}
+                    style={styles.actionIcon}
+                    start={[0, 0]}
+                    end={[1, 1]}
+                  >
+                    <Download size={16} color="#ffffff" />
+                  </LinearGradient>
+                  <Text style={styles.actionText}>Download</Text>
+                </View>
+                <ChevronRight size={16} color="#1C1C1C" />
+              </TouchableOpacity>
+            )}
+
+            {Platform.OS === "ios" && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleShareDocument}
+              >
+                <View style={styles.actionButtonContent}>
+                  <View style={styles.shareIcon}>
+                    <Share2 size={16} color="#ffffff" />
+                  </View>
+                  <Text style={styles.actionText}>Share</Text>
+                </View>
+                <ChevronRight size={16} color="#1C1C1C" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </BottomSheetView>
+      </BottomSheetModal>
     </>
   );
 };
@@ -276,5 +497,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     textAlign: "center",
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "#E5E5E5",
+    borderRadius: 12,
+    padding: 10,
+    marginTop: 8,
+  },
+  actionButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  shareIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#1C1C1C",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  actionText: {
+    fontSize: 14,
+    fontFamily: "ManropeMedium",
+    color: "#1C1C1C",
+    marginLeft: 10,
   },
 });
