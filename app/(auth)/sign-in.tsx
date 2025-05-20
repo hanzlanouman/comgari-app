@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ImageBackground,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { images } from "@/constants";
 import InputField from "@/common/components/InputField";
 import { router } from "expo-router";
@@ -11,7 +17,7 @@ import { AuthRepository } from "@/repositories/auth/auth";
 import { useMutation } from "react-query";
 import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
-import { login, setSubscribed } from "@/store";
+import { login, logout, setSubscribed } from "@/store";
 import { OTP_TYPE } from "@/common/enum";
 import { IS_ANDROID, IS_IOS } from "@/utils";
 
@@ -23,6 +29,13 @@ const SignIn = () => {
   const { mutate, isError, error } = useMutation({
     mutationFn: (payload: LoginPayload) => AuthRepo.login(payload),
   });
+
+  // Check if user has SuperAdmin role
+  const isSuperAdmin = (userData: any) => {
+    return userData.user.user_roles.some(
+      (userRole: any) => userRole.role?.name === "SuperAdmin"
+    );
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -50,27 +63,41 @@ const SignIn = () => {
 
       mutate(values, {
         onSuccess: (data) => {
+          
+          if (isSuperAdmin(data)) {
+            Alert.alert(
+              "SuperAdmin Access",
+              "The SuperAdmin dashboard is not available on the app. Please go to the website to access the SuperAdmin dashboard.",
+              [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    dispatch(logout());
+                  },
+                },
+              ]
+            );
+            return;
+          }
+
           dispatch(login(data));
           dispatch(setSubscribed(data.user.subscription));
 
-          // Handle iOS-specific logic
+         
           if (IS_IOS && !data.user.subscription) {
-            // Redirect iOS users without subscription to subscription message
             router.push({
               pathname: "/(auth)/go-pro",
             });
             return;
           }
 
-          // Handle normal flow for Android or subscribed iOS users
           if (!data.user.subscription) {
             router.push({
               pathname: "/(auth)/go-pro",
             });
           }
         },
-        onError: (error) => {
-          // Specific error handling for account verification
+        onError: (error: any) => {
           if (error.message === "Please Verify Your Account First") {
             setOtpScreen(true);
             // Alert.alert(
@@ -112,7 +139,7 @@ const SignIn = () => {
     <AppContainer
       hasScroll
       isError={isError}
-      message={error?.message}
+      message={(error as any)?.message}
       onPress={otpScreen ? onClick : undefined}
     >
       <ImageBackground
