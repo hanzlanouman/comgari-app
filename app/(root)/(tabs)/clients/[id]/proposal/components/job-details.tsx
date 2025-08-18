@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { ScrollView, TouchableOpacity, Alert, View, Text } from "react-native";
 import { CalendarDays } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { CustomButton, InputField } from "@/common/components";
+import { CustomButton, InputField, PhoneField } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { UNITS } from "@/constants";
 
@@ -32,11 +32,11 @@ const ProposalSchema = Yup.object().shape({
     .required("Zip Code is required"),
   job_name: Yup.string().required("Job Name is required"),
   job_phone: Yup.string()
-  .matches(
-    /^\+[1-9]\d{1,14}$/,
-    "Phone number must include country code (e.g., +1 for US)"
-  )
-  .required('Job Phone is required'),
+    .matches(
+      /^\+[1-9]\d{1,14}$/,
+      "Phone number must include country code (e.g., +1 for US)"
+    )
+    .required("Job Phone is required"),
   project_director: Yup.string().required("Project Director is required"),
   estimated_days: Yup.number()
     .integer("Estimated Days must be an integer")
@@ -54,15 +54,15 @@ const ProposalSchema = Yup.object().shape({
 interface JobDetailsFormValues {
   client_id: number;
   project_id: number;
-  date: string;
+  date: Date | string;
   address: string;
   city: string;
-  zip_code: string;
+  zip_code: number | string;
   job_name: string;
   job_phone: string;
   project_director: string;
   specification: string;
-  estimated_days: string;
+  estimated_days: number | string;
   estimated_cost: string;
 }
 
@@ -85,11 +85,12 @@ const JobDetails = ({
   const fetchClients = async () => {
     setIsClientsLoading(true);
     try {
-      const clients = await clientRepo.getClients(
-        { start: 0, limit: 10 },
-        { user }
-      );
-      const options: OptionType[] = clients.map((client) => ({
+      const response: any = await clientRepo.getClients({
+        start: 0,
+        limit: 10,
+      });
+      const clients: any[] = Array.isArray(response) ? response : [];
+      const options: OptionType[] = clients.map((client: any) => ({
         key: client.id,
         value: client.name,
       }));
@@ -285,18 +286,17 @@ const JobDetails = ({
                   )}
               </View>
               <View className="mt-2.5 relative">
-                <InputField
+                <PhoneField
                   value={formikProps.values.job_phone}
-                  placeholder="Job Phone"
                   onChangeText={formikProps.handleChange("job_phone")}
-                  onBlur={formikProps.handleBlur("job_phone")}
+                  // placeholder="Job Phone"
+                  error={
+                    formikProps.touched.job_phone &&
+                    formikProps.errors.job_phone
+                      ? (formikProps.errors.job_phone as string)
+                      : undefined
+                  }
                 />
-                {formikProps.touched.job_phone &&
-                  formikProps.errors.job_phone && (
-                    <Text className="text-red mt-1">
-                      {formikProps.errors.job_phone}
-                    </Text>
-                  )}
               </View>
               <View className="mt-2.5 relative">
                 <InputField
@@ -367,7 +367,10 @@ const JobDetails = ({
           </ScrollView>
 
           <View className="p-4 bg-white">
-            <CustomButton title="Next" onPress={formikProps.handleSubmit} />
+            <CustomButton
+              title="Next"
+              onPress={() => formikProps.handleSubmit()}
+            />
           </View>
         </>
       )}

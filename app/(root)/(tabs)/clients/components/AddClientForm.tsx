@@ -3,11 +3,14 @@ import { Image, TextInput, TouchableOpacity, View } from "react-native";
 import { FormikProps } from "formik";
 import { Upload } from "lucide-react-native";
 import { vs } from "react-native-size-matters";
-import { InputField, MutlitSelectWithDefault } from "@/common/components";
+import {
+  InputField,
+  MutlitSelectWithDefault,
+  PhoneField,
+} from "@/common/components";
 import { OptionType, ClientType, ClientStatus } from "@/common/types";
 import { Action } from "@/common/enum";
 import DropdownSelect from "@/common/components/Select";
-import { ClientRepository } from "@/repositories/client/client";
 import { images, getImageUrl } from "@/constants";
 import { useUpload } from "@/hooks/use-upload";
 import { pickImage, showErrorAlert } from "@/utils";
@@ -21,9 +24,9 @@ interface ClientFormValues {
   name: string;
   email: string;
   phone: string;
-  description?: string;
-  logo?: string;
-  type?: ClientType;
+  description: string;
+  logo: string;
+  type: ClientType;
   status: ClientStatus;
   member_ids: number[];
   client_Staff: MemberAction[];
@@ -163,9 +166,10 @@ export default function AddClientForm({
       <View className="mt-3">
         <InputField
           label=""
-          value={formik.values.email.toLowerCase()}
+          value={formik.values.email}
           onChangeText={formik.handleChange("email")}
           placeholder="Email"
+          keyboardType="email-address"
           error={
             typeof formik.errors.email === "string"
               ? formik.errors.email
@@ -175,11 +179,10 @@ export default function AddClientForm({
       </View>
 
       <View className="mt-3">
-        <InputField
-          label=""
+        <PhoneField
           value={formik.values.phone}
           onChangeText={formik.handleChange("phone")}
-          placeholder="Phone"
+          // placeholder="Phone"
           error={
             typeof formik.errors.phone === "string"
               ? formik.errors.phone

@@ -76,6 +76,7 @@
     "react-query": "^3.39.3",
     "react-redux": "^9.1.2",
     "redux-persist": "^6.0.0",
+    "rn-phone-input-field": "^1.1.9",
     "tailwindcss": "3.3.2",
     "yup": "^1.4.0"
   },
