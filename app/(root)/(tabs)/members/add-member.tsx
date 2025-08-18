@@ -2,22 +2,27 @@
 import { SafeAreaView, ScrollView } from "react-native";
 
 import { router } from "expo-router";
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 
 import { useEffect, useState } from "react";
 import { AppContainer } from "@/common/components";
 import AddMemberForm from "./components/AddMemberForm";
 import { useFormik } from "formik";
 import { OptionType } from "@/common/types";
-import { MemberPayload, memberSchema, updateMemberSchema, UpdateMemberPayload } from "@/repositories/member/schemas";
+import {
+  MemberPayload,
+  memberSchema,
+  updateMemberSchema,
+  UpdateMemberPayload,
+} from "@/repositories/member/schemas";
 import { useMutation, useQuery } from "react-query";
 import { MemberRepository } from "@/repositories";
 import { useAppSelector } from "@/hooks/redux";
 
 enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  SUSPENDED = 'SUSPENDED',
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  SUSPENDED = "SUSPENDED",
 }
 
 const status = [
@@ -65,7 +70,7 @@ const AddMember = () => {
   const userRole = user?.user_roles[0]?.role.name || "Salesman";
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
-  const roleVisibilityMap = {
+  const roleVisibilityMap: Record<string, string[]> = {
     SuperAdmin: ["Admin", "Secretary", "Salesman"],
     Admin: ["Admin", "Secretary", "Salesman"],
     Secretary: ["Secretary", "Salesman"],
@@ -96,26 +101,27 @@ const AddMember = () => {
 
   const formik = useFormik({
     initialValues: {
-      user_name: initialMemberData?.user_name || '',
-      email: initialMemberData?.email || '',
-      phone: initialMemberData?.phone || '',
-      password: '',
-      full_name: initialMemberData?.full_name || '',
+      user_name: initialMemberData?.user_name || "",
+      email: initialMemberData?.email || "",
+      phone: initialMemberData?.phone || "",
+      password: "",
+      full_name: initialMemberData?.full_name || "",
       permission_ids: initialMemberData?.permission_ids || [],
       status: initialMemberData?.status || UserStatus.ACTIVE,
       role_id: initialMemberData?.role_id
-        ? Number(initialMemberData.role_id) : undefined,
+        ? Number(initialMemberData.role_id)
+        : undefined,
     },
     enableReinitialize: true,
-    validationSchema: isEditing === 'true' ? updateMemberSchema : memberSchema,
+    validationSchema: isEditing === "true" ? updateMemberSchema : memberSchema,
     onSubmit: (values) => {
-      if (isEditing === 'true' && initialMemberData) {
-        const updatePayload: Omit<MemberPayload, 'email' | 'password'> = {
+      if (isEditing === "true" && initialMemberData) {
+        const updatePayload: Omit<MemberPayload, "email" | "password"> = {
           user_name: values.user_name,
           full_name: values.full_name,
           permission_ids: values.permission_ids,
           status: values.status,
-          role_id: values.role_id,
+          role_id: values.role_id as number,
         };
 
         if (values.phone?.trim()) {
@@ -126,7 +132,7 @@ const AddMember = () => {
 
         updateMutation.mutate(updatePayload, {
           onSuccess: () => {
-            router.back()
+            router.back();
           },
         });
       } else {
@@ -137,7 +143,7 @@ const AddMember = () => {
           full_name: values.full_name,
           permission_ids: values.permission_ids,
           status: values.status,
-          role_id: values.role_id,
+          role_id: values.role_id as number,
         };
 
         if (values.phone?.trim()) {
@@ -146,7 +152,7 @@ const AddMember = () => {
 
         mutate(createPayload, {
           onSuccess: () => {
-            router.back()
+            router.back();
           },
         });
       }
@@ -157,18 +163,15 @@ const AddMember = () => {
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer
         isError={isError || updateMutation.isError}
-        message={error || updateMutation.error}
+        message={(error as string) || (updateMutation.error as string)}
       >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          className="px-4"
-        >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
           <AddMemberForm
             formik={formik}
             roleOptions={roles}
             permissionOptions={permissions}
             statusOptions={status}
-            isEditing={isEditing === 'true'}
+            isEditing={isEditing === "true"}
           />
         </ScrollView>
       </AppContainer>

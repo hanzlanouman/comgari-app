@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  Linking,
 } from "react-native";
 import { vs } from "react-native-size-matters";
 import {
@@ -359,9 +360,15 @@ const Proposal = () => {
                   <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
                     Job Phone
                   </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {jobPhone || "Not Specified"}
-                  </Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      jobPhone && Linking.openURL(`tel:${jobPhone}`)
+                    }
+                  >
+                    <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                      {jobPhone || "Not Specified"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 <View className="flex-row items-start justify-between border-b border-light py-3.5">
                   <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">

@@ -1,23 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useRef, useEffect } from "react";
 import { Formik, FormikProps } from "formik";
 import * as Yup from "yup";
 
-import {
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  View,
-  Text,
-} from "react-native";
+import { ScrollView, TouchableOpacity, Alert, View, Text } from "react-native";
 import { CalendarDays } from "lucide-react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { CustomButton, InputField, DropdownSelect } from "@/common/components";
+import { CustomButton, InputField } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { UNITS } from "@/constants";
 
 import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from "@/common/types";
-
 
 const getStartOfToday = () => {
   const today = new Date();
@@ -26,21 +20,27 @@ const getStartOfToday = () => {
 };
 const ProposalSchema = Yup.object().shape({
   client_id: Yup.number()
-    .integer('Client ID must be an integer')
-    .required('Client ID is required'),
+    .integer("Client ID must be an integer")
+    .required("Client ID is required"),
   date: Yup.date()
-    .min(getStartOfToday(), 'Past dates are not allowed')
-    .required('Date is required'), address: Yup.string().required('Address is required'),
-  city: Yup.string().required('City is required'),
+    .min(getStartOfToday(), "Past dates are not allowed")
+    .required("Date is required"),
+  address: Yup.string().required("Address is required"),
+  city: Yup.string().required("City is required"),
   zip_code: Yup.number()
-    .integer('Zip Code must be an integer')
-    .required('Zip Code is required'),
-  job_name: Yup.string().required('Job Name is required'),
-  job_phone: Yup.string().required('Job Phone is required'),
-  project_director: Yup.string().required('Project Director is required'),
+    .integer("Zip Code must be an integer")
+    .required("Zip Code is required"),
+  job_name: Yup.string().required("Job Name is required"),
+  job_phone: Yup.string()
+  .matches(
+    /^\+[1-9]\d{1,14}$/,
+    "Phone number must include country code (e.g., +1 for US)"
+  )
+  .required('Job Phone is required'),
+  project_director: Yup.string().required("Project Director is required"),
   estimated_days: Yup.number()
-    .integer('Estimated Days must be an integer')
-    .required('Estimated Days is required'),
+    .integer("Estimated Days must be an integer")
+    .required("Estimated Days is required"),
   estimated_cost: Yup.string()
     .matches(
       /^\d+(\.\d{1,2})?$/,
@@ -48,8 +48,8 @@ const ProposalSchema = Yup.object().shape({
     )
     .required("Estimated cost is required"),
   project_id: Yup.number()
-    .integer('Project ID must be an integer')
-    .required('Project ID is required'),
+    .integer("Project ID must be an integer")
+    .required("Project ID is required"),
 });
 interface JobDetailsFormValues {
   client_id: number;
@@ -66,9 +66,12 @@ interface JobDetailsFormValues {
   estimated_cost: string;
 }
 
-const JobDetails = ({ initialData, onNext }: {
+const JobDetails = ({
+  initialData,
+  onNext,
+}: {
   initialData: Partial<JobDetailsFormValues>;
-  onNext: (data: JobDetailsFormValues) => void
+  onNext: (data: JobDetailsFormValues) => void;
 }) => {
   const formikRef = useRef<FormikProps<JobDetailsFormValues>>(null);
   const clientRepo = ClientRepository.getInstance();
@@ -132,24 +135,25 @@ const JobDetails = ({ initialData, onNext }: {
         estimated_cost: initialData.estimated_cost?.toString() || "",
       }}
       onSubmit={(values) => {
-
         const estimatedCostNumber = Number(values.estimated_cost);
-        const formattedEstimatedCost = parseFloat((estimatedCostNumber).toFixed(2));
-
+        const formattedEstimatedCost = parseFloat(
+          estimatedCostNumber.toFixed(2)
+        );
 
         const submitData: JobDetailsFormValues = {
           ...values,
           client_id: Number(values.client_id),
           project_id: Number(values.client_id),
           zip_code: values.zip_code ? Number(values.zip_code) : 0,
-          estimated_days: values.estimated_days ? Number(values.estimated_days) : 0,
+          estimated_days: values.estimated_days
+            ? Number(values.estimated_days)
+            : 0,
           estimated_cost: parseFloat(values.estimated_cost).toFixed(2), // Ensure 2 decimal places as a string
 
-
-          date: values.date instanceof Date
-            ? values.date.toISOString()
-            : values.date || new Date().toISOString(),
-
+          date:
+            values.date instanceof Date
+              ? values.date.toISOString()
+              : values.date || new Date().toISOString(),
         };
 
         onNext(submitData);
@@ -157,8 +161,9 @@ const JobDetails = ({ initialData, onNext }: {
     >
       {(formikProps) => (
         <>
-
-          <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}
+          >
             <View className="px-4">
               {/* <View className="mt-4">
                 <DropdownSelect
@@ -187,7 +192,9 @@ const JobDetails = ({ initialData, onNext }: {
                     <Text>
                       {formikProps.values.date instanceof Date
                         ? formikProps.values.date.toLocaleDateString()
-                        : new Date(formikProps.values.date).toLocaleDateString()}
+                        : new Date(
+                            formikProps.values.date
+                          ).toLocaleDateString()}
                     </Text>
                   ) : (
                     <Text className="text-gray">Date</Text>
@@ -204,7 +211,10 @@ const JobDetails = ({ initialData, onNext }: {
                     formikProps.setFieldValue("date", date);
                     hideDatePicker();
                   } else {
-                    Alert.alert("Invalid Date", "Please select today or a future date");
+                    Alert.alert(
+                      "Invalid Date",
+                      "Please select today or a future date"
+                    );
                   }
                 }}
                 onCancel={hideDatePicker}
@@ -222,7 +232,9 @@ const JobDetails = ({ initialData, onNext }: {
                   onBlur={formikProps.handleBlur("address")}
                 />
                 {formikProps.touched.address && formikProps.errors.address && (
-                  <Text className="text-red mt-1">{formikProps.errors.address}</Text>
+                  <Text className="text-red mt-1">
+                    {formikProps.errors.address}
+                  </Text>
                 )}
               </View>
 
@@ -235,45 +247,56 @@ const JobDetails = ({ initialData, onNext }: {
                     onBlur={formikProps.handleBlur("city")}
                   />
                   {formikProps.touched.city && formikProps.errors.city && (
-                    <Text className="text-red mt-1">{formikProps.errors.city}</Text>
+                    <Text className="text-red mt-1">
+                      {formikProps.errors.city}
+                    </Text>
                   )}
                 </View>
                 <View className="w-2/5 px-2">
                   <InputField
                     value={formikProps.values.zip_code.toString()}
                     placeholder="Zip"
-                    onChangeText={(text) => formikProps.setFieldValue("zip_code", text)}
+                    onChangeText={(text) =>
+                      formikProps.setFieldValue("zip_code", text)
+                    }
                     onBlur={formikProps.handleBlur("zip_code")}
                     keyboardType="numeric"
                   />
-                  {formikProps.touched.zip_code && formikProps.errors.zip_code && (
-                    <Text className="text-red mt-1">{formikProps.errors.zip_code}</Text>
-                  )}
+                  {formikProps.touched.zip_code &&
+                    formikProps.errors.zip_code && (
+                      <Text className="text-red mt-1">
+                        {formikProps.errors.zip_code}
+                      </Text>
+                    )}
                 </View>
               </View>
               <View className="mt-2.5 relative">
-
                 <InputField
                   value={formikProps.values.job_name}
                   placeholder="Job Name"
                   onChangeText={formikProps.handleChange("job_name")}
                   onBlur={formikProps.handleBlur("job_name")}
                 />
-                {formikProps.touched.job_name && formikProps.errors.job_name && (
-                  <Text className="text-red mt-1">{formikProps.errors.job_name}</Text>
-                )}
+                {formikProps.touched.job_name &&
+                  formikProps.errors.job_name && (
+                    <Text className="text-red mt-1">
+                      {formikProps.errors.job_name}
+                    </Text>
+                  )}
               </View>
               <View className="mt-2.5 relative">
-
                 <InputField
                   value={formikProps.values.job_phone}
                   placeholder="Job Phone"
                   onChangeText={formikProps.handleChange("job_phone")}
                   onBlur={formikProps.handleBlur("job_phone")}
                 />
-                {formikProps.touched.job_phone && formikProps.errors.job_phone && (
-                  <Text className="text-red mt-1">{formikProps.errors.job_phone}</Text>
-                )}
+                {formikProps.touched.job_phone &&
+                  formikProps.errors.job_phone && (
+                    <Text className="text-red mt-1">
+                      {formikProps.errors.job_phone}
+                    </Text>
+                  )}
               </View>
               <View className="mt-2.5 relative">
                 <InputField
@@ -282,22 +305,30 @@ const JobDetails = ({ initialData, onNext }: {
                   onChangeText={formikProps.handleChange("project_director")}
                   onBlur={formikProps.handleBlur("project_director")}
                 />
-                {formikProps.touched.project_director && formikProps.errors.project_director && (
-                  <Text className="text-red mt-1">{formikProps.errors.project_director}</Text>
-                )}
+                {formikProps.touched.project_director &&
+                  formikProps.errors.project_director && (
+                    <Text className="text-red mt-1">
+                      {formikProps.errors.project_director}
+                    </Text>
+                  )}
               </View>
 
               <View className="mt-2.5 relative">
                 <InputField
                   value={formikProps.values.estimated_days.toString()}
                   placeholder="Estimated Days"
-                  onChangeText={(text) => formikProps.setFieldValue("estimated_days", text)}
+                  onChangeText={(text) =>
+                    formikProps.setFieldValue("estimated_days", text)
+                  }
                   onBlur={formikProps.handleBlur("estimated_days")}
                   keyboardType="numeric"
                 />
-                {formikProps.touched.estimated_days && formikProps.errors.estimated_days && (
-                  <Text className="text-red mt-1">{formikProps.errors.estimated_days}</Text>
-                )}
+                {formikProps.touched.estimated_days &&
+                  formikProps.errors.estimated_days && (
+                    <Text className="text-red mt-1">
+                      {formikProps.errors.estimated_days}
+                    </Text>
+                  )}
               </View>
 
               <View className="mt-2.5 relative">
@@ -305,11 +336,11 @@ const JobDetails = ({ initialData, onNext }: {
                   value={formikProps.values.estimated_cost}
                   placeholder="Estimated Cost"
                   onChangeText={(text) => {
-                    let formattedText = text.replace(/[^0-9.]/g, '');
+                    let formattedText = text.replace(/[^0-9.]/g, "");
 
-                    const parts = formattedText.split('.');
+                    const parts = formattedText.split(".");
                     if (parts.length > 2) {
-                      formattedText = `${parts[0]}.${parts.slice(1).join('')}`;
+                      formattedText = `${parts[0]}.${parts.slice(1).join("")}`;
                     }
 
                     if (parts[1] && parts[1].length > 2) {
@@ -322,10 +353,15 @@ const JobDetails = ({ initialData, onNext }: {
                   onBlur={formikProps.handleBlur("estimated_cost")}
                   keyboardType="decimal-pad"
                 />
-                <Text className="absolute top-[18px] right-4 text-black">{UNITS.CURRENCY}</Text>
-                {formikProps.touched.estimated_cost && formikProps.errors.estimated_cost && (
-                  <Text className="text-red mt-1">{formikProps.errors.estimated_cost}</Text>
-                )}
+                <Text className="absolute top-[18px] right-4 text-black">
+                  {UNITS.CURRENCY}
+                </Text>
+                {formikProps.touched.estimated_cost &&
+                  formikProps.errors.estimated_cost && (
+                    <Text className="text-red mt-1">
+                      {formikProps.errors.estimated_cost}
+                    </Text>
+                  )}
               </View>
             </View>
           </ScrollView>

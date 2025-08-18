@@ -46,7 +46,7 @@ export default function AddClientForm({
   isEditing,
   ClientStatus,
 }: AddClientFormProps) {
-  const { uploadAsync } = useUpload()
+  const { uploadAsync } = useUpload();
   const [selectedMembers, setSelectedMembers] = useState<number[]>(
     formik.values.member_ids || []
   );
@@ -101,28 +101,38 @@ export default function AddClientForm({
 
   const handleImageUpload = async () => {
     try {
-      const rep = await pickImage(false, { quality: 1, aspect: [1, 1], allowsEditing: true })
+      const rep = await pickImage(false, {
+        quality: 1,
+        aspect: [1, 1],
+        allowsEditing: true,
+      });
       if (!rep.isSuccess) {
-        showErrorAlert(rep.error)
-        return
+        showErrorAlert(rep.error);
+        return;
       }
-      const res = await uploadAsync(rep.result)
+      const res = await uploadAsync(rep.result);
       if (res.isSuccess && res.result) {
-        formik.setFieldValue("logo", res.result)
-        setImagePreview(res.result)
+        formik.setFieldValue("logo", res.result);
+        setImagePreview(res.result);
       }
     } catch (error: any) {
-      showErrorAlert(error?.message)
+      showErrorAlert(error?.message);
     }
   };
 
-  const memberTitles = memberOptions?.map((item: any) => formik.values.member_ids?.includes(item.key) ? item.value : null).filter((item: any) => item !== null).flat();
+  const memberTitles = memberOptions
+    ?.map((item: any) =>
+      formik.values.member_ids?.includes(item.key) ? item.value : null
+    )
+    .filter((item: any) => item !== null)
+    .flat();
 
   return (
     <View>
       <View
         className="mt-2.5 relative mx-auto"
-        style={{ width: vs(80), height: vs(80) }}>
+        style={{ width: vs(80), height: vs(80) }}
+      >
         <Image
           source={imagePreview ? { uri: imagePreview } : images.user}
           resizeMode="cover"
@@ -130,7 +140,8 @@ export default function AddClientForm({
         />
         <TouchableOpacity
           onPress={handleImageUpload}
-          className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px">
+          className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px"
+        >
           <Upload size={13} color="#ffffff" />
         </TouchableOpacity>
       </View>
@@ -211,24 +222,23 @@ export default function AddClientForm({
         />
       </View>
       {isEditing && (
-
         <View className="mt-3">
-        <DropdownSelect
-          placeholder="Status"
-          data={statusOptions}
-          selectedValue={String(formik.values.status || "")}
-          setFieldValue={(field, value) => {
-            formik.setFieldValue(field, value);
-          }}
-          error={
-            typeof formik.errors.status === "string"
-            ? formik.errors.status
-            : undefined
-          }
-          fieldName="status"
+          <DropdownSelect
+            placeholder="Status"
+            data={statusOptions}
+            selectedValue={String(formik.values.status || "")}
+            setFieldValue={(field, value) => {
+              formik.setFieldValue(field, value);
+            }}
+            error={
+              typeof formik.errors.status === "string"
+                ? formik.errors.status
+                : undefined
+            }
+            fieldName="status"
           />
-      </View>
-        )}
+        </View>
+      )}
 
       <View className="mt-3">
         <TextInput

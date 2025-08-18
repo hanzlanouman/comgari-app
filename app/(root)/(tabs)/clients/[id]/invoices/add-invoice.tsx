@@ -24,7 +24,7 @@ const getStartOfToday = () => {
 };
 // Enum for Invoice Status
 
-enum InvoiceStatus {
+export enum InvoiceStatus {
   DRAFT = "DRAFT",
   SENT = "SENT",
   PAID = "PAID",
@@ -37,12 +37,15 @@ export type OptionType = {
 };
 
 // Convert enum to dropdown options
-const statusOptions: OptionType[] = Object.entries(InvoiceStatus).map(([key, value]) => ({
-  key: value,
-  value: key.split('_').map(word =>
-    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  ).join(' ')
-}));
+const statusOptions: OptionType[] = Object.entries(InvoiceStatus).map(
+  ([key, value]) => ({
+    key: value,
+    value: key
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "),
+  })
+);
 
 const AddInvoiceScreen = () => {
   const {
@@ -52,7 +55,7 @@ const AddInvoiceScreen = () => {
     job_name: editJobName,
     total_amount: editTotalAmount,
     status: editStatus,
-    date: editDate
+    date: editDate,
   } = useLocalSearchParams();
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -60,7 +63,7 @@ const AddInvoiceScreen = () => {
     editDate ? new Date(editDate as string) : null
   );
   const clientRepo = ClientRepository.getInstance();
-  const isEditMode = mode === 'edit';
+  const isEditMode = mode === "edit";
 
   const initialValues = {
     job_name: isEditMode ? (editJobName as string) : "",
@@ -87,10 +90,10 @@ const AddInvoiceScreen = () => {
       const payload = {
         job_name: values.job_name,
         client_id: Number(projectId),
-        date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
-        total_amount: values.total_amount,
+        date: selectedDate || new Date(),
+        total_amount: Number(values.total_amount),
         status: values.status as InvoiceStatus,
-        project_id: Number(projectId)
+        project_id: Number(projectId),
       };
 
       if (isEditMode && invoiceId) {
@@ -106,7 +109,7 @@ const AddInvoiceScreen = () => {
       // Navigate back to invoices screen
       router.replace({
         pathname: "/(root)/(tabs)/clients/[id]/invoices",
-        params: { id: projectId }
+        params: { id: String(projectId) },
       });
     } catch (error) {
       Alert.alert(
@@ -119,9 +122,7 @@ const AddInvoiceScreen = () => {
   };
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Formik
-        initialValues={initialValues}
-        onSubmit={handleSubmit}>
+      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
         {(formik) => (
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4">
@@ -138,7 +139,8 @@ const AddInvoiceScreen = () => {
               <TouchableOpacity
                 activeOpacity={1}
                 onPress={showDatePicker}
-                className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
+                className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative"
+              >
                 <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
                   {selectedDate
                     ? selectedDate.toLocaleDateString()
@@ -157,7 +159,9 @@ const AddInvoiceScreen = () => {
                 onCancel={hideDatePicker}
               />
               {formik.touched.date && formik.errors.date && (
-                <Text className="text-red-500 text-xs mt-1">{formik.errors.date}</Text>
+                <Text className="text-red-500 text-xs mt-1">
+                  {formik.errors.date}
+                </Text>
               )}
 
               <View className="mt-3 relative">
@@ -167,9 +171,13 @@ const AddInvoiceScreen = () => {
                   onChangeText={formik.handleChange("total_amount")}
                   placeholder="Estimated cost"
                   keyboardType="numeric"
-                  error={formik.touched.total_amount && formik.errors.total_amount}
+                  error={
+                    formik.touched.total_amount && formik.errors.total_amount
+                  }
                 />
-                <Text className="absolute top-[18px] right-4 text-black">{UNITS.CURRENCY}</Text>
+                <Text className="absolute top-[18px] right-4 text-black">
+                  {UNITS.CURRENCY}
+                </Text>
               </View>
 
               <View className="mt-3">
