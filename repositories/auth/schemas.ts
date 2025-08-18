@@ -10,7 +10,13 @@ const SignupSchema = yup.object({
     .email("Invalid email format")
     .required("Email is required"),
   business_name: yup.string().required("Business name is required"),
-  phone: yup.string().required("Contact number is required"),
+  phone: yup
+    .string()
+    .required("Contact number is required")
+    .matches(
+      /^\+[1-9]\d{1,14}$/,
+      "Phone number must include country code (e.g., +1 for US)"
+    ),
   password: yup
     .string()
     .min(6, "Password must be at least 6 characters")
@@ -89,7 +95,9 @@ const DeleteAcountSchema = yup.object().shape({
 export type TDeleteAcountSchema = yup.InferType<typeof DeleteAcountSchema>;
 export type ChangePasswordPayload = yup.InferType<typeof ChangePasswordSchema>;
 export type UpdateProfilePayload = yup.InferType<typeof UpdateProfileSchema>;
-export type UpdateProfilePicPayload = yup.InferType<typeof UpdateProfilePicSchema>;
+export type UpdateProfilePicPayload = yup.InferType<
+  typeof UpdateProfilePicSchema
+>;
 
 export {
   DeleteAcountSchema,

@@ -1,19 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, View, Alert, Text } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useFormik } from 'formik';
-import { useAppSelector } from '@/hooks/redux';
-import { CustomButton, AppContainer } from '@/common/components';
-import AddClientForm from './components/AddClientForm';
-import { createClientSchema, updateClientSchema } from '@/repositories/client/schemas';
-import { OptionType, ClientType, CLIENT_TYPES, ClientStatus, CLIENT_STATUS } from '@/common/types';
-import { ClientRepository } from '@/repositories/client/client';
-import { MemberRepository } from '@/repositories/member/member';
-import { useQueryClient } from 'react-query';
-import { Action } from '@/common/enum';
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, ScrollView, View, Alert, Text } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useFormik } from "formik";
+import { useAppSelector } from "@/hooks/redux";
+import { CustomButton, AppContainer } from "@/common/components";
+import AddClientForm from "./components/AddClientForm";
+import {
+  createClientSchema,
+  updateClientSchema,
+} from "@/repositories/client/schemas";
+import {
+  OptionType,
+  ClientType,
+  CLIENT_TYPES,
+  ClientStatus,
+  CLIENT_STATUS,
+} from "@/common/types";
+import { ClientRepository } from "@/repositories/client/client";
+import { MemberRepository } from "@/repositories/member/member";
+import { useQueryClient } from "react-query";
+import { Action } from "@/common/enum";
 
-import { CreateClientPayload, UpdateClientPayload } from '@/repositories/client/schemas';
-
+import {
+  CreateClientPayload,
+  UpdateClientPayload,
+} from "@/repositories/client/schemas";
 
 interface MemberAction {
   staff_id: number;
@@ -35,11 +46,12 @@ const AddClient = () => {
   const parseIds = (ids: string | string[] | undefined): number[] => {
     if (!ids) return [];
     if (Array.isArray(ids)) return ids.map(Number);
-    return ids.split(',').map(Number);
+    return ids.split(",").map(Number);
   };
-  const clientUserIds = parseIds(params.clientUserIds)
+  const clientUserIds = parseIds(params.clientUserIds);
 
-  const clientId = params.isEditing === 'true' ? Number(params.clientId) : undefined;
+  const clientId =
+    params.isEditing === "true" ? Number(params.clientId) : undefined;
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -50,20 +62,20 @@ const AddClient = () => {
         const members = membersData || [];
         const options: OptionType[] = members.map((member) => ({
           key: member.Auth.id,
-          value: member.Auth.user.full_name || 'Unknown',
+          value: member.Auth.user.full_name || "Unknown",
         }));
         setMemberOptions(options);
 
-        if (params.isEditing === 'true' && clientId) {
+        if (params.isEditing === "true" && clientId) {
           setIsEditing(true);
           if (params?.clientUserIds) {
             setExistingMemberIds(clientUserIds);
-            formik.setFieldValue('member_ids', clientUserIds);
+            formik.setFieldValue("member_ids", clientUserIds);
           }
         }
       } catch (error) {
-        console.error('Error fetching initial data:', error);
-        Alert.alert('Error', 'Failed to load initial data. Please try again.');
+        console.error("Error fetching initial data:", error);
+        Alert.alert("Error", "Failed to load initial data. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -76,27 +88,31 @@ const AddClient = () => {
 
   const clientTypeOptions: OptionType[] = CLIENT_TYPES.map((type) => ({
     key: type,
-    value: type.charAt(0).toUpperCase() + type.slice(1).toLowerCase().replace('_', ' '),
+    value:
+      type.charAt(0).toUpperCase() +
+      type.slice(1).toLowerCase().replace("_", " "),
   }));
 
   const statusOptions: OptionType[] = CLIENT_STATUS.map((status) => ({
     key: status,
-    value: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace('_', ' '),
+    value:
+      status.charAt(0).toUpperCase() +
+      status.slice(1).toLowerCase().replace("_", " "),
   }));
 
   const initialValues = {
-    name: String(params.name || ''),
-    description: String(params.description || ''),
-    logo: String(params.logo || ''),
-    type: params.type as ClientType || 'Construction',
+    name: String(params.name || ""),
+    description: String(params.description || ""),
+    logo: String(params.logo || ""),
+    type: (params.type as ClientType) || "Construction",
     status: (params.status as ClientStatus) || ClientStatus.Lead,
     member_ids: clientUserIds
       ? Array.isArray(clientUserIds)
         ? clientUserIds.map(Number)
         : [Number(clientUserIds)]
       : [],
-    email: String(params.email || ''),
-    phone: String(params.phone || ''),
+    email: String(params.email || ""),
+    phone: String(params.phone || ""),
     client_Staff: [] as MemberAction[],
   };
   const handleSubmit = async (values: typeof initialValues) => {
@@ -104,16 +120,23 @@ const AddClient = () => {
       setIsLoading(true);
 
       if (!user?.id) {
-        throw new Error('User not authenticated');
+        throw new Error("User not authenticated");
       }
 
       // Prepare member actions by comparing with existing members
-      const addedMembers = values.member_ids.filter(id => !existingMemberIds.includes(id));
-      const removedMembers = existingMemberIds.filter(id => !values.member_ids.includes(id));
+      const addedMembers = values.member_ids.filter(
+        (id) => !existingMemberIds.includes(id)
+      );
+      const removedMembers = existingMemberIds.filter(
+        (id) => !values.member_ids.includes(id)
+      );
 
       const memberActions: MemberAction[] = [
-        ...addedMembers.map(id => ({ staff_id: id, action: Action.ADD })),
-        ...removedMembers.map(id => ({ staff_id: id, action: Action.REMOVE }))
+        ...addedMembers.map((id) => ({ staff_id: id, action: Action.ADD })),
+        ...removedMembers.map((id) => ({
+          staff_id: id,
+          action: Action.REMOVE,
+        })),
       ];
 
       const payload = {
@@ -123,16 +146,22 @@ const AddClient = () => {
       };
 
       if (isEditing && clientId) {
-        await clientRepo.updateClient(String(clientId), payload as UpdateClientPayload);
+        await clientRepo.updateClient(
+          String(clientId),
+          payload as UpdateClientPayload
+        );
       } else {
-        await clientRepo.createClient({ user: { id: user.id } }, payload as CreateClientPayload);
+        await clientRepo.createClient(
+          { user: { id: user.id, auth_id: user.authId } },
+          payload as CreateClientPayload
+        );
       }
 
-      await queryClient.invalidateQueries('clients');
-      router.replace('/(root)/(tabs)/clients/clients');
+      await queryClient.invalidateQueries("clients");
+      router.replace("/(root)/(tabs)/clients/clients");
     } catch (error) {
-      console.error('Error saving client:', error);
-      Alert.alert('Error', 'Failed to save client. Please try again.');
+      console.error("Error saving client:", error);
+      Alert.alert("Error", "Failed to save client. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -153,8 +182,8 @@ const AddClient = () => {
     <SafeAreaView className="flex-1 bg-white">
       <AppContainer>
         <Text className="text-sm mb-6 px-4">
-          Add new team clients by filling out their details below to onboard them.
-
+          Add new team clients by filling out their details below to onboard
+          them.
         </Text>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
           <AddClientForm
@@ -163,11 +192,12 @@ const AddClient = () => {
             statusOptions={statusOptions}
             memberOptions={memberOptions}
             isEditing={isEditing}
+            ClientStatus={ClientStatus}
           />
         </ScrollView>
         <View className="p-4 bg-white">
           <CustomButton
-            title={isEditing ? 'Update Client' : 'Add Client'}
+            title={isEditing ? "Update Client" : "Add Client"}
             onPress={() => formik.handleSubmit()}
             disabled={isLoading}
           />

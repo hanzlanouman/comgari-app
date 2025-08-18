@@ -1,4 +1,5 @@
-import { SafeAreaView, ScrollView, View, Text } from "react-native";
+import { ScrollView, View, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import InputField from "@/common/components/InputField";
@@ -12,22 +13,40 @@ import { OTP_TYPE } from "@/common/enum";
 import { route } from "@/common";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
+// Add type declaration for custom method
+declare module "yup" {
+  interface StringSchema {
+    notMatchOtherField(otherField: string, message: string): StringSchema;
+  }
+}
+
 const SignUp = () => {
   useRedirectIfIOS();
   const authRepo = AuthRepository.getInstance();
-  const { mutate, isError, error } = useMutation({
-    mutationFn: (payload: Partial<SignupPayload>) => authRepo.register(payload),
-  });
+  const { mutate, isError, error } = useMutation<
+    any,
+    Error,
+    Partial<SignupPayload>
+  >((payload) => authRepo.register(payload));
 
   // Custom test for unique values across fields
-  Yup.addMethod(Yup.string, 'notMatchOtherField', function (otherField, message) {
-    return this.test('not-match-other-field', message, function (value) {
-      const { path, createError } = this;
-      const otherValue = this.parent[otherField];
-
-      return value !== otherValue || createError({ path, message });
-    });
-  });
+  // Using a simpler implementation for custom method
+  Yup.addMethod(
+    Yup.string,
+    "notMatchOtherField",
+    function (otherField, message) {
+      // @ts-ignore - Ignoring TypeScript errors for 'this' context
+      return this.test({
+        name: "not-match-other-field",
+        message,
+        test: function (value) {
+          // @ts-ignore
+          const otherValue = this.parent[otherField];
+          return value !== otherValue;
+        },
+      });
+    }
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -44,7 +63,10 @@ const SignUp = () => {
     validationSchema: Yup.object().shape({
       user_name: Yup.string()
         .required("User name is required")
-        .notMatchOtherField('phoneNumber', 'Username cannot be the same as phone number')
+        .notMatchOtherField(
+          "phoneNumber",
+          "Username cannot be the same as phone number"
+        )
         .min(3, "Username must be at least 3 characters"),
       fullName: Yup.string()
         .required("Full name is required")
@@ -57,8 +79,14 @@ const SignUp = () => {
         .min(2, "Business name must be at least 2 characters"),
       phoneNumber: Yup.string()
         .required("Contact number is required")
-        .notMatchOtherField('user_name', 'Phone number cannot be the same as username')
-        .matches(/^\+?[\d\s-]+$/, "Invalid phone number format"),
+        .notMatchOtherField(
+          "user_name",
+          "Phone number cannot be the same as username"
+        )
+        .matches(
+          /^\+[1-9]\d{1,14}$/,
+          "Phone number must include country code (e.g., +1 for US)"
+        ),
       password: Yup.string()
         .required("Password is required")
         .min(8, "Password must be at least 8 characters")
@@ -82,8 +110,6 @@ const SignUp = () => {
 
       mutate(payload, {
         onSuccess: (data) => {
-
-
           router.push({
             pathname: route.auth.Otp,
             params: {
@@ -99,7 +125,7 @@ const SignUp = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
-      <AppContainer isError={isError} message={error?.message}>
+      <AppContainer isError={isError} message={error?.message as string}>
         <ScrollView className="flex-1 px-5 py-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
             Set up your Comgari account by filling in the details below.{"\n"}

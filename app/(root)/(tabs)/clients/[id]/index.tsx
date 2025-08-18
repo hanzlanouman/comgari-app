@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Linking,
 } from "react-native";
 import { useQuery } from "react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -123,7 +124,8 @@ export const options = {};
 
 const ClientDetailPage: React.FC = () => {
   const { id } = useLocalSearchParams();
-  const clientIdNum = typeof id === "string" ? parseInt(id, 10) : id as unknown as number;
+  const clientIdNum =
+    typeof id === "string" ? parseInt(id, 10) : (id as unknown as number);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
   const clientRepo = ClientRepository.getInstance();
@@ -147,7 +149,8 @@ const ClientDetailPage: React.FC = () => {
         height: 32,
       }}
       start={[0, 0]}
-      end={[1, 1]}>
+      end={[1, 1]}
+    >
       <TouchableOpacity
         onPressIn={() => {
           bottomSheetRef.current?.present();
@@ -157,10 +160,10 @@ const ClientDetailPage: React.FC = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-        }}>
+        }}
+      >
         <Pencil size={18} color="#ffffff" />
       </TouchableOpacity>
-
     </LinearGradient>
   );
 
@@ -172,11 +175,7 @@ const ClientDetailPage: React.FC = () => {
     });
   }, [navigation]);
 
-  const {
-    data,
-    isError,
-    isLoading,
-  } = useQuery(
+  const { data, isError, isLoading } = useQuery(
     ["client", clientIdNum],
     () => clientRepo.getSingleClient(clientIdNum),
     {
@@ -186,7 +185,6 @@ const ClientDetailPage: React.FC = () => {
       },
     }
   );
-
 
   if (isLoading || !data) {
     return (
@@ -198,7 +196,7 @@ const ClientDetailPage: React.FC = () => {
     );
   }
 
-  const client = data as unknown as Client
+  const client = data as unknown as Client;
 
   if (isError || !client) {
     return (
@@ -233,7 +231,8 @@ const ClientDetailPage: React.FC = () => {
     <View key={item.id} className="px-1.5 mt-3 w-1/2">
       <TouchableOpacity
         onPress={() => handleNavigationPress(item.route)}
-        className="border border-light rounded-[20px] p-4">
+        className="border border-light rounded-[20px] p-4"
+      >
         <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
           <Image
             source={icons[item.icon]}
@@ -258,56 +257,71 @@ const ClientDetailPage: React.FC = () => {
           <AppContainer isError={isError} isLoading={isLoading}>
             <ScrollView
               contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
-              className="px-4 pt-2.5">
-              {client && <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
-                <View className="flex-row items-center border-b border-light pb-3.5">
-                  <Image
-                    source={
-                      client?.logo ? { uri: getImageUrl(client.logo) } : images.user
-                    }
-                    resizeMode="cover"
-                    className="rounded-full"
-                    style={{ width: vs(45), height: vs(45) }}
-                  />
-                  <View className="pl-3 flex-grow">
-                    <Text className="text-base sm:text-lg font-ManropeBold text-dark">
-                      {client?.name || "Unknown"}
-                    </Text>
-                    {client?.email && (
-                      <Text className="text-sm font-ManropeMedium text-dark-100 mt-px">
-                        {client.email}
+              className="px-4 pt-2.5"
+            >
+              {client && (
+                <View className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5">
+                  <View className="flex-row items-center border-b border-light pb-3.5">
+                    <Image
+                      source={
+                        client?.logo
+                          ? { uri: getImageUrl(client.logo) }
+                          : images.user
+                      }
+                      resizeMode="cover"
+                      className="rounded-full"
+                      style={{ width: vs(45), height: vs(45) }}
+                    />
+                    <View className="pl-3 flex-grow">
+                      <Text className="text-base sm:text-lg font-ManropeBold text-dark">
+                        {client?.name || "Unknown"}
+                      </Text>
+                      {client?.email && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            Linking.openURL(`mailto:${client.email}`)
+                          }
+                        >
+                          <Text className="text-sm font-ManropeMedium text-dark-100 mt-px">
+                            {client.email}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                  <View className="mt-3">
+                    {client?.phone && (
+                      <TouchableOpacity
+                        onPress={() => Linking.openURL(`tel:${client.phone}`)}
+                      >
+                        <Text className="text-base font-ManropeMedium text-dark">
+                          {client.phone}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    {client?.description && (
+                      <Text className="text-sm font-ManropeMedium text-dark-100 mt-1.5">
+                        {client.description}
                       </Text>
                     )}
-                  </View>
-                </View>
-                <View className="mt-3">
-                  {client?.phone && (
-                    <Text className="text-base font-ManropeMedium text-dark">
-                      {client.phone}
-                    </Text>
-                  )}
-                  {client?.description && (
-                    <Text className="text-sm font-ManropeMedium text-dark-100 mt-1.5">
-                      {client.description}
-                    </Text>
-                  )}
-                  <View className="flex-row items-center justify-between mt-4 border-t border-light pt-3 pb-1">
-                    <View className="flex-row items-center">
-                      <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-                        <View className="bg-blue w-1.5 h-1.5" />
+                    <View className="flex-row items-center justify-between mt-4 border-t border-light pt-3 pb-1">
+                      <View className="flex-row items-center">
+                        <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
+                          <View className="bg-blue w-1.5 h-1.5" />
+                        </View>
+                        <Text className="text-sm font-ManropeMedium text-blue ml-2">
+                          {client?.type?.replace("_", " ") || "N/A"}
+                        </Text>
                       </View>
-                      <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                        {client?.type?.replace("_", " ") || "N/A"}
-                      </Text>
-                    </View>
-                    <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
-                      <Text className="text-sm font-ManropeMedium text-green text-center">
-                        {client?.status || "Unknown"}
-                      </Text>
+                      <View className="bg-green-100 rounded-3xl px-3 pt-1 pb-1.5 ml-auto">
+                        <Text className="text-sm font-ManropeMedium text-green text-center">
+                          {client?.status || "Unknown"}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>}
+              )}
               <View className="flex-row flex-wrap -mx-1.5 justify-start">
                 {navigationItems.map(renderNavigationItem)}
               </View>
