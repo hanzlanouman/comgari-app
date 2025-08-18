@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import InputField from "@/common/components/InputField";
+import { PhoneField } from "@/common/components";
 import CustomButton from "@/common/components/CustomButton";
 import { router } from "expo-router";
 import { AuthRepository } from "@/repositories/auth/auth";
@@ -108,6 +109,8 @@ const SignUp = () => {
         email: values.email,
       };
 
+      console.log(payload, "payload");
+
       mutate(payload, {
         onSuccess: (data) => {
           router.push({
@@ -188,12 +191,15 @@ const SignUp = () => {
           </View>
 
           <View className="mt-3">
-            <InputField
+            <PhoneField
               value={formik.values.phoneNumber}
               onChangeText={formik.handleChange("phoneNumber")}
-              onBlur={formik.handleBlur("phoneNumber")}
-              error={formik.touched.phoneNumber && formik.errors.phoneNumber}
-              placeholder="Contact number"
+              // placeholder="Contact number"
+              error={
+                formik.touched.phoneNumber && formik.errors.phoneNumber
+                  ? (formik.errors.phoneNumber as string)
+                  : undefined
+              }
             />
           </View>
 

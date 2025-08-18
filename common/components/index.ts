@@ -16,3 +16,4 @@ export * from "./AssetsPreview";
 export * from "./DatePicker";
 export * from "./DateTimePicker";
 export * from "./ComfimationModel";
+export * from "./PhoneField";

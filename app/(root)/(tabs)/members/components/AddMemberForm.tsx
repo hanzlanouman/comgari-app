@@ -1,7 +1,12 @@
 //app\(root)\(tabs)\members\components\AddMemberForm.tsx
 import { View, Platform, ScrollView, Text } from "react-native";
 import React from "react";
-import { CustomButton, InputField, MutlitSelectWithDefault } from "@/common/components";
+import {
+  CustomButton,
+  InputField,
+  MutlitSelectWithDefault,
+  PhoneField,
+} from "@/common/components";
 import { KeyboardAvoidingView } from "react-native";
 
 import { FormikProps } from "formik";
@@ -23,7 +28,12 @@ export default function AddMemberForm({
   statusOptions,
   isEditing = false,
 }: AddMemberFormProps) {
-  const permissionTitles = permissionOptions.map((item: any) => formik.values.permission_ids?.includes(item.key) ? item.value : null).filter((item: any) => item !== null).flat();
+  const permissionTitles = permissionOptions
+    .map((item: any) =>
+      formik.values.permission_ids?.includes(item.key) ? item.value : null
+    )
+    .filter((item: any) => item !== null)
+    .flat();
 
   return (
     <KeyboardAvoidingView
@@ -72,7 +82,7 @@ export default function AddMemberForm({
             <InputField
               label=""
               disabled={isEditing}
-              value={formik.values.email.toLowerCase()}
+              value={formik.values.email}
               onChangeText={formik.handleChange("email")}
               placeholder="Email"
               keyboardType="email-address"
@@ -85,11 +95,10 @@ export default function AddMemberForm({
           </View>
 
           <View className="mt-3">
-            <InputField
-              label=""
+            <PhoneField
               value={formik.values.phone}
               onChangeText={formik.handleChange("phone")}
-              placeholder="Contact number"
+              // placeholder="Contact number"
               error={
                 typeof formik.errors.phone === "string"
                   ? formik.errors.phone
@@ -113,7 +122,7 @@ export default function AddMemberForm({
             />
           </View>
           {formik.values.role_id === 4 && (
-            <View className="mt-3" >
+            <View className="mt-3">
               <MutlitSelectWithDefault
                 search
                 save="key"
@@ -122,7 +131,10 @@ export default function AddMemberForm({
                 value={formik.values.permission_ids}
                 valueTitles={permissionTitles}
                 onSelect={(val) => {
-                  formik.setFieldValue("permission_ids", val.map((item: any) => parseInt(item)))
+                  formik.setFieldValue(
+                    "permission_ids",
+                    val.map((item: any) => parseInt(item))
+                  );
                 }}
                 error={
                   typeof formik.errors.permission_ids == "string"
@@ -154,7 +166,8 @@ export default function AddMemberForm({
                 onChangeText={formik.handleChange("password")}
                 placeholder="Password"
                 error={
-                  formik.touched.password && typeof formik.errors.password === "string"
+                  formik.touched.password &&
+                  typeof formik.errors.password === "string"
                     ? formik.errors.password
                     : undefined
                 }

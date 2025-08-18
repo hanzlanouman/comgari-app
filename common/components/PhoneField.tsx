@@ -1,0 +1,126 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, Text } from "react-native";
+import { PhoneInput, PhoneInputRef, CountryCode } from "rn-phone-input-field";
+// Leverage library constants to derive initial calling code for default country
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - importing internal module to fetch calling codes
+import constants from "rn-phone-input-field/dist/main/constants/constants";
+
+type PhoneFieldProps = {
+  value?: string;
+  onChangeText: (value: string) => void;
+  placeholder?: string;
+  error?: string | undefined;
+  defaultCountry?: CountryCode;
+  containerClassName?: string;
+  onBlur?: () => void;
+};
+
+export const PhoneField = ({
+  value,
+  onChangeText,
+  placeholder,
+  error,
+  defaultCountry = "US",
+  containerClassName = "",
+  onBlur,
+}: PhoneFieldProps) => {
+  const phoneInputRef = useRef<PhoneInputRef>(null);
+  const [callingCode, setCallingCode] = useState<string>("");
+  const [nationalValue, setNationalValue] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof value !== "string") return;
+
+    if (value.startsWith("+")) {
+      const numeric = value.replace(/[^\d]/g, "");
+      if (callingCode && numeric.startsWith(callingCode)) {
+        setNationalValue(numeric.slice(callingCode.length));
+        phoneInputRef.current?.defaultValue(numeric.slice(callingCode.length));
+      } else {
+        const heuristicNational = numeric.replace(/^\d{1,4}/, (cc) => {
+          setCallingCode((prev) => prev || cc);
+          return "";
+        });
+        setNationalValue(heuristicNational);
+        phoneInputRef.current?.defaultValue(heuristicNational);
+      }
+    } else {
+      setNationalValue(value);
+      phoneInputRef.current?.defaultValue(value);
+    }
+  }, [value, callingCode]);
+
+  useEffect(() => {
+    if (defaultCountry) {
+      phoneInputRef.current?.defaultCountry(defaultCountry);
+      try {
+        const cc =
+          constants?.[defaultCountry as keyof typeof constants]?.callingCode;
+        if (cc) setCallingCode(String(cc).replace(/[^\d]/g, ""));
+      } catch {}
+    }
+  }, [defaultCountry]);
+
+  const emitE164 = useMemo(() => {
+    return (local: string) => {
+      const numericLocal = local.replace(/[^\d]/g, "");
+      const full = callingCode
+        ? `+${callingCode}${numericLocal}`
+        : numericLocal;
+      onChangeText(full);
+    };
+  }, [callingCode, onChangeText]);
+
+  return (
+    <View className="w-full">
+      <View
+        className={`bg-white rounded-xl border border-light ${containerClassName}`}
+      >
+        <PhoneInput
+          ref={phoneInputRef}
+          defaultCountry={defaultCountry}
+          defaultValue={nationalValue || ""}
+          placeholder={placeholder ?? ""}
+          placeholderColor="#9AA3AF"
+          onChangeText={(text: string) => {
+            setNationalValue(text);
+            emitE164(text);
+          }}
+          onSelectCountryCode={({
+            callingCode: cc,
+          }: {
+            callingCode: string;
+          }) => {
+            setCallingCode(String(cc).replace(/[^\d]/g, ""));
+            emitE164(nationalValue);
+          }}
+          containerStyle={{
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderWidth: 0,
+            backgroundColor: "transparent",
+          }}
+          textInputStyle={{
+            fontSize: 16,
+            color: "#111827",
+            flex: 1,
+            width: undefined,
+            paddingVertical: 0,
+          }}
+          codeTextStyle={{ fontSize: 16, color: "#111827", fontWeight: "600" }}
+          iconContainerStyle={{
+            alignItems: "center",
+            justifyContent: "center",
+            paddingRight: 4,
+          }}
+          searchInputProps={{ placeholder: "Search country" }}
+          inputProps={{ keyboardType: "phone-pad", onBlur }}
+        />
+      </View>
+      {error ? <Text className="text-red mt-1">{error}</Text> : null}
+    </View>
+  );
+};
+
+export default PhoneField;
