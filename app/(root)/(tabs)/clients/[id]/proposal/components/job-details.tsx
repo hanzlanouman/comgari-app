@@ -12,6 +12,7 @@ import { UNITS } from "@/constants";
 
 import { useAppSelector } from "@/hooks/redux";
 import { OptionType } from "@/common/types";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const getStartOfToday = () => {
   const today = new Date();
@@ -162,216 +163,216 @@ const JobDetails = ({
     >
       {(formikProps) => (
         <>
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}
+          <KeyboardAwareScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              // paddingBottom: 30,
+              paddingHorizontal: 16,
+            }}
+            // extraScrollHeight={100}
+            enableOnAndroid={true}
           >
-            <View className="px-4">
-              {/* <View className="mt-4">
+            {/* <View className="mt-4">
                 <DropdownSelect
                   placeholder="Select Client"
                   data={clientOptions}
                   selectedValue={formikProps.values.client_id.toString()}
                   setFieldValue={(field, value) =>
                     formikProps.setFieldValue(field, Number(value))
-                  }
-                  fieldName="client_id"
+                    }
+                    fieldName="client_id"
                   isLoading={isClientsLoading}
                 />
                 {formikProps.touched.client_id && formikProps.errors.client_id && (
                   <Text className="text-red mt-1">{formikProps.errors.client_id}</Text>
                 )}
-              </View> */}
+                </View> */}
 
-              {/* Date Picker */}
-              <TouchableOpacity
-                activeOpacity={1}
-                onPress={showDatePicker}
-                className="w-full h-12 px-4 border border-light bg-white rounded-xl flex-row items-center justify-center mt-2.5 relative"
-              >
-                <Text className="flex-1 text-black font-ManropeMedium text-base">
-                  {formikProps.values.date ? (
-                    <Text>
-                      {formikProps.values.date instanceof Date
-                        ? formikProps.values.date.toLocaleDateString()
-                        : new Date(
-                            formikProps.values.date
-                          ).toLocaleDateString()}
-                    </Text>
-                  ) : (
-                    <Text className="text-gray">Date</Text>
-                  )}
-                </Text>
-                <CalendarDays size={16} color="#000000" />
-              </TouchableOpacity>
-              <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="date"
-                minimumDate={getStartOfToday()}
-                onConfirm={(date) => {
-                  if (isValidDate(date)) {
-                    formikProps.setFieldValue("date", date);
-                    hideDatePicker();
-                  } else {
-                    Alert.alert(
-                      "Invalid Date",
-                      "Please select today or a future date"
-                    );
-                  }
-                }}
-                onCancel={hideDatePicker}
+            {/* Date Picker */}
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={showDatePicker}
+              className="w-full h-12 px-4 border border-light bg-white rounded-xl flex-row items-center justify-center mt-2.5 relative"
+            >
+              <Text className="flex-1 text-black font-ManropeMedium text-base">
+                {formikProps.values.date ? (
+                  <Text>
+                    {formikProps.values.date instanceof Date
+                      ? formikProps.values.date.toLocaleDateString()
+                      : new Date(formikProps.values.date).toLocaleDateString()}
+                  </Text>
+                ) : (
+                  <Text className="text-gray">Date</Text>
+                )}
+              </Text>
+              <CalendarDays size={16} color="#000000" />
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="date"
+              minimumDate={getStartOfToday()}
+              onConfirm={(date) => {
+                if (isValidDate(date)) {
+                  formikProps.setFieldValue("date", date);
+                  hideDatePicker();
+                } else {
+                  Alert.alert(
+                    "Invalid Date",
+                    "Please select today or a future date"
+                  );
+                }
+              }}
+              onCancel={hideDatePicker}
+            />
+            {formikProps.touched.date && formikProps.errors.date && (
+              <Text className="text-red mt-1">{formikProps.errors.date}</Text>
+            )}
+
+            {/* Input fields with type conversions */}
+            <View className="mt-2.5">
+              <InputField
+                value={formikProps.values.address}
+                placeholder="Address"
+                onChangeText={formikProps.handleChange("address")}
+                onBlur={formikProps.handleBlur("address")}
               />
-              {formikProps.touched.date && formikProps.errors.date && (
-                <Text className="text-red mt-1">{formikProps.errors.date}</Text>
+              {formikProps.touched.address && formikProps.errors.address && (
+                <Text className="text-red mt-1">
+                  {formikProps.errors.address}
+                </Text>
               )}
+            </View>
 
-              {/* Input fields with type conversions */}
-              <View className="mt-2.5">
+            <View className="flex-row items-center -mx-2 mt-2.5">
+              <View className="w-3/5 px-2">
                 <InputField
-                  value={formikProps.values.address}
-                  placeholder="Address"
-                  onChangeText={formikProps.handleChange("address")}
-                  onBlur={formikProps.handleBlur("address")}
+                  value={formikProps.values.city}
+                  placeholder="City"
+                  onChangeText={formikProps.handleChange("city")}
+                  onBlur={formikProps.handleBlur("city")}
                 />
-                {formikProps.touched.address && formikProps.errors.address && (
+                {formikProps.touched.city && formikProps.errors.city && (
                   <Text className="text-red mt-1">
-                    {formikProps.errors.address}
+                    {formikProps.errors.city}
                   </Text>
                 )}
               </View>
-
-              <View className="flex-row items-center -mx-2 mt-2.5">
-                <View className="w-3/5 px-2">
-                  <InputField
-                    value={formikProps.values.city}
-                    placeholder="City"
-                    onChangeText={formikProps.handleChange("city")}
-                    onBlur={formikProps.handleBlur("city")}
-                  />
-                  {formikProps.touched.city && formikProps.errors.city && (
-                    <Text className="text-red mt-1">
-                      {formikProps.errors.city}
-                    </Text>
-                  )}
-                </View>
-                <View className="w-2/5 px-2">
-                  <InputField
-                    value={formikProps.values.zip_code.toString()}
-                    placeholder="Zip"
-                    onChangeText={(text) =>
-                      formikProps.setFieldValue("zip_code", text)
-                    }
-                    onBlur={formikProps.handleBlur("zip_code")}
-                    keyboardType="numeric"
-                  />
-                  {formikProps.touched.zip_code &&
-                    formikProps.errors.zip_code && (
-                      <Text className="text-red mt-1">
-                        {formikProps.errors.zip_code}
-                      </Text>
-                    )}
-                </View>
-              </View>
-              <View className="mt-2.5 relative">
+              <View className="w-2/5 px-2">
                 <InputField
-                  value={formikProps.values.job_name}
-                  placeholder="Job Name"
-                  onChangeText={formikProps.handleChange("job_name")}
-                  onBlur={formikProps.handleBlur("job_name")}
-                />
-                {formikProps.touched.job_name &&
-                  formikProps.errors.job_name && (
-                    <Text className="text-red mt-1">
-                      {formikProps.errors.job_name}
-                    </Text>
-                  )}
-              </View>
-              <View className="mt-2.5 relative">
-                <PhoneField
-                  value={formikProps.values.job_phone}
-                  onChangeText={formikProps.handleChange("job_phone")}
-                  // placeholder="Job Phone"
-                  error={
-                    formikProps.touched.job_phone &&
-                    formikProps.errors.job_phone
-                      ? (formikProps.errors.job_phone as string)
-                      : undefined
-                  }
-                />
-              </View>
-              <View className="mt-2.5 relative">
-                <InputField
-                  value={formikProps.values.project_director}
-                  placeholder="Project Director"
-                  onChangeText={formikProps.handleChange("project_director")}
-                  onBlur={formikProps.handleBlur("project_director")}
-                />
-                {formikProps.touched.project_director &&
-                  formikProps.errors.project_director && (
-                    <Text className="text-red mt-1">
-                      {formikProps.errors.project_director}
-                    </Text>
-                  )}
-              </View>
-
-              <View className="mt-2.5 relative">
-                <InputField
-                  value={formikProps.values.estimated_days.toString()}
-                  placeholder="Estimated Days"
+                  value={formikProps.values.zip_code.toString()}
+                  placeholder="Zip"
                   onChangeText={(text) =>
-                    formikProps.setFieldValue("estimated_days", text)
+                    formikProps.setFieldValue("zip_code", text)
                   }
-                  onBlur={formikProps.handleBlur("estimated_days")}
+                  onBlur={formikProps.handleBlur("zip_code")}
                   keyboardType="numeric"
                 />
-                {formikProps.touched.estimated_days &&
-                  formikProps.errors.estimated_days && (
+                {formikProps.touched.zip_code &&
+                  formikProps.errors.zip_code && (
                     <Text className="text-red mt-1">
-                      {formikProps.errors.estimated_days}
-                    </Text>
-                  )}
-              </View>
-
-              <View className="mt-2.5 relative">
-                <InputField
-                  value={formikProps.values.estimated_cost}
-                  placeholder="Estimated Cost"
-                  onChangeText={(text) => {
-                    let formattedText = text.replace(/[^0-9.]/g, "");
-
-                    const parts = formattedText.split(".");
-                    if (parts.length > 2) {
-                      formattedText = `${parts[0]}.${parts.slice(1).join("")}`;
-                    }
-
-                    if (parts[1] && parts[1].length > 2) {
-                      parts[1] = parts[1].slice(0, 2);
-                      formattedText = `${parts[0]}.${parts[1]}`;
-                    }
-
-                    formikProps.setFieldValue("estimated_cost", formattedText);
-                  }}
-                  onBlur={formikProps.handleBlur("estimated_cost")}
-                  keyboardType="decimal-pad"
-                />
-                <Text className="absolute top-[18px] right-4 text-black">
-                  {UNITS.CURRENCY}
-                </Text>
-                {formikProps.touched.estimated_cost &&
-                  formikProps.errors.estimated_cost && (
-                    <Text className="text-red mt-1">
-                      {formikProps.errors.estimated_cost}
+                      {formikProps.errors.zip_code}
                     </Text>
                   )}
               </View>
             </View>
-          </ScrollView>
+            <View className="mt-2.5 relative">
+              <InputField
+                value={formikProps.values.job_name}
+                placeholder="Job Name"
+                onChangeText={formikProps.handleChange("job_name")}
+                onBlur={formikProps.handleBlur("job_name")}
+              />
+              {formikProps.touched.job_name && formikProps.errors.job_name && (
+                <Text className="text-red mt-1">
+                  {formikProps.errors.job_name}
+                </Text>
+              )}
+            </View>
+            <View className="mt-2.5 relative">
+              <PhoneField
+                value={formikProps.values.job_phone}
+                onChangeText={formikProps.handleChange("job_phone")}
+                // placeholder="Job Phone"
+                error={
+                  formikProps.touched.job_phone && formikProps.errors.job_phone
+                    ? (formikProps.errors.job_phone as string)
+                    : undefined
+                }
+              />
+            </View>
+            <View className="mt-2.5 relative">
+              <InputField
+                value={formikProps.values.project_director}
+                placeholder="Project Director"
+                onChangeText={formikProps.handleChange("project_director")}
+                onBlur={formikProps.handleBlur("project_director")}
+              />
+              {formikProps.touched.project_director &&
+                formikProps.errors.project_director && (
+                  <Text className="text-red mt-1">
+                    {formikProps.errors.project_director}
+                  </Text>
+                )}
+            </View>
 
+            <View className="mt-2.5 relative">
+              <InputField
+                value={formikProps.values.estimated_days.toString()}
+                placeholder="Estimated Days"
+                onChangeText={(text) =>
+                  formikProps.setFieldValue("estimated_days", text)
+                }
+                onBlur={formikProps.handleBlur("estimated_days")}
+                keyboardType="numeric"
+              />
+              {formikProps.touched.estimated_days &&
+                formikProps.errors.estimated_days && (
+                  <Text className="text-red mt-1">
+                    {formikProps.errors.estimated_days}
+                  </Text>
+                )}
+            </View>
+
+            <View className="mt-2.5 relative">
+              <InputField
+                value={formikProps.values.estimated_cost}
+                placeholder="Estimated Cost"
+                onChangeText={(text) => {
+                  let formattedText = text.replace(/[^0-9.]/g, "");
+
+                  const parts = formattedText.split(".");
+                  if (parts.length > 2) {
+                    formattedText = `${parts[0]}.${parts.slice(1).join("")}`;
+                  }
+
+                  if (parts[1] && parts[1].length > 2) {
+                    parts[1] = parts[1].slice(0, 2);
+                    formattedText = `${parts[0]}.${parts[1]}`;
+                  }
+
+                  formikProps.setFieldValue("estimated_cost", formattedText);
+                }}
+                onBlur={formikProps.handleBlur("estimated_cost")}
+                keyboardType="decimal-pad"
+              />
+              <Text className="absolute top-[18px] right-4 text-black">
+                {UNITS.CURRENCY}
+              </Text>
+              {formikProps.touched.estimated_cost &&
+                formikProps.errors.estimated_cost && (
+                  <Text className="text-red mt-1">
+                    {formikProps.errors.estimated_cost}
+                  </Text>
+                )}
+            </View>
           <View className="p-4 bg-white">
             <CustomButton
               title="Next"
               onPress={() => formikProps.handleSubmit()}
             />
           </View>
+          </KeyboardAwareScrollView>
+
         </>
       )}
     </Formik>
