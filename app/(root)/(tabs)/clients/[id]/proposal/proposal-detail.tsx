@@ -365,7 +365,7 @@ const Proposal = () => {
                       jobPhone && Linking.openURL(`tel:${jobPhone}`)
                     }
                   >
-                    <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                    <Text className="text-sm sm:text-base text-blue font-ManropeMedium flex-1 text-right pl-6">
                       {jobPhone || "Not Specified"}
                     </Text>
                   </TouchableOpacity>
