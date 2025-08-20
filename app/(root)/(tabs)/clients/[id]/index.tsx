@@ -282,7 +282,7 @@ const ClientDetailPage: React.FC = () => {
                             Linking.openURL(`mailto:${client.email}`)
                           }
                         >
-                          <Text className="text-sm font-ManropeMedium text-dark-100 mt-px">
+                          <Text className="text-sm font-ManropeMedium text-blue mt-px">
                             {client.email}
                           </Text>
                         </TouchableOpacity>
@@ -294,7 +294,7 @@ const ClientDetailPage: React.FC = () => {
                       <TouchableOpacity
                         onPress={() => Linking.openURL(`tel:${client.phone}`)}
                       >
-                        <Text className="text-base font-ManropeMedium text-dark">
+                        <Text className="text-base font-ManropeMedium text-blue">
                           {client.phone}
                         </Text>
                       </TouchableOpacity>

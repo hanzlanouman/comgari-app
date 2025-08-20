@@ -54,7 +54,7 @@ export default function MemberCard({ member }: { member: TMember }) {
               member?.email && Linking.openURL(`mailto:${member.email}`)
             }
           >
-            <Text className="text-sm font-ManropeMedium text-dark-100">
+            <Text className="text-sm font-ManropeMedium text-blue">
               {member?.email}
             </Text>
           </TouchableOpacity>
@@ -64,7 +64,7 @@ export default function MemberCard({ member }: { member: TMember }) {
                 member?.phone && Linking.openURL(`tel:${member.phone}`)
               }
             >
-              <Text className="text-sm font-ManropeMedium text-dark-100">
+              <Text className="text-sm font-ManropeMedium text-blue">
                 {member?.phone}
               </Text>
             </TouchableOpacity>
