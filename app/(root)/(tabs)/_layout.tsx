@@ -10,7 +10,7 @@ import {
   Users,
   UsersRound,
 } from "lucide-react-native";
-import { NavigationState, useNavigationState, } from "@react-navigation/native";
+import { NavigationState, useNavigationState } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
 import { useNotification } from "@/hooks/use-notification";
 
@@ -49,8 +49,8 @@ const Layout = () => {
   const tabBarStyle = hide.includes(focusedRouteName || "")
     ? style.hide
     : {
-      backgroundColor: "#ffffff",
-    };
+        backgroundColor: "#ffffff",
+      };
 
   const tabScreens = useMemo(() => {
     const screens = [
@@ -108,14 +108,15 @@ const Layout = () => {
       if (screen.name === "clients") {
         const hasPermission = screen.permissionRequired
           ? getPermission(
-            screen.permissionRequired.user!,
-            screen.permissionRequired.permission,
-            screen.permissionRequired.resource
-          )
+              screen.permissionRequired.user!,
+              screen.permissionRequired.permission,
+              screen.permissionRequired.resource
+            )
           : true;
 
         // Hide tab if no permission and no client data
-        const shouldHideTab = !hasPermission && (!clientData || clientData.length === 0);
+        const shouldHideTab =
+          !hasPermission && (!clientData || clientData.length === 0);
 
         return {
           ...screen,
@@ -158,7 +159,8 @@ const Layout = () => {
           shadowOpacity: 0,
         },
         headerShadowVisible: false,
-      }}>
+      }}
+    >
       {tabScreens.map((screen) => (
         <Tabs.Screen
           key={screen.name}
@@ -183,4 +185,3 @@ const style = StyleSheet.create({
     display: "none",
   },
 });
-
