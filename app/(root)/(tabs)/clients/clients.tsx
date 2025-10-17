@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -17,7 +17,7 @@ import ClientCard from "./components/ClientCard";
 import { ClientRepository } from "@/repositories/client/client";
 import { ClientListingPayload } from "@/repositories/client/schemas";
 import { useAppSelector } from "@/hooks/redux";
-import { ClientType, ClientStatus } from '@/common/types';
+import { ClientType, ClientStatus } from "@/common/types";
 
 import WithRole from "@/common/components/withRole";
 
@@ -33,11 +33,11 @@ interface Client {
   brief: string;
   agencyId: number;
   createdById: number;
-  client_user: Array<{
+  client_user: {
     id: number;
     member_id: number;
     client_id: number;
-  }>;
+  }[];
 }
 
 const Clients: React.FC = () => {
@@ -72,7 +72,7 @@ const Clients: React.FC = () => {
           if (page === 0) {
             setClients(data);
           } else {
-            setClients(prevClients => [...prevClients, ...data]);
+            setClients((prevClients) => [...prevClients, ...data]);
           }
 
           // Check if we have more data to load
@@ -84,7 +84,7 @@ const Clients: React.FC = () => {
       onError: () => {
         setIsLoadingMore(false);
         setRefreshing(false);
-      }
+      },
     }
   );
 
@@ -99,7 +99,7 @@ const Clients: React.FC = () => {
   const loadMoreClients = useCallback(() => {
     if (!isFetching && hasMore && !isLoadingMore) {
       setIsLoadingMore(true);
-      setPage(prevPage => prevPage + 1);
+      setPage((prevPage) => prevPage + 1);
     }
   }, [isFetching, hasMore, isLoadingMore, page]);
 
@@ -108,7 +108,10 @@ const Clients: React.FC = () => {
   };
 
   const handleClientPress = (clientId: number) => {
-    router.push(`/clients/${clientId}`);
+    router.push({
+      pathname: "/(root)/(tabs)/clients/[id]",
+      params: { id: String(clientId), clientId: String(clientId) },
+    });
   };
 
   const renderEmptyState = () => (
@@ -128,10 +131,7 @@ const Clients: React.FC = () => {
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>
           <View className="w-[158px] mx-auto mt-5">
-            <CustomButton
-              title="Add Client"
-              onPress={handleAddClient}
-            />
+            <CustomButton title="Add Client" onPress={handleAddClient} />
           </View>
         </WithRole>
       </View>
@@ -144,7 +144,9 @@ const Clients: React.FC = () => {
     return (
       <View className="py-4 items-center">
         <ActivityIndicator size="small" color="#1B78B9" />
-        <Text className="text-center mt-2 text-gray-500">Loading more clients...</Text>
+        <Text className="text-center mt-2 text-gray-500">
+          Loading more clients...
+        </Text>
       </View>
     );
   };
@@ -168,7 +170,9 @@ const Clients: React.FC = () => {
       <AppContainer isError={isError}>
         <View className="flex-1 px-5">
           <Text className="text-sm text-dark-100 mt-3 mb-2">
-            Track client interactions, manage leads, and monitor project statuses. View assignments, property details, and due dates for each client.
+            Track client interactions, manage leads, and monitor project
+            statuses. View assignments, property details, and due dates for each
+            client.
           </Text>
 
           {isLoading && !refreshing && page === 0 ? (

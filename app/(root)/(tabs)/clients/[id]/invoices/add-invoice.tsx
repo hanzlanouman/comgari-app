@@ -49,14 +49,18 @@ const statusOptions: OptionType[] = Object.entries(InvoiceStatus).map(
 
 const AddInvoiceScreen = () => {
   const {
-    id: projectId,
+    id: projectIdParam,
     mode,
     invoiceId,
     job_name: editJobName,
     total_amount: editTotalAmount,
     status: editStatus,
     date: editDate,
+    clientId: clientIdParam,
   } = useLocalSearchParams();
+
+  const projectId = Number(projectIdParam) || 0;
+  const clientId = Number(clientIdParam);
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(
@@ -65,10 +69,22 @@ const AddInvoiceScreen = () => {
   const clientRepo = ClientRepository.getInstance();
   const isEditMode = mode === "edit";
 
+  if (!clientId) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View className="flex-1 items-center justify-center px-4">
+            <Text className="text-base">Missing client information.</Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   const initialValues = {
     job_name: isEditMode ? (editJobName as string) : "",
     total_amount: isEditMode ? (editTotalAmount as string) : "",
-    status: isEditMode ? (editStatus as string) : "",
+    status: isEditMode ? (editStatus as string) : InvoiceStatus.DRAFT,
     date: isEditMode && editDate ? new Date(editDate as string) : null,
   };
 
@@ -87,14 +103,15 @@ const AddInvoiceScreen = () => {
 
   const handleSubmit = async (values: typeof initialValues) => {
     try {
+      const totalAmountStr = Number(values.total_amount || 0).toFixed(2);
       const payload = {
         job_name: values.job_name,
-        client_id: Number(projectId),
-        date: selectedDate || new Date(),
-        total_amount: Number(values.total_amount),
-        status: values.status as InvoiceStatus,
-        project_id: Number(projectId),
-      };
+        client_id: clientId,
+        date: (selectedDate || new Date()).toISOString(),
+        total_amount: totalAmountStr,
+        status: (values.status || InvoiceStatus.DRAFT) as InvoiceStatus,
+        project_id: projectId,
+      } as any;
 
       if (isEditMode && invoiceId) {
         // Update existing invoice

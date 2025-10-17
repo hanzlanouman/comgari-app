@@ -18,16 +18,16 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { CustomButton } from "@/common/components";
 import { images, UNITS } from "@/constants";
-import * as Print from 'expo-print';
+import * as Print from "expo-print";
 import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
-import * as Sharing from 'expo-sharing';
+import * as Sharing from "expo-sharing";
 
-const formatDate = (dateString: string )=> {
+const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 };
 
@@ -91,7 +91,7 @@ const createInvoiceTemplate = (data: any) => {
 
         <div class="info-row">
           <span class="label">Status:</span>
-          <span class="value ${data.status.toLowerCase() === 'paid' ? 'status-paid' : 'status-pending'}">
+          <span class="value ${data.status.toLowerCase() === "paid" ? "status-paid" : "status-pending"}">
             ${data.status}
           </span>
         </div>
@@ -120,10 +120,12 @@ type Invoice = {
 };
 
 const InvoicesScreen = () => {
-  const { id: projectId } = useLocalSearchParams();
+  const { id: projectId, clientId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("all");
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(null);
+  const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -133,7 +135,8 @@ const InvoicesScreen = () => {
       const response = await clientRepo.getInvoices(Number(projectId));
       const fetchedInvoices = response.data || [];
       const sortedInvoices = fetchedInvoices.sort(
-        (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       setInvoices(sortedInvoices);
     } catch (error) {
@@ -146,10 +149,9 @@ const InvoicesScreen = () => {
     }
   };
 
-
   const handleEditInvoice = (invoice: Invoice) => {
     router.push({
-      pathname: "/(root)/clients/[id]/invoices/add-invoice",
+      pathname: "/(root)/(tabs)/clients/[id]/invoices/add-invoice",
       params: {
         mode: "edit",
         job_name: invoice.job_name,
@@ -158,6 +160,7 @@ const InvoicesScreen = () => {
         date: invoice.date,
         invoiceId: invoice.id,
         id: projectId,
+        clientId: clientId,
       },
     });
   };
@@ -180,12 +183,12 @@ const InvoicesScreen = () => {
       const html = createInvoiceTemplate(invoiceData);
       const { uri } = await Print.printToFileAsync({
         html,
-        base64: false
+        base64: false,
       });
       return uri;
     } catch (error) {
-      console.error('Error generating invoice PDF:', error);
-      throw new Error('Failed to generate invoice PDF');
+      console.error("Error generating invoice PDF:", error);
+      throw new Error("Failed to generate invoice PDF");
     }
   };
 
@@ -194,13 +197,13 @@ const InvoicesScreen = () => {
       const uri = await generateInvoicePDF(invoice);
       if (!uri) return;
 
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === "ios") {
         await Sharing.shareAsync(uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Save Invoice',
-          UTI: 'com.adobe.pdf'
+          mimeType: "application/pdf",
+          dialogTitle: "Save Invoice",
+          UTI: "com.adobe.pdf",
         });
-        showSuccessAlert('Invoice Downloaded Successfully!');
+        showSuccessAlert("Invoice Downloaded Successfully!");
       } else {
         const resp = await moveFile(uri);
         if (!resp.success) {
@@ -210,10 +213,9 @@ const InvoicesScreen = () => {
         }
       }
     } catch (error) {
-      
-      showErrorAlert('Failed to download invoice');
+      showErrorAlert("Failed to download invoice");
     }
-  }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -247,11 +249,13 @@ const InvoicesScreen = () => {
               <Text
                 className="text-base font-ManropeSemibold text-dark"
                 numberOfLines={1}
-                ellipsizeMode="tail">
+                ellipsizeMode="tail"
+              >
                 {invoice.job_name}
               </Text>
               <Text className="text-sm font-ManropeSemibold text-blue">
-                {UNITS.CURRENCY}{Number(invoice.total_amount).toFixed(2)}
+                {UNITS.CURRENCY}
+                {Number(invoice.total_amount).toFixed(2)}
               </Text>
             </View>
           </View>
@@ -277,7 +281,8 @@ const InvoicesScreen = () => {
             </View>
             <TouchableOpacity
               onPress={() => handleDownloadInvoice(invoice)}
-              className="p-2">
+              className="p-2"
+            >
               <Download size={23} className="text-blue" />
             </TouchableOpacity>
           </View>
@@ -302,15 +307,15 @@ const InvoicesScreen = () => {
               Status
             </Text>
             <View
-              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${invoice.status === "PAID"
-                ? "bg-green-100"
-                : "bg-yellow-100"
-                }`}>
+              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${
+                invoice.status === "PAID" ? "bg-green-100" : "bg-yellow-100"
+              }`}
+            >
               <Text
-                className={`text-base font-ManropeMedium ${invoice.status === "PAID"
-                  ? "text-green"
-                  : "text-yellow-600"
-                  }`}>
+                className={`text-base font-ManropeMedium ${
+                  invoice.status === "PAID" ? "text-green" : "text-yellow-600"
+                }`}
+              >
                 {invoice.status}
               </Text>
             </View>
@@ -331,7 +336,6 @@ const InvoicesScreen = () => {
               />
             </View>
           </View>
-
         </View>
       )}
     </View>
@@ -346,12 +350,14 @@ const InvoicesScreen = () => {
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
-              className={`flex-1 items-center justify-center py-2 rounded-full ${activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
-                }`}
+              className={`flex-1 items-center justify-center py-2 rounded-full ${
+                activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
+              }`}
             >
               <Text
-                className={`text-sm sm:text-base font-ManropeSemibold ${activeTab === tab ? "text-blue" : "text-dark"
-                  }`}
+                className={`text-sm sm:text-base font-ManropeSemibold ${
+                  activeTab === tab ? "text-blue" : "text-dark"
+                }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </Text>
@@ -364,7 +370,8 @@ const InvoicesScreen = () => {
           refreshControl={
             <RefreshControl refreshing={isLoading} onRefresh={fetchInvoices} />
           }
-          className="mt-4">
+          className="mt-4"
+        >
           {filteredInvoices.length === 0 ? (
             <View className="flex-1 items-center justify-center mt-10">
               <Text className="text-gray-500 text-base font-ManropeRegular">

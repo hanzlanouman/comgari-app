@@ -226,12 +226,10 @@ export const createInvoiceSchema = Yup.object().shape({
     .required("Client ID is required"),
   date: Yup.date().required("Date is required"),
   job_name: Yup.string().required("Job Name is required"),
-  total_amount: Yup.number()
-    .test(
-      "is-decimal",
-      "Total amount must be a valid decimal number (e.g., 100.00)",
-      (value) =>
-        value !== undefined && /^\d+(\.\d{1,2})?$/.test(value.toString())
+  total_amount: Yup.string()
+    .matches(
+      /^\d+(\.\d{1,2})?$/,
+      "Total amount must be a valid decimal number (e.g., 100.00)"
     )
     .required("Total amount is required"),
   status: Yup.string()

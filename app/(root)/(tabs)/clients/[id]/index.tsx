@@ -189,7 +189,7 @@ const ClientDetailPage: React.FC = () => {
   if (isLoading || !data) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <AppContainer isLoading={true}>
+        <AppContainer loading={true}>
           <View />
         </AppContainer>
       </SafeAreaView>
@@ -254,7 +254,7 @@ const ClientDetailPage: React.FC = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
-          <AppContainer isError={isError} isLoading={isLoading}>
+          <AppContainer isError={isError} loading={isLoading}>
             <ScrollView
               contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
               className="px-4 pt-2.5"
@@ -331,7 +331,7 @@ const ClientDetailPage: React.FC = () => {
               bottomSheetRef={bottomSheetRef}
               clientId={clientIdNum}
               clientData={client}
-              request={request}
+              request={request as any}
             />
           </AppContainer>
         </SafeAreaView>

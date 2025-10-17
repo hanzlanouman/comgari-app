@@ -109,8 +109,6 @@ const SignUp = () => {
         email: values.email,
       };
 
-      console.log(payload, "payload");
-
       mutate(payload, {
         onSuccess: (data) => {
           router.push({

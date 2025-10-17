@@ -273,7 +273,6 @@ const ImagesMediaDetailScreen = () => {
           }
         } catch (fileError) {
           console.error("Error processing file:", fileError)
-          // Continue with other files
         }
       }
       
