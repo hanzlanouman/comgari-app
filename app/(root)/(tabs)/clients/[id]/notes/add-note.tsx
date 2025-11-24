@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -12,17 +11,19 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Upload, Save } from "lucide-react-native";
 import { useFormik } from "formik";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { AssetPreview, CustomButton, HeaderButton } from "@/common/components";
 import { getImageUrl } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { InsertLinkModal } from "../../components/InsertLinkModal";
-import {  isIos, pickDocument, showErrorAlert } from "@/utils";
+import { isIos, pickDocument, showErrorAlert } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 
 export type MediaItem = {
@@ -49,7 +50,7 @@ const handleHead = ({ tintColor }: { tintColor: string }) => (
 );
 
 const AddNote = () => {
-  const richText = useRef<RichEditor>();
+  const richText = useRef<RichEditor>(null);
   const [uploadedMedia, setUploadedMedia] = useState<MediaItem[]>([]);
   const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -61,7 +62,7 @@ const AddNote = () => {
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
 
-  const { uploadAsync } = useUpload()
+  const { uploadAsync } = useUpload();
 
   const parsedNoteDetails = noteDetails
     ? JSON.parse(noteDetails as string)
@@ -90,9 +91,9 @@ const AddNote = () => {
         }
       } else {
         return await clientRepo.createNote({
-          notes: payload.notes,
-          project_id: payload.project_id,
-          client_note_media: payload.client_note_media,
+          notes: payload.notes ?? "",
+          project_id: payload.project_id ?? 0,
+          client_note_media: payload.client_note_media ?? [],
         });
       }
     },
@@ -102,15 +103,15 @@ const AddNote = () => {
     if (isEditMode) {
       setUploadedMedia(
         parsedNoteDetails?.media && parsedNoteDetails.media.length > 0
-          ? parsedNoteDetails.media.map((media) => ({
-            id: media.id,
-            url: media.url,
-            mimeType: media.mimeType,
-            localUri: getImageUrl(media.url),
-            clientId: projectId,
-            ownerId: media.ownerId,
-            ownerType: media.ownerType,
-          }))
+          ? parsedNoteDetails.media.map((media: any) => ({
+              id: media.id,
+              url: media.url,
+              mimeType: media.mimeType,
+              localUri: getImageUrl(media.url),
+              clientId: projectId,
+              ownerId: media.ownerId,
+              ownerType: media.ownerType,
+            }))
           : []
       );
     }
@@ -119,9 +120,10 @@ const AddNote = () => {
 
   const formik = useFormik({
     initialValues: {
-      notes: isEditMode && parsedNoteDetails?.notes
-        ? parsedNoteDetails.notes.replace(/<[^>]*>/g, "")
-        : "",
+      notes:
+        isEditMode && parsedNoteDetails?.notes
+          ? parsedNoteDetails.notes.replace(/<[^>]*>/g, "")
+          : "",
       project_id: projectId,
     },
     onSubmit: async (values) => {
@@ -134,7 +136,7 @@ const AddNote = () => {
               client_id: projectId,
               owner_type: "note",
               owner_id: parsedNoteDetails.id,
-              action: "Remove",
+              action: "Remove" as const,
             }))
           );
 
@@ -147,7 +149,7 @@ const AddNote = () => {
                 owner_id: parsedNoteDetails.id,
                 new_url: media.url,
                 mimeType: media.mimeType,
-                action: "Add",
+                action: "Add" as const,
               }))
           );
 
@@ -160,35 +162,37 @@ const AddNote = () => {
           await noteMutation.mutateAsync({
             notes: values.notes,
             project_id: values.project_id,
-            client_note_media: uploadedMedia.map(({ localUri, ...rest }) => rest),
+            client_note_media: uploadedMedia.map(
+              ({ localUri, ...rest }) => rest
+            ),
           });
         }
 
         router.replace(`/clients/${id?.toString()}/notes`);
       } catch (error: any) {
-        showErrorAlert(error?.message || "Failed to save note")
+        showErrorAlert(error?.message || "Failed to save note");
       }
     },
   });
 
   const pickMedia = async () => {
     try {
-      const resp = await pickDocument(true, { type: "*/*" })
+      const resp = await pickDocument(true, { type: "*/*" });
       if (!resp.isSuccess) {
-        showErrorAlert(resp.error)
-        return
+        showErrorAlert(resp.error);
+        return;
       }
       setIsUploading(true);
       const newUploadedMediaItems: MediaItem[] = [];
       for (const file of resp.result) {
-        const res = await uploadAsync(file)
+        const res = await uploadAsync(file);
         if (res.isSuccess && res.result) {
           newUploadedMediaItems.push({
             url: res.result,
             mimeType: file.type,
             clientId: Number(id),
             localUri: getImageUrl(res.result),
-          })
+          });
         }
       }
       setUploadedMedia((prevMedia: any) => {
@@ -197,7 +201,7 @@ const AddNote = () => {
       });
       setIsUploading(false);
     } catch (error: any) {
-      showErrorAlert(error?.message)
+      showErrorAlert(error?.message);
     }
   };
 
@@ -206,8 +210,11 @@ const AddNote = () => {
       const updatedMedia = prevMedia.filter((_, i) => i !== index);
 
       const mediaToRemove = prevMedia[index];
-      if (mediaToRemove?.id) {
-        setRemovedMediaIds((prevRemovedIds) => [...prevRemovedIds, mediaToRemove.id]);
+      if (mediaToRemove?.id !== undefined) {
+        setRemovedMediaIds((prevRemovedIds) => [
+          ...prevRemovedIds,
+          mediaToRemove.id!,
+        ]);
       }
 
       return updatedMedia;
@@ -219,18 +226,22 @@ const AddNote = () => {
     navigation.setOptions({
       headerShown: true,
       title: isEditMode ? "Edit Note" : "Add Note",
-      headerRight: () => <>
-        <HeaderButton
-          disabled={isUploading || noteMutation?.isPending}
-          onPress={pickMedia}
-          icon={<Upload size={18} color="#ffffff" />}
-        />
-        {isIos() && <HeaderButton
-          onPress={() => formik.handleSubmit()}
-          disabled={isUploading}
-          icon={<Save size={18} color="#ffffff" />}
-        />}
-      </>,
+      headerRight: () => (
+        <>
+          <HeaderButton
+            disabled={isUploading || noteMutation?.isPending}
+            onPress={pickMedia}
+            icon={<Upload size={18} color="#ffffff" />}
+          />
+          {isIos() && (
+            <HeaderButton
+              onPress={() => formik.handleSubmit()}
+              disabled={isUploading}
+              icon={<Save size={18} color="#ffffff" />}
+            />
+          )}
+        </>
+      ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, isUploading, isEditMode]);
@@ -291,7 +302,6 @@ const AddNote = () => {
                 <Text style={{ color: "#000", fontSize: 16 }}>🔗</Text>
               </TouchableOpacity>
             ),
-
           }}
           onPressAction={(action: any) => {
             if (action === "customInsertLink") {
@@ -329,34 +339,35 @@ const AddNote = () => {
         />
         {formik.touched.notes && formik.errors.notes && (
           <Text className="text-red-500 px-4 mt-1">
-            {typeof formik?.errors?.notes === 'string' ?
-              formik?.errors?.notes : formik?.errors?.notes?.toString()
-            }
+            {typeof formik?.errors?.notes === "string"
+              ? formik?.errors?.notes
+              : formik?.errors?.notes?.toString()}
           </Text>
         )}
         <View className="p-4">
           <View className="flex flex-row flex-wrap">
-            {uploadedMedia.map((media, index) => <AssetPreview
-              disabled={isUploading}
-              index={index}
-              media={media}
-              removeMedia={() => removeMedia(index)}
-              key={index}
-            />
-            )}
+            {uploadedMedia.map((media, index) => (
+              <AssetPreview
+                disabled={isUploading}
+                index={index}
+                media={media}
+                removeMedia={() => removeMedia(index)}
+                key={index}
+              />
+            ))}
           </View>
         </View>
       </ScrollView>
-      <View 
-        className="p-4 bg-white border-t border-light" 
-        style={{ 
-          position: 'absolute', 
-          bottom: 0, 
-          left: 0, 
+      <View
+        className="p-4 bg-white border-t border-light"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
           right: 0,
           paddingBottom: 30,
           elevation: 5,
-          shadowColor: '#000',
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 3,

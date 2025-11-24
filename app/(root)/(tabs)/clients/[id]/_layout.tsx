@@ -66,6 +66,7 @@ const Layout = () => {
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
               className="rounded-full w-8 h-8"
+              style={{ borderRadius: 9999 }}
               start={[0, 0]}
               end={[1, 1]}
             >
@@ -81,7 +82,7 @@ const Layout = () => {
                     },
                   })
                 }
-                className="w-full h-full rounded-full flex flex-row justify-center items-center"
+                className="w-full h-full rounded-full rounded-red-500 flex flex-row justify-center items-center"
               >
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>

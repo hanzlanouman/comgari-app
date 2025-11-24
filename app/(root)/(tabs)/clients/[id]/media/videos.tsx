@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -18,8 +17,11 @@ import { Trash2, X, Play, Upload } from "lucide-react-native";
 import { getImageUrl } from "@/constants";
 import { IS_ANDROID, pickDocument, showErrorAlert } from "@/utils";
 import { LinearGradient } from "expo-linear-gradient";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useUpload } from "@/hooks/use-upload";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 
 type MediaItem = {
   id?: number;
@@ -41,7 +43,6 @@ const VideosMediaDetailScreen = () => {
   const [parsedItems, setParsedItems] = useState<MediaItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [videoStatus, setVideoStatus] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const clientRepo = ClientRepository.getInstance();
   const navigation = useNavigation();
@@ -86,14 +87,17 @@ const VideosMediaDetailScreen = () => {
     });
 
     // Group by formatted date
-    return sortedItems.reduce((acc, item) => {
-      const dateKey = formatDate(item.createdAt || "");
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(item);
-      return acc;
-    }, {} as Record<string, MediaItem[]>);
+    return sortedItems.reduce(
+      (acc, item) => {
+        const dateKey = formatDate(item.createdAt || "");
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(item);
+        return acc;
+      },
+      {} as Record<string, MediaItem[]>
+    );
   };
 
   const groupedItems = groupByDate(parsedItems);
@@ -125,7 +129,9 @@ const VideosMediaDetailScreen = () => {
 
                 await clientRepo.updateClientMedia(Number(id), deletePayload);
 
-                const updatedItems = parsedItems.filter((i) => i.id !== item.id);
+                const updatedItems = parsedItems.filter(
+                  (i) => i.id !== item.id
+                );
                 setParsedItems(updatedItems);
                 setModalVisible(false);
                 setSelectedItem(null);
@@ -244,7 +250,6 @@ const VideosMediaDetailScreen = () => {
                 useNativeControls
                 isLooping
                 shouldPlay
-                onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
               />
             </View>
           </SafeAreaView>
@@ -253,37 +258,41 @@ const VideosMediaDetailScreen = () => {
     );
   };
 
-  const saveMediaMutation = useMutation(async (mediaItems: MediaItem[]) => {
-    const payload = {
-      files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
-        url,
-        mimeType,
-        clientId,
-        ownerId,
-        ownerType,
-      })),
-    };
-    return await clientRepo.saveClientMedia(payload);
+  const saveMediaMutation = useMutation({
+    mutationFn: async (mediaItems: MediaItem[]) => {
+      const payload = {
+        files: mediaItems.map(
+          ({ url, mimeType, clientId, ownerId, ownerType }) => ({
+            url,
+            mimeType,
+            clientId,
+            ownerId,
+            ownerType,
+          })
+        ),
+      };
+      return await clientRepo.saveClientMedia(payload);
+    },
   });
 
   const pickMedia = async () => {
     try {
-      const resp = await pickDocument(true, { type: "video/*" })
+      const resp = await pickDocument(true, { type: "video/*" });
       if (!resp.isSuccess) {
-        showErrorAlert(resp.error)
-        return
+        showErrorAlert(resp.error);
+        return;
       }
       setIsUploading(true);
-      const uploadedMediaItems = []
+      const uploadedMediaItems = [];
       for (const file of resp.result) {
         try {
           // Validate the file is a video type
           if (!file.type?.startsWith("video/")) {
-            showErrorAlert("Only video files are allowed")
-            continue
+            showErrorAlert("Only video files are allowed");
+            continue;
           }
-          
-          const res = await uploadAsync(file)
+
+          const res = await uploadAsync(file);
           if (res.isSuccess && res.result) {
             uploadedMediaItems.push({
               url: res.result,
@@ -291,45 +300,45 @@ const VideosMediaDetailScreen = () => {
               clientId: Number(id),
               ownerId: Number(id),
               ownerType: "client",
-            })
+            });
           } else if (!res.isSuccess) {
-            showErrorAlert(res.error || "Failed to upload video")
+            showErrorAlert(res.error || "Failed to upload video");
           }
         } catch (fileError) {
-          console.error("Error processing file:", fileError)
+          console.error("Error processing file:", fileError);
           // Continue with other files
         }
       }
-      
+
       if (uploadedMediaItems.length > 0) {
         try {
           await saveMediaMutation.mutateAsync(uploadedMediaItems);
-          
+
           // Refresh the list with newly added items
           const response = await clientRepo.getClientMedia({
             client_id: Number(id),
             owner_id: Number(id),
             owner_type: "client",
           });
-          
+
           // Handle the response safely
           const mediaItems = Array.isArray(response) ? response : [];
-          
+
           // Filter for video type
-          const updatedVideoItems = mediaItems.filter((item: any) => 
-            item.mimeType && item.mimeType.startsWith("video/")
+          const updatedVideoItems = mediaItems.filter(
+            (item: any) => item.mimeType && item.mimeType.startsWith("video/")
           );
-          
+
           setParsedItems(updatedVideoItems);
         } catch (apiError) {
           console.error("API Error:", apiError);
-          showErrorAlert("Failed to save uploaded videos")
+          showErrorAlert("Failed to save uploaded videos");
         }
       }
-      
+
       setIsUploading(false);
     } catch (error: any) {
-      showErrorAlert(error?.message || "An unexpected error occurred")
+      showErrorAlert(error?.message || "An unexpected error occurred");
       setIsUploading(false);
     }
   };
@@ -343,7 +352,8 @@ const VideosMediaDetailScreen = () => {
         height: 32,
       }}
       start={[0, 0]}
-      end={[1, 1]}>
+      end={[1, 1]}
+    >
       <TouchableOpacity
         onPressIn={pickMedia}
         style={{
@@ -352,12 +362,13 @@ const VideosMediaDetailScreen = () => {
           alignItems: "center",
           justifyContent: "center",
         }}
-        disabled={isUploading}>
+        disabled={isUploading}
+      >
         <Upload size={18} color="#ffffff" />
       </TouchableOpacity>
     </LinearGradient>
   );
-  
+
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,

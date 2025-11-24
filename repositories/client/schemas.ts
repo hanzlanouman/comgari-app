@@ -132,6 +132,8 @@ export const taskSchema = Yup.object().shape({
     .required("Priority is required"),
 });
 
+
+
 export const updateTaskSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
   assingedTo: Yup.array()

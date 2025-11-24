@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -13,7 +12,9 @@ import { MemberRepository } from "@/repositories/member/member";
 import { AppContainer } from "@/common/components";
 import { UNITS } from "@/constants";
 import { useFocusEffect } from "expo-router";
-
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 
 const screenWidth = Dimensions.get("window").width;
 

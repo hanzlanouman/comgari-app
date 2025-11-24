@@ -1,11 +1,13 @@
 /* eslint-disable prettier/prettier */
+import "../global.css";
 import { useFonts } from "expo-font";
 import { ErrorBoundaryProps, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+
 import { Fragment, useEffect } from "react";
 import "react-native-reanimated";
 import { Provider } from "react-redux";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { store } from "@/store";
 import { useAppSelector } from "@/hooks/redux";
 import { SimpleActivityIndicator } from "@/common/components/Loader";
@@ -19,25 +21,30 @@ SplashScreen.preventAutoHideAsync();
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
-    <View style={{
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 20,
-    }}>
-      <Text style={{
-        marginBottom: 10
-      }}>{error.message}</Text>
+    <View
+      style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+      }}
+    >
+      <Text
+        style={{
+          marginBottom: 10,
+        }}
+      >
+        {error.message}
+      </Text>
       <View className="flex-row justify-center items-center">
-        <CustomButton
-          title="Try Again"
-          onPress={retry}
-        />
+        <CustomButton title="Try Again" onPress={retry} />
       </View>
     </View>
   );
 }
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -59,12 +66,13 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-  const queryClient = new QueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <LayoutWrapper />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <LayoutWrapper />
+        </GestureHandlerRootView>
       </Provider>
     </QueryClientProvider>
   );
@@ -78,16 +86,23 @@ function LayoutWrapper() {
       <AlertBox />
       <ProgressBox />
       <AuthorizationProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <BottomSheetModalProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" options={{ headerShown: false, headerTitle: "Home" }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false, headerTitle: "Auth" }} />
-              <Stack.Screen name="(root)" options={{ headerShown: false, headerTitle: "Home" }} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-          </BottomSheetModalProvider>
-        </GestureHandlerRootView>
+        <BottomSheetModalProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+              name="index"
+              options={{ headerShown: false, headerTitle: "Home" }}
+            />
+            <Stack.Screen
+              name="(auth)"
+              options={{ headerShown: false, headerTitle: "Auth" }}
+            />
+            <Stack.Screen
+              name="(root)"
+              options={{ headerShown: false, headerTitle: "Home" }}
+            />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </BottomSheetModalProvider>
       </AuthorizationProvider>
     </Fragment>
   );

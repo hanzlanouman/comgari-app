@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import { router } from "expo-router";
@@ -12,7 +13,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 import { AppContainer } from "@/common/components";
 import { AuthRepository } from "@/repositories";
-import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment";
+import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment"
 import { showErrorAlert } from "@/utils";
 import {
   SafeAreaView,
@@ -30,7 +31,7 @@ const STATUS_OPTIONS = [
   { key: "Expired", value: "Expired" },
 ];
 
-const AddAppointment = () => {
+const EditAppointment = () => {
   const {
     isEditing,
     clientId,
@@ -42,26 +43,6 @@ const AddAppointment = () => {
     appointmentId,
     members,
   } = useLocalSearchParams();
-
-  useEffect(() => {
-    fetchClients();
-    fetchMembers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: GoogleWebClientID,
-      iosClientId: GoogleIOSClientID,
-      offlineAccess: true,
-      forceCodeForRefreshToken: true,
-      scopes: [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/calendar",
-      ],
-    });
-  }, []);
 
   const parsedMembers = members ? JSON.parse(members as string) : [];
   const clientRepo = ClientRepository.getInstance();
@@ -78,9 +59,11 @@ const AddAppointment = () => {
   const fetchClients = async () => {
     setIsClientsLoading(true);
     try {
-      const clients = await clientRepo.getClients({ start: 0, limit: 100 });
+      const clients = await clientRepo.getClients(
+        { start: 0, limit: 100 },
+      );
 
-      const options: OptionType[] = clients?.data?.map((client: any) => ({
+      const options: OptionType[] = clients?.map((client: any) => ({
         key: client.id,
         value: client.name,
       }));
@@ -103,6 +86,7 @@ const AddAppointment = () => {
         value: member.Auth?.username,
       }));
       setMemberOptions(options.length ? options : []);
+
     } catch (err: any) {
       Alert.alert("Error", err?.message || "Failed to fetch members");
     } finally {
@@ -110,9 +94,29 @@ const AddAppointment = () => {
     }
   };
 
+  useEffect(() => {
+    fetchClients();
+    fetchMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSubmitSuccess = () => {
     router.push("/(root)/(tabs)/appointment/appointment");
   };
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: GoogleWebClientID,
+      iosClientId: GoogleIOSClientID,
+      offlineAccess: true,
+      forceCodeForRefreshToken: true,
+      scopes: [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/calendar",
+      ],
+    });
+  }, []);
 
   const handlePress = async () => {
     try {
@@ -120,6 +124,7 @@ const AddAppointment = () => {
       const exisit = await authRepo.checkOAuth();
 
       if (exisit) {
+        
         return;
       }
 
@@ -146,6 +151,7 @@ const AddAppointment = () => {
       };
 
       await authRepo.verifyGoogleToken(payload);
+
     } catch (err: any) {
       Alert.alert("Error", err?.message || "Failed to verify Google Login");
     }
@@ -161,8 +167,7 @@ const AddAppointment = () => {
         confirmationMessage="Do you want to add the appointment in Google Calendar"
         isConfirm={true}
         onConfirm={onGoogleAppointment}
-        title="Add Appointment"
-      >
+        title="Add Appointment">
         <AddAppointmentForm
           clientOptions={clientOptions}
           memberOptions={memberOptions}
@@ -172,25 +177,21 @@ const AddAppointment = () => {
           onSubmitSuccess={handleSubmitSuccess}
           setAppointmentAdded={setAppointmentAdded}
           isAppointmentAdded={appointmentAdded}
-          isEditing={isEditing === "true"}
-          initialData={
-            isEditing === "true"
-              ? {
-                  clientId: parseInt(clientId as string),
-                  startTime: startTime as string,
-                  endTime: endTime as string,
-                  notes: notes as string,
-                  status: status as string,
-                  title: title as string,
-                  appointmentId: parseInt(appointmentId as string),
-                  members: parsedMembers,
-                }
-              : undefined
-          }
+          isEditing={isEditing === 'true'}
+          initialData={isEditing === 'true' ? {
+            clientId: parseInt(clientId as string),
+            startTime: startTime as string,
+            endTime: endTime as string,
+            notes: notes as string,
+            status: status as string,
+            title: title as string,
+            appointmentId: parseInt(appointmentId as string),
+            members: parsedMembers,
+          } : undefined}
         />
       </AppContainer>
     </SafeAreaView>
   );
 };
 
-export default AddAppointment;
+export default EditAppointment;

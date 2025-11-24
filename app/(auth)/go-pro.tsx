@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -14,60 +14,52 @@ import { scale, vs } from "react-native-size-matters";
 import { router, useLocalSearchParams } from "expo-router";
 import { CustomButton } from "@/common/components";
 import PlanCard from "./components/PlanCard";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { IS_IOS } from "@/utils";
 import SubscriptionUnavailableMessage from "./components/noSubscriptionScreen";
-
 
 type TPlanProps = {
   authResponse?: string;
 };
 
 const GoPro = () => {
-
   const { authResponse } = useLocalSearchParams<TPlanProps>();
-
 
   const [activeTab, setActiveTab] = useState("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const paymentRepo = PaymentRepository.getInstance();
 
-  const { data: subscriptions } = useQuery(
-    "subscription",
-    async () => {
+  const {
+    data: subscriptions,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: async () => {
       if (authResponse) {
         try {
           let parsedAuthResponse;
 
-
-        
           if (typeof authResponse === "string") {
-          
-
             try {
               parsedAuthResponse = JSON.parse(authResponse);
             } catch (parseError) {
               throw new Error("Invalid auth response format");
             }
           } else {
-          
             parsedAuthResponse = authResponse;
-
           }
 
-        
           if (!parsedAuthResponse?.access_token) {
-
             throw new Error("Invalid auth response: missing token");
           }
 
           return await paymentRepo.getSubscription(parsedAuthResponse);
         } catch (error) {
-
           console.error(
             "Error processing authResponse:",
             error,
@@ -76,7 +68,6 @@ const GoPro = () => {
               ? authResponse
               : JSON.stringify(authResponse)
           );
-          
 
           return await paymentRepo.getSubscription();
         }
@@ -84,22 +75,23 @@ const GoPro = () => {
         return await paymentRepo.getSubscription();
       }
     },
-    {
-      enabled: true, 
-      retry: 1, 
-      onError: (error) => {
-        console.error("Subscription query error:", error);
-      },
+    enabled: true,
+    retry: 1,
+  });
+
+  // Handle error with useEffect
+  useEffect(() => {
+    if (isError) {
+      console.error("Subscription query error:", error);
     }
-  );
+  }, [isError, error]);
 
   const handlePress = (plan: string, price: string) => {
     setSelectedPlan(plan);
     setPriceId(price);
-    setErrorMessage(null); 
+    setErrorMessage(null);
   };
 
- 
   const plans = subscriptions?.data?.filter((subscription: any) =>
     activeTab === "monthly"
       ? subscription.pricing[0].paymentSchedule === "month"
@@ -108,7 +100,7 @@ const GoPro = () => {
 
   const handleBuyNow = () => {
     if (!selectedPlan) {
-      setErrorMessage("Please select a plan."); 
+      setErrorMessage("Please select a plan.");
       return;
     }
 
@@ -126,9 +118,7 @@ const GoPro = () => {
   };
 
   if (IS_IOS) {
-    return (
-      <SubscriptionUnavailableMessage/>
-    );
+    return <SubscriptionUnavailableMessage />;
   }
 
   return (
@@ -183,10 +173,7 @@ const GoPro = () => {
           </View>
 
           <View className="mt-4">
-            <CustomButton
-              title="Upgrade Now"
-              onPress={handleBuyNow}
-            />
+            <CustomButton title="Upgrade Now" onPress={handleBuyNow} />
           </View>
         </View>
       </ScrollView>

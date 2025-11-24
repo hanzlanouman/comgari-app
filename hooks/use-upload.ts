@@ -1,7 +1,7 @@
 import { clientRepo } from "@/repositories"
 import { TPresignedUrlPayload } from "@/repositories/client/schemas"
 import { getExtension, hideProgress, Media, showErrorAlert, showProgress, uploadMedia } from "@/utils"
-import { useMutation } from "react-query"
+import { useMutation } from "@tanstack/react-query"
 
 type TUploadMediaAsync = { url: string, media: Media, uploadProgress: (per: number) => void }
 

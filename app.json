@@ -71,19 +71,20 @@
       [
         "expo-splash-screen",
         {
-          "android":{
+          "android": {
             "image": "./assets/images/splashIcon.png",
             "resizeMode": "contain",
             "backgroundColor": "#ffffff",
             "imageWidth": 300
           },
-          "ios":{
+          "ios": {
             "image": "./assets/images/splash.png",
             "resizeMode": "cover",
             "backgroundColor": "#ffffff"
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

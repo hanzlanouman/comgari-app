@@ -41,7 +41,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
   currentMembers = [],
 }) => {
   const snapPoints = useMemo(() => ["50%", "90%"], []);
-  const formikRef = useRef<any>();
+  const formikRef = useRef<any>(null);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [memberOptions, setMemberOptions] = useState<Array<{ key: number; value: string }>>([]);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
@@ -56,7 +56,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
     try {
       const response = await memberRepo.getMember();
       setMemberOptions(
-        response.data?.map(({ id, Auth }) => ({
+        response.data?.map(({ id, Auth }: { id: number; Auth: { username: string } }) => ({
           key: id,
           value: Auth?.username || "Unknown User",
         })) || []
@@ -153,7 +153,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
       >
         <Formik
           innerRef={formikRef}
-          initialValues={getInitialFormValues()}
+          initialValues={getInitialFormValues() as any}
           validationSchema={validationSchema} // Add validation schema
           onSubmit={handleFormSubmit}
         >
@@ -191,7 +191,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
                     <CalendarDays size={16} color="#4A4A4A" />
                   </TouchableOpacity>
                   {errors.dueDate && touched.dueDate && (
-                    <Text className="text-red">{errors.dueDate}</Text>
+                    <Text className="text-red">{errors.dueDate as string}</Text>
                   )}
                 </View>
 
@@ -199,7 +199,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
                   <MultiSelectDropdown
                     placeholder="Assignment"
                     data={memberOptions || []}
-                    selectedValues={(values.selectedMembers || []).map(String)}
+                    selectedValues={(values.selectedMembers as number[] || []).map(String)}
                     setFieldValue={handleMemberSelection}
                     fieldName="selectedMembers"
                   />

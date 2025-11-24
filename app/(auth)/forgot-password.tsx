@@ -9,7 +9,7 @@ import {
   forgotPasswordSchema,
 } from "@/repositories/auth/schemas";
 import { AuthRepository } from "@/repositories/auth/auth";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { OTP_TYPE } from "@/common/enum";
 
 type ForgotPasswordProps = {
@@ -49,9 +49,9 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
     <SafeAreaProvider>
       <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
         <View className="flex-1 p-4">
-
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-            Enter your email below to receive a password reset link.        </Text>
+            Enter your email below to receive a password reset link.{" "}
+          </Text>
           <View className="mt-6">
             <InputField
               label=""

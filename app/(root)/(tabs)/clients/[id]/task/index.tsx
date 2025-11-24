@@ -6,21 +6,19 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ActivityIndicator,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import TaskCard from "../../components/TaskCard";
 import { CustomButton } from "@/common/components";
-import { useQuery, useMutation, useQueryClient } from "react-query";
-import { router, useNavigation, useLocalSearchParams } from "expo-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigation, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plus } from "lucide-react-native";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
 import TaskFormModal from "../../components/TaskFormModal";
@@ -34,10 +32,9 @@ const Tasks = () => {
   const clientRepo = ClientRepository.getInstance();
   const user = useAppSelector((state) => state.auth.user);
   const queryClient = useQueryClient();
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   if (!user) {
   }
-  const request: Request = {
+  const request: any = {
     user: {
       id: user?.id,
       auth_id: user?.authId,
@@ -51,15 +48,19 @@ const Tasks = () => {
 
   const {
     data: tasks = [],
-    isLoading: isFetching,
     error,
     refetch,
   } = useQuery({
     queryKey: ["tasks", projectId],
     queryFn: () => {
-      return clientRepo.getTask(Number(projectId)).then(tasks =>
-        tasks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      );
+      return clientRepo
+        .getTask(Number(projectId))
+        .then((tasks: any) =>
+          tasks.sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        );
     },
     staleTime: 0,
   });
@@ -69,8 +70,8 @@ const Tasks = () => {
       const payload = {
         ...values,
         projectId: Number(projectId),
-        dueDate: new Date(values.dueDate).toISOString(),
-      };
+        dueDate: new Date(values.dueDate),
+      } as any;
       return clientRepo.createTask(request, payload);
     },
     onSuccess: async (newTask) => {
@@ -96,10 +97,10 @@ const Tasks = () => {
   const updateTaskMutation = useMutation({
     mutationFn: (values: Omit<UpdateTaskPayload, "projectId">) => {
       if (!selectedTask) throw new Error("No task selected");
-      const payload: UpdateTaskPayload = {
+      const payload: any = {
         ...values,
         projectId: Number(projectId),
-        dueDate: new Date(values.dueDate).toISOString(),
+        dueDate: new Date(values.dueDate),
       };
       return clientRepo.updateTask(selectedTask.id, payload);
     },
@@ -178,7 +179,8 @@ const Tasks = () => {
         height: 32,
       }}
       start={[0, 0]}
-      end={[1, 1]}>
+      end={[1, 1]}
+    >
       <TouchableOpacity
         onPressIn={() => {
           addModalRef.current?.present();
@@ -188,7 +190,8 @@ const Tasks = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-        }}>
+        }}
+      >
         <Plus size={18} color="#ffffff" />
       </TouchableOpacity>
     </LinearGradient>
@@ -207,16 +210,18 @@ const Tasks = () => {
   ): Omit<TaskPayload, "projectId"> => ({
     title: task.title,
     assignedTo: task.task_member.map((member) => Number(member.member_id)),
-    dueDate: task.dueDate,
+    dueDate: new Date(task.dueDate),
     priority: task.priority,
     status: task.status,
   });
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
-          <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }} className="px-4">
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
+            className="px-4"
+          >
             {error ? (
               <View className="flex-1 justify-center items-center">
                 <Text className="text-red-500 text-center">
@@ -230,7 +235,7 @@ const Tasks = () => {
               </View>
             ) : tasks?.length > 0 ? (
               <View className="pb-4">
-                {tasks?.map((task) => (
+                {tasks?.map((task: any) => (
                   <TaskCard
                     key={task.id}
                     task={task}
@@ -255,8 +260,8 @@ const Tasks = () => {
                     <CustomButton
                       title="Add Task"
                       onPress={() => addModalRef.current?.present()}
-                    // IconLeft={Plus}
-                    // iconSize={20}
+                      // IconLeft={Plus}
+                      // iconSize={20}
                     />
                   </View>
                 </View>
@@ -266,9 +271,11 @@ const Tasks = () => {
         </SafeAreaView>
 
         <TaskFormModal
-          bottomSheetRef={addModalRef}
+          bottomSheetRef={addModalRef as any}
           initialValues={INITIAL_FORM_VALUES}
-          onSubmit={(values) => createTaskMutation.mutate(values)}
+          onSubmit={async (values: any) => {
+            createTaskMutation.mutate(values as TaskPayload);
+          }}
           isLoading={createTaskMutation?.isPending}
           mode="add"
         />
@@ -280,13 +287,15 @@ const Tasks = () => {
         />
 
         <TaskFormModal
-          bottomSheetRef={editModalRef}
+          bottomSheetRef={editModalRef as any}
           initialValues={
             selectedTask
               ? transformTaskForForm(selectedTask)
               : INITIAL_FORM_VALUES
           }
-          onSubmit={(values) => updateTaskMutation.mutate(values)}
+          onSubmit={async (values: any) => {
+            updateTaskMutation.mutate(values as UpdateTaskPayload);
+          }}
           isLoading={updateTaskMutation.isPending}
           mode="edit"
           currentMembers={
@@ -294,7 +303,6 @@ const Tasks = () => {
           }
         />
       </BottomSheetModalProvider>
-    </GestureHandlerRootView>
   );
 };
 

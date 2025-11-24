@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, View, Alert, Text } from "react-native";
+import {  ScrollView, View, Alert, Text, KeyboardAvoidingView } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from "expo-router";
 import { useFormik } from "formik";
 import { useAppSelector } from "@/hooks/redux";
@@ -18,7 +21,7 @@ import {
 } from "@/common/types";
 import { ClientRepository } from "@/repositories/client/client";
 import { MemberRepository } from "@/repositories/member/member";
-import { useQueryClient } from "react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Action } from "@/common/enum";
 
 import {
@@ -157,7 +160,7 @@ const AddClient = () => {
         );
       }
 
-      await queryClient.invalidateQueries("clients");
+      await queryClient.invalidateQueries({ queryKey: ["clients"] });
       router.replace("/(root)/(tabs)/clients/clients");
     } catch (error) {
       console.error("Error saving client:", error);
@@ -180,6 +183,8 @@ const AddClient = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
+
       <AppContainer>
         <Text className="text-sm mb-6 px-4">
           Add new team clients by filling out their details below to onboard
@@ -193,16 +198,17 @@ const AddClient = () => {
             memberOptions={memberOptions}
             isEditing={isEditing}
             ClientStatus={ClientStatus}
-          />
+            />
         </ScrollView>
         <View className="p-4 bg-white">
           <CustomButton
             title={isEditing ? "Update Client" : "Add Client"}
             onPress={() => formik.handleSubmit()}
             disabled={isLoading}
-          />
+            />
         </View>
       </AppContainer>
+            </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

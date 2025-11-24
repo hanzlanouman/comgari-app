@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef, useEffect } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -10,6 +9,9 @@ import {
   Platform,
   Linking,
 } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { vs } from "react-native-size-matters";
 import {
   ArrowDownToLine,
@@ -24,7 +26,6 @@ import { images, getImageUrl } from "@/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Backdrop } from "@/common/components/Backdrop";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
@@ -285,7 +286,6 @@ const Proposal = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
@@ -302,7 +302,7 @@ const Proposal = () => {
                           <View className="bg-blue w-1.5 h-1.5" />
                         </View>
                         <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                          {clientType?.replaceAll("_", " ") || "Construction"}
+                          {(clientType as string)?.replaceAll("_", " ") || "Construction"}
                         </Text>
                       </View>
                     </View>
@@ -316,8 +316,8 @@ const Proposal = () => {
                   <View className="flex-row items-center">
                     <Image
                       source={
-                        clientName?.logo
-                          ? { uri: getImageUrl(clientName.logo) }
+                        (clientName as any)?.logo
+                          ? { uri: getImageUrl((clientName as any).logo) }
                           : images.user
                       }
                       resizeMode="cover"
@@ -503,7 +503,6 @@ const Proposal = () => {
           </BottomSheetView>
         </BottomSheetModal>
       </BottomSheetModalProvider>
-    </GestureHandlerRootView>
   );
 };
 

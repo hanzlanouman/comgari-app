@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -13,8 +12,9 @@ import {
   Alert,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronDown, ChevronUp, Download } from "lucide-react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import { CustomButton } from "@/common/components";
 import { images, UNITS } from "@/constants";
@@ -122,32 +122,38 @@ type Invoice = {
 const InvoicesScreen = () => {
   const { id: projectId, clientId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("all");
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
     null
   );
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  const fetchInvoices = async () => {
-    try {
-      setIsLoading(true);
+  const {
+    data: invoices = [],
+    isError,
+    error,
+    isFetching,
+    refetch,
+  } = useQuery<Invoice[]>({
+    queryKey: projectId ? ["invoices", Number(projectId)] : ["invoices"],
+    queryFn: async () => {
+      if (!projectId) return [];
       const response = await clientRepo.getInvoices(Number(projectId));
       const fetchedInvoices = response.data || [];
-      const sortedInvoices = fetchedInvoices.sort(
-        (a: any, b: any) =>
+      return [...fetchedInvoices].sort(
+        (a: Invoice, b: Invoice) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-      setInvoices(sortedInvoices);
-    } catch (error) {
+    },
+    enabled: Boolean(projectId),
+  });
+
+  React.useEffect(() => {
+    if (isError) {
       Alert.alert(
         "Error",
         error instanceof Error ? error.message : "Failed to fetch invoices"
       );
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [error, isError]);
 
   const handleEditInvoice = (invoice: Invoice) => {
     router.push({
@@ -159,7 +165,7 @@ const InvoicesScreen = () => {
         status: invoice.status,
         date: invoice.date,
         invoiceId: invoice.id,
-        id: projectId,
+        id: Number(projectId),
         clientId: clientId,
       },
     });
@@ -168,7 +174,7 @@ const InvoicesScreen = () => {
   const handleDeleteInvoice = async (invoiceId: number) => {
     try {
       await clientRepo.deleteInvoice(invoiceId);
-      await fetchInvoices();
+      await refetch();
       Alert.alert("Success", "Invoice deleted successfully");
     } catch (error) {
       Alert.alert(
@@ -219,8 +225,10 @@ const InvoicesScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchInvoices();
-    }, [projectId])
+      if (projectId) {
+        refetch();
+      }
+    }, [projectId, refetch])
   );
 
   const toggleInvoiceDetails = (invoiceId: number) => {
@@ -346,7 +354,7 @@ const InvoicesScreen = () => {
       <View className="flex-1 p-4">
         {/* Tabs */}
         <View className="flex flex-row bg-gray-100 rounded-full p-1 shadow-sm">
-          {["all", "paid", "open"].map((tab) => (
+          {["all" /*, "paid", "open" */].map((tab) => (
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
@@ -368,7 +376,7 @@ const InvoicesScreen = () => {
         {/* Scrollable Content */}
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={fetchInvoices} />
+            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
           }
           className="mt-4"
         >

@@ -1,20 +1,18 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-} from "react-native";
+import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@/constants";
 import Cards from "@/app/(auth)/components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
-
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 type TPlanProps = {
   selectedPlanPrice: string;
   isNewSubscription?: string;
@@ -36,45 +34,44 @@ export default function Paymentmethod() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // First check if user already has a subscription
-  const { data: agencySubscription } = useQuery(
-    "profileAgencySubscription",
-    async () => paymentRepo.getAgencySubscription(),
-    {
-      enabled: true,
-      onSuccess: (data) => {
+  const { data: agencySubscription } = useQuery({
+    queryKey: ["profileAgencySubscription"],
+    queryFn: async () => paymentRepo.getAgencySubscription(),
+    enabled: true,
+  });
 
-        if (data?.data?.hasSubscription && !isNewSubscription) {
-          router.replace("/(root)/(tabs)/profile/plans");
-        }
-      }
+  useEffect(() => {
+    if (agencySubscription?.data?.hasSubscription && !isNewSubscription) {
+      router.replace("/(root)/(tabs)/profile/plans");
     }
-  );
+  }, [agencySubscription, isNewSubscription]);
 
-  const { data: cards } = useQuery(
-    ["cards"],
-    () => paymentRepo.getCards(),
-    {
-      staleTime: Infinity,
-      cacheTime: Infinity,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    }
-  );
+  const { data: cards } = useQuery({
+    queryKey: ["cards"],
+    queryFn: () => paymentRepo.getCards(),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
-  const { data: buyerResponse, refetch } = useQuery(
-    ["create-buyer"],
-    () => paymentRepo.createBuyer(),
-    { enabled: false }
-  );
+  const { data: buyerResponse, refetch } = useQuery({
+    queryKey: ["create-buyer"],
+    queryFn: () => paymentRepo.createBuyer(),
+    enabled: false,
+  });
 
   const onConfirmPayment = async () => {
-
     if (agencySubscription?.data?.hasSubscription) {
-      setErrorMessage("You already have a subscription. Please use upgrade option from the plans page.");
+      setErrorMessage(
+        "You already have a subscription. Please use upgrade option from the plans page."
+      );
       return;
     }
 
-    const payload: Partial<TCreateSubscriptionPayload> & { totalClient: number } = {
+    const payload: Partial<TCreateSubscriptionPayload> & {
+      totalClient: number;
+    } = {
       id: selectedPlanPrice,
       paymentMethod_id: selectedCard || "",
       totalClient: 20,
@@ -83,53 +80,63 @@ export default function Paymentmethod() {
     return paymentRepo.createSubscription(payload);
   };
 
-  const { mutate: confirmPayment } = useMutation(
-    onConfirmPayment,
-    {
-      onSuccess: () => {
-        dispatch(setSubscribed(true));
-        router.replace("/(root)/(tabs)/profile/plan-details");
-      },
-      onError: (error) => {
-        console.error("Payment failed:", error);
-        setErrorMessage(`Payment failed: ${error}`);
-      },
+  const {
+    mutate: confirmPayment,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: onConfirmPayment,
+  });
+
+  // Handle success/error with useEffect
+  useEffect(() => {
+    if (isSuccess) {
+      dispatch(setSubscribed(true));
+      router.replace("/(root)/(tabs)/profile/plan-details");
     }
-  );
+  }, [isSuccess, dispatch]);
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Payment failed:", error);
+      setErrorMessage(`Payment failed: ${error}`);
+    }
+  }, [isError, error]);
 
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
     if (error) {
       console.error("Payment sheet error:", error);
     } else {
-      queryClient.invalidateQueries(["cards"]);
-    }
-  };
-
-  const paymentProcess = async (res: any) => {
-    try {
-      const { setupIntent, customer, ephemeralKeys } = res?.data;
-      const { error } = await initPaymentSheet({
-        customerId: customer,
-        customerEphemeralKeySecret: ephemeralKeys,
-        setupIntentClientSecret: setupIntent,
-        merchantDisplayName: "Comgari",
-      });
-      if (error) {
-        console.error("Payment sheet initialization error:", error);
-      } else {
-        openPaymentSheet();
-      }
-    } catch (e) {
-      console.error("Payment process error:", e);
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
     }
   };
 
   useEffect(() => {
+    const paymentProcess = async (res: any) => {
+      try {
+        const { setupIntent, customer, ephemeralKeys } = res?.data;
+        const { error } = await initPaymentSheet({
+          customerId: customer,
+          customerEphemeralKeySecret: ephemeralKeys,
+          setupIntentClientSecret: setupIntent,
+          merchantDisplayName: "Comgari",
+        });
+        if (error) {
+          console.error("Payment sheet initialization error:", error);
+        } else {
+          openPaymentSheet();
+        }
+      } catch (e) {
+        console.error("Payment process error:", e);
+      }
+    };
+
     if (buyerResponse) {
       paymentProcess(buyerResponse);
     }
-  }, [buyerResponse]);
+  }, [buyerResponse, initPaymentSheet]);
 
   const onAddCard = () => {
     refetch();
@@ -157,7 +164,9 @@ export default function Paymentmethod() {
         </View>
 
         <View className="my-3 px-4">
-          {errorMessage && <Text className="text-red text-center">{errorMessage}</Text>}
+          {errorMessage && (
+            <Text className="text-red text-center">{errorMessage}</Text>
+          )}
         </View>
 
         <Cards
