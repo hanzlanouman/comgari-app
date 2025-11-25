@@ -1,14 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
   Image,
   TouchableOpacity,
-  RefreshControl
+  RefreshControl,
 } from "react-native";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { vs } from "react-native-size-matters";
 import { images, getImageUrl } from "@/constants";
 import { CustomButton, SimpleActivityIndicator } from "@/common/components";
@@ -16,7 +15,9 @@ import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { CalendarDays, NotepadText, Plus } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ClientRepository } from "@/repositories/client/client";
-
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 interface Client {
   id: number;
   name: string;
@@ -37,65 +38,57 @@ interface Project {
   client: Client;
 }
 
-interface ProjectResponse {
-  statusCode: number;
-  message: string;
-  data: Project[];
-}
-
 const Proposal = () => {
   const { id: projectId } = useLocalSearchParams();
   const navigation = useNavigation();
   const clientRepo = ClientRepository.getInstance();
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isFetching
-  } = useQuery<ProjectResponse, Error>(
-    ['proposals', projectId],
-    () => clientRepo.getProposalsByProject(Number(projectId)),
-    {
-      enabled: !!projectId,
-      refetchOnWindowFocus: true,
-      staleTime: 5000,
-      cacheTime: 30 * 60 * 1000,
-    }
-  );
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery<
+    any,
+    Error
+  >({
+    queryKey: ["proposals", projectId],
+    queryFn: () => clientRepo.getProposalsByProject(Number(projectId)),
+    enabled: !!projectId,
+    refetchOnWindowFocus: true,
+    staleTime: 5000,
+    gcTime: 30 * 60 * 1000,
+  });
 
-  // eslint-disable-next-line react/display-name
-  const AddButton = React.useMemo(() => () => (
-    <LinearGradient
-      colors={["#1B78B9", "#63348F"]}
-      style={{
-        borderRadius: 999,
-        width: 32,
-        height: 32,
-      }}
-      start={[0, 0]}
-      end={[1, 1]}
-    >
-      <TouchableOpacity
-        onPressIn={() => {
-          router.push({
-            pathname: `/(root)/(tabs)/clients/${projectId}/proposal/add-proposal`,
-            params: { projectId }
-          });
-        }}
+  const AddButton = React.useMemo(() => {
+    const AddButtonComponent = () => (
+      <LinearGradient
+        colors={["#1B78B9", "#63348F"]}
         style={{
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
+          borderRadius: 999,
+          width: 32,
+          height: 32,
         }}
+        start={[0, 0]}
+        end={[1, 1]}
       >
-        <Plus size={18} color="#ffffff" />
-      </TouchableOpacity>
-    </LinearGradient>
-  ), [projectId]);
+        <TouchableOpacity
+          onPressIn={() => {
+            router.push({
+              pathname:
+                `/(root)/(tabs)/clients/[id]/proposal/add-proposal` as any,
+              params: { id: projectId, projectId },
+            });
+          }}
+          style={{
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Plus size={18} color="#ffffff" />
+        </TouchableOpacity>
+      </LinearGradient>
+    );
+    AddButtonComponent.displayName = "AddButtonComponent";
+    return AddButtonComponent;
+  }, [projectId]);
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -107,10 +100,10 @@ const Proposal = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -128,16 +121,13 @@ const Proposal = () => {
         <Text className="text-red-500 text-center">
           Error loading proposals: {error?.message}
         </Text>
-        <CustomButton
-          title="Retry"
-          onPress={() => refetch()}
-        />
+        <CustomButton title="Retry" onPress={() => refetch()} />
       </View>
     );
   }
 
   // Sort proposals by date in descending order (latest first)
-  const proposals = [...(data?.data || [])].sort((a, b) => {
+  const proposals = [...((data as any)?.data || [])].sort((a: any, b: any) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
@@ -155,8 +145,9 @@ const Proposal = () => {
                 title="Add Proposal"
                 onPress={() =>
                   router.push({
-                    pathname: `/(root)/(tabs)/clients/${projectId}/proposal/add-proposal`,
-                    params: { projectId }
+                    pathname:
+                      `/(root)/(tabs)/clients/[id]/proposal/add-proposal` as any,
+                    params: { id: projectId, projectId },
                   })
                 }
               />
@@ -173,10 +164,7 @@ const Proposal = () => {
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         className="px-4"
         refreshControl={
-          <RefreshControl
-            refreshing={isFetching}
-            onRefresh={refetch}
-          />
+          <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
       >
         <View className="pb-4">
@@ -185,7 +173,8 @@ const Proposal = () => {
               key={proposal.id}
               onPress={() => {
                 router.push({
-                  pathname: "/(root)/(tabs)/clients/[id]/proposal/proposal-detail",
+                  pathname:
+                    "/(root)/(tabs)/clients/[id]/proposal/proposal-detail",
                   params: {
                     id: proposal.id,
                     jobName: proposal.job_name,
@@ -200,8 +189,8 @@ const Proposal = () => {
                     clientId: proposal.client_id,
                     estimatedCost: proposal.estimated_cost,
                     projectDirector: proposal.project_director,
-                    specification: proposal.specification
-                  }
+                    specification: proposal.specification,
+                  },
                 });
               }}
               className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5"
@@ -223,7 +212,7 @@ const Proposal = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {proposal.job_name || 'Unnamed Project'}
+                    {proposal.job_name || "Unnamed Project"}
                   </Text>
                   <View>
                     <View className="flex-row items-center mt-1">
@@ -231,7 +220,8 @@ const Proposal = () => {
                         <View className="bg-blue w-1.5 h-1.5" />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                        {proposal.client?.type?.replaceAll("_", " ") || 'Construction'}
+                        {proposal.client?.type?.replaceAll("_", " ") ||
+                          "Construction"}
                       </Text>
                     </View>
                     <Text
@@ -239,7 +229,7 @@ const Proposal = () => {
                       numberOfLines={1}
                       ellipsizeMode="tail"
                     >
-                      {proposal.city || 'No city'}
+                      {proposal.city || "No city"}
                     </Text>
                   </View>
                 </View>
@@ -248,13 +238,17 @@ const Proposal = () => {
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Image
-                    source={proposal.client?.logo ? { uri: getImageUrl(proposal.client.logo) } : images.user}
+                    source={
+                      proposal.client?.logo
+                        ? { uri: getImageUrl(proposal.client.logo) }
+                        : images.user
+                    }
                     resizeMode="cover"
                     className="rounded-full border-2 border-white"
                     style={{ width: vs(30), height: vs(30) }}
                   />
                   <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
-                    {proposal.client?.name || 'Unknown Client'}
+                    {proposal.client?.name || "Unknown Client"}
                   </Text>
                 </View>
                 <View className="flex-row items-center">

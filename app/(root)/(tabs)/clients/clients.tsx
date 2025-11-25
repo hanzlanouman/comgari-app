@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   Image,
@@ -8,7 +7,10 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { useQuery } from "react-query";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
+import { useQuery } from "@tanstack/react-query";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/constants";
 import { router } from "expo-router";
@@ -51,10 +53,9 @@ const Clients: React.FC = () => {
 
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-
-  const { isError, isLoading, isFetching, refetch } = useQuery<Client[]>(
-    ["clients", page, pageSize],
-    async () => {
+  const { isError, isLoading, isFetching, refetch, data } = useQuery<Client[]>({
+    queryKey: ["clients", page, pageSize],
+    queryFn: async () => {
       const clientListingPayload: ClientListingPayload = {
         start: page * pageSize,
         limit: pageSize,
@@ -63,30 +64,30 @@ const Clients: React.FC = () => {
       const response = await clientRepo.getClients(clientListingPayload);
       return Array.isArray(response) ? response : [];
     },
-    {
-      keepPreviousData: true,
-      enabled: !!user && isAuthenticated,
-      onSuccess: (data) => {
-        // Only set clients if we have data
-        if (data) {
-          if (page === 0) {
-            setClients(data);
-          } else {
-            setClients((prevClients) => [...prevClients, ...data]);
-          }
+    placeholderData: (previousData) => previousData,
+    enabled: !!user && isAuthenticated,
+  });
 
-          // Check if we have more data to load
-          setHasMore(data.length === pageSize);
-        }
-        setIsLoadingMore(false);
-        setRefreshing(false);
-      },
-      onError: () => {
-        setIsLoadingMore(false);
-        setRefreshing(false);
-      },
+  // Handle data updates with useEffect instead of onSuccess/onError
+  useEffect(() => {
+    if (data) {
+      if (page === 0) {
+        setClients(data);
+      } else {
+        setClients((prevClients) => [...prevClients, ...data]);
+      }
+      setHasMore(data.length === pageSize);
     }
-  );
+    setIsLoadingMore(false);
+    setRefreshing(false);
+  }, [data, page, pageSize]);
+
+  useEffect(() => {
+    if (isError) {
+      setIsLoadingMore(false);
+      setRefreshing(false);
+    }
+  }, [isError]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -101,7 +102,7 @@ const Clients: React.FC = () => {
       setIsLoadingMore(true);
       setPage((prevPage) => prevPage + 1);
     }
-  }, [isFetching, hasMore, isLoadingMore, page]);
+  }, [isFetching, hasMore, isLoadingMore]);
 
   const handleAddClient = () => {
     router.push("/(root)/(tabs)/clients/add-client");

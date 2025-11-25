@@ -9,7 +9,7 @@ import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 
 import { useAppSelector } from "./redux";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AuthRepo } from "@/repositories";
 
 Notifications.setNotificationHandler({
@@ -17,6 +17,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -27,7 +29,7 @@ export function useNotification() {
     mutationFn: (token: string) => AuthRepo.addToken(token),
     onError: (error) => {
       Alert.alert("Error Updating Notifications token", error?.message);
-    }
+    },
   });
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function useNotification() {
         saveToken(token);
       }
     })();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, saveToken]);
 
   async function registerForPushNotificationsAsync() {
     let token;

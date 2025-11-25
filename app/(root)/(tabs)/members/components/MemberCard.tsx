@@ -36,9 +36,9 @@ export default function MemberCard({ member }: { member: TMember }) {
             className="rounded-full"
             style={{ width: vs(70), height: vs(70) }}
           />
-          <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 transform -translate-x-1/2 px-2">
+          <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 left-1/2 -translate-x-1/2 px-3">
             <Text
-              className="text-white text-sm text-center font-ManropeMedium"
+              className="text-white text-sm text-center  font-ManropeMedium"
               style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
             >
               {getRoleName(member?.role_id)}

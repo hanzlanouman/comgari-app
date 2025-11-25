@@ -5,6 +5,9 @@ import {
   ImageBackground,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
 } from "react-native";
 import { images } from "@/constants";
 import InputField from "@/common/components/InputField";
@@ -14,7 +17,7 @@ import { useFormik } from "formik";
 import { LoginPayload, LoginSchema } from "@/repositories/auth/schemas";
 import AppContainer from "@/common/components/AppContainer";
 import { AuthRepository } from "@/repositories/auth/auth";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, logout, setSubscribed } from "@/store";
@@ -63,7 +66,6 @@ const SignIn = () => {
 
       mutate(values, {
         onSuccess: (data) => {
-          
           if (isSuperAdmin(data)) {
             Alert.alert(
               "SuperAdmin Access",
@@ -83,7 +85,6 @@ const SignIn = () => {
           dispatch(login(data));
           dispatch(setSubscribed(data.user.subscription));
 
-         
           if (IS_IOS && !data.user.subscription) {
             router.push({
               pathname: "/(auth)/go-pro",
@@ -141,77 +142,110 @@ const SignIn = () => {
       isError={isError}
       message={(error as any)?.message}
       onPress={otpScreen ? onClick : undefined}
+      style={[
+        styles.scrollContainerBase,
+        IS_ANDROID ? styles.scrollContainerAndroid : styles.scrollContainerIos,
+      ]}
     >
       <ImageBackground
         source={images.login}
         resizeMode="cover"
         className="w-full h-screen"
+        style={styles.background}
       >
-        <View className="bg-white rounded-t-3xl p-5 absolute left-0 bottom-0 w-full">
-          <Text className="text-dark text-center font-ManropeBold text-xl sm:text-2xl">
-            Let's Connect With Us!
-          </Text>
-          <View className="mt-6">
-            <InputField
-              label=""
-              value={formik.values.email}
-              onChangeText={formik.handleChange("email")}
-              placeholder="Email"
-              keyboardType="email-address"
-              onBlur={formik.handleBlur("email")}
-              error={formik.touched.email ? formik.errors.email : undefined}
-            />
-          </View>
-          <View className="mt-3">
-            <InputField
-              label=""
-              value={formik.values.password}
-              onChangeText={formik.handleChange("password")}
-              placeholder="Password"
-              secureTextEntry={true}
-              onBlur={formik.handleBlur("password")}
-              error={
-                formik.touched.password ? formik.errors.password : undefined
-              }
-            />
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              router.push(route.auth.forgotPassword);
-            }}
-            className="flex-row justify-end mt-3"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 justify-end"
+        >
+          <View
+            className="bg-white rounded-t-3xl p-5 w-full"
+            style={styles.formWrapper}
           >
-            <Text className="text-sm sm:text-base text-blue font-ManropeMedium">
-              Forgot Password?
+            <Text className="text-dark text-center font-ManropeBold text-xl sm:text-2xl">
+              Let's Connect With Us!
             </Text>
-          </TouchableOpacity>
-          <View className="mt-5">
-            <CustomButton
-              title="Sign In"
-              onPress={() => formik.handleSubmit()}
-            />
-          </View>
-          {IS_ANDROID && (
-            <View className="flex-row items-center justify-center my-5">
-              <Text className="text-sm sm:text-base text-dark font-ManropeMedium">
-                Doesn't have an account?
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  router.replace(route.auth.register);
-                }}
-                className="ml-1 relative -top-[1]"
-              >
-                <Text className="text-blue text-sm sm:text-base font-ManropeSemibold">
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
+            <View className="mt-6">
+              <InputField
+                label=""
+                value={formik.values.email}
+                onChangeText={formik.handleChange("email")}
+                placeholder="Email"
+                keyboardType="email-address"
+                onBlur={formik.handleBlur("email")}
+                error={formik.touched.email ? formik.errors.email : undefined}
+              />
             </View>
-          )}
-        </View>
+            <View className="mt-3">
+              <InputField
+                label=""
+                value={formik.values.password}
+                onChangeText={formik.handleChange("password")}
+                placeholder="Password"
+                secureTextEntry={true}
+                onBlur={formik.handleBlur("password")}
+                error={
+                  formik.touched.password ? formik.errors.password : undefined
+                }
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                router.push(route.auth.forgotPassword);
+              }}
+              className="flex-row justify-end mt-3"
+            >
+              <Text className="text-sm sm:text-base text-blue font-ManropeMedium">
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
+            <View className="mt-5">
+              <CustomButton
+                title="Sign In"
+                onPress={() => formik.handleSubmit()}
+              />
+            </View>
+            {IS_ANDROID && (
+              <View className="flex-row items-center justify-center my-5">
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium">
+                  Doesn't have an account?
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    router.replace(route.auth.register);
+                  }}
+                  className="ml-1 relative -top-[1]"
+                >
+                  <Text className="text-blue text-sm sm:text-base font-ManropeSemibold">
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </KeyboardAvoidingView>
       </ImageBackground>
     </AppContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContainerBase: {
+    flexGrow: 1,
+    justifyContent: "flex-end",
+  },
+  scrollContainerIos: {
+    paddingBottom: 40,
+  },
+  scrollContainerAndroid: {
+    paddingBottom: 80,
+  },
+  background: {
+    flex: 1,
+    width: "100%",
+  },
+  formWrapper: {
+    paddingBottom: 24,
+  },
+});
 
 export default SignIn;

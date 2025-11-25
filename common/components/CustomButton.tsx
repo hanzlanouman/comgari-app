@@ -15,13 +15,17 @@ export const CustomButton = ({
   return (
     <LinearGradient
       colors={["#1C78B9", "#4B4C9E"]}
+      // Explicit style borderRadius ensures the gradient container is rounded
+      style={{ borderRadius: 12 }}
       className={`rounded-xl h-[52px] ${className}`}
       start={[0, 0]}
-      end={[1, 1]}>
+      end={[1, 1]}
+    >
       <TouchableOpacity
         onPress={onPress}
         {...props}
-        className="w-full h-full rounded-xl pb-0.5 flex flex-row justify-center items-center">
+        className="w-full h-full rounded-xl pb-0.5 flex flex-row justify-center items-center"
+      >
         <Text className="text-sm sm:text-base font-ManropSemibold text-white text-center">
           {title}
         </Text>

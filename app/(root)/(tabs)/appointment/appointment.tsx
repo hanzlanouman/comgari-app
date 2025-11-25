@@ -1,28 +1,27 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   TouchableOpacity,
-  ActivityIndicator,
   Platform,
 } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, useFocusEffect } from "expo-router";
 import ActionModal from "../clients/components/ActionModal";
 import { format } from "date-fns";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SimpleActivityIndicator } from "@/common/components/Loader";
 
 const Appointment = () => {
-  const [items, setItems] = useState<Record<string, any[]>>({});
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
-  const [showAgenda, setShowAgenda] = useState(false);
   const clientRepo = ClientRepository.getInstance();
   const actionModalRef = useRef<BottomSheetModal>(null);
   const queryClient = useQueryClient();
@@ -31,34 +30,28 @@ const Appointment = () => {
     isLoading,
     isFetching,
     data: appointmentsData,
-  } = useQuery(
-    "appointments",
-    async () => {
+    refetch,
+  } = useQuery({
+    queryKey: ["appointments"],
+    queryFn: async () => {
       const response = await clientRepo.getAppointment();
       return response.data || [];
     },
-    {
-      staleTime: 0,
-      cacheTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      onSuccess: () => {
-        setShowAgenda(true);
-      },
-      onError: () => {
-        setShowAgenda(true);
-      },
-    }
-  );
+    staleTime: 0,
+    gcTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+
+  console.log(appointmentsData, "appointmentsData");
 
   // Transform appointments data whenever it changes
-  const transformAppointments = useCallback((appointments: any[]) => {
-    if (!appointments || appointments.length === 0) {
-      setItems({});
-      return;
+  const items = useMemo(() => {
+    if (!appointmentsData || appointmentsData.length === 0) {
+      return {};
     }
 
-    const transformedItems = appointments.reduce(
+    const transformedItems = appointmentsData?.reduce(
       (acc: Record<string, any[]>, appointment: any) => {
         const formattedDate = format(new Date(appointment.date), "yyyy-MM-dd");
 
@@ -87,22 +80,14 @@ const Appointment = () => {
       {}
     );
 
-    setItems(transformedItems);
-  }, []);
+    return transformedItems;
+  }, [appointmentsData]);
 
-  // Update items whenever appointments data changes
-  React.useEffect(() => {
-    if (appointmentsData) {
-      transformAppointments(appointmentsData);
-    }
-  }, [appointmentsData, transformAppointments]);
 
   useFocusEffect(
     React.useCallback(() => {
-      queryClient.invalidateQueries("appointments");
-      // Reset states when screen is focused
-      setShowAgenda(false);
-    }, [queryClient])
+      refetch();
+    }, [])
   );
 
   const handleDayPress = useCallback((day: any) => {
@@ -154,7 +139,7 @@ const Appointment = () => {
       try {
         await clientRepo.deleteAppointment(selectedAppointment.id);
         // Invalidate and refetch after deletion
-        queryClient.invalidateQueries("appointments");
+        queryClient.invalidateQueries({ queryKey: ["appointments"] });
         actionModalRef.current?.dismiss();
       } catch (error) {
         console.error("Failed to delete appointment", error);
@@ -242,11 +227,11 @@ const Appointment = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="mb-4 flex-1">
-        {(isLoading || isFetching) && !showAgenda ? (
+        {(isLoading || isFetching) ? (
           <View className="flex-1 justify-center items-center">
             <SimpleActivityIndicator />
           </View>
-        ) : showAgenda ? (
+        ) : Object.keys(items).length > 0 ? (
           <Agenda
             items={items}
             selected={selectedDate}
@@ -272,8 +257,8 @@ const Appointment = () => {
             hideExtraDays={true}
             showClosingKnob={true}
             showOnlySelectedDayItems={true}
-            pastScrollRange={1}
-            futureScrollRange={1}
+            pastScrollRange={12}
+            futureScrollRange={12}
             calendarHeight={120}
             renderKnob={() => (
               <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />
@@ -281,7 +266,8 @@ const Appointment = () => {
           />
         ) : (
           <View className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" color="#1B78B9" />
+            <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium text-center">No appointments found</Text>
+            
           </View>
         )}
         <ActionModal

@@ -20,7 +20,8 @@ const Layout = () => {
           shadowOpacity: 0,
         },
         headerShadowVisible: false,
-      }}>
+      }}
+    >
       <Stack.Screen
         name="members"
         options={{
@@ -30,14 +31,17 @@ const Layout = () => {
             <WithRole permission="manage" resource="member" user={user!}>
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
-                className="rounded-full w-8 h-8"
+                className="w-8 h-8"
+                style={{ borderRadius: 9999 }}
                 start={[0, 0]}
-                end={[1, 1]}>
+                end={[1, 1]}
+              >
                 <TouchableOpacity
                   onPressIn={() =>
                     router.push("/(root)/(tabs)/members/add-member")
                   }
-                  className="w-full h-full rounded-full flex flex-row justify-center items-center">
+                  className="w-full h-full rounded-full flex flex-row justify-center items-center"
+                >
                   <Plus size={18} color="#ffffff" />
                 </TouchableOpacity>
               </LinearGradient>

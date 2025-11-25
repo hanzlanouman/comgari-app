@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Keyboard,
@@ -8,6 +7,9 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import {
   actions,
   RichEditor,

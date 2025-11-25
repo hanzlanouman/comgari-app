@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
-import { SafeAreaView, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { useFocusEffect } from "@react-navigation/native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 
 type MediaItem = {
   id?: number;

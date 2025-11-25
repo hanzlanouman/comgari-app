@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import {
   // Platform,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   View,
   Text,
   Alert,
 } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { CustomButton, InputField } from "@/common/components";
 import DropdownSelect from "@/common/components/Select";
 import { router, useLocalSearchParams } from "expo-router";

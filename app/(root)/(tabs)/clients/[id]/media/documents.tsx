@@ -6,7 +6,6 @@ import React, {
   useEffect,
 } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -16,6 +15,9 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { icons } from "@/constants";
 import {
   ChevronRight,
@@ -24,7 +26,6 @@ import {
   Upload,
   Share2,
 } from "lucide-react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
 import { useLocalSearchParams, useNavigation } from "expo-router";
@@ -36,7 +37,7 @@ import {
   showSuccessAlert,
 } from "@/utils";
 import { LinearGradient } from "expo-linear-gradient";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useUpload } from "@/hooks/use-upload";
 import * as Sharing from "expo-sharing";
 import { isRunningInExpoGo } from "expo";
@@ -391,7 +392,6 @@ const MediaDocuments = () => {
   }, [navigation]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
           <ScrollView
@@ -524,7 +524,6 @@ const MediaDocuments = () => {
           </ScrollView>
         </SafeAreaView>
       </BottomSheetModalProvider>
-    </GestureHandlerRootView>
   );
 };
 

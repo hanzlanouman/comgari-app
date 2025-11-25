@@ -3,7 +3,7 @@ import { ComfimationModelWithTrigger, ProgressBar } from "@/common/components";
 import { OctagonAlert } from "lucide-react-native";
 import CustomButton from "@/common/components/CustomButton";
 import { router, useFocusEffect } from "expo-router";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { differenceInDays, format } from "date-fns";
 import { getDaysSinceStart, getRemainingDaysAndTotal } from "@/utils";

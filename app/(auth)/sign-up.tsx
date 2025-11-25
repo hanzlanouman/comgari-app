@@ -1,4 +1,10 @@
-import { ScrollView, View, Text } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -8,7 +14,7 @@ import CustomButton from "@/common/components/CustomButton";
 import { router } from "expo-router";
 import { AuthRepository } from "@/repositories/auth/auth";
 import AppContainer from "@/common/components/AppContainer";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { SignupPayload } from "@/repositories/auth/schemas";
 import { OTP_TYPE } from "@/common/enum";
 import { route } from "@/common";
@@ -28,7 +34,9 @@ const SignUp = () => {
     any,
     Error,
     Partial<SignupPayload>
-  >((payload) => authRepo.register(payload));
+  >({
+    mutationFn: (payload) => authRepo.register(payload),
+  });
 
   // Custom test for unique values across fields
   // Using a simpler implementation for custom method
@@ -126,115 +134,128 @@ const SignUp = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
-      <AppContainer isError={isError} message={error?.message as string}>
-        <ScrollView className="flex-1 px-5 py-4">
-          <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-            Set up your Comgari account by filling in the details below.{"\n"}
-            Already have an account?{" "}
-            <Text
-              className="text-blue"
-              onPress={() => router.push("/(auth)/sign-in")}
-            >
-              Log in here
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+        keyboardVerticalOffset={0}
+      >
+        <AppContainer isError={isError} message={error?.message as string}>
+          <ScrollView
+            className="flex-1 px-5 py-4"
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
+              Set up your Comgari account by filling in the details below.{"\n"}
+              Already have an account?{" "}
+              <Text
+                className="text-blue"
+                onPress={() => router.push("/(auth)/sign-in")}
+              >
+                Log in here
+              </Text>
             </Text>
-          </Text>
 
-          <View className="mt-6">
-            <InputField
-              value={formik.values.user_name}
-              onChangeText={formik.handleChange("user_name")}
-              onBlur={formik.handleBlur("user_name")}
-              error={
-                formik.touched.user_name && formik.errors.user_name
-                  ? formik.errors.user_name
-                  : undefined
-              }
-              placeholder="User Name"
+            <View className="mt-6">
+              <InputField
+                value={formik.values.user_name}
+                onChangeText={formik.handleChange("user_name")}
+                onBlur={formik.handleBlur("user_name")}
+                error={
+                  formik.touched.user_name && formik.errors.user_name
+                    ? formik.errors.user_name
+                    : undefined
+                }
+                placeholder="User Name"
+              />
+            </View>
+
+            <View className="mt-6">
+              <InputField
+                value={formik.values.fullName}
+                onChangeText={formik.handleChange("fullName")}
+                onBlur={formik.handleBlur("fullName")}
+                error={
+                  formik.touched.fullName && formik.errors.fullName
+                    ? formik.errors.fullName
+                    : undefined
+                }
+                placeholder="Full name"
+              />
+            </View>
+
+            <View className="mt-3">
+              <InputField
+                value={formik.values.email}
+                onChangeText={formik.handleChange("email")}
+                onBlur={formik.handleBlur("email")}
+                error={formik.touched.email && formik.errors.email}
+                placeholder="Email"
+                keyboardType="email-address"
+              />
+            </View>
+
+            <View className="mt-3">
+              <InputField
+                value={formik.values.businessName}
+                onChangeText={formik.handleChange("businessName")}
+                onBlur={formik.handleBlur("businessName")}
+                error={
+                  formik.touched.businessName && formik.errors.businessName
+                }
+                placeholder="Business name"
+              />
+            </View>
+
+            <View className="mt-3">
+              <PhoneField
+                value={formik.values.phoneNumber}
+                onChangeText={formik.handleChange("phoneNumber")}
+                // placeholder="Contact number"
+                error={
+                  formik.touched.phoneNumber && formik.errors.phoneNumber
+                    ? (formik.errors.phoneNumber as string)
+                    : undefined
+                }
+              />
+            </View>
+
+            <View className="mt-3">
+              <InputField
+                value={formik.values.password}
+                onChangeText={formik.handleChange("password")}
+                onBlur={formik.handleBlur("password")}
+                error={formik.touched.password && formik.errors.password}
+                placeholder="Password"
+                secureTextEntry={true}
+              />
+            </View>
+
+            <View className="mt-3 mb-6">
+              <InputField
+                value={formik.values.confirmPassword}
+                onChangeText={formik.handleChange("confirmPassword")}
+                onBlur={formik.handleBlur("confirmPassword")}
+                error={
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
+                }
+                placeholder="Confirm password"
+                secureTextEntry={true}
+              />
+            </View>
+          </ScrollView>
+
+        <View className="px-4 py-4 mb-4 bg-white">
+          <CustomButton
+            title="Sign Up"
+            onPress={() => {
+              formik.handleSubmit();
+            }}
             />
-          </View>
-
-          <View className="mt-6">
-            <InputField
-              value={formik.values.fullName}
-              onChangeText={formik.handleChange("fullName")}
-              onBlur={formik.handleBlur("fullName")}
-              error={
-                formik.touched.fullName && formik.errors.fullName
-                  ? formik.errors.fullName
-                  : undefined
-              }
-              placeholder="Full name"
-            />
-          </View>
-
-          <View className="mt-3">
-            <InputField
-              value={formik.values.email}
-              onChangeText={formik.handleChange("email")}
-              onBlur={formik.handleBlur("email")}
-              error={formik.touched.email && formik.errors.email}
-              placeholder="Email"
-              keyboardType="email-address"
-            />
-          </View>
-
-          <View className="mt-3">
-            <InputField
-              value={formik.values.businessName}
-              onChangeText={formik.handleChange("businessName")}
-              onBlur={formik.handleBlur("businessName")}
-              error={formik.touched.businessName && formik.errors.businessName}
-              placeholder="Business name"
-            />
-          </View>
-
-          <View className="mt-3">
-            <PhoneField
-              value={formik.values.phoneNumber}
-              onChangeText={formik.handleChange("phoneNumber")}
-              // placeholder="Contact number"
-              error={
-                formik.touched.phoneNumber && formik.errors.phoneNumber
-                  ? (formik.errors.phoneNumber as string)
-                  : undefined
-              }
-            />
-          </View>
-
-          <View className="mt-3">
-            <InputField
-              value={formik.values.password}
-              onChangeText={formik.handleChange("password")}
-              onBlur={formik.handleBlur("password")}
-              error={formik.touched.password && formik.errors.password}
-              placeholder="Password"
-              secureTextEntry={true}
-            />
-          </View>
-
-          <View className="mt-3">
-            <InputField
-              value={formik.values.confirmPassword}
-              onChangeText={formik.handleChange("confirmPassword")}
-              onBlur={formik.handleBlur("confirmPassword")}
-              error={
-                formik.touched.confirmPassword && formik.errors.confirmPassword
-              }
-              placeholder="Confirm password"
-              secureTextEntry={true}
-            />
-          </View>
-        </ScrollView>
-      </AppContainer>
-
-      <View className="px-4 py-4 bg-white">
-        <CustomButton
-          title="Sign Up"
-          onPress={() => {
-            formik.handleSubmit();
-          }}
-        />
-      </View>
+        </View>
+            </AppContainer>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

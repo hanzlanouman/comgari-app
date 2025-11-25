@@ -64,7 +64,7 @@ export interface Task {
 export interface TaskPayload {
   title: string;
   assignedTo: number[];
-  dueDate: string;
+  dueDate: Date;
   priority: string;
   projectId: number;
   status: string;

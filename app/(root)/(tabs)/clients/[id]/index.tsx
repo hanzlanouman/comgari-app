@@ -3,15 +3,17 @@ import React from "react";
 import { useRouter, useNavigation } from "expo-router";
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
   Linking,
 } from "react-native";
-import { useQuery } from "react-query";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
+
+import { useQuery } from "@tanstack/react-query";
 import { vs } from "react-native-size-matters";
 import { useLocalSearchParams } from "expo-router";
 import { useRef, useEffect } from "react";
@@ -160,6 +162,7 @@ const ClientDetailPage: React.FC = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
+          
         }}
       >
         <Pencil size={18} color="#ffffff" />
@@ -175,16 +178,18 @@ const ClientDetailPage: React.FC = () => {
     });
   }, [navigation]);
 
-  const { data, isError, isLoading } = useQuery(
-    ["client", clientIdNum],
-    () => clientRepo.getSingleClient(clientIdNum),
-    {
-      enabled: !!clientIdNum && !!user && isAuthenticated,
-      onError: (error) => {
-        console.error("Error fetching client:", error);
-      },
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["client", clientIdNum],
+    queryFn: () => clientRepo.getSingleClient(clientIdNum),
+    enabled: !!clientIdNum && !!user && isAuthenticated,
+  });
+
+  // Handle error with useEffect
+  useEffect(() => {
+    if (isError && error) {
+      console.error("Error fetching client:", error);
     }
-  );
+  }, [isError, error]);
 
   if (isLoading || !data) {
     return (
@@ -251,7 +256,6 @@ const ClientDetailPage: React.FC = () => {
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
           <AppContainer isError={isError} loading={isLoading}>
@@ -328,7 +332,7 @@ const ClientDetailPage: React.FC = () => {
             </ScrollView>
 
             <ClientEditModal
-              bottomSheetRef={bottomSheetRef}
+              bottomSheetRef={bottomSheetRef as React.RefObject<BottomSheetModal>}
               clientId={clientIdNum}
               clientData={client}
               request={request as any}
@@ -336,7 +340,6 @@ const ClientDetailPage: React.FC = () => {
           </AppContainer>
         </SafeAreaView>
       </BottomSheetModalProvider>
-    </GestureHandlerRootView>
   );
 };
 

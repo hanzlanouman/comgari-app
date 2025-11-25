@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { TouchableOpacity, Text } from "react-native";
 import { Href, router, Stack } from "expo-router";
-import "react-native-reanimated";
 import { useAppSelector } from "@/hooks/redux";
 import { route } from "@/common";
 import { useEffect } from "react";

@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -10,19 +9,23 @@ import {
 import { scale, vs } from "react-native-size-matters";
 import { images, icons, getImageUrl } from "@/constants";
 import { useEffect } from "react";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import { CustomButton } from "@/common/components";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ClientRepository } from "@/repositories/client/client";
-import { decode } from 'html-entities'; 
+import { decode } from "html-entities";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 
 const clientRepo = ClientRepository.getInstance();
 
 const Notes = () => {
   const { id } = useLocalSearchParams();
-  const clientId = typeof id === "string" ? parseInt(id, 10) : id as unknown as number;
+  const clientId =
+    typeof id === "string" ? parseInt(id, 10) : (id as unknown as number);
   const navigation = useNavigation();
 
   const AddButton = () => (
@@ -37,9 +40,7 @@ const Notes = () => {
       end={[1, 1]}
     >
       <TouchableOpacity
-        onPressIn={() => router.push(
-          `/clients/${clientId}/notes/add-note`,
-        )}
+        onPressIn={() => router.push(`/clients/${clientId}/notes/add-note`)}
         style={{
           width: "100%",
           height: "100%",
@@ -61,9 +62,7 @@ const Notes = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
-  const {
-    data: clientNotes,
-  } = useQuery({
+  const { data: clientNotes } = useQuery({
     queryKey: ["clientNotes", clientId],
     queryFn: () => clientRepo.getNotes(clientId),
     enabled: !!clientId,
@@ -74,40 +73,54 @@ const Notes = () => {
 
   const processNoteText = (html: string | null | undefined) => {
     if (!html) return "";
-    const strippedText = html.replace(/<[^>]*>/g, ''); 
-    const decodedText = decode(strippedText); 
-    return decodedText.length > 30 ? `${decodedText.slice(0, 30)}...` : decodedText;
+    const strippedText = html.replace(/<[^>]*>/g, "");
+    const decodedText = decode(strippedText);
+    return decodedText.length > 30
+      ? `${decodedText.slice(0, 30)}...`
+      : decodedText;
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }} className="px-4">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
+        className="px-4"
+      >
         {hasData ? (
           <View className="pb-4">
             {clientNotes
-              ?.slice() 
-              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) 
+              ?.slice()
+              .sort(
+                (a, b) =>
+                  new Date(b.created_at).getTime() -
+                  new Date(a.created_at).getTime()
+              )
               .map((note) => (
                 <TouchableOpacity
                   key={note.id}
-                  onPress={() => router.push({
-                    pathname: "/(root)/(tabs)/clients/[id]/notes/[noteId]",
-                    params: {
-                      id: clientId,
-                      noteId: note.id,
-                      noteDetails: JSON.stringify({
-                        ...note,
-                        notes: note?.notes || '',
-                        media: Array.isArray(note.media) 
-                          ? note.media.map((m:any) => ({ ...m, localUri: m.url })) 
-                          : []
-                      })
-                    }
-                  })}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(root)/(tabs)/clients/[id]/notes/[noteId]",
+                      params: {
+                        id: clientId,
+                        noteId: note.id,
+                        noteDetails: JSON.stringify({
+                          ...note,
+                          notes: note?.notes || "",
+                          media: Array.isArray(note.media)
+                            ? note.media.map((m: any) => ({
+                                ...m,
+                                localUri: m.url,
+                              }))
+                            : [],
+                        }),
+                      },
+                    })
+                  }
                   className="border border-light p-3.5 rounded-[20px] mt-2.5"
                 >
                   <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
-                    {processNoteText(note?.notes || '')}
+                    {processNoteText(note?.notes || "")}
                   </Text>
                   <View className="flex-row items-center justify-between mt-2.5">
                     <View className="flex-row items-center">
@@ -126,7 +139,9 @@ const Notes = () => {
                       </Text>
                     </View>
                     <Text className="text-sm text-dark-100 font-ManropeMedium">
-                      {note?.created_at ? new Date(note.created_at)?.toLocaleDateString() : ''}
+                      {note?.created_at
+                        ? new Date(note.created_at)?.toLocaleDateString()
+                        : ""}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -147,9 +162,9 @@ const Notes = () => {
               <View className="w-[180px] mx-auto mt-5">
                 <CustomButton
                   title="Create Note"
-                  onPress={() => router.push(
-                    `/clients/${clientId}/notes/add-note`,
-                  )}
+                  onPress={() =>
+                    router.push(`/clients/${clientId}/notes/add-note`)
+                  }
                   IconLeft={Plus as any}
                   iconSize={20}
                 />

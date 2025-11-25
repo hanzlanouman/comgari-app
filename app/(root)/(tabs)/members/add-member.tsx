@@ -1,5 +1,5 @@
 //app\(root)\(tabs)\members\add-member.tsx
-import { SafeAreaView, ScrollView } from "react-native";
+import { KeyboardAvoidingView, SafeAreaView, ScrollView } from "react-native";
 
 import { router } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
@@ -15,7 +15,7 @@ import {
   updateMemberSchema,
   UpdateMemberPayload,
 } from "@/repositories/member/schemas";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { MemberRepository } from "@/repositories";
 import { useAppSelector } from "@/hooks/redux";
 
@@ -50,17 +50,21 @@ const AddMember = () => {
       MemberRepo.updateMember(Number(memberId), payload),
   });
 
-  const { data: role } = useQuery(["roles"], getRole, {
+  const { data: role } = useQuery({
+    queryKey: ["roles"],
+    queryFn: getRole,
     staleTime: Infinity,
-    cacheTime: Infinity,
+    gcTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
-  const { data: permission } = useQuery(["permission"], getPermission, {
+  const { data: permission } = useQuery({
+    queryKey: ["permission"],
+    queryFn: getPermission,
     staleTime: Infinity,
-    cacheTime: Infinity,
+    gcTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -161,9 +165,11 @@ const AddMember = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
+
       <AppContainer
         isError={isError || updateMutation.isError}
-        message={(error as string) || (updateMutation.error as string)}
+        message={error?.message || updateMutation.error?.message}
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
           <AddMemberForm
@@ -175,6 +181,7 @@ const AddMember = () => {
           />
         </ScrollView>
       </AppContainer>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

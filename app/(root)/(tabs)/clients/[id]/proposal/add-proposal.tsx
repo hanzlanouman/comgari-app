@@ -1,41 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from "react";
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
-import { useMutation } from 'react-query';
+import { useMutation } from "@tanstack/react-query";
 
-import StepsIndicator from './components/steps-indicator';
-import JobDetails from './components/job-details';
-import Specifications from './components/specifications';
-import Review from './components/review';
+import StepsIndicator from "./components/steps-indicator";
+import JobDetails from "./components/job-details";
+import Specifications from "./components/specifications";
+import Review from "./components/review";
 import { ArrowLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
 import { ClientRepository } from "@/repositories/client/client";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
+import {
+  CreateProposalPayload,
+} from "@/repositories/client/schemas";
 
 const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
 
   // Get route params
-  const { proposalId: proposalId, id: projectId, ...initialParams } = useLocalSearchParams();
+  const {
+    proposalId: proposalId,
+    id: projectId,
+    ...initialParams
+  } = useLocalSearchParams();
   const isEditing = Boolean(proposalId && !isNaN(Number(proposalId)));
   const [currentStep, setCurrentStep] = useState(1);
 
   const [formData, setFormData] = useState({
     client_id: Number(projectId),
-    date: '',
-    address: '',
-    city: '',
+    date: "",
+    address: "",
+    city: "",
     zip_code: undefined,
-    job_name: '',
-    job_phone: '',
-    project_director: '',
+    job_name: "",
+    job_phone: "",
+    project_director: "",
     estimated_days: undefined,
     estimated_cost: undefined,
-    specification: '',
+    specification: "",
     project_id: Number(projectId),
   });
 
   // Steps for the wizard
-  const steps = ['Job details', 'Specifications', 'Review'];
+  const steps = ["Job details", "Specifications", "Review"];
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -62,45 +71,46 @@ const AddProposal = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
 
-
   // Mutation for creating a proposal
-  const createProposalMutation = useMutation(
-    (payload) => clientRepo.createProposal(payload),
-    {
-      onSuccess: (response) => {
-        alert("Proposal created successfully!");
-        router.replace({
-          pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
-          params: { id: formData.project_id },
-        });
-      },
-      onError: (error) => {
-        console.error("Error creating proposal:", error);
-        alert("Failed to create proposal. Please try again.");
-      },
-    }
-  );
+  const createProposalMutation = useMutation({
+    mutationFn: (payload: CreateProposalPayload) =>
+      clientRepo.createProposal(payload),
+    onSuccess: () => {
+      alert("Proposal created successfully!");
+      router.replace({
+        pathname: `/(root)/(tabs)/clients/[id]/proposal`,
+        params: { id: formData.project_id },
+      });
+    },
+    onError: (error) => {
+      console.error("Error creating proposal:", error);
+      alert("Failed to create proposal. Please try again.");
+    },
+  });
 
   // Mutation for updating a proposal
-  const updateProposalMutation = useMutation(
-    ({ proposalId, payload }) => clientRepo.updateProposal(proposalId, payload),
-    {
-      onSuccess: () => {
-        alert("Proposal updated successfully!");
-        router.replace({
-          pathname: `/(root)/(tabs)/clients/${formData.project_id}/proposal`,
-          params: { id: formData.project_id },
-        });
+  const updateProposalMutation = useMutation({
+    mutationFn: ({
+      proposalId,
+      payload,
+    }: {
+      proposalId: number;
+      payload: CreateProposalPayload;
+    }) => clientRepo.updateProposal(proposalId, payload),
+    onSuccess: () => {
+      alert("Proposal updated successfully!");
+      router.replace({
+        pathname: `/(root)/(tabs)/clients/[id]/proposal` as any,
+        params: { id: formData.project_id },
+      });
+    },
+    onError: (error) => {
+      console.error("Error updating proposal:", error);
+      alert("Failed to update proposal. Please try again.");
+    },
+  });
 
-      },
-      onError: (error) => {
-        console.error("Error updating proposal:", error);
-        alert("Failed to update proposal. Please try again.");
-      },
-    }
-  );
-
-  const updateFormData = (newData) => {
+  const updateFormData = (newData: any) => {
     setFormData((prevData) => ({
       ...prevData,
       ...newData,
@@ -138,32 +148,28 @@ const AddProposal = () => {
 
     // Trigger the appropriate mutation
     if (isEditing) {
-      updateProposalMutation.mutate({ proposalId: Number(proposalId), payload });
+      updateProposalMutation.mutate({
+        proposalId: Number(proposalId),
+        payload,
+      });
     } else {
       createProposalMutation.mutate(payload);
     }
   };
 
-
-
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StepsIndicator currentStep={currentStep} steps={steps} />
-      {currentStep === 1 && (<JobDetails
-        initialData={formData}
-        onNext={handleNextStep}
-      />)}
+      {currentStep === 1 && (
+        <JobDetails initialData={formData} onNext={handleNextStep} />
+      )}
       <Specifications
         initialData={formData}
         onNext={handleNextStep}
         onPrevious={handlePreviousStep}
         currentStep={currentStep}
       />
-      {currentStep === 3 && (<Review
-        formData={formData}
-        onSave={handleSave}
-      />)}
+      {currentStep === 3 && <Review formData={formData} onSave={handleSave} />}
     </SafeAreaView>
   );
 };

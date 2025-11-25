@@ -1,16 +1,16 @@
 import React, { useRef, useEffect, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   TouchableOpacity,
   Text,
   Image,
 } from "react-native";
-
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { images, getImageUrl } from "@/constants";
 import { vs } from "react-native-size-matters";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   BottomSheetModalProvider,
   BottomSheetModal,
@@ -21,7 +21,7 @@ import { useLocalSearchParams, useNavigation, router } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
 import ActionModal from "../../components/ActionModal";
 import { AssetPreview } from "@/common/components";
-import { useQueryClient } from "react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 const NoteDetails = () => {
   const params = useLocalSearchParams();
@@ -42,16 +42,13 @@ const NoteDetails = () => {
   const navigation = useNavigation();
   const actionModalRef = useRef<BottomSheetModal>(null);
 
-
   useEffect(() => {
     if (noteDetails) {
       try {
         const parsedNote = JSON.parse(noteDetails);
 
-
         if (parsedNote.media && Array.isArray(parsedNote.media)) {
           parsedNote.media = parsedNote.media.map((m: any) => {
-
             if (!m.localUri && m.url) {
               m.localUri = m.url;
             }
@@ -81,7 +78,7 @@ const NoteDetails = () => {
   const handleDeletePress = async () => {
     try {
       await clientRepo.deleteNote(noteId);
-      queryClient.invalidateQueries(["clientNotes"]);
+      queryClient.invalidateQueries({ queryKey: ["clientNotes"] });
       navigation.goBack();
     } catch (error) {
       console.error("Failed to delete note", error);
@@ -124,12 +121,10 @@ const NoteDetails = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView className="flex-1 bg-white">
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4 mt-4">
-
               <View className="flex-row items-center">
                 <Image
                   source={
@@ -188,8 +183,7 @@ const NoteDetails = () => {
             />
           </ScrollView>
         </SafeAreaView>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+        </BottomSheetModalProvider>
   );
 };
 

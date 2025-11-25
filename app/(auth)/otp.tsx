@@ -5,32 +5,31 @@ import CustomButton from "@/common/components/CustomButton";
 import { useLocalSearchParams } from "expo-router";
 import { OTP_TYPE } from "@/common/enum";
 import { useRouter } from "expo-router";
-import { useAppDispatch } from "@/hooks/redux";
-import { TLoginResponse, TVerifyCredPayload } from "@/repositories/auth/types";
+import { TVerifyCredPayload } from "@/repositories/auth/types";
 import { useFormik } from "formik";
 import { OtpSchema } from "@/repositories/auth/schemas";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AuthRepository } from "@/repositories/auth/auth";
-import { TextInput } from "react-native-gesture-handler";
+import { TextInput } from "react-native";
 import OtpField from "@/common/components/OtpField";
 import { route } from "@/common";
 import { AppContainer, ErrorText } from "@/common/components";
 export type TOtpProps =
   | {
-    username: string;
-    authResponse: string;
-    type: OTP_TYPE.VIERIFICATION;
-  }
+      username: string;
+      authResponse: string;
+      type: OTP_TYPE.VIERIFICATION;
+    }
   | {
-    username: string;
-    type: OTP_TYPE.PASSWORD_RESET;
-    authResponse?: string;
-  }
+      username: string;
+      type: OTP_TYPE.PASSWORD_RESET;
+      authResponse?: string;
+    }
   | {
-    username: string;
-    type: OTP_TYPE.MEMBER_VERIFICATION;
-    authResponse?: string;
-  };
+      username: string;
+      type: OTP_TYPE.MEMBER_VERIFICATION;
+      authResponse?: string;
+    };
 export type TOtpComponentProps = {
   afterVerifyRoute: string;
   resetPassworRoute: string;
@@ -48,9 +47,10 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
     mutationFn: async (payload: TVerifyCredPayload) => {
       try {
         // Parse authResponse if it's a string
-        const parsedAuthResponse = typeof authResponse === 'string' && authResponse
-          ? JSON.parse(authResponse)
-          : authResponse;
+        const parsedAuthResponse =
+          typeof authResponse === "string" && authResponse
+            ? JSON.parse(authResponse)
+            : authResponse;
 
         return await AuthRepo.verifyCred(payload, parsedAuthResponse);
       } catch (err) {
@@ -62,7 +62,6 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
-
         router.push({
           pathname: "/(auth)/go-pro",
           params: {
@@ -133,7 +132,9 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-3">
-            Verification code sent to your contact number and email. Please check your SMS or email.          </Text>
+            Verification code sent to your contact number and email. Please
+            check your SMS or email.{" "}
+          </Text>
           <View className="flex-row -mx-2 mt-5 mb-2">
             {formik.values.otp.map((_, index) => (
               <OtpField
@@ -151,8 +152,12 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
             ))}
           </View>
           <ErrorText
-            error={formik.touched.otp && formik.errors.otp ?
-              typeof formik.errors.otp === "string" ? formik.errors.otp : "Please enter the correct OTP code." : ""
+            error={
+              formik.touched.otp && formik.errors.otp
+                ? typeof formik.errors.otp === "string"
+                  ? formik.errors.otp
+                  : "Please enter the correct OTP code."
+                : ""
             }
           />
           <Text className="bg-white text-sm sm:text-base text-black font-ManropeMedium pt-4 pb-7">
@@ -164,7 +169,6 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
               Resend code
             </Text>
           </Text>
-
         </View>
         <View className="px-4">
           <CustomButton

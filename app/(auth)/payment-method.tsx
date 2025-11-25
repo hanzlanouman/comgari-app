@@ -11,14 +11,14 @@ import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@/constants";
 import Cards from "./components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { TCoupon, TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
-import { TextInput } from "react-native-gesture-handler";
+import { TextInput } from "react-native";
 import { showErrorAlert } from "@/utils";
 import { CouponDuration, DiscountType } from "@/common";
 import { CustomButton, SimpleActivityIndicator } from "@/common/components";
@@ -88,28 +88,26 @@ export default function Paymentmethod() {
     queryFn: () => paymentRepo.getSubscription(),
   });
 
-  const { data: cards } = useQuery(
-    ["cards"],
-    () =>
+  const { data: cards } = useQuery({
+    queryKey: ["cards"],
+    queryFn: () =>
       parsedAuthResponse
         ? paymentRepo.getCards(parsedAuthResponse)
         : paymentRepo.getCards(),
-    {
-      staleTime: Infinity,
-      cacheTime: Infinity,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    }
-  );
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
   const {
     data: buyerResponse,
     refetch,
     isLoading: buyerLoading,
     isError: buyerError,
-  } = useQuery(
-    ["create-buyer"],
-    async () => {
+  } = useQuery({
+    queryKey: ["create-buyer"],
+    queryFn: async () => {
       try {
         const response = parsedAuthResponse
           ? await paymentRepo.createBuyer(parsedAuthResponse)
@@ -125,8 +123,9 @@ export default function Paymentmethod() {
         throw error;
       }
     },
-    { enabled: false, retry: 2 }
-  );
+    enabled: false,
+    retry: 2,
+  });
 
   const onConfirmPayment = async () => {
     const payload: TCreateSubscriptionPayload = {
@@ -142,27 +141,42 @@ export default function Paymentmethod() {
       : await paymentRepo.createSubscription(payload);
   };
 
-  const { mutate: confirmPayment } = useMutation(onConfirmPayment, {
-    onSuccess: (data) => {
+  const {
+    mutate: confirmPayment,
+    isSuccess,
+    isError,
+    error: mutationError,
+    data: mutationData,
+  } = useMutation({
+    mutationFn: onConfirmPayment,
+  });
+
+  // Handle success/error with useEffect
+  useEffect(() => {
+    if (isSuccess && mutationData) {
       if (parsedAuthResponse) {
         dispatch(login(parsedAuthResponse));
       }
       dispatch(setSubscribed(true));
-    },
-    onError: (error: any) => {
-      console.error("Payment failed:", error);
+    }
+  }, [isSuccess, mutationData, parsedAuthResponse, dispatch]);
+
+  useEffect(() => {
+    if (isError && mutationError) {
+      console.error("Payment failed:", mutationError);
       showErrorAlert(
-        error?.message || "An error occurred during payment processing."
+        (mutationError as any)?.message ||
+          "An error occurred during payment processing."
       );
-    },
-  });
+    }
+  }, [isError, mutationError]);
 
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
     if (error) {
       console.error("Payment sheet error:", error);
     } else {
-      queryClient.invalidateQueries(["cards"]);
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
     }
   };
 
@@ -263,18 +277,22 @@ export default function Paymentmethod() {
         </View>
 
         {buyerLoading && (
-          <View className="items-center justify-center my-4">
-            <ActivityIndicator size="large" color="#0000ff" />
-            <Text className="mt-2">Preparing payment system...</Text>
-          </View>
+          <>
+            <View className="items-center justify-center my-4">
+              <ActivityIndicator size="large" color="#0000ff" />
+              <Text className="mt-2">Preparing payment system...</Text>
+            </View>
+          </>
         )}
 
         {buyerError && (
-          <View className="items-center justify-center my-4 p-3 bg-red-50 rounded-md">
-            <Text className="text-red-500">
-              Error initializing payment system. Please try again.
-            </Text>
-          </View>
+          <>
+            <View className="items-center justify-center my-4 p-3 bg-red-50 rounded-md">
+              <Text className="text-red-500">
+                Error initializing payment system. Please try again.
+              </Text>
+            </View>
+          </>
         )}
 
         <View className="mt-4">

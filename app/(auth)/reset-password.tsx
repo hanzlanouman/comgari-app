@@ -1,9 +1,8 @@
 import { SafeAreaView, View, Text } from "react-native";
-import { useState } from "react";
 import InputField from "@/common/components/InputField";
 import CustomButton from "@/common/components/CustomButton";
-import { router, useLocalSearchParams, useRouter } from "expo-router";
-import { useMutation } from "react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
 import {
   ResetPassowrdSchema,
   ResetPasswordPayload,
@@ -49,8 +48,8 @@ const ResetPassword = () => {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 p-4">
           <Text className="text-dark-100 text-sm sm:text-base font-ManropeRegular mt-1">
-          Set a new password.
-          Create a strong password with numbers, letters, and symbols.
+            Set a new password. Create a strong password with numbers, letters,
+            and symbols.
           </Text>
           <View className="mt-6">
             <InputField

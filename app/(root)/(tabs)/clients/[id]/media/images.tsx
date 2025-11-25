@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -11,6 +10,9 @@ import {
   Modal,
   Pressable,
 } from "react-native";
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Trash2, X, Upload } from "lucide-react-native";
 import { Action } from "@/common/enum";
@@ -18,7 +20,7 @@ import { ClientRepository } from "@/repositories/client/client";
 import { getImageUrl } from "@/constants";
 import { IS_ANDROID, pickImage, showErrorAlert } from "@/utils";
 import { LinearGradient } from "expo-linear-gradient";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useUpload } from "@/hooks/use-upload";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -82,55 +84,64 @@ const ImagesMediaDetailScreen = () => {
       return dateB - dateA;
     });
 
-    return sortedItems.reduce((acc, item) => {
-      const dateKey = formatDate(item.createdAt || "");
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(item);
-      return acc;
-    }, {} as Record<string, MediaItem[]>);
+    return sortedItems.reduce(
+      (acc, item) => {
+        const dateKey = formatDate(item.createdAt || "");
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(item);
+        return acc;
+      },
+      {} as Record<string, MediaItem[]>
+    );
   };
 
   const groupedItems = groupByDate(parsedItems);
 
   const handleDelete = async (item: MediaItem) => {
     try {
-      Alert.alert("Delete Image", "Are you sure you want to delete this image?", [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const deletePayload = {
-                media: [
-                  {
-                    prev_media_id: item.id,
-                    client_id: Number(id),
-                    owner_type: item.ownerType || "Client",
-                    owner_id: Number(id),
-                    action: Action.REMOVE,
-                    mimeType: item.mimeType,
-                  },
-                ],
-              };
+      Alert.alert(
+        "Delete Image",
+        "Are you sure you want to delete this image?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                const deletePayload = {
+                  media: [
+                    {
+                      prev_media_id: item.id,
+                      client_id: Number(id),
+                      owner_type: item.ownerType || "Client",
+                      owner_id: Number(id),
+                      action: Action.REMOVE,
+                      mimeType: item.mimeType,
+                    },
+                  ],
+                };
 
-              await clientRepo.updateClientMedia(Number(id), deletePayload);
+                await clientRepo.updateClientMedia(Number(id), deletePayload);
 
-              const updatedItems = parsedItems.filter((i) => i.id !== item.id);
-              setParsedItems(updatedItems);
-              setModalVisible(false);
-              setSelectedItem(null);
+                const updatedItems = parsedItems.filter(
+                  (i) => i.id !== item.id
+                );
+                setParsedItems(updatedItems);
+                setModalVisible(false);
+                setSelectedItem(null);
 
-              Alert.alert("Success", "Image deleted successfully");
-            } catch (apiError) {
-              console.error("Delete API Error:", apiError);
-              Alert.alert("Delete Failed", "Could not delete the image");
-            }
+                Alert.alert("Success", "Image deleted successfully");
+              } catch (apiError) {
+                console.error("Delete API Error:", apiError);
+                Alert.alert("Delete Failed", "Could not delete the image");
+              }
+            },
           },
-        },
-      ]);
+        ]
+      );
     } catch (error) {
       console.error("Error deleting image:", error);
       Alert.alert("Delete Failed", "Could not delete the image");
@@ -235,31 +246,35 @@ const ImagesMediaDetailScreen = () => {
     );
   };
 
-  const saveMediaMutation = useMutation(async (mediaItems: MediaItem[]) => {
-    const payload = {
-      files: mediaItems.map(({ url, mimeType, clientId, ownerId, ownerType }) => ({
-        url,
-        mimeType,
-        clientId,
-        ownerId,
-        ownerType,
-      })),
-    };
-    return await clientRepo.saveClientMedia(payload);
+  const saveMediaMutation = useMutation({
+    mutationFn: async (mediaItems: MediaItem[]) => {
+      const payload = {
+        files: mediaItems.map(
+          ({ url, mimeType, clientId, ownerId, ownerType }) => ({
+            url,
+            mimeType,
+            clientId,
+            ownerId,
+            ownerType,
+          })
+        ),
+      };
+      return await clientRepo.saveClientMedia(payload);
+    },
   });
 
   const pickMedia = async () => {
     try {
-      const resp = await pickImage(true)
+      const resp = await pickImage(true);
       if (!resp.isSuccess) {
-        showErrorAlert(resp.error)
-        return
+        showErrorAlert(resp.error);
+        return;
       }
       setIsUploading(true);
-      const uploadedMediaItems = []
+      const uploadedMediaItems = [];
       for (const file of resp.result) {
         try {
-          const res = await uploadAsync(file)
+          const res = await uploadAsync(file);
           if (res.isSuccess && res.result) {
             uploadedMediaItems.push({
               url: res.result,
@@ -267,40 +282,40 @@ const ImagesMediaDetailScreen = () => {
               clientId: Number(id),
               ownerId: Number(id),
               ownerType: "client",
-            })
+            });
           } else if (!res.isSuccess) {
-            showErrorAlert(res.error || "Failed to upload image")
+            showErrorAlert(res.error || "Failed to upload image");
           }
         } catch (fileError) {
-          console.error("Error processing file:", fileError)
+          console.error("Error processing file:", fileError);
         }
       }
-      
+
       if (uploadedMediaItems.length > 0) {
         try {
           await saveMediaMutation.mutateAsync(uploadedMediaItems);
-          
+
           const response = await clientRepo.getClientMedia({
             client_id: Number(id),
             owner_id: Number(id),
             owner_type: "client",
           });
-          
+
           const mediaItems = Array.isArray(response) ? response : [];
-          const updatedImageItems = mediaItems.filter((item: any) => 
-            item.mimeType && item.mimeType.startsWith("image/")
+          const updatedImageItems = mediaItems.filter(
+            (item: any) => item.mimeType && item.mimeType.startsWith("image/")
           );
-          
+
           setParsedItems(updatedImageItems);
         } catch (apiError) {
           console.error("API Error:", apiError);
-          showErrorAlert("Failed to save uploaded images")
+          showErrorAlert("Failed to save uploaded images");
         }
       }
-      
+
       setIsUploading(false);
     } catch (error: any) {
-      showErrorAlert(error?.message || "An unexpected error occurred")
+      showErrorAlert(error?.message || "An unexpected error occurred");
       setIsUploading(false);
     }
   };
@@ -314,7 +329,8 @@ const ImagesMediaDetailScreen = () => {
         height: 32,
       }}
       start={[0, 0]}
-      end={[1, 1]}>
+      end={[1, 1]}
+    >
       <TouchableOpacity
         onPressIn={pickMedia}
         style={{
@@ -323,12 +339,13 @@ const ImagesMediaDetailScreen = () => {
           alignItems: "center",
           justifyContent: "center",
         }}
-        disabled={isUploading}>
+        disabled={isUploading}
+      >
         <Upload size={18} color="#ffffff" />
       </TouchableOpacity>
     </LinearGradient>
   );
-  
+
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,

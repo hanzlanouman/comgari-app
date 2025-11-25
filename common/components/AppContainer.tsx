@@ -13,7 +13,7 @@ import {
 
 import { ms } from "react-native-size-matters";
 
-import  { CustomButton } from "@/common/components/CustomButton";
+import { CustomButton } from "@/common/components/CustomButton";
 
 import { Colors } from "@/common/Colors";
 
@@ -79,13 +79,24 @@ export const AppContainer = (props: Props) => {
   const hasScroll = props?.hasScroll ? true : false;
 
   return (
-    <KeyboardAwareScrollView className="bg-white w-screen h-screen">
+    <KeyboardAwareScrollView
+      className="bg-white w-screen h-screen"
+      enableOnAndroid
+      extraScrollHeight={ms(40)}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={
+        hasScroll
+          ? styles.keyboardAwareContent
+          : [styles.keyboardAwareContent, props?.style]
+      }
+    >
       {props?.loading && <SimpleActivityIndicator />}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible && !showConfirmation}
-        onRequestClose={handleClose}>
+        onRequestClose={handleClose}
+      >
         <View style={styles.centeredView}>
           <View style={styles.modal}>
             <Text style={styles.heading}>{title}</Text>
@@ -100,7 +111,8 @@ export const AppContainer = (props: Props) => {
         animationType="slide"
         transparent={true}
         visible={showConfirmation}
-        onRequestClose={handleCancel}>
+        onRequestClose={handleCancel}
+      >
         <View style={styles.centeredView}>
           <View style={styles.modal}>
             <Text style={styles.heading}>Confirm</Text>
@@ -111,14 +123,16 @@ export const AppContainer = (props: Props) => {
             <View className="mb-2">
               <CustomButton onPress={handleCancel} title="No" />
             </View>
-
           </View>
         </View>
       </Modal>
       {hasScroll ? (
         <ScrollView
           className="bg-white w-screen h-screen"
-          contentContainerStyle={props?.style}>
+          contentContainerStyle={[styles.scrollContent, props?.style]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           {props.children}
         </ScrollView>
       ) : (
@@ -162,6 +176,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     color: Colors.error.red,
+  },
+  keyboardAwareContent: {
+    flexGrow: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 });
 
