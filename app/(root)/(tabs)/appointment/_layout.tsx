@@ -32,6 +32,7 @@ const Layout = () => {
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
                 className="rounded-full w-8 h-8"
+              style={{ borderRadius: 9999 }}
                 start={[0, 0]}
                 end={[1, 1]}
               >
