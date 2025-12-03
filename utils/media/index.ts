@@ -54,3 +54,20 @@ export async function moveFile(uri: string): Promise<TDownloadResponse> {
         }
     }
 }
+
+/**
+ * Clear the stored download folder URI (Android only, Expo builds)
+ * Useful if user wants to change the download folder location
+ */
+export async function clearDownloadFolder(): Promise<void> {
+    try {
+        if (isRunningInExpoGo()) {
+            const _downloadMedia: any = await import('./download-media.expo')
+            if (_downloadMedia.clearDownloadFolder) {
+                await _downloadMedia.clearDownloadFolder()
+            }
+        }
+    } catch (e: any) {
+        console.error("Error clearing download folder:", e)
+    }
+}
