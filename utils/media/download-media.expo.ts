@@ -1,41 +1,142 @@
 import * as FileSystem from "expo-file-system";
-
-import * as MediaLibrary from "expo-media-library";
-
-import { TDownloadResponse } from "./types";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sharing from "expo-sharing";
-
+import { TDownloadResponse } from "./types";
 import { getMimeTypeFromFileName, isIos } from "../helpers";
 
-const Download = async (url: string): Promise<TDownloadResponse> => {
+const FS = FileSystem as any;
+
+const DOWNLOAD_FOLDER_URI_KEY = "comgari_download_folder_uri";
+
+const isStorageAccessFrameworkAvailable = (): boolean => {
+  return !!(
+    FS.StorageAccessFramework &&
+    typeof FS.StorageAccessFramework.requestDirectoryPermissionsAsync ===
+      "function"
+  );
+};
+
+const getStoredFolderUri = async (): Promise<string | null> => {
   try {
-    const filename = `${Date.now()}_${url.split("/").pop()}`;
-    const fileUri = `${FileSystem.documentDirectory}${filename}`;
+    return await AsyncStorage.getItem(DOWNLOAD_FOLDER_URI_KEY);
+  } catch {
+    return null;
+  }
+};
 
-    const downloadResult = await FileSystem.downloadAsync(url, fileUri);
+const storeFolderUri = async (uri: string): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(DOWNLOAD_FOLDER_URI_KEY, uri);
+  } catch (error) {
+    console.error("Error storing folder URI:", error);
+  }
+};
 
-    if (downloadResult.status !== 200) {
-      throw new Error(`Download failed with status ${downloadResult.status}`);
-    }
+const getFolderPermission = async (): Promise<string | null> => {
+  if (!isStorageAccessFrameworkAvailable()) {
+    return null;
+  }
 
-    // Request Media Library permission
-    const { granted } = await MediaLibrary.requestPermissionsAsync();
-    if (!granted) {
-      return {
-        success: false,
-        message: "Permission Denied",
-      };
-    }
+  const storedUri = await getStoredFolderUri();
+  if (storedUri) {
+    return storedUri;
+  }
 
-    // Save the file
-    const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
-    await MediaLibrary.createAlbumAsync("Downloads", asset, false);
+  const permissions =
+    await FS.StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+  if (!permissions.granted) {
+    return null;
+  }
+
+  await storeFolderUri(permissions.directoryUri);
+
+  return permissions.directoryUri;
+};
+
+const saveToFolder = async (
+  fileUri: string,
+  filename: string,
+  folderUri: string
+): Promise<TDownloadResponse> => {
+  try {
+    const mimeType = getMimeTypeFromFileName(filename);
+
+    const base64 = await FS.readAsStringAsync(fileUri, {
+      encoding: FS.EncodingType.Base64,
+    });
+
+    const newUri = await FS.StorageAccessFramework.createFileAsync(
+      folderUri,
+      filename,
+      mimeType
+    );
+
+    await FS.writeAsStringAsync(newUri, base64, {
+      encoding: FS.EncodingType.Base64,
+    });
 
     return {
       success: true,
       message: "File Downloaded Successfully.",
     };
+  } catch (error: any) {
+    console.error("Error saving file to folder:", error);
+    return {
+      success: false,
+      message:
+        error?.message ||
+        "An error occurred while downloading the file. Please try again.",
+    };
+  }
+};
+
+const shareFile = async (
+  uri: string,
+  filename: string
+): Promise<TDownloadResponse> => {
+  if (await Sharing.isAvailableAsync()) {
+    await Sharing.shareAsync(uri, {
+      mimeType: getMimeTypeFromFileName(filename),
+      dialogTitle: "Save File",
+    });
+
+    return {
+      success: true,
+      message: "File Downloaded Successfully.",
+    };
+  } else {
+    return {
+      success: false,
+      message: "Sharing is not available on this device.",
+    };
+  }
+};
+
+const Download = async (url: string): Promise<TDownloadResponse> => {
+  try {
+    const filename = `${Date.now()}_${url.split("/").pop()}`;
+    const fileUri = `${FS.documentDirectory}${filename}`;
+
+    const downloadResult = await FS.downloadAsync(url, fileUri);
+
+    if (downloadResult.status !== 200) {
+      throw new Error(`Download failed with status ${downloadResult.status}`);
+    }
+
+    if (isIos()) {
+      return await shareFile(downloadResult.uri, filename);
+    }
+
+    if (isStorageAccessFrameworkAvailable()) {
+      const folderUri = await getFolderPermission();
+
+      if (folderUri) {
+        return await saveToFolder(downloadResult.uri, filename, folderUri);
+      }
+    }
+
+    return await shareFile(downloadResult.uri, filename);
   } catch (error: any) {
     console.error("Error downloading file:", error);
     return {
@@ -47,87 +148,23 @@ const Download = async (url: string): Promise<TDownloadResponse> => {
 
 const MoveFile = async (uri: string): Promise<TDownloadResponse> => {
   try {
-    // For both iOS and Android in Expo Go, use the share dialog
-    // StorageAccessFramework is not available in Expo Go
-    if (await Sharing.isAvailableAsync()) {
-      await Sharing.shareAsync(uri, {
-        mimeType: "application/pdf",
-        dialogTitle: "Save File",
-        UTI: "com.adobe.pdf",
-      });
+    const filename = `${Date.now()}_${uri.split("/").pop()}`;
 
-      return {
-        success: true,
-        message: "File Downloaded Successfully.",
-      };
-    } else {
-      return {
-        success: false,
-        message: "Sharing is not available on this device.",
-      };
+    if (isIos()) {
+      return await shareFile(uri, filename);
     }
 
-    // ===== COMMENTED CODE FOR STANDALONE/DEVELOPMENT BUILDS =====
-    // Uncomment the code below when building a standalone app
-    // StorageAccessFramework is only available in dev/production builds, not in Expo Go
+    if (isStorageAccessFrameworkAvailable()) {
+      const folderUri = await getFolderPermission();
 
-    // if (isIos()) {
-    //   if (await Sharing.isAvailableAsync()) {
-    //     await Sharing.shareAsync(uri, {
-    //       mimeType: "application/pdf",
-    //       dialogTitle: "Save File",
-    //       UTI: "com.adobe.pdf",
-    //     });
-    //
-    //     return {
-    //       success: true,
-    //       message: "File Downloaded Successfully.",
-    //     };
-    //   } else {
-    //     return {
-    //       success: false,
-    //       message: "Sharing is not available on this device.",
-    //     };
-    //   }
-    // }
-    //
-    // const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-    // if (!permissions.granted) {
-    //   return {
-    //     success: false,
-    //     message: "Permission Denied",
-    //   };
-    // }
-    // const filename = `${Date.now()}_${uri.split("/").pop()}`;
-    // const mimeType = getMimeTypeFromFileName(filename);
-    // const base64 = await FileSystem.readAsStringAsync(uri, {
-    //   encoding: FileSystem.EncodingType.Base64,
-    // });
-    //
-    // return await FileSystem.StorageAccessFramework.createFileAsync(
-    //   permissions.directoryUri,
-    //   filename,
-    //   mimeType
-    // )
-    //   .then(async (newUri) => {
-    //     await FileSystem.writeAsStringAsync(newUri, base64, {
-    //       encoding: FileSystem.EncodingType.Base64,
-    //     });
-    //     return {
-    //       success: true,
-    //       message: "File Downloaded Successfully.",
-    //     };
-    //   })
-    //   .catch((err) => {
-    //     return {
-    //       success: false,
-    //       message:
-    //         err?.message ||
-    //         "An error occurred while downloading the file. Please try again.",
-    //     };
-    //   });
+      if (folderUri) {
+        return await saveToFolder(uri, filename, folderUri);
+      }
+    }
+
+    return await shareFile(uri, filename);
   } catch (error: any) {
-    console.error("Error downloading invoice:", error);
+    console.error("Error saving file:", error);
     return {
       success: false,
       message: error?.message || "Download Failed",
@@ -135,4 +172,12 @@ const MoveFile = async (uri: string): Promise<TDownloadResponse> => {
   }
 };
 
-export { Download, MoveFile };
+const clearDownloadFolder = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(DOWNLOAD_FOLDER_URI_KEY);
+  } catch (error) {
+    console.error("Error clearing download folder:", error);
+  }
+};
+
+export { Download, MoveFile, clearDownloadFolder };
