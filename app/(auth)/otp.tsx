@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { SafeAreaView, View, Text } from "react-native";
+import { View, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRef } from "react";
 import CustomButton from "@/common/components/CustomButton";
-import { useLocalSearchParams } from "expo-router";
+import { Href, useLocalSearchParams } from "expo-router";
 import { OTP_TYPE } from "@/common/enum";
 import { useRouter } from "expo-router";
 import { TVerifyCredPayload } from "@/repositories/auth/types";
@@ -14,6 +15,8 @@ import { TextInput } from "react-native";
 import OtpField from "@/common/components/OtpField";
 import { route } from "@/common";
 import { AppContainer, ErrorText } from "@/common/components";
+import { useAppDispatch } from "@/hooks/redux";
+import { login, setSubscribed } from "@/store";
 export type TOtpProps =
   | {
       username: string;
@@ -36,6 +39,7 @@ export type TOtpComponentProps = {
 };
 const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const AuthRepo = AuthRepository.getInstance();
   const { username, authResponse, type } = useLocalSearchParams<TOtpProps>();
 
@@ -62,12 +66,32 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
-        router.push({
-          pathname: "/(auth)/go-pro",
-          params: {
-            authResponse: authResponse,
-          },
-        });
+        // Parse authResponse and log in the user
+        // Trial subscription is now auto-created during signup
+        // Navigate directly to home instead of go-pro
+        try {
+          const parsedAuthResponse =
+            typeof authResponse === "string" && authResponse
+              ? JSON.parse(authResponse)
+              : authResponse;
+          
+          if (parsedAuthResponse) {
+            dispatch(login(parsedAuthResponse));
+            // User has auto-trial subscription created during signup
+            dispatch(setSubscribed(true));
+          }
+          
+          router.replace(route.root.home as unknown as Href);
+        } catch (err) {
+          console.error("Error parsing authResponse:", err);
+          // Fallback to go-pro if parsing fails
+          router.push({
+            pathname: "/(auth)/go-pro",
+            params: {
+              authResponse: authResponse,
+            },
+          });
+        }
       }
     },
   });

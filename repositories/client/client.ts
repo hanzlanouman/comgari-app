@@ -333,7 +333,7 @@ export class ClientRepository implements IClientRepository {
         `${BaseUrl}${END_POINTS.Client.GET_CLIENTS.route}`,
         payload
       );
-      return res.data;
+      return res;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);
     }

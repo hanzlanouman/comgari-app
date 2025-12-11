@@ -17,6 +17,7 @@ import { useFormik } from "formik";
 import { LoginPayload, LoginSchema } from "@/repositories/auth/schemas";
 import AppContainer from "@/common/components/AppContainer";
 import { AuthRepository } from "@/repositories/auth/auth";
+import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation } from "@tanstack/react-query";
 import { route } from "@/common";
 import { useAppDispatch } from "@/hooks/redux";
@@ -26,6 +27,7 @@ import { IS_ANDROID, IS_IOS } from "@/utils";
 
 const SignIn = () => {
   const AuthRepo = AuthRepository.getInstance();
+  const PaymentRepo = PaymentRepository.getInstance();
   const dispatch = useAppDispatch();
   const [otpScreen, setOtpScreen] = useState(false);
 
@@ -65,7 +67,7 @@ const SignIn = () => {
       }
 
       mutate(values, {
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
           if (isSuperAdmin(data)) {
             Alert.alert(
               "SuperAdmin Access",
@@ -83,16 +85,35 @@ const SignIn = () => {
           }
 
           dispatch(login(data));
-          dispatch(setSubscribed(data.user.subscription));
 
-          if (IS_IOS && !data.user.subscription) {
-            router.push({
-              pathname: "/(auth)/go-pro",
-            });
-            return;
+          // Check if user has subscription or is on trial
+          let hasSubscriptionAccess = data.user.subscription;
+
+          // If subscription is false, check if user is on trial
+          // Trial users should have access to the dashboard
+          if (!hasSubscriptionAccess) {
+            try {
+              // Pass the access token since it's not yet stored in the API client
+              const trialStatus = await PaymentRepo.getTrialStatus();
+              // If user is on trial or has active subscription, grant access
+              if (
+                trialStatus?.is_on_trial ||
+                trialStatus?.has_active_subscription
+              ) {
+                hasSubscriptionAccess = true;
+              }
+            } catch (error) {
+              // If trial status check fails, use the original subscription flag
+              console.log(
+                "Trial status check failed, using original subscription flag"
+              );
+            }
           }
 
-          if (!data.user.subscription) {
+          dispatch(setSubscribed(hasSubscriptionAccess));
+
+          // Navigate based on subscription/trial status
+          if (!hasSubscriptionAccess) {
             router.push({
               pathname: "/(auth)/go-pro",
             });

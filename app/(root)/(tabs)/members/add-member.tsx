@@ -166,21 +166,20 @@ const AddMember = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-
-      <AppContainer
-        isError={isError || updateMutation.isError}
-        message={error?.message || updateMutation.error?.message}
-      >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-          <AddMemberForm
-            formik={formik}
-            roleOptions={roles}
-            permissionOptions={permissions}
-            statusOptions={status}
-            isEditing={isEditing === "true"}
-          />
-        </ScrollView>
-      </AppContainer>
+        <AppContainer
+          isError={isError || updateMutation.isError}
+          message={error || updateMutation.error }
+        >
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+            <AddMemberForm
+              formik={formik}
+              roleOptions={roles}
+              permissionOptions={permissions}
+              statusOptions={status}
+              isEditing={isEditing === "true"}
+            />
+          </ScrollView>
+        </AppContainer>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

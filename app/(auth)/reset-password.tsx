@@ -1,4 +1,5 @@
-import { SafeAreaView, View, Text } from "react-native";
+import { View, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import InputField from "@/common/components/InputField";
 import CustomButton from "@/common/components/CustomButton";
 import { useLocalSearchParams, useRouter } from "expo-router";
