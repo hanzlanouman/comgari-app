@@ -18,3 +18,17 @@ export type TCoupon = {
     createdAt: Date
     updatedAt: Date
 }
+
+export type TTrialStatusResponse = {
+    has_used_trial: boolean
+    trial_started_at: string | null
+    trial_end_date: string | null
+    trial_expired: boolean
+    has_active_subscription: boolean
+    is_on_trial: boolean
+    subscription: {
+        plan_name: string
+        expiry_date: string
+        is_trial: boolean
+    } | null
+}

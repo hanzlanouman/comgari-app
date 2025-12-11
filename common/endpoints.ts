@@ -158,6 +158,11 @@ export const END_POINTS = {
       route: PaymentUrl + '/validate-coupon/',
       method: 'GET',
       description: 'Append coupon code at end'
+    },
+    TRIAL_STATUS: {
+      route: PaymentUrl + '/trial-status',
+      method: 'GET',
+      description: 'Get trial status for current user agency'
     }
   },
   Client: {

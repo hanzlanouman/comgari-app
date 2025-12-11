@@ -2,10 +2,11 @@
 import {
   View,
   Text,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
 } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@/constants";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert, View, Text } from "react-native";
+import { Alert, View, Text, Platform } from "react-native";
 import { router } from "expo-router";
 import { AddAppointmentForm } from "./components/AddAppointmentForm";
 import { ClientRepository } from "@/repositories/client/client";
@@ -8,13 +8,21 @@ import { useLocalSearchParams } from "expo-router";
 import { MemberRepository } from "@/repositories/member/member";
 import { OptionType } from "@/common/types";
 
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+// GoogleSignin is conditionally imported below to avoid crashes in Expo Go
+let GoogleSignin: any = null;
+try {
+  GoogleSignin =
+    require("@react-native-google-signin/google-signin").GoogleSignin;
+} catch (e) {
+  console.warn("GoogleSignin not available (expected in Expo Go)");
+}
 
 import { AppContainer } from "@/common/components";
 import { AuthRepository } from "@/repositories";
 import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment";
 import { showErrorAlert } from "@/utils";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuery } from "@tanstack/react-query";
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -41,73 +49,74 @@ const AddAppointment = () => {
     members,
   } = useLocalSearchParams();
 
-  useEffect(() => {
-    fetchClients();
-    fetchMembers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: GoogleWebClientID,
-      iosClientId: GoogleIOSClientID,
-      offlineAccess: true,
-      forceCodeForRefreshToken: true,
-      scopes: [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/calendar",
-      ],
-    });
-  }, []);
-
   const parsedMembers = members ? JSON.parse(members as string) : [];
   const clientRepo = ClientRepository.getInstance();
   const memberRepo = MemberRepository.getInstance();
   const authRepo = AuthRepository.getInstance();
 
-  const [clientOptions, setClientOptions] = useState<OptionType[]>([]);
-  const [memberOptions, setMemberOptions] = useState<OptionType[]>([]);
-
-  const [isClientsLoading, setIsClientsLoading] = useState(false);
-  const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [appointmentAdded, setAppointmentAdded] = useState(false);
 
-  const fetchClients = async () => {
-    setIsClientsLoading(true);
-    try {
-      const clients = await clientRepo.getClients({ start: 0, limit: 100 });
+  //   // Fetch clients using useQuery
+  const { data: clientsData, isLoading: isClientsLoading } = useQuery({
+    queryKey: ["clients"],
+    queryFn: () => clientRepo.getClients({ start: 0, limit: 100 }),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
-      const options: OptionType[] =
-        clients?.data?.map((client: any) => ({
-          key: client.id,
-          value: client.name,
-        })) || [];
-      setClientOptions(options);
-    } catch (err: any) {
-      Alert.alert("Error", err?.message || "Failed to fetch clients");
-    } finally {
-      setIsClientsLoading(false);
+  //   // Fetch members using useQuery
+  const { data: membersData, isLoading: isMembersLoading } = useQuery({
+    queryKey: ["members"],
+    queryFn: () => memberRepo.getMember(),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+
+  //   // Transform clients data to options
+  const clientOptions: OptionType[] =
+    clientsData?.data?.map((client: any) => ({
+      key: client?.id,
+      value: client?.name,
+    })) || [];
+
+  console.log(clientOptions, "clientOptions");
+  // Transform members data to options
+  const memberOptions: OptionType[] =
+    membersData?.data?.map((member: any) => ({
+      key: member?.Auth?.id,
+      value: member?.Auth?.username,
+    })) || [];
+
+  console.log(memberOptions, "memberOptions");
+
+  useEffect(() => {
+    // Only configure GoogleSignin on native platforms and if the module is available
+    if (Platform.OS === "web" || !GoogleSignin) {
+      return;
     }
-  };
 
-  const fetchMembers = async () => {
-    setIsMembersLoading(true);
     try {
-      const response = await memberRepo.getMember();
-      const members = response?.data || [];
-
-      const options: OptionType[] = members.map((member: any) => ({
-        key: member.Auth?.id,
-        value: member.Auth?.username,
-      }));
-      setMemberOptions(options);
-    } catch (err: any) {
-      Alert.alert("Error", err?.message || "Failed to fetch members");
-    } finally {
-      setIsMembersLoading(false);
+      GoogleSignin.configure({
+        webClientId: GoogleWebClientID,
+        iosClientId: GoogleIOSClientID,
+        offlineAccess: true,
+        forceCodeForRefreshToken: true,
+        scopes: [
+          "https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/userinfo.profile",
+          "https://www.googleapis.com/auth/calendar",
+        ],
+      });
+    } catch (error) {
+      console.warn("Failed to configure GoogleSignin:", error);
     }
-  };
+  }, []);
 
   const handleSubmitSuccess = () => {
     router.push("/(root)/(tabs)/appointment/appointment");
@@ -156,18 +165,13 @@ const AddAppointment = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* <AppContainer
+      <AppContainer
         confirmationMessage="Do you want to add the appointment in Google Calendar"
         isConfirm={true}
         onConfirm={onGoogleAppointment}
         title="Add Appointment"
       >
-      </AppContainer> */}
-
-      <View>
-        <Text className="text-2xl font-bold">Hello</Text>
-      </View>
-      {/* <AddAppointmentForm
+        <AddAppointmentForm
           clientOptions={clientOptions}
           memberOptions={memberOptions}
           statusOptions={STATUS_OPTIONS}
@@ -192,9 +196,17 @@ const AddAppointment = () => {
               : undefined
           }
         />
-      </AppContainer> */}
+      </AppContainer>
     </SafeAreaView>
   );
+
+  //   return (
+  //     <SafeAreaView className="flex-1 bg-white">
+  //       <View>
+  //         <Text className="text-2xl font-bold">Hello</Text>
+  //       </View>
+  //     </SafeAreaView>
+  //   );
 };
 
 export default AddAppointment;

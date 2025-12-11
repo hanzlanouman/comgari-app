@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -9,6 +8,7 @@ import {
   Image,
   Linking,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "@/constants";
 import { scale, vs } from "react-native-size-matters";
 import { router, useLocalSearchParams } from "expo-router";

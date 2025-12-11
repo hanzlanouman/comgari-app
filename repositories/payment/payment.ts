@@ -6,7 +6,7 @@ import { BaseUrl } from "@/common";
 import { END_POINTS } from "@/common/endpoints";
 import { getErrorMessage } from "@/common/utils";
 import { TCreateSubscriptionPayload } from "./schema";
-import { TValidateCouponResponse } from "./types";
+import { TTrialStatusResponse, TValidateCouponResponse } from "./types";
 
 interface IPaymentRepository {
   createBuyer(authResponse?: TLoginResponse): Promise<TReponse>;
@@ -105,41 +105,54 @@ export class PaymentRepository implements IPaymentRepository {
 
   async getAgencySubscription() {
     try {
-      const res = await get(`${BaseUrl + END_POINTS.PAYMENT.AGENCY_SUBSCRIPTION.route}`, {
-        show_loader: true
-      })
+      const res = await get(
+        `${BaseUrl + END_POINTS.PAYMENT.AGENCY_SUBSCRIPTION.route}`,
+        {
+          show_loader: true,
+        }
+      );
 
-      return res
+      return res;
     } catch (e: AxiosError | any) {
-      throw getErrorMessage(e)
+      throw getErrorMessage(e);
     }
   }
 
   async updateAgencySubscription(payload: TCreateSubscriptionPayload) {
     try {
-      const res = await post(`${BaseUrl + END_POINTS.PAYMENT.UPGRADE_PLAN.route}`, payload, {
-        show_loader: true
-      })
+      const res = await post(
+        `${BaseUrl + END_POINTS.PAYMENT.UPGRADE_PLAN.route}`,
+        payload,
+        {
+          show_loader: true,
+        }
+      );
 
-      return res
+      return res;
     } catch (e: AxiosError | any) {
-      throw getErrorMessage(e)
+      throw getErrorMessage(e);
     }
   }
 
   async cancelSubscription() {
     try {
-      const res = await del(`${BaseUrl + END_POINTS.PAYMENT.CANCEL_SUBSCRIPTION.route}`, {
-        show_loader: true
-      })
+      const res = await del(
+        `${BaseUrl + END_POINTS.PAYMENT.CANCEL_SUBSCRIPTION.route}`,
+        {
+          show_loader: true,
+        }
+      );
 
-      return res
+      return res;
     } catch (e: AxiosError | any) {
-      throw getErrorMessage(e)
+      throw getErrorMessage(e);
     }
   }
 
-  async validateCoupon(coupon: string, authResponse?: TLoginResponse): Promise<TValidateCouponResponse> {
+  async validateCoupon(
+    coupon: string,
+    authResponse?: TLoginResponse
+  ): Promise<TValidateCouponResponse> {
     try {
       const res = await get(
         `${BaseUrl + END_POINTS.PAYMENT.VALIDATE_COUPON.route + coupon}`,
@@ -148,6 +161,24 @@ export class PaymentRepository implements IPaymentRepository {
           headers: authResponse
             ? { Authorization: `Bearer ${authResponse.access_token}` }
             : undefined,
+        }
+      );
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+
+  /**
+   * Get the trial status for the current user's agency.
+   * Returns information about trial usage, expiry, and subscription status.
+   */
+  async getTrialStatus(): Promise<TTrialStatusResponse> {
+    try {
+      const res = await get(
+        `${BaseUrl + END_POINTS.PAYMENT.TRIAL_STATUS.route}`,
+        {
+          show_loader: false,
         }
       );
       return res.data;

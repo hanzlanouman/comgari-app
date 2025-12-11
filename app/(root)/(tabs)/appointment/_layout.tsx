@@ -38,7 +38,7 @@ const Layout = () => {
               >
                 <TouchableOpacity
                   onPressIn={() => {
-                    router.push("/(root)/(tabs)/appointment/add-appointment");
+                    router.push("/(root)/(tabs)/appointment/new-addAppointment");
                   }}
                   className="w-full h-full rounded-full flex flex-row justify-center items-center"
                 >

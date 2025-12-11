@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     marginBottom: ms(20),
     fontWeight: "bold",
     textAlign: "center",
-    color: Colors.error.red,
+    color: "#000000",
   },
   keyboardAwareContent: {
     flexGrow: 1,
