@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -15,6 +15,8 @@ import { useFocusEffect } from "expo-router";
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
+import { TrialStartModal } from "@/common/components";
+import { useLocalSearchParams } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -25,6 +27,14 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | undefined>("");
   const [isError, setIsError] = useState(false);
+  const { showTrialStartModal } = useLocalSearchParams();
+  const [isTrialModalVisible, setIsTrialModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (showTrialStartModal === "true") {
+      setIsTrialModalVisible(true);
+    }
+  }, [showTrialStartModal]);
 
   const fetchDashboardData = async () => {
     try {
@@ -40,7 +50,7 @@ const Home = () => {
         const date = new Date(item.date);
         const month = date.toLocaleString('default', { month: 'short' });
         const day = date.getDate();
-        
+
         return {
           value: item.leads,
           label: `${month} ${day}`,
@@ -62,8 +72,8 @@ const Home = () => {
         receivedAmount: invoiceConversion.recivedAmount || 0,
         pendingAmount: invoiceConversion.pendingAmount || 0,
       });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e:any) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e: any) {
       setIsError(true);
       setError("Failed to fetch dashboard data. Please try again.");
     } finally {
@@ -179,6 +189,10 @@ const Home = () => {
           )}
         </ScrollView>
       </AppContainer>
+      <TrialStartModal
+        visible={isTrialModalVisible}
+        onClose={() => setIsTrialModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };

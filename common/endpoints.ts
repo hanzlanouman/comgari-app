@@ -26,7 +26,17 @@ export const END_POINTS = {
     GOOGLE_LOGIN: {
       route: AuthUrl + "/o-auth/google",
       method: "POST",
-      description: "Google login",
+      description: "Google login (calendar integration)",
+    },
+    GOOGLE_SIGNIN: {
+      route: AuthUrl + "/google-signin",
+      method: "POST",
+      description: "Google Sign-In - Step 1",
+    },
+    GOOGLE_SIGNUP: {
+      route: AuthUrl + "/google-signup",
+      method: "POST",
+      description: "Google Sign-Up - Step 2",
     },
 
     REGISTER: {
@@ -166,6 +176,9 @@ export const END_POINTS = {
     }
   },
   Client: {
+     GET_LEADS: {
+      route: UserUrl + '/client/lead-clients'
+    },
     GET_PRESIGNED_URL: {
       route: UserUrl + '/upload/presigned-url',
       method: 'POST',

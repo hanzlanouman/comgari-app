@@ -17,3 +17,5 @@ export * from "./DatePicker";
 export * from "./DateTimePicker";
 export * from "./ComfimationModel";
 export * from "./PhoneField";
+export * from "./TrialStartModal";
+

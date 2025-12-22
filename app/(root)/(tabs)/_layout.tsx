@@ -72,6 +72,13 @@ const Layout = () => {
         },
         headerShown: false,
       },
+
+      {
+        name: "Leads",
+        title: "Leads",
+        icon: UsersRound,
+        headerShown: false,
+      },
       {
         name: "clients",
         title: "Clients",

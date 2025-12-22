@@ -95,6 +95,7 @@ export const createClientSchema = Yup.object().shape({
       "Phone number must start with a valid country code (e.g., +1 for US)"
     )
     .required("Phone number is required"),
+    address: Yup.string().required("Address is required"),
 });
 
 export const updateClientSchema = Yup.object().shape({

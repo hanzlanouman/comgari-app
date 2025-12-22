@@ -108,7 +108,7 @@ const AddClient = () => {
     description: String(params.description || ""),
     logo: String(params.logo || ""),
     type: (params.type as ClientType) || "Construction",
-    status: (params.status as ClientStatus) || ClientStatus.Active,
+    status: (params.status as ClientStatus) || ClientStatus.Lead,
     member_ids: clientUserIds
       ? Array.isArray(clientUserIds)
         ? clientUserIds.map(Number)

@@ -58,14 +58,25 @@ const AddAppointment = () => {
 
   //   // Fetch clients using useQuery
   const { data: clientsData, isLoading: isClientsLoading } = useQuery({
-    queryKey: ["clients"],
-    queryFn: () => clientRepo.getClients({ start: 0, limit: 100 }),
+    queryKey: ["clients", "leads"],
+    queryFn: async () => {
+      const [leadsResponse, clientsResponse] = await Promise.all([
+        clientRepo.getLeadClients({ start: 0, limit: 1000 }),
+        clientRepo.getClients({ start: 0, limit: 1000 }),
+      ]);
+
+      const leads = leadsResponse?.data || [];
+      const clients = clientsResponse?.data || [];
+
+      return { data: [...leads, ...clients] };
+    },
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
+
 
   //   // Fetch members using useQuery
   const { data: membersData, isLoading: isMembersLoading } = useQuery({
@@ -80,7 +91,7 @@ const AddAppointment = () => {
 
   //   // Transform clients data to options
   const clientOptions: OptionType[] =
-    clientsData?.data?.map((client: any) => ({
+    clientsData?.data.map((client: any) => ({
       key: client?.id,
       value: client?.name,
     })) || [];
@@ -184,15 +195,15 @@ const AddAppointment = () => {
           initialData={
             isEditing === "true"
               ? {
-                  clientId: parseInt(clientId as string),
-                  startTime: startTime as string,
-                  endTime: endTime as string,
-                  notes: notes as string,
-                  status: status as string,
-                  title: title as string,
-                  appointmentId: parseInt(appointmentId as string),
-                  members: parsedMembers,
-                }
+                clientId: parseInt(clientId as string),
+                startTime: startTime as string,
+                endTime: endTime as string,
+                notes: notes as string,
+                status: status as string,
+                title: title as string,
+                appointmentId: parseInt(appointmentId as string),
+                members: parsedMembers,
+              }
               : undefined
           }
         />

@@ -1,0 +1,398 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  RefreshControl,
+  Alert,
+  Platform,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ChevronDown, ChevronUp, Download } from "lucide-react-native";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
+import { ClientRepository } from "@/repositories/client/client";
+import { CustomButton } from "@/common/components";
+import { images, UNITS } from "@/constants";
+import * as Print from "expo-print";
+import { moveFile, showErrorAlert, showSuccessAlert } from "@/utils";
+import * as Sharing from "expo-sharing";
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+// Create HTML template for the invoice PDF
+const createInvoiceTemplate = (data: any) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 40px;
+            color: #1C1C1C;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+          }
+          .invoice-number {
+            color: #1B78B9;
+            margin-bottom: 20px;
+          }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #E5E5E5;
+          }
+          .label {
+            color: #666;
+          }
+          .value {
+            font-weight: 500;
+          }
+          .amount {
+            font-size: 20px;
+            color: #1B78B9;
+            font-weight: bold;
+          }
+          .status-paid {
+            color: #22C55E;
+          }
+          .status-pending {
+            color: #EAB308;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="invoice-title">${data.job_name}</div>
+          <div class="invoice-number">Invoice #${data.invoiceNumber}</div>
+          <div>Date: ${formatDate(data.date)}</div>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <span class="value ${data.status.toLowerCase() === "paid" ? "status-paid" : "status-pending"}">
+            ${data.status}
+          </span>
+        </div>
+        
+        <div class="info-row">
+          <span class="label">Total Amount:</span>
+          <span class="value amount">${UNITS.CURRENCY}${Number(data.total_amount).toFixed(2)}</span>
+        </div>
+      </body>
+    </html>
+  `;
+};
+const clientRepo = ClientRepository.getInstance();
+
+type Invoice = {
+  id: number;
+  invoiceNumber: string;
+  job_name: string;
+  client_id: number;
+  date: string;
+  total_amount: string;
+  status: string;
+  project_id: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const InvoicesScreen = () => {
+  const { id: projectId, clientId } = useLocalSearchParams();
+  const [activeTab, setActiveTab] = useState("all");
+  const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
+    null
+  );
+  const router = useRouter();
+  const {
+    data: invoices = [],
+    isError,
+    error,
+    isFetching,
+    refetch,
+  } = useQuery<Invoice[]>({
+    queryKey: projectId ? ["invoices", Number(projectId)] : ["invoices"],
+    queryFn: async () => {
+      if (!projectId) return [];
+      const response = await clientRepo.getInvoices(Number(projectId));
+      const fetchedInvoices = response.data || [];
+      return [...fetchedInvoices].sort(
+        (a: Invoice, b: Invoice) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    },
+    enabled: Boolean(projectId),
+  });
+
+  React.useEffect(() => {
+    if (isError) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to fetch invoices"
+      );
+    }
+  }, [error, isError]);
+
+  const handleEditInvoice = (invoice: Invoice) => {
+    router.push({
+      pathname: "/(root)/(tabs)/clients/[id]/invoices/add-invoice",
+      params: {
+        mode: "edit",
+        job_name: invoice.job_name,
+        total_amount: invoice.total_amount,
+        status: invoice.status,
+        date: invoice.date,
+        invoiceId: invoice.id,
+        id: Number(projectId),
+        clientId: clientId,
+      },
+    });
+  };
+
+  const handleDeleteInvoice = async (invoiceId: number) => {
+    try {
+      await clientRepo.deleteInvoice(invoiceId);
+      await refetch();
+      Alert.alert("Success", "Invoice deleted successfully");
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to delete invoice"
+      );
+    }
+  };
+  // Generate PDF function
+  const generateInvoicePDF = async (invoiceData: Invoice) => {
+    try {
+      const html = createInvoiceTemplate(invoiceData);
+      const { uri } = await Print.printToFileAsync({
+        html,
+        base64: false,
+      });
+      return uri;
+    } catch (error) {
+      console.error("Error generating invoice PDF:", error);
+      throw new Error("Failed to generate invoice PDF");
+    }
+  };
+
+  const handleDownloadInvoice = async (invoice: Invoice) => {
+    try {
+      const uri = await generateInvoicePDF(invoice);
+      if (!uri) return;
+
+      if (Platform.OS === "ios") {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: "Save Invoice",
+          UTI: "com.adobe.pdf",
+        });
+        showSuccessAlert("Invoice Downloaded Successfully!");
+      } else {
+        const resp = await moveFile(uri);
+        if (!resp.success) {
+          showErrorAlert(resp.message);
+        } else {
+          showSuccessAlert(resp.message);
+        }
+      }
+    } catch (error) {
+      showErrorAlert("Failed to download invoice");
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (projectId) {
+        refetch();
+      }
+    }, [projectId, refetch])
+  );
+
+  const toggleInvoiceDetails = (invoiceId: number) => {
+    setExpandedInvoiceId(expandedInvoiceId === invoiceId ? null : invoiceId);
+  };
+
+  const filteredInvoices = invoices.filter((invoice) => {
+    if (activeTab === "all") return true;
+    if (activeTab === "paid") return invoice.status.toLowerCase() === "paid";
+    return invoice.status.toLowerCase() !== "paid";
+  });
+
+  const renderInvoiceItem = (invoice: Invoice) => (
+    <View key={invoice.id} className="border border-light rounded-xl mt-4">
+      <TouchableOpacity onPress={() => toggleInvoiceDetails(invoice.id)}>
+        <View className="flex-row items-center justify-between p-2.5 pr-6  ">
+          <View className="flex-row items-center">
+            <View className="w-11 h-11 rounded-full bg-blue-200 flex-row items-center justify-center">
+              <Image
+                source={images.invoice}
+                resizeMode="cover"
+                className="w-[24px] h-[28px]"
+              />
+            </View>
+            <View className="pl-4 flex-1 pr-4">
+              <Text
+                className="text-base font-ManropeSemibold text-dark"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {invoice.job_name}
+              </Text>
+              <Text className="text-sm font-ManropeSemibold text-blue">
+                {UNITS.CURRENCY}
+                {Number(invoice.total_amount).toFixed(2)}
+              </Text>
+            </View>
+          </View>
+          {expandedInvoiceId === invoice.id ? (
+            <ChevronUp size={18} className="text-dark-100" />
+          ) : (
+            <ChevronDown size={18} className="text-dark-100" />
+          )}
+        </View>
+      </TouchableOpacity>
+
+      {expandedInvoiceId === invoice.id && (
+        <View className="border-t border-light p-2.5">
+          {/* Invoice Details */}
+          <View className="flex-row justify-between items-center">
+            <View>
+              <Text className="text-sm text-dark-100 font-ManropeRegular">
+                Invoice Number
+              </Text>
+              <Text className="text-base text-dark font-ManropeMedium">
+                {invoice.invoiceNumber}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => handleDownloadInvoice(invoice)}
+              className="p-2"
+            >
+              <Download size={23} className="text-blue" />
+            </TouchableOpacity>
+          </View>
+          <View className="mt-2.5">
+            <Text className="text-sm text-dark-100 font-ManropeRegular">
+              Created
+            </Text>
+            <Text className="text-base text-dark font-ManropeMedium">
+              {formatDate(invoice.createdAt)}
+            </Text>
+          </View>
+          <View className="mt-2.5">
+            <Text className="text-sm text-dark-100 font-ManropeRegular">
+              Due Date
+            </Text>
+            <Text className="text-base text-dark font-ManropeMedium">
+              {formatDate(invoice.date)}
+            </Text>
+          </View>
+          <View className="mt-2.5">
+            <Text className="text-sm text-dark-100 font-ManropeRegular">
+              Status
+            </Text>
+            <View
+              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${
+                invoice.status === "PAID" ? "bg-green-100" : "bg-yellow-100"
+              }`}
+            >
+              <Text
+                className={`text-base font-ManropeMedium ${
+                  invoice.status === "PAID" ? "text-green" : "text-yellow-600"
+                }`}
+              >
+                {invoice.status}
+              </Text>
+            </View>
+          </View>
+
+          <View className="flex-row justify-center items-center mt-4 space-x-4">
+            <View className="flex-1 ">
+              <CustomButton
+                title="Edit"
+                onPress={() => handleEditInvoice(invoice)}
+              />
+            </View>
+            <View className="flex-1">
+              <CustomButton
+                title="Delete"
+                onPress={() => handleDeleteInvoice(invoice.id)}
+                className="bg-red"
+              />
+            </View>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-1 p-4">
+        {/* Tabs */}
+        <View className="flex flex-row bg-gray-100 rounded-full p-1 shadow-sm">
+          {["all" /*, "paid", "open" */].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              className={`flex-1 items-center justify-center py-2 rounded-full ${
+                activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
+              }`}
+            >
+              <Text
+                className={`text-sm sm:text-base font-ManropeSemibold ${
+                  activeTab === tab ? "text-blue" : "text-dark"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Scrollable Content */}
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+          }
+          className="mt-4"
+        >
+          {filteredInvoices.length === 0 ? (
+            <View className="flex-1 items-center justify-center mt-10">
+              <Text className="text-gray-500 text-base font-ManropeRegular">
+                No invoices found
+              </Text>
+            </View>
+          ) : (
+            filteredInvoices.map(renderInvoiceItem)
+          )}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+export default InvoicesScreen;

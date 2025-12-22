@@ -89,6 +89,38 @@ export class AuthRepository implements IAuthRepository {
       throw getErrorMessage(e);
     }
   }
+
+  async googleSignIn(payload: { token?: string; server_auth_code?: string }): Promise<any> {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.GOOGLE_SIGNIN.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
+
+  async googleSignUp(payload: {
+    token?: string;
+    server_auth_code?: string;
+    user_name: string;
+    business_name: string;
+    phone: string;
+  }): Promise<TLoginResponse> {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.AUTH.GOOGLE_SIGNUP.route}`,
+        payload,
+        { show_loader: true }
+      );
+      return res.data;
+    } catch (e: AxiosError | any) {
+      throw new Error(getErrorMessage(e));
+    }
+  }
   async changePassword(
     payload: ChangePasswordPayload
   ): Promise<{ message: string }> {

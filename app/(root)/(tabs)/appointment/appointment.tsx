@@ -5,10 +5,10 @@ import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, useFocusEffect } from "expo-router";
-import ActionModal from "../clients/components/ActionModal";
 import { format } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SimpleActivityIndicator } from "@/common/components/Loader";
+import ActionModal from "../clients/components/ActionModal";
 
 const EMPTY_ITEMS = {};
 
@@ -283,71 +283,71 @@ const Appointment = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Agenda
-        items={items}
-        selected={selectedDate}
-        renderItem={renderAgendaItem}
-        renderEmptyData={renderEmptyDate}
-        onDayPress={handleDayPress}
-        markedDates={markedDates}
-        theme={agendaTheme}
-        hideKnob={false}
-        hideExtraDays={true}
-        showClosingKnob={true}
-        showOnlySelectedDayItems={true}
-        pastScrollRange={12}
-        futureScrollRange={12}
-        calendarHeight={120}
-        renderKnob={renderKnob}
-      />
-    </SafeAreaView>
-    // <SafeAreaView className="flex-1 bg-white">
-    //   <View className="mb-4 flex-1">
-    //     {isLoading || isFetching ? (
-    //       <View className="flex-1 justify-center items-center">
-    //         <SimpleActivityIndicator />
-    //       </View>
-    //     ) : Object.keys(items).length > 0 ? (
-    //       <Agenda
-    //         items={items}
-    //         selected={selectedDate}
-    //         renderItem={renderAgendaItem}
-    //         renderEmptyData={renderEmptyDate}
-    //         onDayPress={handleDayPress}
-    //         markedDates={markedDates}
-    //         theme={{
-    //           selectedDayBackgroundColor: "#1B78B9",
-    //           selectedDayTextColor: "#ffffff",
-    //           todayTextColor: "#1C1C1C",
-    //           agendaDayTextColor: "#1C1C1C",
-    //           agendaDayNumColor: "#1C1C1C",
-    //           agendaTodayColor: "#1C1C1C",
-    //           agendaKnobColor: "#1C1C1C",
-    //         }}
-    //         hideKnob={false}
-    //         hideExtraDays={true}
-    //         showClosingKnob={true}
-    //         showOnlySelectedDayItems={true}
-    //         pastScrollRange={12}
-    //         futureScrollRange={12}
-    //         calendarHeight={120}
-    //         renderKnob={renderKnob}
-    //       />
-    //     ) : (
-    //       <View className="flex-1 justify-center items-center">
-    //         <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium text-center">
-    //           No appointments found
-    //         </Text>
-    //       </View>
-    //     )}
-    //     <ActionModal
-    //       ref={actionModalRef}
-    //       onUpdate={handleUpdatePress}
-    //       onDelete={handleDeletePress}
-    //     />
-    //   </View>
+    // <SafeAreaView style={{ flex: 1 }}>
+    //   <Agenda
+    //     items={items}
+    //     selected={selectedDate}
+    //     renderItem={renderAgendaItem}
+    //     renderEmptyData={renderEmptyDate}
+    //     onDayPress={handleDayPress}
+    //     markedDates={markedDates}
+    //     theme={agendaTheme}
+    //     hideKnob={false}
+    //     hideExtraDays={true}
+    //     showClosingKnob={true}
+    //     showOnlySelectedDayItems={true}
+    //     pastScrollRange={12}
+    //     futureScrollRange={12}
+    //     calendarHeight={120}
+    //     renderKnob={renderKnob}
+    //   />
     // </SafeAreaView>
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="mb-4 flex-1">
+        {isLoading || isFetching ? (
+          <View className="flex-1 justify-center items-center">
+            <SimpleActivityIndicator />
+          </View>
+        ) : Object.keys(items).length > 0 ? (
+          <Agenda
+            items={items}
+            selected={selectedDate}
+            renderItem={renderAgendaItem}
+            renderEmptyData={renderEmptyDate}
+            onDayPress={handleDayPress}
+            markedDates={markedDates}
+            theme={{
+              selectedDayBackgroundColor: "#1B78B9",
+              selectedDayTextColor: "#ffffff",
+              todayTextColor: "#1C1C1C",
+              agendaDayTextColor: "#1C1C1C",
+              agendaDayNumColor: "#1C1C1C",
+              agendaTodayColor: "#1C1C1C",
+              agendaKnobColor: "#1C1C1C",
+            }}
+            hideKnob={false}
+            hideExtraDays={true}
+            showClosingKnob={true}
+            showOnlySelectedDayItems={true}
+            pastScrollRange={12}
+            futureScrollRange={12}
+            calendarHeight={120}
+            renderKnob={renderKnob}
+          />
+        ) : (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium text-center">
+              No appointments found
+            </Text>
+          </View>
+        )}
+        <ActionModal
+          ref={actionModalRef}
+          onUpdate={handleUpdatePress}
+          onDelete={handleDeletePress}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 

@@ -7,14 +7,21 @@ import { useLocalSearchParams } from "expo-router";
 
 import { MemberRepository } from "@/repositories/member/member";
 import { OptionType } from "@/common/types";
-
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+let GoogleSignin: any = null;
+try {
+  GoogleSignin =
+    require("@react-native-google-signin/google-signin").GoogleSignin;
+} catch (e) {
+  console.warn("GoogleSignin not available (expected in Expo Go)");
+}
 
 import { AppContainer } from "@/common/components";
 import { AuthRepository } from "@/repositories";
 import { GoogleWebClientID, GoogleIOSClientID } from "@/common/enviornment";
 import { showErrorAlert } from "@/utils";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+
 
 const STATUS_OPTIONS = [
   { key: "Scheduled", value: "Scheduled" },
@@ -77,6 +84,8 @@ const AddAppointment = () => {
     setIsClientsLoading(true);
     try {
       const clients = await clientRepo.getClients({ start: 0, limit: 100 });
+
+
 
       const options: OptionType[] =
         clients?.data?.map((client: any) => ({

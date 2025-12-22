@@ -19,20 +19,20 @@ import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
 export type TOtpProps =
   | {
-      username: string;
-      authResponse: string;
-      type: OTP_TYPE.VIERIFICATION;
-    }
+    username: string;
+    authResponse: string;
+    type: OTP_TYPE.VIERIFICATION;
+  }
   | {
-      username: string;
-      type: OTP_TYPE.PASSWORD_RESET;
-      authResponse?: string;
-    }
+    username: string;
+    type: OTP_TYPE.PASSWORD_RESET;
+    authResponse?: string;
+  }
   | {
-      username: string;
-      type: OTP_TYPE.MEMBER_VERIFICATION;
-      authResponse?: string;
-    };
+    username: string;
+    type: OTP_TYPE.MEMBER_VERIFICATION;
+    authResponse?: string;
+  };
 export type TOtpComponentProps = {
   afterVerifyRoute: string;
   resetPassworRoute: string;
@@ -74,14 +74,17 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
             typeof authResponse === "string" && authResponse
               ? JSON.parse(authResponse)
               : authResponse;
-          
+
           if (parsedAuthResponse) {
             dispatch(login(parsedAuthResponse));
             // User has auto-trial subscription created during signup
             dispatch(setSubscribed(true));
           }
-          
-          router.replace(route.root.home as unknown as Href);
+
+          router.replace({
+            pathname: "/(root)/(tabs)/home",
+            params: { showTrialStartModal: "true" }
+          });
         } catch (err) {
           console.error("Error parsing authResponse:", err);
           // Fallback to go-pro if parsing fails

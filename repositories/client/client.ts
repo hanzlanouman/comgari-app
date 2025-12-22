@@ -324,15 +324,33 @@ export class ClientRepository implements IClientRepository {
       throw getErrorMessage(e);
     }
   }
+
+async getLeadClients(
+    payload: ClientListingPayload,
+    // req: Request
+  ): Promise<TReponse> {
+    try {
+      const res = await post(
+        `${BaseUrl + END_POINTS.Client.GET_LEADS.route}`,
+        payload
+      );
+      return res;
+    } catch (e: AxiosError | any) {
+      throw getErrorMessage(e);
+    }
+  }
+
   async getClients(
     payload: ClientListingPayload,
     // req: Request
   ): Promise<TReponse> {
     try {
       const res = await post(
-        `${BaseUrl}${END_POINTS.Client.GET_CLIENTS.route}`,
+        `${BaseUrl + END_POINTS.Client.GET_CLIENTS.route}`,
         payload
       );
+
+      console.log("res", res);
       return res;
     } catch (e: AxiosError | any) {
       throw getErrorMessage(e);

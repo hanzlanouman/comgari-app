@@ -60,8 +60,8 @@ const Clients: React.FC = () => {
         start: page * pageSize,
         limit: pageSize,
       };
-
-      const response = await clientRepo.getClients(clientListingPayload);
+      const response = await clientRepo.getLeadClients(clientListingPayload);
+      console.log("response", response);
       return Array.isArray(response.data) ? response.data : [];
     },
     placeholderData: (previousData) => previousData,
@@ -132,7 +132,7 @@ const Clients: React.FC = () => {
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>
           <View className="w-[158px] mx-auto mt-5">
-            <CustomButton title="Add Client" onPress={handleAddClient} />
+            <CustomButton title="Add Lead" onPress={handleAddClient} />
           </View>
         </WithRole>
       </View>
