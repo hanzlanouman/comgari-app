@@ -56,7 +56,6 @@ const AddAppointment = () => {
 
   const [appointmentAdded, setAppointmentAdded] = useState(false);
 
-  //   // Fetch clients using useQuery
   const { data: clientsData, isLoading: isClientsLoading } = useQuery({
     queryKey: ["clients", "leads"],
     queryFn: async () => {
@@ -78,7 +77,6 @@ const AddAppointment = () => {
   });
 
 
-  //   // Fetch members using useQuery
   const { data: membersData, isLoading: isMembersLoading } = useQuery({
     queryKey: ["members"],
     queryFn: () => memberRepo.getMember(),
@@ -89,25 +87,20 @@ const AddAppointment = () => {
     refetchOnReconnect: false,
   });
 
-  //   // Transform clients data to options
   const clientOptions: OptionType[] =
     clientsData?.data.map((client: any) => ({
       key: client?.id,
       value: client?.name,
     })) || [];
 
-  console.log(clientOptions, "clientOptions");
-  // Transform members data to options
   const memberOptions: OptionType[] =
     membersData?.data?.map((member: any) => ({
       key: member?.Auth?.id,
       value: member?.Auth?.username,
     })) || [];
 
-  console.log(memberOptions, "memberOptions");
 
   useEffect(() => {
-    // Only configure GoogleSignin on native platforms and if the module is available
     if (Platform.OS === "web" || !GoogleSignin) {
       return;
     }
@@ -210,14 +203,6 @@ const AddAppointment = () => {
       </AppContainer>
     </SafeAreaView>
   );
-
-  //   return (
-  //     <SafeAreaView className="flex-1 bg-white">
-  //       <View>
-  //         <Text className="text-2xl font-bold">Hello</Text>
-  //       </View>
-  //     </SafeAreaView>
-  //   );
 };
 
 export default AddAppointment;
