@@ -12,11 +12,9 @@ import { MemberRepository } from "@/repositories/member/member";
 import { AppContainer } from "@/common/components";
 import { UNITS } from "@/constants";
 import { useFocusEffect } from "expo-router";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { TrialStartModal } from "@/common/components";
-import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -27,14 +25,39 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | undefined>("");
   const [isError, setIsError] = useState(false);
-  const { showTrialStartModal } = useLocalSearchParams();
   const [isTrialModalVisible, setIsTrialModalVisible] = useState(false);
 
   useEffect(() => {
-    if (showTrialStartModal === "true") {
-      setIsTrialModalVisible(true);
-    }
-  }, [showTrialStartModal]);
+    const checkTrialModal = async () => {
+      try {
+        const shouldShow = await AsyncStorage.getItem("showTrialStartModal");
+        if (shouldShow === "true") {
+          setIsTrialModalVisible(true);
+          await AsyncStorage.removeItem("showTrialStartModal");
+        }
+      } catch (error) {
+        console.error("Error checking trial modal flag:", error);
+      }
+    };
+    checkTrialModal();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkTrialModal = async () => {
+        try {
+          const shouldShow = await AsyncStorage.getItem("showTrialStartModal");
+          if (shouldShow === "true") {
+            setIsTrialModalVisible(true);
+            await AsyncStorage.removeItem("showTrialStartModal");
+          }
+        } catch (error) {
+          console.error("Error checking trial modal flag:", error);
+        }
+      };
+      checkTrialModal();
+    }, [])
+  );
 
   const fetchDashboardData = async () => {
     try {
@@ -45,10 +68,9 @@ const Home = () => {
       const leadConversion = response?.leadConversion?.[0] || {};
       const invoiceConversion = response?.invoiceConversion?.[0] || {};
 
-      // Bar chart data for weekly lead conversion
       const barData = leadConversion.dailyLeads?.map((item: any) => {
         const date = new Date(item.date);
-        const month = date.toLocaleString('default', { month: 'short' });
+        const month = date.toLocaleString("default", { month: "short" });
         const day = date.getDate();
 
         return {
@@ -56,12 +78,12 @@ const Home = () => {
           label: `${month} ${day}`,
           frontColor: item.leads > 0 ? "#63348F" : "lightgray",
           labelTextStyle: {
-            color: '#333',
+            color: "#333",
             fontSize: 10,
             width: 60,
-            textAlign: 'center',
-            marginBottom: 5
-          }
+            textAlign: "center",
+            marginBottom: 5,
+          },
         };
       });
 
@@ -163,13 +185,15 @@ const Home = () => {
                 stepValue={1}
                 roundToDigits={0}
                 yAxisLabelWidth={30}
-                formatYLabel={(label: string) => Math.round(Number(label)).toString()}
+                formatYLabel={(label: string) =>
+                  Math.round(Number(label)).toString()
+                }
                 xAxisLabelTextStyle={{
                   fontSize: 10,
                   color: "#333",
                   textAlign: "center",
                   width: 60,
-                  marginBottom: 10
+                  marginBottom: 10,
                 }}
               />
             </View>

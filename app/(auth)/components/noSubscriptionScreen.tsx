@@ -2,13 +2,14 @@ import { CustomButton } from "@/common/components";
 import { useAppDispatch } from "@/hooks/redux";
 import { logout } from "@/store";
 import {
-  SafeAreaView,
+
   ScrollView,
   View,
   Text,
   Image,
   Linking,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "@/constants";
 import { scale, vs } from "react-native-size-matters";
 

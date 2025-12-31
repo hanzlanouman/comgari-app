@@ -4,7 +4,11 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -20,6 +24,14 @@ import { OTP_TYPE } from "@/common/enum";
 import { route } from "@/common";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 
+let GoogleSignin: any = null;
+try {
+  GoogleSignin =
+    require("@react-native-google-signin/google-signin").GoogleSignin;
+} catch (e) {
+  console.warn("GoogleSignin not available (expected in Expo Go)");
+}
+
 // Add type declaration for custom method
 declare module "yup" {
   interface StringSchema {
@@ -30,6 +42,7 @@ declare module "yup" {
 const SignUp = () => {
   useRedirectIfIOS();
   const authRepo = AuthRepository.getInstance();
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { mutate, isError, error } = useMutation<
     any,
     Error,
@@ -37,6 +50,70 @@ const SignUp = () => {
   >({
     mutationFn: (payload) => authRepo.register(payload),
   });
+
+  // Google Sign-Up handler (same flow as sign-in for new users)
+  const handleGoogleSignUp = async () => {
+    if (!GoogleSignin) {
+      Alert.alert(
+        "Not Available",
+        "Google Sign-In is not available in this environment"
+      );
+      return;
+    }
+    try {
+      setGoogleLoading(true);
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+
+      // Get ID token and server auth code from userInfo
+      const idToken = userInfo?.data?.idToken;
+      const serverAuthCode = userInfo?.data?.serverAuthCode;
+
+      if (!idToken && !serverAuthCode) {
+        throw new Error("No tokens received from Google");
+      }
+
+      // Call backend
+      const result = await authRepo.googleSignIn({
+        token: idToken || undefined,
+        server_auth_code: serverAuthCode || undefined,
+      });
+
+      if (result.isSignup) {
+        // New user - navigate to profile screen
+        router.push({
+          pathname: "/(auth)/google-profile" as any,
+          params: {
+            token: idToken,
+            server_auth_code: serverAuthCode,
+            email: result.email,
+            given_name: result.given_name,
+            family_name: result.family_name,
+          },
+        });
+      } else {
+        // Existing user - redirect to sign-in
+        Alert.alert(
+          "Account Exists",
+          "An account with this email already exists. Please sign in instead.",
+          [
+            {
+              text: "Go to Sign In",
+              onPress: () => router.replace(route.auth.login),
+            },
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error("Google Sign-Up Error:", error);
+      Alert.alert(
+        "Google Sign-Up Failed",
+        error.message || "Please try again"
+      );
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   // Custom test for unique values across fields
   // Using a simpler implementation for custom method
@@ -246,15 +323,34 @@ const SignUp = () => {
             </View>
           </ScrollView>
 
-        <View className="px-4 py-4 mb-4 bg-white">
-          <CustomButton
-            title="Sign Up"
-            onPress={() => {
-              formik.handleSubmit();
-            }}
+          <View className="px-4 py-4 mb-4 bg-white">
+            <CustomButton
+              title="Sign Up"
+              onPress={() => {
+                formik.handleSubmit();
+              }}
             />
-        </View>
-            </AppContainer>
+            <View className="mt-3">
+              {googleLoading ? (
+                <View className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center">
+                  <ActivityIndicator size="small" color="#4F46E5" />
+                  <Text className="ml-2 text-dark font-ManropeMedium">
+                    Signing up with Google...
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleGoogleSignUp}
+                  className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
+                >
+                  <Text className="text-dark font-ManropeMedium text-base">
+                    🔐 Continue with Google
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </AppContainer>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

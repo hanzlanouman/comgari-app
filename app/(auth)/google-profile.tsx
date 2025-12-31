@@ -95,7 +95,7 @@ const GoogleProfile = () => {
                         // Show trial start notification
                         Alert.alert(
                             "Welcome to Comgari! 🎉",
-                            "Your 7-day free trial has started!\n\nEnjoy full access to all features for the next 7 days.\n\n⚠️ Important: After your trial ends, your subscription will begin and you'll be charged according to the selected plan.",
+                            "Your 7-day free trial has started!\n\nEnjoy full access to all features for the next 7 days.\n\n⚠️ Important: A payment method is required to continue after your free trial.",
                             [
                                 {
                                     text: "Get Started",

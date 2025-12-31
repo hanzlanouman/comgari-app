@@ -17,22 +17,23 @@ import { route } from "@/common";
 import { AppContainer, ErrorText } from "@/common/components";
 import { useAppDispatch } from "@/hooks/redux";
 import { login, setSubscribed } from "@/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export type TOtpProps =
   | {
-    username: string;
-    authResponse: string;
-    type: OTP_TYPE.VIERIFICATION;
-  }
+      username: string;
+      authResponse: string;
+      type: OTP_TYPE.VIERIFICATION;
+    }
   | {
-    username: string;
-    type: OTP_TYPE.PASSWORD_RESET;
-    authResponse?: string;
-  }
+      username: string;
+      type: OTP_TYPE.PASSWORD_RESET;
+      authResponse?: string;
+    }
   | {
-    username: string;
-    type: OTP_TYPE.MEMBER_VERIFICATION;
-    authResponse?: string;
-  };
+      username: string;
+      type: OTP_TYPE.MEMBER_VERIFICATION;
+      authResponse?: string;
+    };
 export type TOtpComponentProps = {
   afterVerifyRoute: string;
   resetPassworRoute: string;
@@ -62,13 +63,10 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
         throw err;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       if (type === OTP_TYPE.MEMBER_VERIFICATION) {
         router.push(route.auth.login);
       } else {
-        // Parse authResponse and log in the user
-        // Trial subscription is now auto-created during signup
-        // Navigate directly to home instead of go-pro
         try {
           const parsedAuthResponse =
             typeof authResponse === "string" && authResponse
@@ -77,17 +75,17 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
 
           if (parsedAuthResponse) {
             dispatch(login(parsedAuthResponse));
-            // User has auto-trial subscription created during signup
             dispatch(setSubscribed(true));
           }
 
+          // Store flag in AsyncStorage to show trial modal
+          await AsyncStorage.setItem("showTrialStartModal", "true");
+
           router.replace({
             pathname: "/(root)/(tabs)/home",
-            params: { showTrialStartModal: "true" }
           });
         } catch (err) {
           console.error("Error parsing authResponse:", err);
-          // Fallback to go-pro if parsing fails
           router.push({
             pathname: "/(auth)/go-pro",
             params: {
@@ -149,6 +147,7 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
           username,
           otp,
         });
+        break;
 
       default:
         break;
