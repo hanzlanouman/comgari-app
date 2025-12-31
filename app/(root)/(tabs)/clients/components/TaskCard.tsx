@@ -49,7 +49,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
 
   const renderMembers = () => {
     if (!task.task_member || task.task_member.length === 0) {
-      return <View className="h-[30]" />;
+      return <View style={{ height: 30 }} />;
     }
     const maxVisibleMembers = 3;
     const totalMembers = task.task_member.length;
@@ -75,7 +75,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
           ))}
           {remainingCount > 0 && (
             <View className="-ml-3" style={{ zIndex: 0 }}>
-              <View className="w-[30] h-[30] rounded-full border-2 border-white bg-gray-100 items-center justify-center">
+              <View
+                className="rounded-full border-2 border-white bg-gray-100 items-center justify-center"
+                style={{ width: 30, height: 30 }}
+              >
                 <Text className="text-xs font-ManropeMedium text-gray-600">
                   +{remainingCount}
                 </Text>
@@ -118,12 +121,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
       <Text className="text-sm text-dark-100 font-ManropeMedium mt-1">
         {formatDate(task.dueDate)}
       </Text>
-      <View className="bg-light w-full h-px my-3" />
+      <View className="bg-light my-3" style={{ width: "100%", height: 1 }} />
       <View className="flex-row items-center justify-between">
         {renderMembers()}
         <View className="flex-row items-center">
-          <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-            <View className="bg-blue w-1.5 h-1.5" />
+          <View
+            className="bg-blue-100 flex-row items-center justify-center"
+            style={{ width: 14, height: 14 }}
+          >
+            <View className="bg-blue" style={{ width: 6, height: 6 }} />
           </View>
           <Text className="text-xs font-ManropeMedium text-blue ml-2">
             {getStatusDisplayValue(task.status || "TO_DO")}

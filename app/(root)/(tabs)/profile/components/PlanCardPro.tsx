@@ -66,9 +66,10 @@ const renderCardContent = (
             {UNITS.CURRENCY}{price}/{sentanceCase(shcedule)}
         </Text>
         <View className="flex-row items-center justify-between mt-4 -mx-2">
-            <View className="flex-row items-center w-2/4 px-2 ">
+            <View className="flex-row items-center px-2" style={{ width: "50%" }}>
                 <View
-                    className={`flex-row items-center justify-center w-5 h-5 rounded-full ${isSelected ? "bg-white" : "bg-purple"}`}
+                    className={`flex-row items-center justify-center rounded-full ${isSelected ? "bg-white" : "bg-purple"}`}
+                    style={{ width: 20, height: 20 }}
                 >
                     <Check color={isSelected ? "#1B78B9" : "#ffffff"} size={14} />
                 </View>
@@ -78,9 +79,10 @@ const renderCardContent = (
                     {members === -1 ? "Unlimited" : members} Members
                 </Text>
             </View>
-            <View className="flex-row items-center w-2/4 px-2">
+            <View className="flex-row items-center px-2" style={{ width: "50%" }}>
                 <View
-                    className={`flex-row items-center justify-center w-5 h-5 rounded-full ${isSelected ? "bg-white" : "bg-purple"}`}
+                    className={`flex-row items-center justify-center rounded-full ${isSelected ? "bg-white" : "bg-purple"}`}
+                    style={{ width: 20, height: 20 }}
                 >
                     <Check color={isSelected ? "#1B78B9" : "#ffffff"} size={14} />
                 </View>

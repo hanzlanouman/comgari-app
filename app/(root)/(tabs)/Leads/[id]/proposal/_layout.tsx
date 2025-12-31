@@ -48,7 +48,7 @@ const Layout = () => {
           headerRight: () => (
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
-              className="rounded-full w-8 h-8"
+              style={{ borderRadius: 9999, width: 32, height: 32 }}
               start={[0, 0]}
               end={[1, 1]}>
               <TouchableOpacity
@@ -57,7 +57,8 @@ const Layout = () => {
                     "/(root)/(tabs)/clients/[id]/proposal/job-details"
                   )
                 }
-                className="w-full h-full rounded-full flex flex-row justify-center items-center">
+                className="rounded-full flex flex-row justify-center items-center"
+                style={{ width: "100%", height: "100%" }}>
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>

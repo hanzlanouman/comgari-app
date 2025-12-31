@@ -183,7 +183,8 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
                   <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={() => setDatePickerVisible(true)}
-                    className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl flex-row items-center"
+                    className="px-4 border border-gray-200 bg-white rounded-xl flex-row items-center"
+                    style={{ width: "100%", height: 48 }}
                   >
                     <Text className="flex-1 text-black font-ManropeMedium">
                       {values.dueDate ? new Date(values.dueDate).toLocaleDateString() : "Date"}

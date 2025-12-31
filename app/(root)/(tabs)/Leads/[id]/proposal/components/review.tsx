@@ -18,7 +18,7 @@ const formatToLocalDate = (isoDate: string) => {
     day: "numeric",
   });
 };
-const Review = ({ formData, onSave }) => {
+const Review = ({ formData, onSave }: { formData: any; onSave: () => void }) => {
   return (
     <>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -26,19 +26,19 @@ const Review = ({ formData, onSave }) => {
           <View className="mt-4">
             <Text className="text-lg font-ManropeBold mb-4">Job Details</Text>
             <View className="flex-row mb-2">
-              <Text className="font-ManropeSemibold w-1/3">Date:</Text>
+              <Text className="font-ManropeSemibold" style={{ width: "33.33%" }}>Date:</Text>
               <Text className="flex-1">{formatToLocalDate(formData.date)}</Text>
             </View>
             <View className="flex-row mb-2">
-              <Text className="font-ManropeSemibold w-1/3">Address:</Text>
+              <Text className="font-ManropeSemibold" style={{ width: "33.33%" }}>Address:</Text>
               <Text className="flex-1">{formData.address}</Text>
             </View>
             <View className="flex-row mb-2">
-              <Text className="font-ManropeSemibold w-1/3">City:</Text>
+              <Text className="font-ManropeSemibold" style={{ width: "33.33%" }}>City:</Text>
               <Text className="flex-1">{formData.city}</Text>
             </View>
             <View className="flex-row mb-2">
-              <Text className="font-ManropeSemibold w-1/3">Zip:</Text>
+              <Text className="font-ManropeSemibold" style={{ width: "33.33%" }}>Zip:</Text>
               <Text className="flex-1">{formData.zip_code}</Text>
             </View>
           </View>

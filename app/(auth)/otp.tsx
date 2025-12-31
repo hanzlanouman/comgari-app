@@ -20,20 +20,20 @@ import { login, setSubscribed } from "@/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export type TOtpProps =
   | {
-      username: string;
-      authResponse: string;
-      type: OTP_TYPE.VIERIFICATION;
-    }
+    username: string;
+    authResponse: string;
+    type: OTP_TYPE.VIERIFICATION;
+  }
   | {
-      username: string;
-      type: OTP_TYPE.PASSWORD_RESET;
-      authResponse?: string;
-    }
+    username: string;
+    type: OTP_TYPE.PASSWORD_RESET;
+    authResponse?: string;
+  }
   | {
-      username: string;
-      type: OTP_TYPE.MEMBER_VERIFICATION;
-      authResponse?: string;
-    };
+    username: string;
+    type: OTP_TYPE.MEMBER_VERIFICATION;
+    authResponse?: string;
+  };
 export type TOtpComponentProps = {
   afterVerifyRoute: string;
   resetPassworRoute: string;
@@ -169,7 +169,8 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
                 value={formik.values.otp[index]}
                 handleChangeText={(text) => handleChange(text, index)}
                 placeholder="0"
-                otherStyles="mt-8 w-3/12 px-2"
+                otherStyles="mt-8 px-2"
+                containerStyle={{ width: "25%" }}
                 inputStyles="text-center"
                 type="text"
                 index={index}

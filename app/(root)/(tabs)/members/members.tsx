@@ -153,7 +153,7 @@ const Members = () => {
                   No team members added yet. Start growing your team by adding
                   members to manage clients and properties.
                 </Text>
-                <View className="w-[158] mx-auto mt-5">
+                <View className="mx-auto mt-5" style={{ width: 158 }}>
                   <WithRole permission="manage" resource="member" user={user!}>
                     <CustomButton
                       title="Add Member"

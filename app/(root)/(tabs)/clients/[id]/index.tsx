@@ -222,28 +222,29 @@ const ClientDetailPage: React.FC = () => {
         String(projectId || "")
       );
       router.push({
-        pathname: resolvedRoute,
+        pathname: resolvedRoute as any,
         params: { clientId: clientIdNum },
       });
     } else {
       router.push({
-        pathname: route,
+        pathname: route as any,
         params: { clientId: clientIdNum },
       });
     }
   };
 
   const renderNavigationItem = (item: (typeof navigationItems)[number]) => (
-    <View key={item.id} className="px-1.5 mt-3 w-1/2">
+    <View key={item.id} className="px-1.5 mt-3" style={{ width: "50%" }}>
       <TouchableOpacity
         onPress={() => handleNavigationPress(item.route)}
         className="border border-light rounded-[20] p-4"
       >
-        <View className="bg-blue w-10 h-10 rounded-full flex-row items-center justify-center">
+        <View className="bg-blue rounded-full flex-row items-center justify-center" style={{ width: 40, height: 40 }}>
           <Image
             source={icons[item.icon]}
             resizeMode="contain"
-            className="w-[23] h-5"
+            className=""
+            style={{ width: 23, height: 20 }}
           />
         </View>
         <Text className="text-lg sm:text-xl font-ManropeSemibold text-dark mt-3">
@@ -311,8 +312,8 @@ const ClientDetailPage: React.FC = () => {
                   )}
                   <View className="flex-row items-center justify-between mt-4 border-t border-light pt-3 pb-1">
                     <View className="flex-row items-center">
-                      <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-                        <View className="bg-blue w-1.5 h-1.5" />
+                      <View className="bg-blue-100 flex-row items-center justify-center" style={{ width: 14, height: 14 }}>
+                        <View className="bg-blue" style={{ width: 6, height: 6 }} />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
                         {client?.type?.replace("_", " ") || "N/A"}

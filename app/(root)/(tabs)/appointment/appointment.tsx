@@ -221,7 +221,7 @@ const Appointment = () => {
           </Text>
         </View>
 
-        <View className="bg-lightBlue h-10 w-10 rounded-full items-center justify-center ml-4">
+        <View className="bg-lightBlue rounded-full items-center justify-center ml-4" style={{ height: 40, width: 40 }}>
           <Text className="text-base text-white font-ManropeSemibold">
             {getItemInitials(item.clientName)}
           </Text>
@@ -242,7 +242,7 @@ const Appointment = () => {
   );
 
   const renderKnob = useCallback(
-    () => <View className="w-12 h-1 bg-dark self-center rounded-full mt-2" />,
+    () => <View className="bg-dark self-center rounded-full mt-2" style={{ width: 48, height: 4 }} />,
     []
   );
 

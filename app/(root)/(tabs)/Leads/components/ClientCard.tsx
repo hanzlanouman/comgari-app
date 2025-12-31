@@ -90,9 +90,10 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
           {client.category && (
             <View className="flex-row items-center mt-2">
               <View
-                className={`flex-row items-center justify-center w-3.5 h-3.5 ${categoryClasses.bg}`}
+                className={`flex-row items-center justify-center ${categoryClasses.bg}`}
+                style={{ width: 14, height: 14 }}
               >
-                <View className={`w-1.5 h-1.5 ${categoryClasses.dot}`} />
+                <View className={`${categoryClasses.dot}`} style={{ width: 6, height: 6 }} />
               </View>
               <Text
                 className={`text-sm font-ManropeMedium ml-2 ${categoryClasses.text}`}

@@ -2,10 +2,10 @@ import { View } from "react-native";
 
 export const ProgressBar = ({ progress }) => {
   return (
-    <View className="bg-gray-dark w-full h-2 rounded-lg">
+    <View className="bg-gray-dark rounded-lg" style={{ width: "100%", height: 8 }}>
       <View
-        className="bg-blue h-full rounded-lg"
-        style={{ width: `${progress}%` }}
+        className="bg-blue rounded-lg"
+        style={{ width: `${progress}%`, height: "100%" }}
       />
     </View>
   );

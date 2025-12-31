@@ -119,7 +119,7 @@ const Home = () => {
         <ScrollView>
           {/* Statistics Section */}
           <View className="flex-row flex-wrap -mx-1.5 p-4">
-            <View className="w-1/2 px-1.5 mt-3">
+            <View className="px-1.5 mt-3" style={{ width: "50%" }}>
               <TouchableOpacity className="bg-[#E8FDF5] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Lead Conversion Rate
@@ -129,7 +129,7 @@ const Home = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View className="w-1/2 px-1.5 mt-3">
+            <View className="px-1.5 mt-3" style={{ width: "50%" }}>
               <TouchableOpacity className="bg-[#FFF1ED] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Total Clients
@@ -139,7 +139,7 @@ const Home = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View className="w-1/2 px-1.5 mt-3">
+            <View className="px-1.5 mt-3" style={{ width: "50%" }}>
               <TouchableOpacity className="bg-[#FFF6E0] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Paid Invoices
@@ -150,7 +150,7 @@ const Home = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View className="w-1/2 px-1.5 mt-3">
+            <View className="px-1.5 mt-3" style={{ width: "50%" }}>
               <TouchableOpacity className="bg-[#D0ECFF] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Unpaid Invoices
@@ -171,7 +171,7 @@ const Home = () => {
           </View>
 
           {dashboardData?.barData?.some((item: any) => item.value > 0) ? (
-            <View className="w-full mt-4 px-2 mb-10">
+            <View className="mt-4 px-2 mb-10" style={{ width: "100%" }}>
               <BarChart
                 barWidth={18}
                 spacing={28}

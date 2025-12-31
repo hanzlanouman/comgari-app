@@ -23,7 +23,12 @@ const Welcome = () => {
           className="flex-1">
           <LinearGradient
             colors={["#1D78B9", "#52469A"]}
-            className="absolute top-0 left-0 w-full h-full opacity-[.85]"
+            className="absolute top-0 left-0 "
+            style={{
+              width: "100%",
+              height: "100%",
+              opacity: 0.85,
+            }}
           />
           <View style={{ paddingTop: verticalScale(80) }}>
             <Image
@@ -36,7 +41,7 @@ const Welcome = () => {
               Comgari
             </Text>
           </View>
-          <View className="px-5 absolute bottom-0 left-0 w-full pb-6 sm:pb-6">
+          <View className="px-5 absolute bottom-0 left-0 pb-6 sm:pb-6" style={{ width: "100%" }}>
             <Text className="text-3xl sm:text-4xl text-white font-ManropeBold text-center mb-12 px-2 sm:px-0">
               Streamline Success with Ease.
               {"\n"}
@@ -45,7 +50,8 @@ const Welcome = () => {
 
             <TouchableOpacity
               onPress={() => router.push(route.auth.login)}
-              className="bg-white w-full h-[52] rounded-xl pb-0.5 flex flex-row justify-center items-center">
+              className="bg-white rounded-xl pb-0.5 flex flex-row justify-center items-center"
+              style={{ width: "100%", height: 52 }}>
               <Text className="text-sm sm:text-base font-ManropeSemibold text-blue">
                 {IS_ANDROID ? "I have an account" : "Sign In"}
               </Text>
@@ -54,7 +60,8 @@ const Welcome = () => {
               onPress={() => {
                 router.push(route.auth.OnBoarding);
               }}
-              className="bg-navy w-full h-[52] rounded-xl pb-0.5 flex flex-row justify-center items-center mt-2.5">
+              className="bg-navy rounded-xl pb-0.5 flex flex-row justify-center items-center mt-2.5"
+              style={{ width: "100%", height: 52 }}>
               <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
                 I’m new here
               </Text>

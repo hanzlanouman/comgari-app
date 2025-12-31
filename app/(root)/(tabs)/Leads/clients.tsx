@@ -131,7 +131,7 @@ const Clients: React.FC = () => {
           clients yet!
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>
-          <View className="w-[158] mx-auto mt-5">
+          <View className="mx-auto mt-5" style={{ width: 158 }}>
             <CustomButton title="Add Lead" onPress={handleAddClient} />
           </View>
         </WithRole>

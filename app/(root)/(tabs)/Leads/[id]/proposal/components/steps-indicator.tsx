@@ -11,22 +11,23 @@ const StepsIndicator: React.FC<StepsIndicatorProps> = ({ currentStep, steps }) =
     <View className="bg-gray px-4 py-3 flex-row items-center justify-between">
       {steps.map((step, index) => (
         <View key={index} className="flex-row items-center">
-          <View 
-            className={`w-7 h-7 rounded-full flex-row items-center justify-center 
-              ${currentStep === index + 1 ? 'bg-blue' : 
+          <View
+            className={`rounded-full flex-row items-center justify-center 
+              ${currentStep === index + 1 ? 'bg-blue' :
                 index < currentStep ? 'bg-green' : 'bg-white'}`}
+            style={{ width: 28, height: 28 }}
           >
-            <Text 
+            <Text
               className={`text-sm font-ManropeBold 
-                ${currentStep === index + 1 ? 'text-white' : 
+                ${currentStep === index + 1 ? 'text-white' :
                   index < currentStep ? 'text-white' : 'text-dark'}`}
             >
               {index + 1}
             </Text>
           </View>
-          <Text 
+          <Text
             className={`text-sm font-ManropeSemibold ml-2 
-              ${currentStep === index + 1 ? 'text-blue' : 
+              ${currentStep === index + 1 ? 'text-blue' :
                 index < currentStep ? 'text-green' : 'text-dark'}`}
           >
             {step}

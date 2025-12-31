@@ -31,8 +31,7 @@ const Layout = () => {
             <WithRole permission="manage" resource="appointment" user={user!}>
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
-                className="rounded-full w-8 h-8"
-              style={{ borderRadius: 9999 }}
+                style={{ borderRadius: 9999, width: 32, height: 32 }}
                 start={[0, 0]}
                 end={[1, 1]}
               >
@@ -40,7 +39,8 @@ const Layout = () => {
                   onPressIn={() => {
                     router.push("/(root)/(tabs)/appointment/new-addAppointment");
                   }}
-                  className="w-full h-full rounded-full flex flex-row justify-center items-center"
+                  className="rounded-full flex flex-row justify-center items-center"
+                  style={{ width: "100%", height: "100%" }}
                 >
                   <Plus size={18} color="#ffffff" />
                 </TouchableOpacity>

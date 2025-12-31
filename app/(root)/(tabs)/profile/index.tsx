@@ -127,16 +127,18 @@ const Profile = () => {
         {/* Profile Picture */}
         <View className=" mt-4">
           <View className="items-center text-center">
-            <View className="relative w-24 h-24 mb-4 mt-4">
+            <View className="relative mb-4 mt-4" style={{ width: 96, height: 96 }}>
               <AppImage
                 remote={avatar}
                 fallback={images.user}
-                className="w-full h-full rounded-full"
+                className="rounded-full"
+                style={{ width: "100%", height: "100%" }}
                 resizeMode="cover"
               />
               <TouchableOpacity
                 onPress={updateProfilePic}
-                className="absolute bg-blue bottom-0 right-0 bg-blue-500 w-7 h-7 rounded-full items-center justify-center"
+                className="absolute bg-blue bottom-0 right-0 bg-blue-500 rounded-full items-center justify-center"
+                style={{ width: 28, height: 28 }}
               >
                 <Upload size={16} color="#ffffff" />
               </TouchableOpacity>
@@ -257,7 +259,7 @@ const Profile = () => {
                   secureTextEntry
                   error={
                     deleteFormik.touched.password &&
-                    deleteFormik.errors.password
+                      deleteFormik.errors.password
                       ? deleteFormik.errors.password
                       : undefined
                   }

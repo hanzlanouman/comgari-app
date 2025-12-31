@@ -36,7 +36,7 @@ const Layout = () => {
             // <WithRole permission="manage" resource="client" user={user!}>
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
-              className="rounded-full w-8 h-8"
+              style={{ width: 32, height: 32, borderRadius: 9999 }}
               start={[0, 0]}
               end={[1, 1]}
             >
@@ -47,7 +47,8 @@ const Layout = () => {
                     params: { id: projectId, clientId: resolvedClientId },
                   })
                 }
-                className="w-full h-full rounded-full flex flex-row justify-center items-center"
+                className="rounded-full flex flex-row justify-center items-center"
+                style={{ width: "100%", height: "100%" }}
               >
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
@@ -65,8 +66,7 @@ const Layout = () => {
             // <WithRole permission="manage" resource="client" user={user!}>
             <LinearGradient
               colors={["#1B78B9", "#63348F"]}
-              className="rounded-full w-8 h-8"
-              style={{ borderRadius: 9999 }}
+              style={{ borderRadius: 9999, width: 32, height: 32 }}
               start={[0, 0]}
               end={[1, 1]}
             >
@@ -82,7 +82,8 @@ const Layout = () => {
                     },
                   })
                 }
-                className="w-full h-full rounded-full rounded-red-500 flex flex-row justify-center items-center"
+                className="rounded-full rounded-red-500 flex flex-row justify-center items-center"
+                style={{ width: "100%", height: "100%" }}
               >
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>

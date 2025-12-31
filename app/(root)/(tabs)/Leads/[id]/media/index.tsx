@@ -87,7 +87,8 @@ const Media: React.FC = () => {
     <Image
       source={icons.frame}
       resizeMode="contain"
-      className="w-6 h-6 text-gray-500"
+      className="text-gray-500"
+      style={{ width: 24, height: 24 }}
     />
   );
 
@@ -111,11 +112,12 @@ const Media: React.FC = () => {
           }
           className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}>
           <View className="flex-row items-center border-light rounded-[20]">
-            <View className="w-12 h-12 rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow">
+            <View className="rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow" style={{ width: 48, height: 48 }}>
               <Image
                 source={icons.image}
                 resizeMode="contain"
-                className="w-6 h-6"
+                className=""
+                style={{ width: 24, height: 24 }}
               />
             </View>
             <View className="ml-4">
@@ -136,11 +138,12 @@ const Media: React.FC = () => {
           }
           className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border border-light`}>
           <View className="flex-row items-center">
-            <View className="w-12 h-12 rounded-lg bg-[#FEE2E2] flex items-center justify-center shadow">
+            <View className="rounded-lg bg-[#FEE2E2] flex items-center justify-center shadow" style={{ width: 48, height: 48 }}>
               <Image
                 source={icons.video}
                 resizeMode="contain"
-                className="w-6 h-6"
+                className=""
+                style={{ width: 24, height: 24 }}
               />
             </View>
             <View className="ml-4">
@@ -161,11 +164,12 @@ const Media: React.FC = () => {
           }
           className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}>
           <View className="flex-row items-center">
-            <View className="w-12 h-12 rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow">
+            <View className="rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow" style={{ width: 48, height: 48 }}>
               <Image
                 source={icons.file}
                 resizeMode="contain"
-                className="w-6 h-6"
+                className=""
+                style={{ width: 24, height: 24 }}
               />
             </View>
             <View className="ml-4">

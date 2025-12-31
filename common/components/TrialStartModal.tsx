@@ -17,7 +17,10 @@ export const TrialStartModal = ({ visible, onClose }: TrialStartModalProps) => {
             onRequestClose={onClose}
         >
             <View className="flex-1 justify-center items-center bg-black/50 p-4">
-                <View className="bg-white rounded-2xl w-full max-w-sm p-6 items-center shadow-xl">
+                <View
+                    className="bg-white rounded-2xl p-6 items-center shadow-xl"
+                    style={{ width: "100%", maxWidth: 384 }}
+                >
                     <View className="flex items-center mb-4">
                         <CheckCircle size={64} color="#10B981" />
                     </View>
@@ -26,7 +29,7 @@ export const TrialStartModal = ({ visible, onClose }: TrialStartModalProps) => {
                         Welcome to Comgari! 🎉
                     </Text>
 
-                    <View className="w-full mb-6">
+                    <View className="mb-6" style={{ width: "100%" }}>
                         <Text className="text-center text-base mb-2 text-black">
                             Your <Text className="font-bold">7-day free trial</Text> has started!
                         </Text>
@@ -34,7 +37,7 @@ export const TrialStartModal = ({ visible, onClose }: TrialStartModalProps) => {
                             Enjoy full access to all features for the next 7 days.
                         </Text>
 
-                        <View className="bg-blue-50 rounded-lg p-3 w-full">
+                        <View className="bg-blue-50 rounded-lg p-3" style={{ width: "100%" }}>
                             <Text className="text-blue-600 font-bold text-sm mb-1">
                                 ⚠️ Important Notice
                             </Text>
@@ -44,7 +47,7 @@ export const TrialStartModal = ({ visible, onClose }: TrialStartModalProps) => {
                         </View>
                     </View>
 
-                    <View className="w-full">
+                    <View className="" style={{ width: "100%" }}>
                         <CustomButton
                             title="Get Started"
                             onPress={onClose}

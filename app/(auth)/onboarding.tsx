@@ -18,20 +18,24 @@ const Onboarding = () => {
   const isLastSlide = activeIndex === onboarding.length - 1;
 
   return (
-    <SafeAreaView className="flex h-full items-center justify-between bg-white">
+    <SafeAreaView
+      className="flex items-center justify-between bg-white"
+      style={{ height: "100%" }}
+    >
       <Swiper
         ref={swiperRef}
         loop={false}
-        dot={<View className="w-6 h-[3] bg-blue rounded-full mx-2"></View>}
+        dot={<View className="bg-blue rounded-full mx-2" style={{ width: 24, height: 3 }}></View>}
         activeDot={
-          <View className="w-6 h-[3] bg-purple rounded-full mx-2"></View>
+          <View className="bg-purple rounded-full mx-2" style={{ width: 24, height: 3 }}></View>
         }
         onIndexChanged={(index) => setActiveIndex(index)}>
         {onboarding.map((item) => (
           <View key={item.id} className="flex items-center justify-center">
             <Image
               source={item.image}
-              className="w-full h-[250] sm:h-[320] mt-4"
+              className="mt-4"
+              style={{ width: "100%", height: 250 }}
               resizeMode="contain"
             />
             <Text className="text-navy text-2xl sm:text-3xl font-ManropeBold sm:px-8 px-10 text-center mt-5">
@@ -43,7 +47,7 @@ const Onboarding = () => {
           </View>
         ))}
       </Swiper>
-      <View className="w-full flex-row items-center justify-between px-4 mt-10">
+      <View className="flex-row items-center justify-between px-4 mt-10" style={{ width: "100%" }}>
         <TouchableOpacity onPress={() => router.push(route.auth.register)}>
           <Text className="text-sm sm:text-base text-dark font-ManropeSemibold">
             Skip
@@ -56,7 +60,8 @@ const Onboarding = () => {
               ? router.replace(route.auth.register)
               : swiperRef.current?.scrollBy(1)
           }
-          className="w-24"
+          className=""
+          style={{ width: 96 }}
         />
       </View>
     </SafeAreaView>

@@ -80,7 +80,8 @@ export const AppContainer = (props: Props) => {
 
   return (
     <KeyboardAwareScrollView
-      className="bg-white w-screen h-screen"
+      className="bg-white"
+      style={{ width: "100%", height: "100%" }}
       enableOnAndroid
       extraScrollHeight={ms(40)}
       keyboardShouldPersistTaps="handled"
@@ -128,7 +129,8 @@ export const AppContainer = (props: Props) => {
       </Modal>
       {hasScroll ? (
         <ScrollView
-          className="bg-white w-screen h-screen"
+          className="bg-white"
+          style={{ width: "100%", height: "100%" }}
           contentContainerStyle={[styles.scrollContent, props?.style]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}

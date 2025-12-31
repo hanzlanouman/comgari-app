@@ -159,7 +159,7 @@ const Notes = () => {
               <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
                 Oops! It seems there are no notes here. Start creating now!
               </Text>
-              <View className="w-[180] mx-auto mt-5">
+              <View className="mx-auto mt-5" style={{ width: 180 }}>
                 <CustomButton
                   title="Create Note"
                   onPress={() =>

@@ -84,7 +84,11 @@ const SubscribedPlanDetails = () => {
                     <View className="mb-5">
                         <ComfimationModelWithTrigger
                             Button={({ onPress }) => (
-                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52] rounded-xl pb-0.5 flex flex-row justify-center items-center">
+                                <TouchableOpacity
+                                    onPress={onPress}
+                                    className="bg-red rounded-xl pb-0.5 flex flex-row justify-center items-center"
+                                    style={{ width: "100%", height: 52 }}
+                                >
                                     <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
                                         Cancel Free Trial
                                     </Text>
@@ -137,7 +141,10 @@ const SubscribedPlanDetails = () => {
 
                     {differnceInDays < 10 && <View className="mb-4">
                         <View className="p-3 bg-orange-100 rounded-md items-center flex-row">
-                            <View className="p-2 h-11 w-11 flex items-center justify-center bg-orange-500 rounded-md">
+                            <View
+                                className="p-2 flex items-center justify-center bg-orange-500 rounded-md"
+                                style={{ width: 44, height: 44 }}
+                            >
                                 <OctagonAlert color="white" />
                             </View>
                             <View className="flex-1 ml-2">
@@ -153,7 +160,11 @@ const SubscribedPlanDetails = () => {
                     <View className="mb-5">
                         <ComfimationModelWithTrigger
                             Button={({ onPress }) => (
-                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52] rounded-xl pb-0.5 flex flex-row justify-center items-center">
+                                <TouchableOpacity
+                                    onPress={onPress}
+                                    className="bg-red rounded-xl pb-0.5 flex flex-row justify-center items-center"
+                                    style={{ width: "100%", height: 52 }}
+                                >
                                     <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
                                         Cancel Plan
                                     </Text>

@@ -131,17 +131,17 @@ const AddProposal = () => {
   };
 
   const handleSave = () => {
-    const payload = {
+    const payload: CreateProposalPayload = {
       client_id: formData.client_id,
-      date: formData.date,
+      date: new Date(formData.date),
       address: formData.address,
       city: formData.city,
-      zip_code: formData.zip_code,
+      zip_code: Number(formData.zip_code),
       job_name: formData.job_name,
       job_phone: formData.job_phone,
       project_director: formData.project_director,
-      estimated_days: formData.estimated_days,
-      estimated_cost: formData.estimated_cost,
+      estimated_days: Number(formData.estimated_days),
+      estimated_cost: String(formData.estimated_cost),
       specification: formData.specification,
       project_id: formData.project_id,
     };

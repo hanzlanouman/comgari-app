@@ -140,7 +140,7 @@ const Proposal = () => {
             <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
               We can't find any proposals yet!
             </Text>
-            <View className="w-[158] mx-auto mt-5">
+            <View className="mx-auto mt-5" style={{ width: 158 }}>
               <CustomButton
                 title="Add Proposal"
                 onPress={() =>
@@ -208,7 +208,8 @@ const Proposal = () => {
                 </View>
                 <View className="pl-3.5 flex-1">
                   <Text
-                    className="text-base sm:text-lg font-ManropeBold text-dark w-full"
+                    className="text-base sm:text-lg font-ManropeBold text-dark"
+                    style={{ width: "100%" }}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
@@ -216,8 +217,11 @@ const Proposal = () => {
                   </Text>
                   <View>
                     <View className="flex-row items-center mt-1">
-                      <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-                        <View className="bg-blue w-1.5 h-1.5" />
+                      <View
+                        className="bg-blue-100 flex-row items-center justify-center"
+                        style={{ width: 14, height: 14 }}
+                      >
+                        <View className="bg-blue" style={{ width: 6, height: 6 }} />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
                         {proposal.client?.type?.replaceAll("_", " ") ||
@@ -234,7 +238,7 @@ const Proposal = () => {
                   </View>
                 </View>
               </View>
-              <View className="bg-light w-full h-px my-4" />
+              <View className="bg-light my-4" style={{ width: "100%", height: 1 }} />
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Image

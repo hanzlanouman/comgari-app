@@ -45,7 +45,7 @@ export const InputField = ({
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="w-full">
+        <View className="" style={{ width: "100%" }}>
           {label && (
             <Text className={`text-sm font-ManropeMedium mb-1.5 ${labelStyle}`}>
               {label}
@@ -55,7 +55,8 @@ export const InputField = ({
             className={`flex flex-row justify-start items-center relative bg-white rounded-xl border border-light ${containerStyle}`}>
             {icon && <View className={`ml-4 ${iconStyle}`}>{icon}</View>}
             <TextInput
-              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 ${inputStyle} text-left ${disabled ? 'opacity-50' : ''}`}
+              className={`rounded-xl p-4 font-ManropMedium text-[15px] flex-1 ${inputStyle} text-left`}
+              style={disabled ? { opacity: 0.5 } : {}}
               secureTextEntry={isPasswordVisible}
               value={inputValue}
               onChangeText={disabled ? () => { } : setInputValue}

@@ -42,7 +42,8 @@ export function DatePicker({ placeholder = "Select Date", selectedDate, setSelec
             <TouchableOpacity
                 activeOpacity={1}
                 onPress={disabled ? undefined : showDatePicker}
-                className={`h-12 flex flex-row justify-start items-center relative bg-white rounded-[10px] border border-black ${containerStyle}`}
+                style={{ height: 48 }}
+                className={`flex flex-row justify-start items-center relative bg-white rounded-[10px] border border-black ${containerStyle}`}
             >
                 <Text className="rounded-xl px-4 py-2 font-MontserratMedium text-[15px] flex-1">
                     {selectedDate ?

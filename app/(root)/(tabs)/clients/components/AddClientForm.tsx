@@ -140,11 +140,13 @@ export default function AddClientForm({
         <Image
           source={imagePreview ? { uri: imagePreview } : images.user}
           resizeMode="cover"
-          className="rounded-full mx-auto w-full h-full"
+          className="rounded-full mx-auto"
+          style={{ width: "100%", height: "100%" }}
         />
         <TouchableOpacity
           onPress={handleImageUpload}
-          className="bg-blue rounded-full flex-row items-center justify-center w-7 h-7 absolute bottom-0 right-0 pb-px"
+          className="bg-blue rounded-full flex-row items-center justify-center absolute bottom-0 right-0 pb-px"
+          style={{ width: 28, height: 28 }}
         >
           <Upload size={13} color="#ffffff" />
         </TouchableOpacity>
@@ -260,7 +262,8 @@ export default function AddClientForm({
 
       <View className="mt-3">
         <TextInput
-          className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15] text-left"
+          className="border border-light rounded-xl p-4 font-ManropeMedium text-[15] text-left"
+          style={{ height: 112 }}
           value={formik.values.description}
           editable
           multiline

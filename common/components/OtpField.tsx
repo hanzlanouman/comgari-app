@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleProp, ViewStyle } from "react-native";
 
 interface OtpProps {
   title?: string;
@@ -15,6 +15,7 @@ interface OtpProps {
   error?: string | undefined | any;
   inputRef?: undefined | any;
   index: number;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const OtpField: React.FC<OtpProps> = ({
@@ -28,13 +29,17 @@ export const OtpField: React.FC<OtpProps> = ({
   error,
   inputRef,
   index,
+  containerStyle,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <View className={`${otherStyles}`}>
+    <View className={`${otherStyles}`} style={containerStyle}>
       {title && <Text className="text-sm text-black">{title}</Text>}
-      <View className="w-full h-12 sm:h-[52] px-4 border border-stone-300 bg-white rounded-xl sm:rounded-2xl flex-row items-center justify-center">
+      <View
+        style={{ width: "100%", height: 48 }}
+        className="px-4 border border-stone-300 bg-white rounded-xl sm:rounded-2xl flex-row items-center justify-center"
+      >
         <TextInput
           className={`flex-1 text-black font-mmedium text-base pb-1 sm:pb-1.5 ${inputStyles}`}
           value={value}

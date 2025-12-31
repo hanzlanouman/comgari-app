@@ -167,7 +167,7 @@ export default function Paymentmethod() {
       console.error("Payment failed:", mutationError);
       showErrorAlert(
         (mutationError as any)?.message ||
-          "An error occurred during payment processing."
+        "An error occurred during payment processing."
       );
     }
   }, [isError, mutationError]);
@@ -300,7 +300,10 @@ export default function Paymentmethod() {
           <Text className="text-dark-100 text-sm font-ManropeMedium mb-1">
             Have a coupon code?
           </Text>
-          <View className="flex-row items-center border border-gray-100 rounded-xl p-1 h-14">
+          <View
+            className="flex-row items-center border border-gray-100 rounded-xl p-1"
+            style={{ height: 56 }}
+          >
             <TextInput
               className="p-3 text-sm flex-1"
               placeholder="Enter coupon code"
@@ -310,7 +313,8 @@ export default function Paymentmethod() {
             <CustomButton
               title="Apply"
               onPress={() => ValidateCoupon(couponCode)}
-              className="mt-2 !w-20 pb-4"
+              className="mt-2 pb-4"
+              style={{ width: 80 }}
             />
           </View>
           {isCouponApplied && (

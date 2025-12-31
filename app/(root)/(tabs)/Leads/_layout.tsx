@@ -33,13 +33,13 @@ const Layout = () => {
             <WithRole permission="manage" resource="client" user={user!}>
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
-                className="w-8 h-8"
-                style={{ borderRadius: 9999 }}
+                style={{ borderRadius: 9999, width: 32, height: 32 }}
                 start={[0, 0]}
                 end={[1, 1]}>
                 <TouchableOpacity
                   onPressIn={() => router.push("/(root)/(tabs)/clients/add-client")}
-                  className="w-full h-full flex flex-row justify-center items-center">
+                  className="flex flex-row justify-center items-center"
+                  style={{ width: "100%", height: "100%" }}>
                   <Plus size={18} color="#ffffff" />
                 </TouchableOpacity>
               </LinearGradient>

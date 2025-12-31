@@ -192,7 +192,8 @@ const JobDetails = ({
             <TouchableOpacity
               activeOpacity={1}
               onPress={showDatePicker}
-              className="w-full h-12 px-4 border border-light bg-white rounded-xl flex-row items-center justify-center mt-2.5 relative"
+              className="px-4 border border-light bg-white rounded-xl flex-row items-center justify-center mt-2.5 relative"
+              style={{ width: "100%", height: 48 }}
             >
               <Text className="flex-1 text-black font-ManropeMedium text-base">
                 {formikProps.values.date ? (
@@ -244,7 +245,7 @@ const JobDetails = ({
             </View>
 
             <View className="flex-row items-center -mx-2 mt-2.5">
-              <View className="w-3/5 px-2">
+              <View className="px-2" style={{ width: "60%" }}>
                 <InputField
                   value={formikProps.values.city}
                   placeholder="City"
@@ -257,7 +258,7 @@ const JobDetails = ({
                   </Text>
                 )}
               </View>
-              <View className="w-2/5 px-2">
+              <View className="px-2" style={{ width: "40%" }}>
                 <InputField
                   value={formikProps.values.zip_code.toString()}
                   placeholder="Zip"

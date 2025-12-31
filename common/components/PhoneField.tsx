@@ -58,7 +58,7 @@ export const PhoneField = ({
         const cc =
           constants?.[defaultCountry as keyof typeof constants]?.callingCode;
         if (cc) setCallingCode(String(cc).replace(/[^\d]/g, ""));
-      } catch {}
+      } catch { }
     }
   }, [defaultCountry]);
 
@@ -73,7 +73,7 @@ export const PhoneField = ({
   }, [callingCode, onChangeText]);
 
   return (
-    <View className="w-full">
+    <View className="" style={{ width: "100%" }}>
       <View
         className={`bg-white rounded-xl border border-light ${containerClassName}`}
       >

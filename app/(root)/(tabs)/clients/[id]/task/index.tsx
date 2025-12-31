@@ -256,7 +256,7 @@ const Tasks = () => {
                   No task found, you can create new tasks here!
                 </Text>
 
-                <View className="w-[158] mx-auto mt-5">
+                <View className="mx-auto mt-5" style={{ width: 158 }}>
                   <CustomButton
                     title="Add Task"
                     onPress={() => addModalRef.current?.present()}

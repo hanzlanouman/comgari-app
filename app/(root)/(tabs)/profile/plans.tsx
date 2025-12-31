@@ -145,7 +145,8 @@ const GoPro = () => {
           <View className="flex flex-row items-center justify-between bg-gray p-1.5 rounded-xl mt-5">
             <TouchableOpacity
               onPress={() => setActiveTab("monthly")}
-              className={`${activeTab === "monthly" ? "bg-white" : "bg-light-50"} w-2/4 rounded-lg p-2 sm:p-3`}
+              className={`${activeTab === "monthly" ? "bg-white" : "bg-light-50"} rounded-lg p-2 sm:p-3`}
+              style={{ width: "50%" }}
             >
               <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
                 Monthly
@@ -153,7 +154,8 @@ const GoPro = () => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setActiveTab("yearly")}
-              className={`${activeTab === "yearly" ? "bg-white" : "bg-light-50"} w-2/4 rounded-lg p-2 sm:p-3`}
+              className={`${activeTab === "yearly" ? "bg-white" : "bg-light-50"} rounded-lg p-2 sm:p-3`}
+              style={{ width: "50%" }}
             >
               <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
                 Yearly

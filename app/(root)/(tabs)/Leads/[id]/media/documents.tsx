@@ -301,7 +301,7 @@ const MediaDocuments = () => {
           file.type === "application/pdf" ||
           file.type === "application/msword" ||
           file.type ===
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           const res = await uploadAsync(file);
           if (res.isSuccess) {
@@ -336,7 +336,7 @@ const MediaDocuments = () => {
               (item.mimeType === "application/pdf" ||
                 item.mimeType === "application/msword" ||
                 item.mimeType ===
-                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
           );
 
           setDocumentItems(updatedDocItems);
@@ -392,138 +392,139 @@ const MediaDocuments = () => {
   }, [navigation]);
 
   return (
-      <BottomSheetModalProvider>
-        <SafeAreaView className="flex-1 bg-white">
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
-            className="px-4"
-          >
-            {isDownloading && (
-              <View
-                className="absolute inset-0 z-50 flex-1"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <ActivityIndicator size="large" color="#1B78B9" />
-              </View>
-            )}
-            {documentItems.map((doc: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                className="border border-light rounded-xl p-2.5 flex-row items-center justify-between mt-3"
-                onPress={() => handlePresentModalPress(doc)}
-              >
-                <View className="flex-row items-center flex-1">
-                  <Image
-                    source={
-                      doc.mimeType.includes("pdf")
-                        ? icons.pdfIcon
-                        : icons.docIcon
-                    }
-                    className="w-9 h-9"
-                  />
-                  <View className="pl-2.5 flex-1">
-                    <Text
-                      className="text-sm sm:text-base text-dark font-ManropeMedium"
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {doc.url
-                        ? doc.url.split("/").pop() || "Untitled Document"
-                        : "Untitled Document"}
-                    </Text>
-                  </View>
-                </View>
-                <ChevronRight size={16} className="text-dark" />
-              </TouchableOpacity>
-            ))}
-
-            <BottomSheetModal
-              ref={bottomSheetModalRef}
-              index={1}
-              snapPoints={snapPoints}
-              backdropComponent={renderBackdrop}
-              backgroundStyle={{
-                borderRadius: 24,
+    <BottomSheetModalProvider>
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
+          className="px-4"
+        >
+          {isDownloading && (
+            <View
+              className="absolute inset-0 z-50 flex-1"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              <BottomSheetView>
-                <View className="p-4 pt-2">
-                  {Platform.OS !== "ios" && (
-                    <TouchableOpacity
-                      className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
-                      onPress={() =>
-                        selectedDocument && handleDownload(selectedDocument)
-                      }
-                    >
-                      <View className="flex-row items-center">
-                        <LinearGradient
-                          colors={["#1B78B9", "#63348F"]}
-                          className="rounded-full w-8 h-8"
-                          start={[0, 0]}
-                          end={[1, 1]}
-                        >
-                          <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-                            <Download size={16} color="#ffffff" />
-                          </TouchableOpacity>
-                        </LinearGradient>
-                        <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                          Download
-                        </Text>
-                      </View>
-                      <ChevronRight size={16} color="#1C1C1C" />
-                    </TouchableOpacity>
-                  )}
+              <ActivityIndicator size="large" color="#1B78B9" />
+            </View>
+          )}
+          {documentItems.map((doc: any, index: number) => (
+            <TouchableOpacity
+              key={index}
+              className="border border-light rounded-xl p-2.5 flex-row items-center justify-between mt-3"
+              onPress={() => handlePresentModalPress(doc)}
+            >
+              <View className="flex-row items-center flex-1">
+                <Image
+                  source={
+                    doc.mimeType.includes("pdf")
+                      ? icons.pdfIcon
+                      : icons.docIcon
+                  }
+                  className=""
+                  style={{ width: 36, height: 36 }}
+                />
+                <View className="pl-2.5 flex-1">
+                  <Text
+                    className="text-sm sm:text-base text-dark font-ManropeMedium"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {doc.url
+                      ? doc.url.split("/").pop() || "Untitled Document"
+                      : "Untitled Document"}
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={16} className="text-dark" />
+            </TouchableOpacity>
+          ))}
 
-                  {Platform.OS === "ios" && (
-                    <TouchableOpacity
-                      className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
-                      onPress={() =>
-                        selectedDocument &&
-                        handleShareDocument(selectedDocument)
-                      }
-                    >
-                      <View className="flex-row items-center">
-                        <TouchableOpacity className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
-                          <Share2 size={16} color="#ffffff" />
-                        </TouchableOpacity>
-                        <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                          Share
-                        </Text>
-                      </View>
-                      <ChevronRight size={16} color="#1C1C1C" />
-                    </TouchableOpacity>
-                  )}
-
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            index={1}
+            snapPoints={snapPoints}
+            backdropComponent={renderBackdrop}
+            backgroundStyle={{
+              borderRadius: 24,
+            }}
+          >
+            <BottomSheetView>
+              <View className="p-4 pt-2">
+                {Platform.OS !== "ios" && (
                   <TouchableOpacity
-                    className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+                    className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
                     onPress={() =>
-                      selectedDocument && handleDelete(selectedDocument)
+                      selectedDocument && handleDownload(selectedDocument)
                     }
                   >
                     <View className="flex-row items-center">
-                      <TouchableOpacity className="bg-red rounded-full w-8 h-8 flex flex-row justify-center items-center">
-                        <Trash2 size={16} color="#ffffff" />
-                      </TouchableOpacity>
+                      <LinearGradient
+                        colors={["#1B78B9", "#63348F"]}
+                        style={{ borderRadius: 9999, width: 32, height: 32 }}
+                        start={[0, 0]}
+                        end={[1, 1]}
+                      >
+                        <TouchableOpacity className="rounded-full flex flex-row justify-center items-center pb-px" style={{ width: "100%", height: "100%" }}>
+                          <Download size={16} color="#ffffff" />
+                        </TouchableOpacity>
+                      </LinearGradient>
                       <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                        Delete
+                        Download
                       </Text>
                     </View>
                     <ChevronRight size={16} color="#1C1C1C" />
                   </TouchableOpacity>
-                </View>
-              </BottomSheetView>
-            </BottomSheetModal>
-          </ScrollView>
-        </SafeAreaView>
-      </BottomSheetModalProvider>
+                )}
+
+                {Platform.OS === "ios" && (
+                  <TouchableOpacity
+                    className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
+                    onPress={() =>
+                      selectedDocument &&
+                      handleShareDocument(selectedDocument)
+                    }
+                  >
+                    <View className="flex-row items-center">
+                      <TouchableOpacity className="bg-dark rounded-full flex flex-row justify-center items-center" style={{ width: 32, height: 32 }}>
+                        <Share2 size={16} color="#ffffff" />
+                      </TouchableOpacity>
+                      <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                        Share
+                      </Text>
+                    </View>
+                    <ChevronRight size={16} color="#1C1C1C" />
+                  </TouchableOpacity>
+                )}
+
+                <TouchableOpacity
+                  className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+                  onPress={() =>
+                    selectedDocument && handleDelete(selectedDocument)
+                  }
+                >
+                  <View className="flex-row items-center">
+                    <TouchableOpacity className="bg-red rounded-full flex flex-row justify-center items-center" style={{ width: 32, height: 32 }}>
+                      <Trash2 size={16} color="#ffffff" />
+                    </TouchableOpacity>
+                    <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                      Delete
+                    </Text>
+                  </View>
+                  <ChevronRight size={16} color="#1C1C1C" />
+                </TouchableOpacity>
+              </View>
+            </BottomSheetView>
+          </BottomSheetModal>
+        </ScrollView>
+      </SafeAreaView>
+    </BottomSheetModalProvider>
   );
 };
 
