@@ -164,7 +164,7 @@ const AddAppointment = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       {/* <AppContainer
         confirmationMessage="Do you want to add the appointment in Google Calendar"
         isConfirm={true}

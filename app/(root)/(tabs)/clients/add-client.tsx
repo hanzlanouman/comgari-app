@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {  ScrollView, View, Alert, Text, KeyboardAvoidingView } from "react-native";
+import { ScrollView, View, Alert, Text, KeyboardAvoidingView } from "react-native";
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
@@ -146,7 +146,7 @@ const AddClient = () => {
       const payload = {
         ...values,
         client_Staff: memberActions,
-        status: isEditing ? values.status : ClientStatus.Lead,
+        status: isEditing ? values.status : ClientStatus.Active,
       };
 
       if (isEditing && clientId) {
@@ -161,6 +161,7 @@ const AddClient = () => {
         );
       }
 
+      console.log(payload, "Client saved successfully");
       await queryClient.invalidateQueries({ queryKey: ["clients"] });
       router.replace("/(root)/(tabs)/clients/clients");
     } catch (error) {
@@ -183,33 +184,33 @@ const AddClient = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
 
-      <AppContainer>
-        <Text className="text-sm mb-6 px-4">
-          Add new team clients by filling out their details below to onboard
-          them.
-        </Text>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-          <AddClientForm
-            formik={formik}
-            typeOptions={clientTypeOptions}
-            statusOptions={statusOptions}
-            memberOptions={memberOptions}
-            isEditing={isEditing}
-            ClientStatus={ClientStatus}
+        <AppContainer>
+          <Text className="text-sm mb-6 px-4 text-black">
+            Add new team clients by filling out their details below to onboard
+            them.
+          </Text>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+            <AddClientForm
+              formik={formik}
+              typeOptions={clientTypeOptions}
+              statusOptions={statusOptions}
+              memberOptions={memberOptions}
+              isEditing={isEditing}
+              ClientStatus={ClientStatus}
             />
-        </ScrollView>
-        <View className="p-4 bg-white">
-          <CustomButton
-            title={isEditing ? "Update Client" : "Add Client"}
-            onPress={() => formik.handleSubmit()}
-            disabled={isLoading}
+          </ScrollView>
+          <View className="p-4 bg-white">
+            <CustomButton
+              title={isEditing ? "Update Client" : "Add Client"}
+              onPress={() => formik.handleSubmit()}
+              disabled={isLoading}
             />
-        </View>
-      </AppContainer>
-            </KeyboardAvoidingView>
+          </View>
+        </AppContainer>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

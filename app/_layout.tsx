@@ -14,7 +14,7 @@ import { SimpleActivityIndicator } from "@/common/components/Loader";
 import { AuthorizationProvider } from "@/context/PermissionContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { AlertBox, CustomButton, ProgressBox } from "@/common/components";
+import { AlertBox, CustomButton, ProgressBox, WhatsAppButton } from "@/common/components";
 import { Text, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
@@ -104,6 +104,7 @@ function LayoutWrapper() {
           </Stack>
         </BottomSheetModalProvider>
       </AuthorizationProvider>
+      <WhatsAppButton />
     </Fragment>
   );
 }

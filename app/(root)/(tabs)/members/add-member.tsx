@@ -1,5 +1,6 @@
 //app\(root)\(tabs)\members\add-member.tsx
-import { KeyboardAvoidingView, SafeAreaView, ScrollView } from "react-native";
+import { KeyboardAvoidingView, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { router } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
@@ -164,11 +165,11 @@ const AddMember = () => {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <AppContainer
           isError={isError || updateMutation.isError}
-          message={error || updateMutation.error }
+          message={error?.message || updateMutation.error?.message}
         >
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
             <AddMemberForm

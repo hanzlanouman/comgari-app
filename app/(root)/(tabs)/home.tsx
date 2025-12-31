@@ -114,7 +114,7 @@ const Home = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <AppContainer isError={isError} message={error}>
         <ScrollView>
           {/* Statistics Section */}

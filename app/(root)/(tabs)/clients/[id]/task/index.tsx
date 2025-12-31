@@ -1,12 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
   TouchableOpacity,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { scale, vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import TaskCard from "../../components/TaskCard";
@@ -217,7 +217,7 @@ const Tasks = () => {
 
   return (
     <BottomSheetModalProvider>
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
           className="px-4"

@@ -124,7 +124,7 @@ const Members = () => {
   }, [data]);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 px-4 bg-white" edges={["bottom", "left", "right"]}>
       <AppContainer isError={isError} message={error?.message}>
         <FlatList
           data={member}

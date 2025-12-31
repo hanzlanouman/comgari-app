@@ -28,6 +28,7 @@ import { TPresignedUrlResponse } from "./types";
 
 type TClientReponse = {
   statusCode: boolean;
+  description?: string;
   data?: any;
   message?: any;
 };

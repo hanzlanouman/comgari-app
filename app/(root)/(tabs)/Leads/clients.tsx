@@ -54,7 +54,7 @@ const Clients: React.FC = () => {
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const { isError, isLoading, isFetching, refetch, data } = useQuery<Client[]>({
-    queryKey: ["clients", page, pageSize],
+    queryKey: ["leads-clients", page, pageSize],
     queryFn: async () => {
       const clientListingPayload: ClientListingPayload = {
         start: page * pageSize,
@@ -167,7 +167,7 @@ const Clients: React.FC = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <AppContainer isError={isError}>
         <View className="flex-1 px-5">
           <Text className="text-sm text-dark-100 mt-3 mb-2">

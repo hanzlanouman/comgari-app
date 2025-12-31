@@ -63,11 +63,11 @@ const EditAppointment = () => {
         { start: 0, limit: 100 },
       );
 
-      const options: OptionType[] = clients?.map((client: any) => ({
+      const options: OptionType[] = (Array.isArray(clients?.data) ? clients.data : []).map((client: any) => ({
         key: client.id,
         value: client.name,
       }));
-      setClientOptions(options.length ? options : []); // Default to empty array if no clients
+      setClientOptions(options);
     } catch (err: any) {
       Alert.alert("Error", err?.message || "Failed to fetch clients");
     } finally {
@@ -124,7 +124,7 @@ const EditAppointment = () => {
       const exisit = await authRepo.checkOAuth();
 
       if (exisit) {
-        
+
         return;
       }
 
@@ -162,7 +162,7 @@ const EditAppointment = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <AppContainer
         confirmationMessage="Do you want to add the appointment in Google Calendar"
         isConfirm={true}

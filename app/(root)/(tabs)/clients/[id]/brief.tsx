@@ -65,9 +65,11 @@ const Brief = () => {
         // const response = await clientRepo.getBrief(Number(id));
         const clientResponse = await clientRepo.getSingleClient(Number(id));
 
-        if (clientResponse?.data?.description) {
-          setDescription(clientResponse.data.description);
+        if (clientResponse?.description) {
+          setDescription(clientResponse.description);
         }
+
+        console.log(clientResponse?.description, "Brief");
 
         // console.log(response, "Brief");
 
@@ -161,7 +163,7 @@ const Brief = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       {/* <RichToolbar
         editor={richText}
         actions={[
@@ -192,9 +194,9 @@ const Brief = () => {
       /> */}
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {description ? (
-          <View className="p-4 bg-white border-b border-gray-100">
+          <View className="p-4 bg-white ">
             <Text className="text-base text-gray-800 font-medium">Brief Description</Text>
-            <Text className="text-sm text-gray-600 mt-1 leading-5">{description}</Text>
+            <Text className="text-sm text-black mt-1 leading-5">{description}</Text>
           </View>
         ) : null}
         {/* <RichEditor

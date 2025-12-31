@@ -302,7 +302,7 @@ const Appointment = () => {
     //     renderKnob={renderKnob}
     //   />
     // </SafeAreaView>
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <View className="mb-4 flex-1">
         {isLoading || isFetching ? (
           <View className="flex-1 justify-center items-center">

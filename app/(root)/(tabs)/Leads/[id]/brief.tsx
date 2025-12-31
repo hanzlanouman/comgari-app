@@ -65,8 +65,8 @@ const Brief = () => {
         // const response = await clientRepo.getBrief(Number(id));
         const clientResponse = await clientRepo.getSingleClient(Number(id));
 
-        if (clientResponse?.data?.description) {
-          setDescription(clientResponse.data.description);
+        if (clientResponse?.description) {
+          setDescription(clientResponse.description);
         }
 
         // console.log(response, "Brief");
@@ -161,7 +161,7 @@ const Brief = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       {/* <RichToolbar
         editor={richText}
         actions={[
