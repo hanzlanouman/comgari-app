@@ -250,7 +250,7 @@ const InvoicesScreen = () => {
               <Image
                 source={images.invoice}
                 resizeMode="cover"
-                className="w-[24px] h-[28px]"
+                className="w-[24] h-[28]"
               />
             </View>
             <View className="pl-4 flex-1 pr-4">
@@ -315,14 +315,12 @@ const InvoicesScreen = () => {
               Status
             </Text>
             <View
-              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${
-                invoice.status === "PAID" ? "bg-green-100" : "bg-yellow-100"
-              }`}
+              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${invoice.status === "PAID" ? "bg-green-100" : "bg-yellow-100"
+                }`}
             >
               <Text
-                className={`text-base font-ManropeMedium ${
-                  invoice.status === "PAID" ? "text-green" : "text-yellow-600"
-                }`}
+                className={`text-base font-ManropeMedium ${invoice.status === "PAID" ? "text-green" : "text-yellow-600"
+                  }`}
               >
                 {invoice.status}
               </Text>
@@ -358,14 +356,12 @@ const InvoicesScreen = () => {
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
-              className={`flex-1 items-center justify-center py-2 rounded-full ${
-                activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
-              }`}
+              className={`flex-1 items-center justify-center py-2 rounded-full ${activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
+                }`}
             >
               <Text
-                className={`text-sm sm:text-base font-ManropeSemibold ${
-                  activeTab === tab ? "text-blue" : "text-dark"
-                }`}
+                className={`text-sm sm:text-base font-ManropeSemibold ${activeTab === tab ? "text-blue" : "text-dark"
+                  }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </Text>

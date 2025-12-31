@@ -49,7 +49,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
 
   const renderMembers = () => {
     if (!task.task_member || task.task_member.length === 0) {
-      return <View className="h-[30px]" />;
+      return <View className="h-[30]" />;
     }
     const maxVisibleMembers = 3;
     const totalMembers = task.task_member.length;
@@ -75,7 +75,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
           ))}
           {remainingCount > 0 && (
             <View className="-ml-3" style={{ zIndex: 0 }}>
-              <View className="w-[30px] h-[30px] rounded-full border-2 border-white bg-gray-100 items-center justify-center">
+              <View className="w-[30] h-[30] rounded-full border-2 border-white bg-gray-100 items-center justify-center">
                 <Text className="text-xs font-ManropeMedium text-gray-600">
                   +{remainingCount}
                 </Text>
@@ -104,7 +104,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-white border border-light p-3.5 rounded-[20px] mt-2.5"
+      className="bg-white border border-light p-3.5 rounded-[20] mt-2.5"
     >
       <View className="flex-row items-center">
         {getPriorityIcon()}

@@ -149,11 +149,11 @@ const Members = () => {
                 className="mx-auto"
               />
               <View>
-                <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+                <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
                   No team members added yet. Start growing your team by adding
                   members to manage clients and properties.
                 </Text>
-                <View className="w-[158px] mx-auto mt-5">
+                <View className="w-[158] mx-auto mt-5">
                   <WithRole permission="manage" resource="member" user={user!}>
                     <CustomButton
                       title="Add Member"

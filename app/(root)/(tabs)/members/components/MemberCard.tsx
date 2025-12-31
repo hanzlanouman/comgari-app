@@ -26,7 +26,7 @@ const getRoleName = (roleId: number | undefined) => {
 export default function MemberCard({ member }: { member: TMember }) {
   return (
     <View>
-      <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20px] mt-2.5">
+      <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20] mt-2.5">
         <View className="relative items-center">
           <Image
             source={
@@ -36,7 +36,7 @@ export default function MemberCard({ member }: { member: TMember }) {
             className="rounded-full"
             style={{ width: vs(70), height: vs(70) }}
           />
-          <View className="bg-purple rounded-3xl pb-[3px] absolute bottom-0 left-1/2 -translate-x-1/2 px-3">
+          <View className="bg-purple rounded-3xl pb-[3] absolute bottom-0 left-1/2 -translate-x-1/2 px-3">
             <Text
               className="text-white text-sm text-center  font-ManropeMedium"
               style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}

@@ -56,7 +56,7 @@ const Cards: React.FC<CardsProps> = ({
             ))}
             <LinearGradient
               colors={["#1C78B9", "#4B4C9E"]}
-              className="rounded-xl h-[52px] mt-23"
+              className="rounded-xl h-[52] mt-23"
               start={[0, 0]}
               end={[1, 1]}
             >
@@ -82,10 +82,10 @@ const Cards: React.FC<CardsProps> = ({
               style={{ width: scale(130), height: vs(130) }}
               className="mx-auto"
             />
-            <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center mt-6 px-4">
+            <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center mt-6 px-4">
               We can't find any payment method, please add one!
             </Text>
-            <View className="w-[158px] mx-auto mt-5">
+            <View className="w-[158] mx-auto mt-5">
               <CustomButton title="Add Card" onPress={onAddCard} />
             </View>
           </View>

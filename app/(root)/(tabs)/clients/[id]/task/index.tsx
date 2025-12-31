@@ -216,93 +216,93 @@ const Tasks = () => {
   });
 
   return (
-      <BottomSheetModalProvider>
-        <SafeAreaView className="flex-1 bg-white">
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
-            className="px-4"
-          >
-            {error ? (
-              <View className="flex-1 justify-center items-center">
-                <Text className="text-red-500 text-center">
-                  Failed to load tasks. Please try again later.
+    <BottomSheetModalProvider>
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
+          className="px-4"
+        >
+          {error ? (
+            <View className="flex-1 justify-center items-center">
+              <Text className="text-red-500 text-center">
+                Failed to load tasks. Please try again later.
+              </Text>
+              <CustomButton
+                title="Retry"
+                onPress={() => refetch()}
+                className="mt-4"
+              />
+            </View>
+          ) : tasks?.length > 0 ? (
+            <View className="pb-4">
+              {tasks?.map((task: any) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onPress={() => handleTaskPress(task)}
+                />
+              ))}
+            </View>
+          ) : (
+            <View className="flex-grow flex-col items-center justify-center px-4">
+              <Image
+                source={icons.noTask}
+                resizeMode="contain"
+                style={{ width: scale(80), height: vs(80) }}
+                className="mx-auto"
+              />
+              <View className="mt-8">
+                <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+                  No task found, you can create new tasks here!
                 </Text>
-                <CustomButton
-                  title="Retry"
-                  onPress={() => refetch()}
-                  className="mt-4"
-                />
-              </View>
-            ) : tasks?.length > 0 ? (
-              <View className="pb-4">
-                {tasks?.map((task: any) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onPress={() => handleTaskPress(task)}
-                  />
-                ))}
-              </View>
-            ) : (
-              <View className="flex-grow flex-col items-center justify-center px-4">
-                <Image
-                  source={icons.noTask}
-                  resizeMode="contain"
-                  style={{ width: scale(80), height: vs(80) }}
-                  className="mx-auto"
-                />
-                <View className="mt-8">
-                  <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
-                    No task found, you can create new tasks here!
-                  </Text>
 
-                  <View className="w-[158px] mx-auto mt-5">
-                    <CustomButton
-                      title="Add Task"
-                      onPress={() => addModalRef.current?.present()}
-                      // IconLeft={Plus}
-                      // iconSize={20}
-                    />
-                  </View>
+                <View className="w-[158] mx-auto mt-5">
+                  <CustomButton
+                    title="Add Task"
+                    onPress={() => addModalRef.current?.present()}
+                  // IconLeft={Plus}
+                  // iconSize={20}
+                  />
                 </View>
               </View>
-            )}
-          </ScrollView>
-        </SafeAreaView>
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
 
-        <TaskFormModal
-          bottomSheetRef={addModalRef as any}
-          initialValues={INITIAL_FORM_VALUES}
-          onSubmit={async (values: any) => {
-            createTaskMutation.mutate(values as TaskPayload);
-          }}
-          isLoading={createTaskMutation?.isPending}
-          mode="add"
-        />
+      <TaskFormModal
+        bottomSheetRef={addModalRef as any}
+        initialValues={INITIAL_FORM_VALUES}
+        onSubmit={async (values: any) => {
+          createTaskMutation.mutate(values as TaskPayload);
+        }}
+        isLoading={createTaskMutation?.isPending}
+        mode="add"
+      />
 
-        <ActionModal
-          ref={actionModalRef}
-          onUpdate={handleUpdatePress}
-          onDelete={handleDeletePress}
-        />
+      <ActionModal
+        ref={actionModalRef}
+        onUpdate={handleUpdatePress}
+        onDelete={handleDeletePress}
+      />
 
-        <TaskFormModal
-          bottomSheetRef={editModalRef as any}
-          initialValues={
-            selectedTask
-              ? transformTaskForForm(selectedTask)
-              : INITIAL_FORM_VALUES
-          }
-          onSubmit={async (values: any) => {
-            updateTaskMutation.mutate(values as UpdateTaskPayload);
-          }}
-          isLoading={updateTaskMutation.isPending}
-          mode="edit"
-          currentMembers={
-            selectedTask?.task_member.map((tm) => Number(tm.member_id)) || []
-          }
-        />
-      </BottomSheetModalProvider>
+      <TaskFormModal
+        bottomSheetRef={editModalRef as any}
+        initialValues={
+          selectedTask
+            ? transformTaskForForm(selectedTask)
+            : INITIAL_FORM_VALUES
+        }
+        onSubmit={async (values: any) => {
+          updateTaskMutation.mutate(values as UpdateTaskPayload);
+        }}
+        isLoading={updateTaskMutation.isPending}
+        mode="edit"
+        currentMembers={
+          selectedTask?.task_member.map((tm) => Number(tm.member_id)) || []
+        }
+      />
+    </BottomSheetModalProvider>
   );
 };
 

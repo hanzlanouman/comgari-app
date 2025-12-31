@@ -84,7 +84,7 @@ const SubscribedPlanDetails = () => {
                     <View className="mb-5">
                         <ComfimationModelWithTrigger
                             Button={({ onPress }) => (
-                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">
+                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52] rounded-xl pb-0.5 flex flex-row justify-center items-center">
                                     <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
                                         Cancel Free Trial
                                     </Text>
@@ -153,7 +153,7 @@ const SubscribedPlanDetails = () => {
                     <View className="mb-5">
                         <ComfimationModelWithTrigger
                             Button={({ onPress }) => (
-                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52px] rounded-xl pb-0.5 flex flex-row justify-center items-center">
+                                <TouchableOpacity onPress={onPress} className="bg-red w-full h-[52] rounded-xl pb-0.5 flex flex-row justify-center items-center">
                                     <Text className="text-sm sm:text-base font-ManropeSemibold text-white">
                                         Cancel Plan
                                     </Text>

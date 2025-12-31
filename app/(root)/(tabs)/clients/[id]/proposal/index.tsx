@@ -137,10 +137,10 @@ const Proposal = () => {
         <View className="flex-grow flex-col items-center justify-center px-4">
           <NotepadText size={100} strokeWidth={1} className="text-blue" />
           <View className="mt-4">
-            <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+            <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
               We can't find any proposals yet!
             </Text>
-            <View className="w-[158px] mx-auto mt-5">
+            <View className="w-[158] mx-auto mt-5">
               <CustomButton
                 title="Add Proposal"
                 onPress={() =>
@@ -193,7 +193,7 @@ const Proposal = () => {
                   },
                 });
               }}
-              className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5"
+              className="bg-white border border-light p-2.5 rounded-[20] mt-2.5"
             >
               <View className="flex-row items-center">
                 <View

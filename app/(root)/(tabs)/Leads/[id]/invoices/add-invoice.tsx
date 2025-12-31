@@ -160,7 +160,7 @@ const AddInvoiceScreen = () => {
                 onPress={showDatePicker}
                 className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative"
               >
-                <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+                <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2]">
                   {selectedDate
                     ? selectedDate.toLocaleDateString()
                     : "Select Date"}
@@ -194,7 +194,7 @@ const AddInvoiceScreen = () => {
                     formik.touched.total_amount && formik.errors.total_amount
                   }
                 />
-                <Text className="absolute top-[18px] right-4 text-black">
+                <Text className="absolute top-[18] right-4 text-black">
                   {UNITS.CURRENCY}
                 </Text>
               </View>

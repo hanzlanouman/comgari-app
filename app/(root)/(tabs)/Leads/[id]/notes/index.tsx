@@ -109,15 +109,15 @@ const Notes = () => {
                           notes: note?.notes || "",
                           media: Array.isArray(note.media)
                             ? note.media.map((m: any) => ({
-                                ...m,
-                                localUri: m.url,
-                              }))
+                              ...m,
+                              localUri: m.url,
+                            }))
                             : [],
                         }),
                       },
                     })
                   }
-                  className="border border-light p-3.5 rounded-[20px] mt-2.5"
+                  className="border border-light p-3.5 rounded-[20] mt-2.5"
                 >
                   <Text className="text-base sm:text-lg text-dark font-ManropeSemibold leading-6">
                     {processNoteText(note?.notes || "")}
@@ -156,10 +156,10 @@ const Notes = () => {
               className="mx-auto"
             />
             <View className="mt-8">
-              <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+              <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
                 Oops! It seems there are no notes here. Start creating now!
               </Text>
-              <View className="w-[180px] mx-auto mt-5">
+              <View className="w-[180] mx-auto mt-5">
                 <CustomButton
                   title="Create Note"
                   onPress={() =>

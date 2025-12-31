@@ -206,7 +206,7 @@ const GoPro = () => {
         source={images.donat}
         resizeMode="contain"
         style={{ width: scale(160), height: vs(160) }}
-        className="absolute left-0 -bottom-[22px] -z-[1]"
+        className="absolute left-0 -bottom-[22] -z-[1]"
       />
     </SafeAreaView>
   );

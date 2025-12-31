@@ -124,14 +124,14 @@ const Clients: React.FC = () => {
         className="mx-auto"
       />
       <View>
-        <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
           We can't find any
         </Text>
-        <Text className="text-lg sm:text-[22px] font-ManropeSemibold text-dark text-center px-4">
+        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
           clients yet!
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>
-          <View className="w-[158px] mx-auto mt-5">
+          <View className="w-[158] mx-auto mt-5">
             <CustomButton title="Add Client" onPress={handleAddClient} />
           </View>
         </WithRole>

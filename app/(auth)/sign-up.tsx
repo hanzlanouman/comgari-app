@@ -32,6 +32,8 @@ try {
   console.warn("GoogleSignin not available (expected in Expo Go)");
 }
 
+// import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
 // Add type declaration for custom method
 declare module "yup" {
   interface StringSchema {

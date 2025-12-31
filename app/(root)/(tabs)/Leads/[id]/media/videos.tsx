@@ -168,7 +168,7 @@ const VideosMediaDetailScreen = () => {
       <Video
         source={{ uri: getImageUrl(item.url) }}
         style={{ width: "100%", height: "100%" }}
-        className="rounded-[20px]"
+        className="rounded-[20]"
         resizeMode={ResizeMode.COVER}
         isLooping
         shouldPlay={false}

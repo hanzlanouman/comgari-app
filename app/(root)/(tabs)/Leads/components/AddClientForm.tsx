@@ -260,7 +260,7 @@ export default function AddClientForm({
 
       <View className="mt-3">
         <TextInput
-          className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] text-left"
+          className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15] text-left"
           value={formik.values.description}
           editable
           multiline

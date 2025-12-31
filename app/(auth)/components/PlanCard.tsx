@@ -27,17 +27,17 @@ const PlanCard: React.FC<PlanCardProps> = ({
   onPress,
 }) => {
   return (
-    <TouchableOpacity onPress={onPress} className="mt-4 rounded-[20px]">
+    <TouchableOpacity onPress={onPress} className="mt-4 rounded-[20]">
       {isSelected ? (
         <LinearGradient
           colors={["#1C78B9", "#4B4C9E"]}
           start={[0, 0]}
           end={[1, 1]}
-          className="rounded-[20px] p-4 border border-white">
+          className="rounded-[20] p-4 border border-white">
           {renderCardContent(plan, shcedule, price, members, clients, freetrial, true)}
         </LinearGradient>
       ) : (
-        <View className="border border-light bg-white rounded-[20px] p-4">
+        <View className="border border-light bg-white rounded-[20] p-4">
           {renderCardContent(plan, shcedule, price, members, clients, freetrial, false)}
         </View>
       )}
@@ -63,7 +63,7 @@ const renderCardContent = (
       <View
         className={`${isSelected ? "bg-white" : "bg-blue"} h-8 rounded-full px-3`}>
         <Text
-          className={`text-sm text-center ${isSelected ? "text-blue" : "text-white"} font-ManropeSemibold leading-[30px]`}>
+          className={`text-sm text-center ${isSelected ? "text-blue" : "text-white"} font-ManropeSemibold leading-[30]`}>
           {freetrial} days free trial
         </Text>
       </View>

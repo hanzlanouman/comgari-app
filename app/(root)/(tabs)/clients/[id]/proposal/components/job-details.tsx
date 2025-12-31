@@ -355,7 +355,7 @@ const JobDetails = ({
                 onBlur={formikProps.handleBlur("estimated_cost")}
                 keyboardType="decimal-pad"
               />
-              <Text className="absolute top-[18px] right-4 text-black">
+              <Text className="absolute top-[18] right-4 text-black">
                 {UNITS.CURRENCY}
               </Text>
               {formikProps.touched.estimated_cost &&
@@ -365,12 +365,12 @@ const JobDetails = ({
                   </Text>
                 )}
             </View>
-          <View className="p-4 bg-white">
-            <CustomButton
-              title="Next"
-              onPress={() => formikProps.handleSubmit()}
-            />
-          </View>
+            <View className="p-4 bg-white">
+              <CustomButton
+                title="Next"
+                onPress={() => formikProps.handleSubmit()}
+              />
+            </View>
           </KeyboardAwareScrollView>
 
         </>

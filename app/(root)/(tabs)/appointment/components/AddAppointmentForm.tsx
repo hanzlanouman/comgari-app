@@ -282,7 +282,7 @@
 //         minimumTimeMessage="Cannot be before current time"
 //         tigger={
 //           <View className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
-//             <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+//             <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2]">
 //               {values?.startTime
 //                 ? format(values?.startTime, "MMM dd, yyyy hh:mm a")
 //                 : "Start Date/Time"}
@@ -297,7 +297,7 @@
 //         minimumTimeMessage="Cannot be before current time"
 //         tigger={
 //           <View className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
-//             <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+//             <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2]">
 //               {values?.endTime
 //                 ? format(values?.endTime, "MMM dd, yyyy hh:mm a")
 //                 : "End Date/Time"}
@@ -309,7 +309,7 @@
 //       {/* Notes */}
 //       <View className="mt-3">
 //         <TextInput
-//           className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] text-left"
+//           className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15] text-left"
 //           value={values.notes}
 //           editable
 //           multiline
@@ -598,7 +598,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         minimumTimeMessage="Cannot be before current time"
         tigger={
           <View className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
-            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2]">
               {values?.startTime
                 ? format(values?.startTime, "MMM dd, yyyy hh:mm a")
                 : "Start Date/Time"}
@@ -614,7 +614,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
         minimumTimeMessage="Cannot be before current time"
         tigger={
           <View className="w-full h-12 sm:h-[52] px-4 border border-light bg-white rounded-xl sm:rounded-xl flex-row items-center justify-center mt-3 relative">
-            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2px]">
+            <Text className="flex-1 text-black font-ManropeMedium text-base pb-[2]">
               {values?.endTime
                 ? format(values?.endTime, "MMM dd, yyyy hh:mm a")
                 : "End Date/Time"}
@@ -625,7 +625,7 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
 
       <View className="mt-3">
         <TextInput
-          className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15px] text-left"
+          className="border border-light rounded-xl h-28 p-4 font-ManropeMedium text-[15] text-left"
           value={values.notes}
           editable
           multiline

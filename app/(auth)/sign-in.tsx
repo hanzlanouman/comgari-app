@@ -18,6 +18,8 @@ try {
 } catch (e) {
   console.warn("GoogleSignin not available (expected in Expo Go)");
 }
+
+// import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { images } from "@/constants";
 import InputField from "@/common/components/InputField";
 import { router } from "expo-router";

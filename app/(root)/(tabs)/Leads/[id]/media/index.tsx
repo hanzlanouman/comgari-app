@@ -82,12 +82,12 @@ const Media: React.FC = () => {
     });
   };
 
- 
+
   const RightArrowIcon = () => (
     <Image
-      source={icons.frame} 
+      source={icons.frame}
       resizeMode="contain"
-      className="w-6 h-6 text-gray-500" 
+      className="w-6 h-6 text-gray-500"
     />
   );
 
@@ -110,7 +110,7 @@ const Media: React.FC = () => {
             navigateToCategory(id, "images", groupedMediaItems.images)
           }
           className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}>
-          <View className="flex-row items-center border-light rounded-[20px]">
+          <View className="flex-row items-center border-light rounded-[20]">
             <View className="w-12 h-12 rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow">
               <Image
                 source={icons.image}

@@ -120,7 +120,7 @@ const Home = () => {
           {/* Statistics Section */}
           <View className="flex-row flex-wrap -mx-1.5 p-4">
             <View className="w-1/2 px-1.5 mt-3">
-              <TouchableOpacity className="bg-[#E8FDF5] rounded-[16px] p-3">
+              <TouchableOpacity className="bg-[#E8FDF5] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Lead Conversion Rate
                 </Text>
@@ -130,7 +130,7 @@ const Home = () => {
               </TouchableOpacity>
             </View>
             <View className="w-1/2 px-1.5 mt-3">
-              <TouchableOpacity className="bg-[#FFF1ED] rounded-[16px] p-3">
+              <TouchableOpacity className="bg-[#FFF1ED] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Total Clients
                 </Text>
@@ -140,7 +140,7 @@ const Home = () => {
               </TouchableOpacity>
             </View>
             <View className="w-1/2 px-1.5 mt-3">
-              <TouchableOpacity className="bg-[#FFF6E0] rounded-[16px] p-3">
+              <TouchableOpacity className="bg-[#FFF6E0] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Paid Invoices
                 </Text>
@@ -151,7 +151,7 @@ const Home = () => {
               </TouchableOpacity>
             </View>
             <View className="w-1/2 px-1.5 mt-3">
-              <TouchableOpacity className="bg-[#D0ECFF] rounded-[16px] p-3">
+              <TouchableOpacity className="bg-[#D0ECFF] rounded-[16] p-3">
                 <Text className="text-xs text-dark font-ManropeMedium">
                   Unpaid Invoices
                 </Text>

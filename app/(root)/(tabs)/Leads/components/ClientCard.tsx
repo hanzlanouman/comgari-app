@@ -74,7 +74,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-white border border-light p-2.5 rounded-[20px] mt-2.5"
+      className="bg-white border border-light p-2.5 rounded-[20] mt-2.5"
     >
       <View className="flex-row items-center">
         <Image
@@ -111,7 +111,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
       <View className="flex-row items-center mt-3.5">
         {(client.client_user || []).slice(0, 2).map((member, index) => {
           const avatar = member.auth?.user?.avatar;
-          const source = avatar ? {uri: getImageUrl(avatar)} : images.user;
+          const source = avatar ? { uri: getImageUrl(avatar) } : images.user;
           return (
             <Image
               key={member.id}
@@ -124,7 +124,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
           )
         })
         }
-       
+
         <Text className="text-base font-ManropeMedium text-dark ml-3.5">
           Members
         </Text>

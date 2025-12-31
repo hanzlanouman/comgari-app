@@ -22,16 +22,16 @@ const Onboarding = () => {
       <Swiper
         ref={swiperRef}
         loop={false}
-        dot={<View className="w-6 h-[3px] bg-blue rounded-full mx-2"></View>}
+        dot={<View className="w-6 h-[3] bg-blue rounded-full mx-2"></View>}
         activeDot={
-          <View className="w-6 h-[3px] bg-purple rounded-full mx-2"></View>
+          <View className="w-6 h-[3] bg-purple rounded-full mx-2"></View>
         }
         onIndexChanged={(index) => setActiveIndex(index)}>
         {onboarding.map((item) => (
           <View key={item.id} className="flex items-center justify-center">
             <Image
               source={item.image}
-              className="w-full h-[250px] sm:h-[320px] mt-4"
+              className="w-full h-[250] sm:h-[320] mt-4"
               resizeMode="contain"
             />
             <Text className="text-navy text-2xl sm:text-3xl font-ManropeBold sm:px-8 px-10 text-center mt-5">

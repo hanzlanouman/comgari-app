@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, View, Text } from "react-native";
-import { LinearGradient } from "expo-linear-gradient"; 
+import { LinearGradient } from "expo-linear-gradient";
 import { Check } from "lucide-react-native";
 import { sentanceCase } from "@/utils";
 import { UNITS } from "@/constants";
@@ -25,18 +25,18 @@ const PlanCardPro: React.FC<PlanCardProps> = ({
     onPress
 }) => {
     return (
-        <TouchableOpacity onPress={onPress} className="mt-4 rounded-[20px]">
+        <TouchableOpacity onPress={onPress} className="mt-4 rounded-[20]">
             {isSelected ? (
                 <LinearGradient
                     colors={["#1C78B9", "#4B4C9E"]}
                     start={[0, 0]}
                     end={[1, 1]}
-                    className="rounded-[20px] p-4 border border-white"
+                    className="rounded-[20] p-4 border border-white"
                 >
                     {renderCardContent(plan, shcedule, price, members, clients, true)}
                 </LinearGradient>
             ) : (
-                <View className="border border-light bg-white rounded-[20px] p-4">
+                <View className="border border-light bg-white rounded-[20] p-4">
                     {renderCardContent(plan, shcedule, price, members, clients, false)}
                 </View>
             )}
