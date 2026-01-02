@@ -9,9 +9,7 @@ import {
   Platform,
   Linking,
 } from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { vs } from "react-native-size-matters";
 import {
   ArrowDownToLine,
@@ -286,223 +284,255 @@ const Proposal = () => {
   };
 
   return (
-      <BottomSheetModalProvider>
-        <SafeAreaView className="flex-1 bg-white">
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
-            <View className="pb-4">
-              <View className="bg-white mt-4">
-                <View className="flex-row items-center">
-                  <View className="flex-1">
-                    <Text className="text-base sm:text-lg font-ManropeBold text-dark w-full">
-                      {jobName || "Unnamed Project"}
-                    </Text>
-                    <View>
-                      <View className="flex-row items-center mt-1.5">
-                        <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
-                          <View className="bg-blue w-1.5 h-1.5" />
-                        </View>
-                        <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                          {(clientType as string)?.replaceAll("_", " ") || "Construction"}
-                        </Text>
+    <BottomSheetModalProvider>
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
+          <View className="pb-4">
+            <View className="bg-white mt-4">
+              <View className="flex-row items-center">
+                <View className="flex-1">
+                  <Text className="text-base sm:text-lg font-ManropeBold text-dark w-full">
+                    {jobName || "Unnamed Project"}
+                  </Text>
+                  <View>
+                    <View className="flex-row items-center mt-1.5">
+                      <View className="bg-blue-100 flex-row items-center justify-center w-3.5 h-3.5">
+                        <View className="bg-blue w-1.5 h-1.5" />
                       </View>
+                      <Text className="text-sm font-ManropeMedium text-blue ml-2">
+                        {(clientType as string)?.replaceAll("_", " ") ||
+                          "Construction"}
+                      </Text>
                     </View>
                   </View>
                 </View>
-                <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
-                  Project details for {jobName || "Unnamed Project"}:
-                </Text>
-                <View className="bg-light w-full h-px my-3" />
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center">
-                    <Image
-                      source={
-                        (clientName as any)?.logo
-                          ? { uri: getImageUrl((clientName as any).logo) }
-                          : images.user
-                      }
-                      resizeMode="cover"
-                      className="rounded-full"
-                      style={{ width: vs(25), height: vs(25) }}
-                    />
-                    <Text className="text-sm text-dark font-ManropeMedium ml-1.5">
-                      {clientName || "Unknown Client"}
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center">
-                    <CalendarDays
-                      size={16}
-                      strokeWidth={1.5}
-                      className="text-dark"
-                    />
-                    <Text className="text-sm text-dark-100 font-ManropeMedium ml-1">
-                      {date ? formatDate(date?.toString()) : "No Date"}
-                    </Text>
-                  </View>
-                </View>
-                <View className="bg-light w-full h-px mt-3" />
-                <View className="flex-row items-center justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    Project Director
-                  </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {projectDirector || "Not Specified"}
-                  </Text>
-                </View>
-                <View className="flex-row items-center justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    Job Name
-                  </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {jobName || "Not Specified"}
-                  </Text>
-                </View>
-                <View className="flex-row items-center justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    Job Phone
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      jobPhone && Linking.openURL(`tel:${jobPhone}`)
+              </View>
+              <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
+                Project details for {jobName || "Unnamed Project"}:
+              </Text>
+              <View className="bg-light w-full h-px my-3" />
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <Image
+                    source={
+                      (clientName as any)?.logo
+                        ? { uri: getImageUrl((clientName as any).logo) }
+                        : images.user
                     }
-                  >
-                    <Text className="text-sm sm:text-base text-blue font-ManropeMedium flex-1 text-right pl-6">
-                      {jobPhone || "Not Specified"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View className="flex-row items-start justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    Address
-                  </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {address || "Not Specified"}
+                    resizeMode="cover"
+                    className="rounded-full"
+                    style={{ width: vs(25), height: vs(25) }}
+                  />
+                  <Text className="text-sm text-dark font-ManropeMedium ml-1.5">
+                    {clientName || "Unknown Client"}
                   </Text>
                 </View>
-                <View className="flex-row items-start justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    City
-                  </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {city || "Not Specified"}
-                  </Text>
-                </View>
-                <View className="flex-row items-start justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    Zip
-                  </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {zip || "Not Specified"}
-                  </Text>
-                </View>
-                <View className="flex-row items-start justify-between border-b border-light py-3.5">
-                  <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
-                    Estimated Days
-                  </Text>
-                  <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
-                    {estimatedDays || "Not Specified"}
+                <View className="flex-row items-center">
+                  <CalendarDays
+                    size={16}
+                    strokeWidth={1.5}
+                    className="text-dark"
+                  />
+                  <Text className="text-sm text-dark-100 font-ManropeMedium ml-1">
+                    {date ? formatDate(date?.toString()) : "No Date"}
                   </Text>
                 </View>
               </View>
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-
-        {/* Bottom Sheet */}
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          index={1}
-          snapPoints={snapPoints}
-          backdropComponent={Backdrop}
-          backgroundStyle={{
-            borderRadius: 24,
-          }}
-        >
-          <BottomSheetView>
-            <View className="p-4 pt-2">
-              {Platform.OS !== "ios" && (
+              <View className="bg-light w-full h-px mt-3" />
+              <View className="flex-row items-center justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  Project Director
+                </Text>
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                  {projectDirector || "Not Specified"}
+                </Text>
+              </View>
+              <View className="flex-row items-center justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  Job Name
+                </Text>
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                  {jobName || "Not Specified"}
+                </Text>
+              </View>
+              <View className="flex-row items-center justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  Job Phone
+                </Text>
                 <TouchableOpacity
-                  onPress={handleDownloadProposal}
-                  className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
+                  onPress={() => jobPhone && Linking.openURL(`tel:${jobPhone}`)}
                 >
-                  <View className="flex-row items-center">
-                    <LinearGradient
-                      colors={["#1B78B9", "#63348F"]}
-                      className="rounded-full w-8 h-8"
-                      start={[0, 0]}
-                      end={[1, 1]}
-                    >
-                      <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-                        <ArrowDownToLine size={16} color="#ffffff" />
-                      </TouchableOpacity>
-                    </LinearGradient>
-                    <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                      Download
-                    </Text>
-                  </View>
-                  <ChevronRight size={16} color="#1C1C1C" />
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                onPress={handleShareProposal}
-                className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
-              >
-                <View className="flex-row items-center">
-                  <TouchableOpacity className="bg-dark rounded-full w-8 h-8 flex flex-row justify-center items-center">
-                    <Share2 size={16} className="text-white" />
-                  </TouchableOpacity>
-                  <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                    Share
+                  <Text className="text-sm sm:text-base text-blue font-ManropeMedium flex-1 text-right pl-6">
+                    {jobPhone || "Not Specified"}
                   </Text>
-                </View>
-                <ChevronRight size={16} color="#1C1C1C" />
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
+              <View className="flex-row items-start justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  Address
+                </Text>
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                  {address || "Not Specified"}
+                </Text>
+              </View>
+              <View className="flex-row items-start justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  City
+                </Text>
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                  {city || "Not Specified"}
+                </Text>
+              </View>
+              <View className="flex-row items-start justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  Zip
+                </Text>
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                  {zip || "Not Specified"}
+                </Text>
+              </View>
+              <View className="flex-row items-start justify-between border-b border-light py-3.5">
+                <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
+                  Estimated Days
+                </Text>
+                <Text className="text-sm sm:text-base text-dark font-ManropeMedium flex-1 text-right pl-6">
+                  {estimatedDays || "Not Specified"}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* Bottom Sheet */}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        backdropComponent={Backdrop}
+        backgroundStyle={{
+          borderRadius: 24,
+        }}
+      >
+        <BottomSheetView>
+          <View className="p-4 pt-2">
+            {Platform.OS !== "ios" && (
               <TouchableOpacity
-                onPress={handleEditProposal}
-                className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+                onPress={handleDownloadProposal}
+                className="flex-row items-center justify-between border border-light rounded-xl p-2.5"
               >
                 <View className="flex-row items-center">
                   <LinearGradient
                     colors={["#1B78B9", "#63348F"]}
-                    className="rounded-full w-8 h-8"
+                    style={{ borderRadius: 9999, width: 32, height: 32 }}
                     start={[0, 0]}
                     end={[1, 1]}
                   >
-                    <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-                      <Pencil size={16} color="#ffffff" />
-                    </TouchableOpacity>
+                    <View
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 9999,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <ArrowDownToLine size={16} color="#ffffff" />
+                    </View>
                   </LinearGradient>
                   <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                    Edit Proposal
+                    Download
                   </Text>
                 </View>
                 <ChevronRight size={16} color="#1C1C1C" />
               </TouchableOpacity>
-              {/* Delete Proposal Button */}
-              <TouchableOpacity
-                onPress={handleDeleteProposal}
-                className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
-              >
-                <View className="flex-row items-center">
-                  <LinearGradient
-                    colors={["#B72D2D", "#F29D2E"]}
-                    className="rounded-full w-8 h-8"
-                    start={[0, 0]}
-                    end={[1, 1]}
-                  >
-                    <TouchableOpacity className="w-full h-full rounded-full flex flex-row justify-center items-center pb-px">
-                      <Trash2 size={16} color="#ffffff" />
-                    </TouchableOpacity>
-                  </LinearGradient>
-                  <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
-                    Delete Proposal
-                  </Text>
+            )}
+            <TouchableOpacity
+              onPress={handleShareProposal}
+              className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+            >
+              <View className="flex-row items-center">
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 9999,
+                    backgroundColor: "#1C1C1C",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Share2 size={16} color="#ffffff" />
                 </View>
-                <ChevronRight size={16} color="#1C1C1C" />
-              </TouchableOpacity>
-            </View>
-          </BottomSheetView>
-        </BottomSheetModal>
-      </BottomSheetModalProvider>
+                <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                  Share
+                </Text>
+              </View>
+              <ChevronRight size={16} color="#1C1C1C" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleEditProposal}
+              className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+            >
+              <View className="flex-row items-center">
+                <LinearGradient
+                  colors={["#1B78B9", "#63348F"]}
+                  style={{ borderRadius: 9999, width: 32, height: 32 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
+                >
+                  <View
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 9999,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Pencil size={16} color="#ffffff" />
+                  </View>
+                </LinearGradient>
+                <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                  Edit Proposal
+                </Text>
+              </View>
+              <ChevronRight size={16} color="#1C1C1C" />
+            </TouchableOpacity>
+            {/* Delete Proposal Button */}
+            <TouchableOpacity
+              onPress={handleDeleteProposal}
+              className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
+            >
+              <View className="flex-row items-center">
+                <LinearGradient
+                  colors={["#B72D2D", "#F29D2E"]}
+                  style={{ borderRadius: 9999, width: 32, height: 32 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
+                >
+                  <View
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 9999,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Trash2 size={16} color="#ffffff" />
+                  </View>
+                </LinearGradient>
+                <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
+                  Delete Proposal
+                </Text>
+              </View>
+              <ChevronRight size={16} color="#1C1C1C" />
+            </TouchableOpacity>
+          </View>
+        </BottomSheetView>
+      </BottomSheetModal>
+    </BottomSheetModalProvider>
   );
 };
 

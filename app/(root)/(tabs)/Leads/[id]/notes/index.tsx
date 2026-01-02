@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { images, icons, getImageUrl } from "@/constants";
 import { useEffect } from "react";
@@ -16,9 +10,7 @@ import { Plus } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
 import { ClientRepository } from "@/repositories/client/client";
 import { decode } from "html-entities";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const clientRepo = ClientRepository.getInstance();
 
@@ -40,7 +32,7 @@ const Notes = () => {
       end={[1, 1]}
     >
       <TouchableOpacity
-        onPressIn={() => router.push(`/clients/${clientId}/notes/add-note`)}
+        onPressIn={() => router.push(`/Leads/${clientId}/notes/add-note`)}
         style={{
           width: "100%",
           height: "100%",
@@ -81,7 +73,10 @@ const Notes = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["bottom", "left", "right"]}
+    >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
         className="px-4"
@@ -100,7 +95,7 @@ const Notes = () => {
                   key={note.id}
                   onPress={() =>
                     router.push({
-                      pathname: "/(root)/(tabs)/clients/[id]/notes/[noteId]",
+                      pathname: "/(root)/(tabs)/Leads/[id]/notes/[noteId]",
                       params: {
                         id: clientId,
                         noteId: note.id,
@@ -109,9 +104,9 @@ const Notes = () => {
                           notes: note?.notes || "",
                           media: Array.isArray(note.media)
                             ? note.media.map((m: any) => ({
-                              ...m,
-                              localUri: m.url,
-                            }))
+                                ...m,
+                                localUri: m.url,
+                              }))
                             : [],
                         }),
                       },
@@ -156,14 +151,14 @@ const Notes = () => {
               className="mx-auto"
             />
             <View className="mt-8">
-              <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+              <Text className="text-lg sm:text-[22] font-ManropeSemibold text-center px-4" style={{ color: "#000000" }}>
                 Oops! It seems there are no notes here. Start creating now!
               </Text>
               <View className="mx-auto mt-5" style={{ width: 180 }}>
                 <CustomButton
                   title="Create Note"
                   onPress={() =>
-                    router.push(`/clients/${clientId}/notes/add-note`)
+                    router.push(`/Leads/${clientId}/notes/add-note`)
                   }
                   IconLeft={Plus as any}
                   iconSize={20}

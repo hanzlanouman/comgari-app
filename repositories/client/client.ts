@@ -206,6 +206,8 @@ export class ClientRepository implements IClientRepository {
     try {
       const res = await get(`${BaseUrl + END_POINTS.Client.GET_APPOINTMENT.route}`)
 
+      console.log("res after fetch", res);
+
       return res
     } catch (e) {
       throw getErrorMessage(e)

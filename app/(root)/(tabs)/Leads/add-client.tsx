@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Alert, Text, KeyboardAvoidingView } from "react-native";
 import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+  ScrollView,
+  View,
+  Alert,
+  Text,
+  KeyboardAvoidingView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { useFormik } from "formik";
 import { useAppSelector } from "@/hooks/redux";
@@ -162,7 +166,7 @@ const AddClient = () => {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["leads-clients"] });
-      router.replace("/(root)/(tabs)/clients/clients");
+      router.replace("/(root)/(tabs)/Leads/clients");
     } catch (error) {
       console.error("Error saving client:", error);
       Alert.alert("Error", "Failed to save client. Please try again.");
@@ -183,9 +187,11 @@ const AddClient = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["bottom", "left", "right"]}
+    >
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-
         <AppContainer>
           <Text className="text-sm mb-6 px-4 text-black">
             Add new team clients by filling out their details below to onboard
@@ -203,7 +209,7 @@ const AddClient = () => {
           </ScrollView>
           <View className="p-4 bg-white">
             <CustomButton
-              title={isEditing ? "Update Client" : "Add Client"}
+              title={isEditing ? "Update Lead" : "Add Lead"}
               onPress={() => formik.handleSubmit()}
               disabled={isLoading}
             />

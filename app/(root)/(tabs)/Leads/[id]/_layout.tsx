@@ -1,4 +1,4 @@
-// app/(root)/tabs/clients/_layout.tsx
+// app/(root)/tabs/Leads/_layout.tsx
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import React from "react";
@@ -43,7 +43,7 @@ const Layout = () => {
               <TouchableOpacity
                 onPressIn={() =>
                   router.push({
-                    pathname: "/(root)/(tabs)/clients/[id]/notes/add-note",
+                    pathname: "/(root)/(tabs)/Leads/[id]/notes/add-note",
                     params: { id: projectId, clientId: resolvedClientId },
                   })
                 }
@@ -73,8 +73,7 @@ const Layout = () => {
               <TouchableOpacity
                 onPressIn={() =>
                   router.push({
-                    pathname:
-                      "/(root)/(tabs)/clients/[id]/invoices/add-invoice",
+                    pathname: "/(root)/(tabs)/Leads/[id]/invoices/add-invoice",
                     params: {
                       id: projectId,
                       clientId: resolvedClientId,

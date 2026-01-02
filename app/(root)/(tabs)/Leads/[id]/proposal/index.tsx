@@ -15,9 +15,7 @@ import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { CalendarDays, NotepadText, Plus } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ClientRepository } from "@/repositories/client/client";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 interface Client {
   id: number;
   name: string;
@@ -71,7 +69,7 @@ const Proposal = () => {
           onPressIn={() => {
             router.push({
               pathname:
-                `/(root)/(tabs)/clients/[id]/proposal/add-proposal` as any,
+                `/(root)/(tabs)/Leads/[id]/proposal/add-proposal` as any,
               params: { id: projectId, projectId },
             });
           }}
@@ -137,7 +135,7 @@ const Proposal = () => {
         <View className="flex-grow flex-col items-center justify-center px-4">
           <NotepadText size={100} strokeWidth={1} className="text-blue" />
           <View className="mt-4">
-            <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+            <Text className="text-lg sm:text-[22] font-ManropeSemibold text-center px-4" style={{ color: "#000000" }}>
               We can't find any proposals yet!
             </Text>
             <View className="mx-auto mt-5" style={{ width: 158 }}>
@@ -146,7 +144,7 @@ const Proposal = () => {
                 onPress={() =>
                   router.push({
                     pathname:
-                      `/(root)/(tabs)/clients/[id]/proposal/add-proposal` as any,
+                      `/(root)/(tabs)/Leads/[id]/proposal/add-proposal` as any,
                     params: { id: projectId, projectId },
                   })
                 }
@@ -174,7 +172,7 @@ const Proposal = () => {
               onPress={() => {
                 router.push({
                   pathname:
-                    "/(root)/(tabs)/clients/[id]/proposal/proposal-detail",
+                    "/(root)/(tabs)/Leads/[id]/proposal/proposal-detail",
                   params: {
                     id: proposal.id,
                     jobName: proposal.job_name,
@@ -216,8 +214,14 @@ const Proposal = () => {
                   </Text>
                   <View>
                     <View className="flex-row items-center mt-1">
-                      <View className="bg-blue-100 flex-row items-center justify-center" style={{ width: 14, height: 14 }}>
-                        <View className="bg-blue" style={{ width: 6, height: 6 }} />
+                      <View
+                        className="bg-blue-100 flex-row items-center justify-center"
+                        style={{ width: 14, height: 14 }}
+                      >
+                        <View
+                          className="bg-blue"
+                          style={{ width: 6, height: 6 }}
+                        />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
                         {proposal.client?.type?.replaceAll("_", " ") ||
@@ -234,7 +238,10 @@ const Proposal = () => {
                   </View>
                 </View>
               </View>
-              <View className="bg-light my-4" style={{ width: "100%", height: 1 }} />
+              <View
+                className="bg-light my-4"
+                style={{ width: "100%", height: 1 }}
+              />
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Image

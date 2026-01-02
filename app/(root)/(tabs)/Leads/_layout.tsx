@@ -1,4 +1,4 @@
-//app\(root)\(tabs)\clients\_layout.tsx
+//app\(root)\(tabs)\Leads\_layout.tsx
 import { router, Stack } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import React from "react";
@@ -23,23 +23,28 @@ const Layout = () => {
           shadowOpacity: 0,
         },
         headerShadowVisible: false,
-      }}>
+      }}
+    >
       <Stack.Screen
         name="clients"
         options={{
           headerShown: true,
-          title: "Clients",
+          title: "Leads",
           headerRight: () => (
             <WithRole permission="manage" resource="client" user={user!}>
               <LinearGradient
                 colors={["#1B78B9", "#63348F"]}
                 style={{ borderRadius: 9999, width: 32, height: 32 }}
                 start={[0, 0]}
-                end={[1, 1]}>
+                end={[1, 1]}
+              >
                 <TouchableOpacity
-                  onPressIn={() => router.push("/(root)/(tabs)/clients/add-client")}
+                  onPressIn={() =>
+                    router.push("/(root)/(tabs)/Leads/add-client")
+                  }
                   className="flex flex-row justify-center items-center"
-                  style={{ width: "100%", height: "100%" }}>
+                  style={{ width: "100%", height: "100%" }}
+                >
                   <Plus size={18} color="#ffffff" />
                 </TouchableOpacity>
               </LinearGradient>
@@ -49,7 +54,7 @@ const Layout = () => {
       />
       <Stack.Screen
         name="add-client"
-        options={{ headerShown: true, title: "Add Client" }}
+        options={{ headerShown: true, title: "Add Lead" }}
       />
       <Stack.Screen
         name="[id]"

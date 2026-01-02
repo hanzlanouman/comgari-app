@@ -333,15 +333,8 @@
 //   );
 // };
 
-
 import React, { useState } from "react";
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-  Alert,
-} from "react-native";
+import { ScrollView, Text, TextInput, View, Alert } from "react-native";
 import { format } from "date-fns";
 import { CalendarDays } from "lucide-react-native";
 import { OptionType } from "@/common/types";
@@ -359,16 +352,18 @@ enum Action {
   REMOVE = "Remove",
 }
 
-type InitialData = {
-  clientId: number;
-  appointmentId: number;
-  title: string;
-  status: string;
-  notes: string;
-  startTime: string;
-  endTime: string;
-  members: { id: string; name: string }[];
-} | undefined;
+type InitialData =
+  | {
+      clientId: number;
+      appointmentId: number;
+      title: string;
+      status: string;
+      notes: string;
+      startTime: string;
+      endTime: string;
+      members: { id: string; name: string }[];
+    }
+  | undefined;
 
 interface AddAppointmentFormProps {
   clientOptions: OptionType[];
@@ -405,7 +400,8 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
     endTime: initialData?.endTime || null,
   });
 
-  const initialSelectedMembers = initialData?.members?.map((member) => member.id) || [];
+  const initialSelectedMembers =
+    initialData?.members?.map((member) => member.id) || [];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const clientRepo = ClientRepository.getInstance();
   const appointmentId = Number(initialData?.appointmentId);
@@ -575,7 +571,12 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
           save="key"
           onSelect={(val) => handleMemberSelection("selectedMembers", val)}
           value={values.selectedMembers.map((id) => String(id))}
-          valueTitles={memberOptions?.map((item: any) => values.selectedMembers?.includes(item.key) ? item.value : null).filter((item: any) => item !== null).flat()}
+          valueTitles={memberOptions
+            ?.map((item: any) =>
+              values.selectedMembers?.includes(item.key) ? item.value : null
+            )
+            .filter((item: any) => item !== null)
+            .flat()}
         />
       </View>
 
@@ -592,7 +593,9 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
       </View>
 
       <DateTimePicker
-        setDate={(date) => date ? setValues((prev) => ({ ...prev, startTime: date })) : {}}
+        setDate={(date) =>
+          date ? setValues((prev) => ({ ...prev, startTime: date })) : {}
+        }
         date={values?.startTime ? values?.startTime : undefined}
         minimumTime={new Date()}
         minimumTimeMessage="Cannot be before current time"
@@ -607,11 +610,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
                 : "Start Date/Time"}
             </Text>
             <CalendarDays size={16} className="text-dark-100" />
-          </View>}
+          </View>
+        }
       />
 
       <DateTimePicker
-        setDate={(date) => date ? setValues((prev) => ({ ...prev, endTime: date })) : {}}
+        setDate={(date) =>
+          date ? setValues((prev) => ({ ...prev, endTime: date })) : {}
+        }
         date={values?.endTime ? values?.endTime : undefined}
         minimumTime={new Date()}
         minimumTimeMessage="Cannot be before current time"
@@ -626,13 +632,14 @@ export const AddAppointmentForm: React.FC<AddAppointmentFormProps> = ({
                 : "End Date/Time"}
             </Text>
             <CalendarDays size={16} className="text-dark-100" />
-          </View>}
+          </View>
+        }
       />
 
       <View className="mt-3">
         <TextInput
           className="border border-light rounded-xl p-4 font-ManropeMedium text-[15] text-left"
-          style={{ height: 112 }}
+          style={{ height: 112, color: "#1C1C1C" }}
           value={values.notes}
           editable
           multiline

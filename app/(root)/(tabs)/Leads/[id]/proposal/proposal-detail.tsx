@@ -9,9 +9,7 @@ import {
   Platform,
   Linking,
 } from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { vs } from "react-native-size-matters";
 import {
   ArrowDownToLine,
@@ -177,7 +175,7 @@ const Proposal = () => {
   const handleEditProposal = () => {
     bottomSheetModalRef.current?.close();
     router.push({
-      pathname: "/(root)/(tabs)/clients/[id]/proposal/add-proposal",
+      pathname: "/(root)/(tabs)/Leads/[id]/proposal/add-proposal",
       params: {
         id: Number(id),
         proposalId: id,
@@ -213,7 +211,7 @@ const Proposal = () => {
               await clientRepo.deleteProposal(Number(id));
 
               router.push({
-                pathname: `/(root)/(tabs)/clients/${clientId}/proposal` as any,
+                pathname: `/(root)/(tabs)/Leads/${clientId}/proposal` as any,
                 params: { id: clientId },
               });
             } catch (error) {
@@ -298,11 +296,18 @@ const Proposal = () => {
                   </Text>
                   <View>
                     <View className="flex-row items-center mt-1.5">
-                      <View className="bg-blue-100 flex-row items-center justify-center" style={{ width: 14, height: 14 }}>
-                        <View className="bg-blue" style={{ width: 6, height: 6 }} />
+                      <View
+                        className="bg-blue-100 flex-row items-center justify-center"
+                        style={{ width: 14, height: 14 }}
+                      >
+                        <View
+                          className="bg-blue"
+                          style={{ width: 6, height: 6 }}
+                        />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
-                        {(clientType as string)?.replaceAll("_", " ") || "Construction"}
+                        {(clientType as string)?.replaceAll("_", " ") ||
+                          "Construction"}
                       </Text>
                     </View>
                   </View>
@@ -311,7 +316,10 @@ const Proposal = () => {
               <Text className="text-sm font-ManropeMedium text-dark-100 mt-3">
                 Project details for {jobName || "Unnamed Project"}:
               </Text>
-              <View className="bg-light my-3" style={{ width: "100%", height: 1 }} />
+              <View
+                className="bg-light my-3"
+                style={{ width: "100%", height: 1 }}
+              />
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Image
@@ -339,7 +347,10 @@ const Proposal = () => {
                   </Text>
                 </View>
               </View>
-              <View className="bg-light mt-3" style={{ width: "100%", height: 1 }} />
+              <View
+                className="bg-light mt-3"
+                style={{ width: "100%", height: 1 }}
+              />
               <View className="flex-row items-center justify-between border-b border-light py-3.5">
                 <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium">
                   Project Director
@@ -361,9 +372,7 @@ const Proposal = () => {
                   Job Phone
                 </Text>
                 <TouchableOpacity
-                  onPress={() =>
-                    jobPhone && Linking.openURL(`tel:${jobPhone}`)
-                  }
+                  onPress={() => jobPhone && Linking.openURL(`tel:${jobPhone}`)}
                 >
                   <Text className="text-sm sm:text-base text-blue font-ManropeMedium flex-1 text-right pl-6">
                     {jobPhone || "Not Specified"}
@@ -431,7 +440,10 @@ const Proposal = () => {
                     start={[0, 0]}
                     end={[1, 1]}
                   >
-                    <TouchableOpacity className="rounded-full flex flex-row justify-center items-center pb-px" style={{ width: "100%", height: "100%" }}>
+                    <TouchableOpacity
+                      className="rounded-full flex flex-row justify-center items-center pb-px"
+                      style={{ width: "100%", height: "100%" }}
+                    >
                       <ArrowDownToLine size={16} color="#ffffff" />
                     </TouchableOpacity>
                   </LinearGradient>
@@ -447,9 +459,18 @@ const Proposal = () => {
               className="flex-row items-center justify-between border border-light rounded-xl p-2.5 mt-3"
             >
               <View className="flex-row items-center">
-                <TouchableOpacity className="bg-dark rounded-full flex flex-row justify-center items-center" style={{ width: 32, height: 32 }}>
-                  <Share2 size={16} className="text-white" />
-                </TouchableOpacity>
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 9999,
+                    backgroundColor: "#1C1C1C",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Share2 size={16} color="#ffffff" />
+                </View>
                 <Text className="text-sm sm:text-base font-ManropeMedium text-dark ml-2.5">
                   Share
                 </Text>
@@ -467,7 +488,10 @@ const Proposal = () => {
                   start={[0, 0]}
                   end={[1, 1]}
                 >
-                  <TouchableOpacity className="rounded-full flex flex-row justify-center items-center pb-px" style={{ width: "100%", height: "100%" }}>
+                  <TouchableOpacity
+                    className="rounded-full flex flex-row justify-center items-center pb-px"
+                    style={{ width: 32, height: 32 }}
+                  >
                     <Pencil size={16} color="#ffffff" />
                   </TouchableOpacity>
                 </LinearGradient>
@@ -489,7 +513,10 @@ const Proposal = () => {
                   start={[0, 0]}
                   end={[1, 1]}
                 >
-                  <TouchableOpacity className="rounded-full flex flex-row justify-center items-center pb-px" style={{ width: "100%", height: "100%" }}>
+                  <TouchableOpacity
+                    className="rounded-full flex flex-row justify-center items-center pb-px"
+                    style={{ width: 32, height: 32 }}
+                  >
                     <Trash2 size={16} color="#ffffff" />
                   </TouchableOpacity>
                 </LinearGradient>

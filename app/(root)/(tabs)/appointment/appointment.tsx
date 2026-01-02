@@ -5,10 +5,41 @@ import { Agenda } from "react-native-calendars";
 import { ClientRepository } from "@/repositories/client/client";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, useFocusEffect } from "expo-router";
-import { format } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SimpleActivityIndicator } from "@/common/components/Loader";
 import ActionModal from "../clients/components/ActionModal";
+
+const safeParseDateString = (
+  dateString: string | null | undefined
+): Date | null => {
+  if (!dateString) return null;
+  try {
+    const parsed = parseISO(dateString);
+    if (isValid(parsed)) return parsed;
+
+    const date = new Date(dateString);
+    if (isValid(date)) return date;
+
+    return null;
+  } catch {
+    return null;
+  }
+};
+const safeFormatDate = (
+  date: Date | string | null | undefined,
+  formatStr: string,
+  fallback: string = ""
+): string => {
+  if (!date) return fallback;
+  try {
+    const dateObj = typeof date === "string" ? safeParseDateString(date) : date;
+    if (!dateObj || !isValid(dateObj)) return fallback;
+    return format(dateObj, formatStr);
+  } catch {
+    return fallback;
+  }
+};
 
 const EMPTY_ITEMS = {};
 
@@ -39,7 +70,9 @@ const Appointment = () => {
     queryKey: ["appointments"],
     queryFn: async () => {
       const response = await clientRepo.getAppointment();
+      console.log("response after fetch", response);
       return response.data || [];
+
     },
     staleTime: 0,
     gcTime: 1000 * 60 * 5,
@@ -49,29 +82,33 @@ const Appointment = () => {
 
   console.log("appointmentsData", appointmentsData);
 
-  // Transform appointments data whenever it changes
   const items = useMemo(() => {
-    if (!appointmentsData || appointmentsData.length === 0) {
-      return EMPTY_ITEMS;
-    }
-
-    const transformedItems = appointmentsData?.reduce(
+    const transformedItems = (appointmentsData || [])?.reduce(
       (acc: Record<string, any[]>, appointment: any) => {
-        const formattedDate = format(new Date(appointment.date), "yyyy-MM-dd");
+        const formattedDate = safeFormatDate(appointment.date, "yyyy-MM-dd");
+
+        if (!formattedDate) {
+          console.warn(
+            "Skipping appointment with invalid date:",
+            appointment.id
+          );
+          return acc;
+        }
 
         if (!acc[formattedDate]) {
           acc[formattedDate] = [];
         }
 
-        const memberNames = appointment.appointment_member
-          .map((member: any) => member.Auth?.user?.full_name || "Unknown")
-          .join(", ");
+        const memberNames =
+          appointment.appointment_member
+            ?.map((member: any) => member.Auth?.user?.full_name || "Unknown")
+            .join(", ") || "";
 
         acc[formattedDate].push({
           id: appointment.id,
           name: appointment.title,
-          startTime: new Date(appointment.start_time),
-          endTime: new Date(appointment.end_time),
+          startTime: appointment.start_time, // Keep as string
+          endTime: appointment.end_time, // Keep as string
           address: appointment.notes || "None",
           status: appointment.status,
           clientName: appointment.client?.name || "Unknown Client",
@@ -81,11 +118,16 @@ const Appointment = () => {
 
         return acc;
       },
-      {}
+      {} as Record<string, any[]>
     );
 
+    // Ensure selectedDate is present in items to avoid loader
+    if (selectedDate && !transformedItems[selectedDate]) {
+      transformedItems[selectedDate] = [];
+    }
+
     return transformedItems;
-  }, [appointmentsData]);
+  }, [appointmentsData, selectedDate]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -101,7 +143,6 @@ const Appointment = () => {
 
   const handleAppointmentPress = (item: any) => {
     setSelectedAppointment(item);
-    // Add a slight delay for iOS to ensure the modal opens properly
     setTimeout(
       () => {
         actionModalRef.current?.present();
@@ -143,7 +184,6 @@ const Appointment = () => {
     if (selectedAppointment) {
       try {
         await clientRepo.deleteAppointment(selectedAppointment.id);
-        // Invalidate and refetch after deletion
         queryClient.invalidateQueries({ queryKey: ["appointments"] });
         actionModalRef.current?.dismiss();
       } catch (error) {
@@ -151,20 +191,6 @@ const Appointment = () => {
       }
     }
   };
-
-  const formatTime = useCallback((isoTime: string) => {
-    try {
-      const date = new Date(isoTime);
-      return date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-    } catch (e) {
-      console.error("Error formatting time:", e);
-      return "Invalid time";
-    }
-  }, []);
 
   const getInitials = useCallback((name: string) => {
     if (!name) return "?";
@@ -176,17 +202,8 @@ const Appointment = () => {
   }, []);
 
   const renderAgendaItem = useCallback((item: any) => {
-    const formatItemTime = (isoTime: string) => {
-      try {
-        const date = new Date(isoTime);
-        return date.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        });
-      } catch (e) {
-        return "Invalid time";
-      }
+    const formatItemTime = (timeString: string) => {
+      return safeFormatDate(timeString, "HH:mm", "--:--");
     };
 
     const getItemInitials = (name: string) => {
@@ -200,7 +217,7 @@ const Appointment = () => {
 
     return (
       <TouchableOpacity
-        // onPress={() => handleAppointmentPress(item)}
+        onPress={() => handleAppointmentPress(item)}
         activeOpacity={0.7}
         style={Platform.OS === "ios" ? { zIndex: 999 } : {}}
         className="bg-white flex-row items-center justify-between rounded-xl px-4 py-3 mt-4 mr-4 shadow-md"
@@ -221,7 +238,10 @@ const Appointment = () => {
           </Text>
         </View>
 
-        <View className="bg-lightBlue rounded-full items-center justify-center ml-4" style={{ height: 40, width: 40 }}>
+        <View
+          className="bg-lightBlue rounded-full items-center justify-center ml-4"
+          style={{ height: 40, width: 40 }}
+        >
           <Text className="text-base text-white font-ManropeSemibold">
             {getItemInitials(item.clientName)}
           </Text>
@@ -234,7 +254,7 @@ const Appointment = () => {
     () => (
       <View className="mt-11 mr-4">
         <Text className="text-sm sm:text-base text-dark-100 font-ManropeMedium text-center">
-          No appointments here!
+          No appointments available for this date.
         </Text>
       </View>
     ),
@@ -242,9 +262,46 @@ const Appointment = () => {
   );
 
   const renderKnob = useCallback(
-    () => <View className="bg-dark self-center rounded-full mt-2" style={{ width: 48, height: 4 }} />,
+    () => (
+      <View
+        className="bg-dark self-center rounded-full mt-2"
+        style={{ width: 48, height: 4 }}
+      />
+    ),
     []
   );
+
+  const renderDay = useCallback((day: any) => {
+    if (!day) return <View style={{ width: 96 }} />;
+
+    try {
+      // Handle both timestamp (number) and dateString formats
+      let date: Date | null = null;
+
+      if (day.timestamp) {
+        date = new Date(day.timestamp);
+      } else if (day.dateString) {
+        date = safeParseDateString(day.dateString);
+      }
+
+      if (!date || !isValid(date)) {
+        return <View style={{ width: 96 }} />;
+      }
+
+      const formattedDate = format(date, "EEE, dd MMM yyyy");
+
+      return (
+        <View className="w-24 py-3 pl-2">
+          <Text className="text-sm text-dark-100 font-ManropeMedium">
+            {formattedDate}
+          </Text>
+        </View>
+      );
+    } catch (error) {
+      console.warn("Error rendering day:", error);
+      return <View style={{ width: 96 }} />;
+    }
+  }, []);
 
   const markedDates = React.useMemo(() => {
     return Object.keys(items).reduce(
@@ -259,19 +316,6 @@ const Appointment = () => {
     );
   }, [items]);
 
-  const agendaTheme = useMemo(
-    () => ({
-      selectedDayBackgroundColor: "#1B78B9",
-      selectedDayTextColor: "#ffffff",
-      todayTextColor: "#1C1C1C",
-      agendaDayTextColor: "#1C1C1C",
-      agendaDayNumColor: "#1C1C1C",
-      agendaTodayColor: "#1C1C1C",
-      agendaKnobColor: "#1C1C1C",
-    }),
-    []
-  );
-
   if (!isReady) {
     return (
       <SafeAreaView
@@ -283,28 +327,12 @@ const Appointment = () => {
   }
 
   return (
-    // <SafeAreaView style={{ flex: 1 }}>
-    //   <Agenda
-    //     items={items}
-    //     selected={selectedDate}
-    //     renderItem={renderAgendaItem}
-    //     renderEmptyData={renderEmptyDate}
-    //     onDayPress={handleDayPress}
-    //     markedDates={markedDates}
-    //     theme={agendaTheme}
-    //     hideKnob={false}
-    //     hideExtraDays={true}
-    //     showClosingKnob={true}
-    //     showOnlySelectedDayItems={true}
-    //     pastScrollRange={12}
-    //     futureScrollRange={12}
-    //     calendarHeight={120}
-    //     renderKnob={renderKnob}
-    //   />
-    // </SafeAreaView>
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["bottom", "left", "right"]}
+    >
       <View className="mb-4 flex-1">
-        {isLoading || isFetching ? (
+        {isLoading ? (
           <View className="flex-1 justify-center items-center">
             <SimpleActivityIndicator />
           </View>
@@ -312,10 +340,11 @@ const Appointment = () => {
           <Agenda
             items={items}
             selected={selectedDate}
-            renderItem={renderAgendaItem}
-            renderEmptyData={renderEmptyDate}
+            renderItem={(item) => renderAgendaItem(item)}
+            renderEmptyDate={renderEmptyDate}
             onDayPress={handleDayPress}
             markedDates={markedDates}
+            showOnlySelectedDayItems={true}
             theme={{
               selectedDayBackgroundColor: "#1B78B9",
               selectedDayTextColor: "#ffffff",
@@ -326,12 +355,6 @@ const Appointment = () => {
               agendaKnobColor: "#1C1C1C",
             }}
             hideKnob={false}
-            hideExtraDays={true}
-            showClosingKnob={true}
-            showOnlySelectedDayItems={true}
-            pastScrollRange={12}
-            futureScrollRange={12}
-            calendarHeight={120}
             renderKnob={renderKnob}
           />
         ) : (

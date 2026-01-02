@@ -1,14 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import {
-  ScrollView,
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
-} from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { ScrollView, View, TouchableOpacity, Text, Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { images, getImageUrl } from "@/constants";
 import { vs } from "react-native-size-matters";
 import {
@@ -66,7 +58,7 @@ const NoteDetails = () => {
   const handleUpdatePress = () => {
     actionModalRef?.current?.dismiss();
     router.push({
-      pathname: "/(root)/(tabs)/clients/[id]/notes/add-note",
+      pathname: "/(root)/(tabs)/Leads/[id]/notes/add-note",
       params: {
         id: id,
         noteId: note?.id,

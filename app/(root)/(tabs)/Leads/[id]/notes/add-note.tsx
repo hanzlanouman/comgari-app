@@ -1,19 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { ScrollView, View, Text, TouchableOpacity, Alert } from "react-native";
 import {
   actions,
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Upload, Save } from "lucide-react-native";
 import { useFormik } from "formik";
@@ -168,7 +160,7 @@ const AddNote = () => {
           });
         }
 
-        router.replace(`/clients/${id?.toString()}/notes`);
+        router.replace(`/Leads/${id?.toString()}/notes`);
       } catch (error: any) {
         showErrorAlert(error?.message || "Failed to save note");
       }

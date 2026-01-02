@@ -1,4 +1,4 @@
-//app\(root)\(tabs)\clients\[id]\index.tsx
+//app\(root)\(tabs)\Leads\[id]\index.tsx
 import React from "react";
 import { useRouter, useNavigation } from "expo-router";
 import {
@@ -9,9 +9,7 @@ import {
   View,
   Linking,
 } from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useQuery } from "@tanstack/react-query";
 import { vs } from "react-native-size-matters";
@@ -85,42 +83,42 @@ const navigationItems = [
     icon: "brief",
     title: "Brief",
     description: "Brief yourself in detail",
-    route: "/(root)/(tabs)/clients/{projectId}/brief",
+    route: "/(root)/(tabs)/Leads/{projectId}/brief",
   },
   {
     id: 2,
     icon: "tasks",
     title: "Tasks",
     description: "You can add tasks here",
-    route: "/(root)/(tabs)/clients/{projectId}/task",
+    route: "/(root)/(tabs)/Leads/{projectId}/task",
   },
   {
     id: 3,
     icon: "notes",
     title: "Notes",
     description: "Add important notes",
-    route: "/(root)/(tabs)/clients/{projectId}/notes",
+    route: "/(root)/(tabs)/Leads/{projectId}/notes",
   },
   {
     id: 4,
     icon: "media",
     title: "Media",
     description: "Find and upload media",
-    route: "/(root)/(tabs)/clients/{projectId}/media",
+    route: "/(root)/(tabs)/Leads/{projectId}/media",
   },
   {
     id: 5,
     icon: "tasks",
     title: "Proposal",
     description: "Create a proposal for the client",
-    route: "/(root)/(tabs)/clients/{projectId}/proposal",
+    route: "/(root)/(tabs)/Leads/{projectId}/proposal",
   },
   {
     id: 6,
     icon: "notes",
     title: "Invoice",
     description: "Create a Invoice for the client",
-    route: "/(root)/(tabs)/clients/{projectId}/invoices",
+    route: "/(root)/(tabs)/Leads/{projectId}/invoices",
   },
 ] as const;
 export const options = {};
@@ -163,7 +161,6 @@ const ClientDetailPage: React.FC = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-
         }}
       >
         <Pencil size={18} color="#ffffff" />
@@ -194,7 +191,10 @@ const ClientDetailPage: React.FC = () => {
 
   if (isLoading || !data) {
     return (
-      <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+      <SafeAreaView
+        className="flex-1 bg-white"
+        edges={["bottom", "left", "right"]}
+      >
         <AppContainer loading={true}>
           <View />
         </AppContainer>
@@ -206,7 +206,10 @@ const ClientDetailPage: React.FC = () => {
 
   if (isError || !client) {
     return (
-      <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+      <SafeAreaView
+        className="flex-1 bg-white"
+        edges={["bottom", "left", "right"]}
+      >
         <AppContainer isError={true}>
           <View />
         </AppContainer>
@@ -239,7 +242,10 @@ const ClientDetailPage: React.FC = () => {
         onPress={() => handleNavigationPress(item.route)}
         className="border border-light rounded-[20] p-4"
       >
-        <View className="bg-blue rounded-full flex-row items-center justify-center" style={{ width: 40, height: 40 }}>
+        <View
+          className="bg-blue rounded-full flex-row items-center justify-center"
+          style={{ width: 40, height: 40 }}
+        >
           <Image
             source={icons[item.icon]}
             resizeMode="contain"
@@ -259,7 +265,10 @@ const ClientDetailPage: React.FC = () => {
 
   return (
     <BottomSheetModalProvider>
-      <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+      <SafeAreaView
+        className="flex-1 bg-white"
+        edges={["bottom", "left", "right"]}
+      >
         <AppContainer isError={isError} loading={isLoading}>
           <ScrollView
             contentContainerStyle={{ flexGrow: 1, paddingBottom: vs(50) }}
@@ -312,8 +321,14 @@ const ClientDetailPage: React.FC = () => {
                   )}
                   <View className="flex-row items-center justify-between mt-4 border-t border-light pt-3 pb-1">
                     <View className="flex-row items-center">
-                      <View className="bg-blue-100 flex-row items-center justify-center" style={{ width: 14, height: 14 }}>
-                        <View className="bg-blue" style={{ width: 6, height: 6 }} />
+                      <View
+                        className="bg-blue-100 flex-row items-center justify-center"
+                        style={{ width: 14, height: 14 }}
+                      >
+                        <View
+                          className="bg-blue"
+                          style={{ width: 6, height: 6 }}
+                        />
                       </View>
                       <Text className="text-sm font-ManropeMedium text-blue ml-2">
                         {client?.type?.replace("_", " ") || "N/A"}

@@ -6,9 +6,7 @@ import { vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import { ClientRepository } from "@/repositories/client/client";
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type MediaItem = {
   id?: number;
@@ -77,11 +75,10 @@ const Media: React.FC = () => {
 
   const navigateToCategory = (id: number, type: string, items: MediaItem[]) => {
     router.push({
-      pathname: `/clients/${id}/media/${type}` as any,
+      pathname: `/Leads/${id}/media/${type}` as any,
       params: { id, items: JSON.stringify(items) },
     });
   };
-
 
   const RightArrowIcon = () => (
     <Image
@@ -93,13 +90,17 @@ const Media: React.FC = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["bottom", "left", "right"]}
+    >
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: 20,
           paddingVertical: vs(10),
-        }}>
+        }}
+      >
         <View className="mb-5">
           <Text className="text-base font-ManropeRegular text-gray-500 mt-1">
             You can find all the media files you uploaded ever in the Comgari.
@@ -110,9 +111,13 @@ const Media: React.FC = () => {
           onPress={() =>
             navigateToCategory(id, "images", groupedMediaItems.images)
           }
-          className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}>
+          className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}
+        >
           <View className="flex-row items-center border-light rounded-[20]">
-            <View className="rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow" style={{ width: 48, height: 48 }}>
+            <View
+              className="rounded-lg bg-[#D1FAE5] flex items-center justify-center shadow"
+              style={{ width: 48, height: 48 }}
+            >
               <Image
                 source={icons.image}
                 resizeMode="contain"
@@ -136,9 +141,13 @@ const Media: React.FC = () => {
           onPress={() =>
             navigateToCategory(id, "videos", groupedMediaItems.videos)
           }
-          className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border border-light`}>
+          className={`flex-row items-center justify-between p-4 rounded-lg mt-4 border border-light`}
+        >
           <View className="flex-row items-center">
-            <View className="rounded-lg bg-[#FEE2E2] flex items-center justify-center shadow" style={{ width: 48, height: 48 }}>
+            <View
+              className="rounded-lg bg-[#FEE2E2] flex items-center justify-center shadow"
+              style={{ width: 48, height: 48 }}
+            >
               <Image
                 source={icons.video}
                 resizeMode="contain"
@@ -162,9 +171,13 @@ const Media: React.FC = () => {
           onPress={() =>
             navigateToCategory(id, "documents", groupedMediaItems.documents)
           }
-          className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}>
+          className={`flex-row items-center justify-between p-4 rounded-lg mt-4  border border-light`}
+        >
           <View className="flex-row items-center">
-            <View className="rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow" style={{ width: 48, height: 48 }}>
+            <View
+              className="rounded-lg bg-[#FFF4E2] flex items-center justify-center shadow"
+              style={{ width: 48, height: 48 }}
+            >
               <Image
                 source={icons.file}
                 resizeMode="contain"

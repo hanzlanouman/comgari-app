@@ -7,9 +7,7 @@ import {
   Text,
   Alert,
 } from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomButton, InputField } from "@/common/components";
 import DropdownSelect from "@/common/components/Select";
 import { router, useLocalSearchParams } from "expo-router";
@@ -61,6 +59,8 @@ const AddInvoiceScreen = () => {
     clientId: clientIdParam,
   } = useLocalSearchParams();
 
+  console.log(clientIdParam, "clientIdParam");
+
   const projectId = Number(projectIdParam) || 0;
   const clientId = Number(clientIdParam);
 
@@ -71,17 +71,17 @@ const AddInvoiceScreen = () => {
   const clientRepo = ClientRepository.getInstance();
   const isEditMode = mode === "edit";
 
-  if (!clientId) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View className="flex-1 items-center justify-center px-4">
-            <Text className="text-base">Missing client information.</Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+  // if (!clientId) {
+  //   return (
+  //     <SafeAreaView className="flex-1 bg-white">
+  //       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+  //         <View className="flex-1 items-center justify-center px-4">
+  //           <Text className="text-base">Missing client information.</Text>
+  //         </View>
+  //       </ScrollView>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   const initialValues = {
     job_name: isEditMode ? (editJobName as string) : "",
@@ -127,7 +127,7 @@ const AddInvoiceScreen = () => {
 
       // Navigate back to invoices screen
       router.replace({
-        pathname: "/(root)/(tabs)/clients/[id]/invoices",
+        pathname: "/(root)/(tabs)/Leads/[id]/invoices",
         params: { id: String(projectId) },
       });
     } catch (error) {

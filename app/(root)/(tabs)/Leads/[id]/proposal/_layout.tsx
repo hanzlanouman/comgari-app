@@ -13,11 +13,11 @@ const Layout = () => {
       return;
     }
     if (params?.clientId || params?.id) {
-      router.replace(`/(root)/(tabs)/clients/${params?.clientId || params?.id}`);
+      router.replace(`/(root)/(tabs)/Leads/${params?.clientId || params?.id}`);
       return;
     }
-    router.replace("/(root)/(tabs)/clients/");
-  }
+    router.replace("/(root)/(tabs)/Leads/");
+  };
 
   return (
     <Stack
@@ -33,7 +33,8 @@ const Layout = () => {
         },
         headerShadowVisible: false,
         headerShown: true,
-      }}>
+      }}
+    >
       <Stack.Screen
         name="index"
         options={{
@@ -50,15 +51,15 @@ const Layout = () => {
               colors={["#1B78B9", "#63348F"]}
               style={{ borderRadius: 9999, width: 32, height: 32 }}
               start={[0, 0]}
-              end={[1, 1]}>
+              end={[1, 1]}
+            >
               <TouchableOpacity
                 onPressIn={() =>
-                  router.push(
-                    "/(root)/(tabs)/clients/[id]/proposal/job-details"
-                  )
+                  router.push("/(root)/(tabs)/Leads/[id]/proposal/job-details")
                 }
                 className="rounded-full flex flex-row justify-center items-center"
-                style={{ width: "100%", height: "100%" }}>
+                style={{ width: "100%", height: "100%" }}
+              >
                 <Plus size={18} color="#ffffff" />
               </TouchableOpacity>
             </LinearGradient>
@@ -71,10 +72,13 @@ const Layout = () => {
           headerShown: true,
           title: "Proposal Details",
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 10 }}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ marginRight: 10 }}
+            >
               <ArrowLeft size={24} color="#1C1C1C" />
             </TouchableOpacity>
-          )
+          ),
         }}
       />
       <Stack.Screen

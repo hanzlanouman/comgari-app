@@ -80,7 +80,7 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
               if (bottomSheetRef.current) {
                 await bottomSheetRef.current.dismiss();
               }
-              router.replace("/(root)/(tabs)/clients/clients");
+              router.replace("/(root)/(tabs)/Leads/clients");
             } catch (error) {
               console.error("Delete client error:", error);
               Alert.alert(
@@ -109,7 +109,7 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
     }
 
     router.push({
-      pathname: "/(root)/(tabs)/clients/add-client",
+      pathname: "/(root)/(tabs)/Leads/add-client",
       params: {
         isEditing: "true",
         clientId: clientId,

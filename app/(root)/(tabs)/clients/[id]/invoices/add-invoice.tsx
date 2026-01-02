@@ -7,9 +7,7 @@ import {
   Text,
   Alert,
 } from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomButton, InputField } from "@/common/components";
 import DropdownSelect from "@/common/components/Select";
 import { router, useLocalSearchParams } from "expo-router";
@@ -61,8 +59,17 @@ const AddInvoiceScreen = () => {
     clientId: clientIdParam,
   } = useLocalSearchParams();
 
+  // Handle string | string[] | undefined from route params
+  const clientIdParamResolved = Array.isArray(clientIdParam)
+    ? clientIdParam[0]
+    : clientIdParam;
+
+  console.log(clientIdParamResolved, "clientIdParam");
+
   const projectId = Number(projectIdParam) || 0;
-  const clientId = Number(clientIdParam);
+  const clientId = clientIdParamResolved
+    ? Number(clientIdParamResolved)
+    : undefined;
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(
@@ -71,17 +78,17 @@ const AddInvoiceScreen = () => {
   const clientRepo = ClientRepository.getInstance();
   const isEditMode = mode === "edit";
 
-  if (!clientId) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View className="flex-1 items-center justify-center px-4">
-            <Text className="text-base">Missing client information.</Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+  // if (!clientId) {
+  //   return (
+  //     <SafeAreaView className="flex-1 bg-white">
+  //       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+  //         <View className="flex-1 items-center justify-center px-4">
+  //           <Text className="text-base">Missing client information.</Text>
+  //         </View>
+  //       </ScrollView>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   const initialValues = {
     job_name: isEditMode ? (editJobName as string) : "",
@@ -126,9 +133,17 @@ const AddInvoiceScreen = () => {
       }
 
       // Navigate back to invoices screen
+      const backParams: { id: string; clientId?: string } = {
+        id: String(projectId),
+      };
+
+      if (clientIdParamResolved) {
+        backParams.clientId = String(clientIdParamResolved);
+      }
+
       router.replace({
         pathname: "/(root)/(tabs)/clients/[id]/invoices",
-        params: { id: String(projectId) },
+        params: backParams,
       });
     } catch (error) {
       Alert.alert(

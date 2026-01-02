@@ -9,12 +9,8 @@ import Review from "./components/review";
 import { ArrowLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
 import { ClientRepository } from "@/repositories/client/client";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
-import {
-  CreateProposalPayload,
-} from "@/repositories/client/schemas";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { CreateProposalPayload } from "@/repositories/client/schemas";
 
 const AddProposal = () => {
   const clientRepo = ClientRepository.getInstance();
@@ -78,7 +74,7 @@ const AddProposal = () => {
     onSuccess: () => {
       alert("Proposal created successfully!");
       router.replace({
-        pathname: `/(root)/(tabs)/clients/[id]/proposal`,
+        pathname: `/(root)/(tabs)/Leads/[id]/proposal`,
         params: { id: formData.project_id },
       });
     },
@@ -100,7 +96,7 @@ const AddProposal = () => {
     onSuccess: () => {
       alert("Proposal updated successfully!");
       router.replace({
-        pathname: `/(root)/(tabs)/clients/[id]/proposal` as any,
+        pathname: `/(root)/(tabs)/Leads/[id]/proposal` as any,
         params: { id: formData.project_id },
       });
     },

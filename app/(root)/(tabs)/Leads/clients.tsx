@@ -105,12 +105,12 @@ const Clients: React.FC = () => {
   }, [isFetching, hasMore, isLoadingMore]);
 
   const handleAddClient = () => {
-    router.push("/(root)/(tabs)/clients/add-client");
+    router.push("/(root)/(tabs)/Leads/add-client");
   };
 
   const handleClientPress = (clientId: number) => {
     router.push({
-      pathname: "/(root)/(tabs)/clients/[id]",
+      pathname: "/(root)/(tabs)/Leads/[id]",
       params: { id: String(clientId), clientId: String(clientId) },
     });
   };
@@ -124,10 +124,10 @@ const Clients: React.FC = () => {
         className="mx-auto"
       />
       <View>
-        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-center px-4" style={{ color: "#000000" }}>
           We can't find any
         </Text>
-        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-center px-4" style={{ color: "#000000" }}>
           clients yet!
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>

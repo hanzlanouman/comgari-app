@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -23,6 +23,7 @@ import { SignupPayload } from "@/repositories/auth/schemas";
 import { OTP_TYPE } from "@/common/enum";
 import { route } from "@/common";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
+import { GoogleIOSClientID, GoogleWebClientID } from "@/common/enviornment";
 
 let GoogleSignin: any = null;
 try {
@@ -53,9 +54,31 @@ const SignUp = () => {
     mutationFn: (payload) => authRepo.register(payload),
   });
 
+  // Configure Google Sign-In once (required before signIn)
+  useEffect(() => {
+    if (Platform.OS === "web" || !GoogleSignin) {
+      return;
+    }
+
+    try {
+      GoogleSignin.configure({
+        webClientId: GoogleWebClientID,
+        iosClientId: GoogleIOSClientID,
+        offlineAccess: true,
+        forceCodeForRefreshToken: true,
+        scopes: [
+          "https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/userinfo.profile",
+        ],
+      });
+    } catch (error) {
+      console.warn("Failed to configure GoogleSignin:", error);
+    }
+  }, []);
+
   // Google Sign-Up handler (same flow as sign-in for new users)
   const handleGoogleSignUp = async () => {
-    if (!GoogleSignin) {
+    if (Platform.OS === "web" || !GoogleSignin) {
       Alert.alert(
         "Not Available",
         "Google Sign-In is not available in this environment"
@@ -68,8 +91,9 @@ const SignUp = () => {
       const userInfo = await GoogleSignin.signIn();
 
       // Get ID token and server auth code from userInfo
-      const idToken = userInfo?.data?.idToken;
-      const serverAuthCode = userInfo?.data?.serverAuthCode;
+      const idToken = userInfo?.idToken || userInfo?.data?.idToken;
+      const serverAuthCode =
+        userInfo?.serverAuthCode || userInfo?.data?.serverAuthCode;
 
       if (!idToken && !serverAuthCode) {
         throw new Error("No tokens received from Google");
@@ -108,10 +132,7 @@ const SignUp = () => {
       }
     } catch (error: any) {
       console.error("Google Sign-Up Error:", error);
-      Alert.alert(
-        "Google Sign-Up Failed",
-        error.message || "Please try again"
-      );
+      Alert.alert("Google Sign-Up Failed", error.message || "Please try again");
     } finally {
       setGoogleLoading(false);
     }

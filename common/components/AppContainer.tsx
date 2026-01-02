@@ -34,6 +34,7 @@ type Props = {
   onPress?: () => void;
   onConfirm?: () => void;
   hasScroll?: boolean;
+  disableKeyboardAware?: boolean;
 };
 
 enum TITLE_TYPE {
@@ -78,19 +79,9 @@ export const AppContainer = (props: Props) => {
 
   const hasScroll = props?.hasScroll ? true : false;
 
-  return (
-    <KeyboardAwareScrollView
-      className="bg-white"
-      style={{ width: "100%", height: "100%" }}
-      enableOnAndroid
-      extraScrollHeight={ms(40)}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={
-        hasScroll
-          ? styles.keyboardAwareContent
-          : [styles.keyboardAwareContent, props?.style]
-      }
-    >
+  // Modal content shared between both layouts
+  const ModalContent = () => (
+    <>
       {props?.loading && <SimpleActivityIndicator />}
       <Modal
         animationType="slide"
@@ -127,6 +118,33 @@ export const AppContainer = (props: Props) => {
           </View>
         </View>
       </Modal>
+    </>
+  );
+
+  // When keyboard aware is disabled, use a simple View wrapper
+  if (props.disableKeyboardAware) {
+    return (
+      <View style={[{ width: "100%", height: "100%" }, props?.style]}>
+        <ModalContent />
+        {props.children}
+      </View>
+    );
+  }
+
+  return (
+    <KeyboardAwareScrollView
+      className="bg-white"
+      style={{ width: "100%", height: "100%" }}
+      enableOnAndroid
+      extraScrollHeight={ms(40)}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={
+        hasScroll
+          ? styles.keyboardAwareContent
+          : [styles.keyboardAwareContent, props?.style]
+      }
+    >
+      <ModalContent />
       {hasScroll ? (
         <ScrollView
           className="bg-white"

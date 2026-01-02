@@ -7,9 +7,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { scale, vs } from "react-native-size-matters";
 import { images } from "@/constants";
@@ -124,10 +122,16 @@ const Clients: React.FC = () => {
         className="mx-auto"
       />
       <View>
-        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+        <Text
+          className="text-lg sm:text-[22] font-ManropeSemibold text-center px-4"
+          style={{ color: "#000000" }}
+        >
           We can't find any
         </Text>
-        <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+        <Text
+          className="text-lg sm:text-[22] font-ManropeSemibold text-center px-4"
+          style={{ color: "#000000" }}
+        >
           clients yet!
         </Text>
         <WithRole permission="manage" resource="client" user={user!}>
@@ -167,7 +171,10 @@ const Clients: React.FC = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["bottom", "left", "right"]}
+    >
       <AppContainer isError={isError}>
         <View className="flex-1 px-5">
           <Text className="text-sm text-dark-100 mt-3 mb-2">
