@@ -169,10 +169,6 @@ export class PaymentRepository implements IPaymentRepository {
     }
   }
 
-  /**
-   * Get the trial status for the current user's agency.
-   * Returns information about trial usage, expiry, and subscription status.
-   */
   async getTrialStatus(): Promise<TTrialStatusResponse> {
     try {
       const res = await get(
@@ -187,3 +183,4 @@ export class PaymentRepository implements IPaymentRepository {
     }
   }
 }
+export const PaymentRepo = PaymentRepository.getInstance();

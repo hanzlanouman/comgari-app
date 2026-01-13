@@ -17,7 +17,9 @@ export const WhatsAppButton = () => {
         '/welcome',
         '/onboarding',
         '/sign-in',
-        '/sign-up'
+        '/sign-up',
+        '/google-profile',
+        '/go-pro'
     ];
 
     const isExcluded = excludedPaths.some(path => pathname === path || pathname?.startsWith(`${path}/`));

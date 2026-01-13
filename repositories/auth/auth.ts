@@ -19,6 +19,7 @@ import {
   TReponse,
   TVerifyCredPayload,
 } from "@/repositories/auth/types";
+import { PaymentRepo } from "@/repositories/payment/payment";
 import { AxiosError } from "axios";
 
 interface IAuthRepository {
@@ -90,13 +91,40 @@ export class AuthRepository implements IAuthRepository {
     }
   }
 
-  async googleSignIn(payload: { token?: string; server_auth_code?: string }): Promise<any> {
+  async googleSignIn(payload: {
+    token?: string;
+    server_auth_code?: string;
+  }): Promise<any> {
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.GOOGLE_SIGNIN.route}`,
         payload,
         { show_loader: true }
       );
+
+      if (!res.data.isSignup && res.data.user) {
+        let hasSubscriptionAccess = res.data.user.subscription;
+
+        if (!hasSubscriptionAccess) {
+          try {
+            const trialStatus = await PaymentRepo.getTrialStatus();
+            if (
+              trialStatus?.is_on_trial ||
+              trialStatus?.has_active_subscription
+            ) {
+              hasSubscriptionAccess = true;
+            }
+          } catch {
+            console.log(
+              "Trial status check failed, using original subscription flag"
+            );
+          }
+        }
+
+        // Add hasSubscriptionAccess to response for UI to use
+        res.data.hasSubscriptionAccess = hasSubscriptionAccess;
+      }
+
       return res.data;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));
@@ -109,13 +137,36 @@ export class AuthRepository implements IAuthRepository {
     user_name: string;
     business_name: string;
     phone: string;
-  }): Promise<TLoginResponse> {
+  }): Promise<TLoginResponse & { hasSubscriptionAccess?: boolean }> {
     try {
       const res = await post(
         `${BaseUrl + END_POINTS.AUTH.GOOGLE_SIGNUP.route}`,
         payload,
         { show_loader: true }
       );
+
+      if (res.data.user) {
+        let hasSubscriptionAccess = res.data.user.subscription;
+
+        if (!hasSubscriptionAccess) {
+          try {
+            const trialStatus = await PaymentRepo.getTrialStatus();
+            if (
+              trialStatus?.is_on_trial ||
+              trialStatus?.has_active_subscription
+            ) {
+              hasSubscriptionAccess = true;
+            }
+          } catch {
+            console.log(
+              "Trial status check failed, using original subscription flag"
+            );
+          }
+        }
+
+        res.data.hasSubscriptionAccess = hasSubscriptionAccess;
+      }
+
       return res.data;
     } catch (e: AxiosError | any) {
       throw new Error(getErrorMessage(e));

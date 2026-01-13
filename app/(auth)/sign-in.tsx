@@ -3,6 +3,7 @@ import {
   View,
   Text,
   ImageBackground,
+  Image,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
@@ -110,18 +111,15 @@ const SignIn = () => {
             return;
           }
 
+          console.log("data from sign in", data);
+
           dispatch(login(data));
 
-          // Check if user has subscription or is on trial
           let hasSubscriptionAccess = data.user.subscription;
 
-          // If subscription is false, check if user is on trial
-          // Trial users should have access to the dashboard
           if (!hasSubscriptionAccess) {
             try {
-              // Pass the access token since it's not yet stored in the API client
               const trialStatus = await PaymentRepo.getTrialStatus();
-              // If user is on trial or has active subscription, grant access
               if (
                 trialStatus?.is_on_trial ||
                 trialStatus?.has_active_subscription
@@ -246,7 +244,6 @@ const SignIn = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
-      // Get ID token and server auth code from userInfo
       const idToken = userInfo?.idToken || userInfo?.data?.idToken;
       const serverAuthCode =
         userInfo?.serverAuthCode || userInfo?.data?.serverAuthCode;
@@ -255,29 +252,42 @@ const SignIn = () => {
         throw new Error("No tokens received from Google");
       }
 
-      // Call backend
-      const result = await AuthRepo.googleSignIn({
+      const apiResult = await AuthRepo.googleSignIn({
         token: idToken || undefined,
         server_auth_code: serverAuthCode || undefined,
       });
 
-      if (result.isSignup) {
+      const payload = apiResult?.data ?? apiResult;
+      const {
+        isSignup,
+        email,
+        given_name,
+        family_name,
+        token: tokenFromApi,
+        server_auth_code: codeFromApi,
+        access_token,
+        refresh_token,
+      } = payload || {};
+
+      if (isSignup) {
         // New user - navigate to profile screen
         router.push({
           pathname: "/(auth)/google-profile" as any,
           params: {
-            token: idToken,
-            server_auth_code: serverAuthCode,
-            email: result.email,
-            given_name: result.given_name,
-            family_name: result.family_name,
+            token: idToken || tokenFromApi,
+            server_auth_code: serverAuthCode || codeFromApi,
+            access_token,
+            refresh_token,
+            email,
+            given_name,
+            family_name,
           },
         });
       } else {
         // Existing user - login
-        dispatch(login(result));
+        dispatch(login(payload));
 
-        let hasSubscriptionAccess = result.user.subscription;
+        let hasSubscriptionAccess = payload.user.subscription;
 
         if (!hasSubscriptionAccess) {
           try {
@@ -400,8 +410,13 @@ const SignIn = () => {
             onPress={handleGoogleSignIn}
             className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
           >
-            <Text className="text-dark font-ManropeMedium text-base">
-              🔐 Continue with Google
+            <Image
+              source={images.googleLogo}
+              style={{ width: 24, height: 24 }}
+              resizeMode="contain"
+            />
+            <Text className="text-dark font-ManropeMedium text-base ml-2">
+              Continue with Google
             </Text>
           </TouchableOpacity>
         )}

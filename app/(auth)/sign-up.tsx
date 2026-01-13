@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Image,
   Alert,
   ActivityIndicator,
 } from "react-native";
@@ -24,6 +25,7 @@ import { OTP_TYPE } from "@/common/enum";
 import { route } from "@/common";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { GoogleIOSClientID, GoogleWebClientID } from "@/common/enviornment";
+import { images } from "@/constants";
 
 let GoogleSignin: any = null;
 try {
@@ -100,21 +102,36 @@ const SignUp = () => {
       }
 
       // Call backend
-      const result = await authRepo.googleSignIn({
+      const apiResult = await authRepo.googleSignIn({
         token: idToken || undefined,
         server_auth_code: serverAuthCode || undefined,
       });
 
-      if (result.isSignup) {
+      // Backend may wrap new-user response inside `data`; normalize it
+      const payload = apiResult?.data ?? apiResult;
+      const {
+        isSignup,
+        email,
+        given_name,
+        family_name,
+        token: tokenFromApi,
+        server_auth_code: codeFromApi,
+        access_token,
+        refresh_token,
+      } = payload || {};
+
+      if (isSignup) {
         // New user - navigate to profile screen
         router.push({
           pathname: "/(auth)/google-profile" as any,
           params: {
-            token: idToken,
-            server_auth_code: serverAuthCode,
-            email: result.email,
-            given_name: result.given_name,
-            family_name: result.family_name,
+            token: idToken || tokenFromApi,
+            server_auth_code: serverAuthCode || codeFromApi,
+            access_token,
+            refresh_token,
+            email,
+            given_name,
+            family_name,
           },
         });
       } else {
@@ -366,8 +383,13 @@ const SignUp = () => {
                   onPress={handleGoogleSignUp}
                   className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
                 >
-                  <Text className="text-dark font-ManropeMedium text-base">
-                    🔐 Continue with Google
+                  <Image
+                    source={images.googleLogo}
+                    style={{ width: 24, height: 24 }}
+                    resizeMode="contain"
+                  />
+                  <Text className="text-dark font-ManropeMedium text-base ml-2">
+                    Continue with Google
                   </Text>
                 </TouchableOpacity>
               )}

@@ -35,6 +35,8 @@ import missingImage from "@/assets/images/missing-image.jpg";
 
 import check from "@/assets/images/check.png";
 
+import googleLogo from "@/assets/images/google-logo.png";
+
 export const images = {
   onboarding1,
   onboarding2,
@@ -53,7 +55,8 @@ export const images = {
   doc,
   invoice,
   missingImage,
-  check
+  check,
+  googleLogo
 };
 
 export const icons = {
@@ -111,14 +114,14 @@ export const getImageUrl = (url: string | null | undefined) => {
   if (!url) {
     return ""; // Return empty string for null or undefined URLs
   }
-  
+
   // Handle spaces in URLs for iOS compatibility
   const formattedUrl = url.replace(/\s/g, '%20');
-  
+
   if (formattedUrl.startsWith("http")) {
     return formattedUrl;
   }
-  
+
   if (environment === "development") {
     return `${BaseUrl}:3010/public/${formattedUrl}`;
   } else {

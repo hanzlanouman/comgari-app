@@ -45,6 +45,9 @@ const AddMember = () => {
     mutationFn: (payload: MemberPayload) => MemberRepo.createMember(payload),
   });
 
+
+  
+
   // Create mutation for updating a member
   const updateMutation = useMutation({
     mutationFn: (payload: UpdateMemberPayload) =>
@@ -169,7 +172,7 @@ const AddMember = () => {
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <AppContainer
           isError={isError || updateMutation.isError}
-          message={error?.message || updateMutation.error?.message}
+          message={error || updateMutation.error?.message}
         >
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-4">
             <AddMemberForm
