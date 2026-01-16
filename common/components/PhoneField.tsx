@@ -30,16 +30,34 @@ export const PhoneField = ({
   const [nationalValue, setNationalValue] = useState<string>("");
 
   useEffect(() => {
-    if (typeof value !== "string") return;
+    if (typeof value !== "string" || !value) return;
 
     if (value.startsWith("+")) {
       const numeric = value.replace(/[^\d]/g, "");
-      if (callingCode && numeric.startsWith(callingCode)) {
-        setNationalValue(numeric.slice(callingCode.length));
-        phoneInputRef.current?.defaultValue(numeric.slice(callingCode.length));
+
+      // Find the best matching country from constants (longest matching calling code)
+      let bestMatch: { countryCode: CountryCode; callingCode: string; length: number } | null = null;
+      for (const countryKey in constants) {
+        const cc = String(constants[countryKey].callingCode).replace(/[^\d]/g, "");
+        if (numeric.startsWith(cc) && cc.length > (bestMatch?.length || 0)) {
+          bestMatch = {
+            countryCode: countryKey as CountryCode,
+            callingCode: cc,
+            length: cc.length
+          };
+        }
+      }
+
+      if (bestMatch) {
+        setCallingCode(bestMatch.callingCode);
+        const national = numeric.slice(bestMatch.length);
+        setNationalValue(national);
+        phoneInputRef.current?.defaultCountry(bestMatch.countryCode);
+        phoneInputRef.current?.defaultValue(national);
       } else {
+        // Fallback: if no match found, use heuristic or treat as national
         const heuristicNational = numeric.replace(/^\d{1,4}/, (cc) => {
-          setCallingCode((prev) => prev || cc);
+          setCallingCode(cc);
           return "";
         });
         setNationalValue(heuristicNational);
@@ -49,10 +67,10 @@ export const PhoneField = ({
       setNationalValue(value);
       phoneInputRef.current?.defaultValue(value);
     }
-  }, [value, callingCode]);
+  }, [value]);
 
   useEffect(() => {
-    if (defaultCountry) {
+    if (defaultCountry && !value) {
       phoneInputRef.current?.defaultCountry(defaultCountry);
       try {
         const cc =
@@ -60,7 +78,7 @@ export const PhoneField = ({
         if (cc) setCallingCode(String(cc).replace(/[^\d]/g, ""));
       } catch { }
     }
-  }, [defaultCountry]);
+  }, [defaultCountry, value]);
 
   const emitE164 = useMemo(() => {
     return (local: string) => {

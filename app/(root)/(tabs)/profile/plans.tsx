@@ -4,6 +4,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 import {
   SafeAreaView,
@@ -97,6 +98,28 @@ const GoPro = () => {
       : subscription.pricing[0].paymentSchedule === "year"
   );
 
+  const [coupon, setCoupon] = useState("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+
+  const handleValidateCoupon = async () => {
+    if (!coupon.trim()) return;
+    setIsValidatingCoupon(true);
+    try {
+      const res = await paymentRepo.validateCoupon(coupon);
+      if (res.valid) {
+        setAppliedCoupon(coupon);
+        alert("Coupon applied successfully!");
+      } else {
+        alert("Invalid coupon code.");
+      }
+    } catch (err) {
+      alert(`Error validating coupon: ${err}`);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
   const handleBuyNow = () => {
     if (!selectedPlan) {
       setErrorMessage("Please select a plan.");
@@ -112,6 +135,7 @@ const GoPro = () => {
       const payload: TCreateSubscriptionPayload = {
         id: priceId,
         paymentMethod_id: agencySubscription.data.defaultPaymentMethod,
+        coupon: appliedCoupon || undefined,
       };
 
       upgradeSubscription(payload);
@@ -121,6 +145,7 @@ const GoPro = () => {
         params: {
           selectedPlanPrice: priceId,
           isNewSubscription: "true",
+          coupon: appliedCoupon || undefined,
         },
       });
     }
@@ -142,6 +167,37 @@ const GoPro = () => {
           {errorMessage && (
             <Text className="text-red mt-2">{errorMessage}</Text>
           )}
+
+          {/* Coupon Input */}
+          <View className="mt-4">
+            <Text className="text-dark-100 text-sm font-ManropeSemibold mb-2">Coupon Code</Text>
+            <View className="flex-row items-center gap-2">
+              <View className="flex-1 bg-gray rounded-xl p-3">
+                <TextInput
+                  placeholder="Enter coupon code"
+                  value={coupon}
+                  onChangeText={setCoupon}
+                  className="font-ManropeRegular text-dark-100"
+                  autoCapitalize="none"
+                />
+              </View>
+              <TouchableOpacity
+                onPress={handleValidateCoupon}
+                disabled={isValidatingCoupon || !coupon.trim()}
+                className={`p-3 rounded-xl ${!coupon.trim() ? 'bg-gray' : 'bg-primary'}`}
+              >
+                <Text className={`${!coupon.trim() ? 'text-dark-100' : 'text-white'} font-ManropeSemibold`}>
+                  {isValidatingCoupon ? "..." : "Apply"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {appliedCoupon && (
+              <Text className="text-green-600 text-xs mt-1 font-ManropeRegular">
+                ✓ Coupon "{appliedCoupon}" applied
+              </Text>
+            )}
+          </View>
+
           <View className="flex flex-row items-center justify-between bg-gray p-1.5 rounded-xl mt-5">
             <TouchableOpacity
               onPress={() => setActiveTab("monthly")}
