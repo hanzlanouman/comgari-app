@@ -252,7 +252,7 @@ const Tasks = () => {
                 className="mx-auto"
               />
               <View className="mt-8">
-                <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+                <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4" style={{ color: "#000000" }}>
                   No task found, you can create new tasks here!
                 </Text>
 

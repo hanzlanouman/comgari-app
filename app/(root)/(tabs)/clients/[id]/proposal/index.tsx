@@ -137,7 +137,7 @@ const Proposal = () => {
         <View className="flex-grow flex-col items-center justify-center px-4">
           <NotepadText size={100} strokeWidth={1} className="text-blue" />
           <View className="mt-4">
-            <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+            <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4" style={{ color: "#000000" }}>
               We can't find any proposals yet!
             </Text>
             <View className="mx-auto mt-5" style={{ width: 158 }}>

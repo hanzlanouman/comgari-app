@@ -156,7 +156,7 @@ const Notes = () => {
               className="mx-auto"
             />
             <View className="mt-8">
-              <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4">
+              <Text className="text-lg sm:text-[22] font-ManropeSemibold text-dark text-center px-4" style={{ color: "#000000" }}>
                 Oops! It seems there are no notes here. Start creating now!
               </Text>
               <View className="w-[180] mx-auto mt-5">

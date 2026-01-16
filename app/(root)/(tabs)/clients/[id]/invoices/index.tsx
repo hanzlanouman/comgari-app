@@ -319,14 +319,12 @@ const InvoicesScreen = () => {
               Status
             </Text>
             <View
-              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${
-                invoice.status === "PAID" ? "bg-green-100" : "bg-yellow-100"
-              }`}
+              className={`rounded-full px-3 pt-0.5 pb-1 mt-1.5 self-start ${invoice.status === "PAID" ? "bg-green-100" : "bg-yellow-100"
+                }`}
             >
               <Text
-                className={`text-base font-ManropeMedium ${
-                  invoice.status === "PAID" ? "text-green" : "text-yellow-600"
-                }`}
+                className={`text-base font-ManropeMedium ${invoice.status === "PAID" ? "text-green" : "text-yellow-600"
+                  }`}
               >
                 {invoice.status}
               </Text>
@@ -357,24 +355,31 @@ const InvoicesScreen = () => {
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 p-4">
         {/* Tabs */}
-        <View className="flex flex-row bg-gray-100 rounded-full p-1 shadow-sm">
-          {["all" /*, "paid", "open" */].map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              className={`flex-1 items-center justify-center py-2 rounded-full ${
-                activeTab === tab ? "bg-white shadow-md" : "bg-transparent"
-              }`}
-            >
-              <Text
-                className={`text-sm sm:text-base font-ManropeSemibold ${
-                  activeTab === tab ? "text-blue" : "text-dark"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View className="flex flex-row items-center justify-between bg-gray p-1.5 rounded-xl mt-5">
+          <TouchableOpacity
+            onPress={() => setActiveTab("all")}
+            className={`${activeTab === "all" ? "bg-white" : "bg-light-50"} w-1/4 rounded-lg p-2 sm:p-3`}
+          >
+            <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
+              All
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab("paid")}
+            className={`${activeTab === "paid" ? "bg-white" : "bg-light-50"} w-1/4 rounded-lg p-2 sm:p-3`}
+          >
+            <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
+              Paid
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab("open")}
+            className={`${activeTab === "open" ? "bg-white" : "bg-light-50"} w-1/4 rounded-lg p-2 sm:p-3`}
+          >
+            <Text className="text-center text-sm sm:text-base font-ManropeSemibold">
+              Open
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Scrollable Content */}
