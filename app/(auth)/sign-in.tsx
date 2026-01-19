@@ -397,30 +397,32 @@ const SignIn = () => {
       <View className="mt-5">
         <CustomButton title="Sign In" onPress={() => formik.handleSubmit()} />
       </View>
-      <View className="mt-3">
-        {googleLoading ? (
-          <View className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center">
-            <ActivityIndicator size="small" color="#4F46E5" />
-            <Text className="ml-2 text-dark font-ManropeMedium">
-              Signing in with Google...
-            </Text>
-          </View>
-        ) : (
-          <TouchableOpacity
-            onPress={handleGoogleSignIn}
-            className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
-          >
-            <Image
-              source={images.googleLogo}
-              style={{ width: 24, height: 24 }}
-              resizeMode="contain"
-            />
-            <Text className="text-dark font-ManropeMedium text-base ml-2">
-              Continue with Google
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {!IS_IOS && (
+        <View className="mt-3">
+          {googleLoading ? (
+            <View className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center">
+              <ActivityIndicator size="small" color="#4F46E5" />
+              <Text className="ml-2 text-dark font-ManropeMedium">
+                Signing in with Google...
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={handleGoogleSignIn}
+              className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
+            >
+              <Image
+                source={images.googleLogo}
+                style={{ width: 24, height: 24 }}
+                resizeMode="contain"
+              />
+              <Text className="text-dark font-ManropeMedium text-base ml-2">
+                Continue with Google
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
       {IS_ANDROID && (
         <View className="flex-row items-center justify-center my-5">
           <Text className="text-sm sm:text-base text-dark font-ManropeMedium">

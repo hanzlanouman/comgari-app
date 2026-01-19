@@ -26,6 +26,7 @@ import { route } from "@/common";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { GoogleIOSClientID, GoogleWebClientID } from "@/common/enviornment";
 import { images } from "@/constants";
+import { IS_IOS } from "@/utils";
 
 let GoogleSignin: any = null;
 try {
@@ -370,30 +371,32 @@ const SignUp = () => {
                 formik.handleSubmit();
               }}
             />
-            <View className="mt-3">
-              {googleLoading ? (
-                <View className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center">
-                  <ActivityIndicator size="small" color="#4F46E5" />
-                  <Text className="ml-2 text-dark font-ManropeMedium">
-                    Signing up with Google...
-                  </Text>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  onPress={handleGoogleSignUp}
-                  className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
-                >
-                  <Image
-                    source={images.googleLogo}
-                    style={{ width: 24, height: 24 }}
-                    resizeMode="contain"
-                  />
-                  <Text className="text-dark font-ManropeMedium text-base ml-2">
-                    Continue with Google
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
+            {!IS_IOS && (
+              <View className="mt-3">
+                {googleLoading ? (
+                  <View className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center">
+                    <ActivityIndicator size="small" color="#4F46E5" />
+                    <Text className="ml-2 text-dark font-ManropeMedium">
+                      Signing up with Google...
+                    </Text>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleGoogleSignUp}
+                    className="bg-white border border-gray-300 rounded-lg py-3 flex-row justify-center items-center"
+                  >
+                    <Image
+                      source={images.googleLogo}
+                      style={{ width: 24, height: 24 }}
+                      resizeMode="contain"
+                    />
+                    <Text className="text-dark font-ManropeMedium text-base ml-2">
+                      Continue with Google
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
           </View>
         </AppContainer>
       </KeyboardAvoidingView>
