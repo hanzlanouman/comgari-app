@@ -1,52 +1,13 @@
 import ReactNativeBlobUtil, {
   ReactNativeBlobUtilConfig,
 } from "react-native-blob-util";
-import { PermissionsAndroid, Platform } from "react-native";
-import { getMimeTypeFromFileName, IS_ANDROID, isIos } from "../helpers";
+import { getMimeTypeFromFileName, IS_ANDROID } from "../helpers";
 import { TDownloadResponse } from "./types";
 
 const { config, fs, MediaCollection } = ReactNativeBlobUtil;
 
-const isAndroid10OrHigher = (): boolean => {
-  return Platform.OS === "android" && Platform.Version >= 29;
-};
-
 async function Download(url: string): Promise<TDownloadResponse> {
-  if (isIos()) {
-    return downloadFile(url);
-  }
-
-  if (isAndroid10OrHigher()) {
-    return downloadFile(url);
-  }
-
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      {
-        title: "Storage Permission Required",
-        message: "Comgari needs access to your storage to download files.",
-        buttonPositive: "Allow",
-        buttonNegative: "Cancel",
-      }
-    );
-
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      return downloadFile(url);
-    } else {
-      return {
-        success: false,
-        message: "Storage Permission Not Granted",
-      };
-    }
-  } catch (err: any) {
-    console.error(err);
-    return {
-      success: false,
-      message:
-        "An error occurred while downloading the file. Please try again later.",
-    };
-  }
+  return downloadFile(url);
 }
 
 async function downloadFile(url: string): Promise<TDownloadResponse> {
