@@ -2,7 +2,7 @@
   "expo": {
     "name": "comgari",
     "slug": "comgari",
-    "version": "1.0.30",
+    "version": "1.0.54",
     "orientation": "portrait",
     "icon": "./assets/images/adaptive-icon.png",
     "scheme": "comgari",
@@ -25,6 +25,7 @@
             ]
           }
         ],
+        "NSPhotoLibraryUsageDescription": "Comgari needs access to your photos to let you upload your profile picture, media and notes images.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -65,18 +66,12 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Comgari needs access to your photos to let you upload your profile picture, media and notes images."
-        }
-      ],
       "@config-plugins/react-native-blob-util",
       [
         "expo-build-properties",
         {
           "android": {
-            "targetSdkVersion": 34,
+            "targetSdkVersion": 35,
             "compileSdkVersion": 35
           }
         }
