@@ -18,7 +18,10 @@ export async function pickImage(mutliple: boolean, options?: ImagePickerOptions)
         if (mutliple) {
             pickerOptions.allowsMultipleSelection = true
         }
-        const result = await ImagePicker.launchImageLibraryAsync(options);
+        const result = await ImagePicker.launchImageLibraryAsync({
+            ...pickerOptions,
+            presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN
+        });
 
         if (result.canceled) {
 

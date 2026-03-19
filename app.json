@@ -97,7 +97,8 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "./plugins/remove-media-permissions"
     ],
     "experiments": {
       "typedRoutes": true
