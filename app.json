@@ -66,6 +66,12 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Comgari needs access to your photos to let you upload your profile picture, media and notes images."
+        }
+      ],
       "@config-plugins/react-native-blob-util",
       [
         "expo-build-properties",
