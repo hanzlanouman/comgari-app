@@ -1,10 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+import { View, Text, ActivityIndicator, Alert, Platform } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
@@ -41,7 +36,7 @@ export default function Paymentmethod() {
 
   const parsedAuthResponse = React.useMemo(
     () => (authResponse ? (JSON.parse(authResponse) as TLoginResponse) : null),
-    [authResponse]
+    [authResponse],
   );
 
   const paymentRepo = PaymentRepository.getInstance();
@@ -79,7 +74,7 @@ export default function Paymentmethod() {
     },
     onError: (error: any) => {
       showErrorAlert(
-        error?.message || "An error occurred while validating the coupon code."
+        error?.message || "An error occurred while validating the coupon code.",
       );
     },
   });
@@ -137,6 +132,10 @@ export default function Paymentmethod() {
       payload.paymentMethod_id = selectedCard;
     }
 
+    if (isCouponApplied && couponCode.trim()) {
+      payload.coupon = couponCode.trim();
+    }
+
     return parsedAuthResponse
       ? await paymentRepo.createSubscription(payload, parsedAuthResponse)
       : await paymentRepo.createSubscription(payload);
@@ -167,7 +166,7 @@ export default function Paymentmethod() {
       console.error("Payment failed:", mutationError);
       showErrorAlert(
         (mutationError as any)?.message ||
-        "An error occurred during payment processing."
+          "An error occurred during payment processing.",
       );
     }
   }, [isError, mutationError]);
@@ -187,7 +186,7 @@ export default function Paymentmethod() {
         console.error("Missing customer data in buyerResponse:", res);
         Alert.alert(
           "Payment Error",
-          "Unable to initialize payment. Customer data is missing."
+          "Unable to initialize payment. Customer data is missing.",
         );
         return;
       }
@@ -205,7 +204,7 @@ export default function Paymentmethod() {
         console.error("Payment sheet initialization error:", error);
         Alert.alert(
           "Payment Error",
-          error.message || "Failed to initialize payment system"
+          error.message || "Failed to initialize payment system",
         );
       } else {
         openPaymentSheet();
@@ -214,7 +213,7 @@ export default function Paymentmethod() {
       console.error("Payment process error:", e);
       Alert.alert(
         "Payment Error",
-        "An unexpected error occurred during payment setup"
+        "An unexpected error occurred during payment setup",
       );
     }
   };
@@ -250,7 +249,7 @@ export default function Paymentmethod() {
 
     if (couponCode && couponCode?.length > 0 && !isCouponApplied) {
       showErrorAlert(
-        "You have entered a coupon code but not applied it yet. Please apply it first or remove the coupon code."
+        "You have entered a coupon code but not applied it yet. Please apply it first or remove the coupon code.",
       );
       return;
     }
@@ -301,20 +300,28 @@ export default function Paymentmethod() {
             Have a coupon code?
           </Text>
           <View
-            className="flex-row items-center border border-gray-100 rounded-xl p-1"
-            style={{ height: 56 }}
+            className="flex-row items-center border border-gray-100 rounded-xl overflow-hidden pl-3 pr-2"
+            style={{ minHeight: 52 }}
           >
             <TextInput
-              className="p-3 text-sm flex-1"
+              className="flex-1 text-sm text-dark-100"
               placeholder="Enter coupon code"
+              placeholderTextColor="#9CA3AF"
               value={couponCode}
               onChangeText={setCouponCode}
+              underlineColorAndroid="transparent"
+              style={{
+                height: 52,
+                paddingVertical: Platform.OS === "ios" ? 14 : 12,
+                paddingRight: 8,
+                marginVertical: 0,
+              }}
             />
             <CustomButton
               title="Apply"
               onPress={() => ValidateCoupon(couponCode)}
-              className="mt-2 pb-4"
-              style={{ width: 80 }}
+              gradientStyle={{ height: 48, borderRadius: 10, width: 150 }}
+              style={{ width: 72, flexShrink: 0 }}
             />
           </View>
           {isCouponApplied && (
@@ -339,7 +346,7 @@ export default function Paymentmethod() {
             onConfirmPayment={handleConfirmPayment}
             selectedCard={selectedCard}
             enabled={Boolean(
-              isFree || selectedCard || (couponCode && isCouponApplied)
+              isFree || selectedCard || (couponCode && isCouponApplied),
             )}
           />
         ) : (

@@ -10,13 +10,14 @@ export const CustomButton = ({
   className,
   IconRight,
   iconSize,
+  gradientStyle,
   ...props
 }: ButtonProps) => {
   return (
     <LinearGradient
       colors={["#1C78B9", "#4B4C9E"]}
       // Explicit style borderRadius ensures the gradient container is rounded
-      style={{ borderRadius: 12, height: 52 }}
+      style={[{ borderRadius: 12, height: 52 }, gradientStyle]}
       className={`rounded-xl ${className}`}
       start={[0, 0]}
       end={[1, 1]}

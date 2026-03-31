@@ -41,6 +41,9 @@ const ForgotPassword = ({ otpRoute }: ForgotPasswordProps) => {
             },
           });
         },
+        onError: (error) => {
+          console.log(error);
+        },
       });
     },
   });

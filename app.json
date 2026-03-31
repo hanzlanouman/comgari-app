@@ -31,7 +31,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png"
+        "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
+        "backgroundColor": "#ffffff"
       },
       "package": "com.comgari.app",
       "googleServicesFile": "./google-services.json",

@@ -1,4 +1,9 @@
-import { TextInputProps, TouchableOpacityProps } from "react-native";
+import {
+  StyleProp,
+  TextInputProps,
+  TouchableOpacityProps,
+  ViewStyle,
+} from "react-native";
 
 declare interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -6,6 +11,8 @@ declare interface ButtonProps extends TouchableOpacityProps {
   IconLeft?: string;
   IconRight?: string;
   iconSize?: number;
+  /** Merged onto the gradient wrapper (e.g. compact height for inline actions). */
+  gradientStyle?: StyleProp<ViewStyle>;
 }
 
 declare interface InputFieldProps extends TextInputProps {

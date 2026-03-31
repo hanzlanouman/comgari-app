@@ -18,7 +18,6 @@ import { useQuery } from "@tanstack/react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { IS_IOS } from "@/utils";
 import SubscriptionUnavailableMessage from "./components/noSubscriptionScreen";
-
 type TPlanProps = {
   authResponse?: string;
 };
@@ -31,7 +30,6 @@ const GoPro = () => {
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCheckingTrial, setIsCheckingTrial] = useState(IS_IOS);
-
   const paymentRepo = PaymentRepository.getInstance();
 
   // Check trial status on iOS before showing subscription screen

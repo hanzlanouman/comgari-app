@@ -25,13 +25,22 @@ const PlanCardPro: React.FC<PlanCardProps> = ({
     onPress
 }) => {
     return (
-        <TouchableOpacity onPress={onPress} className="mt-4 rounded-[20]">
+        <TouchableOpacity
+            onPress={onPress}
+            className="mt-4 rounded-[20] overflow-hidden"
+            activeOpacity={0.92}
+        >
             {isSelected ? (
                 <LinearGradient
                     colors={["#1C78B9", "#4B4C9E"]}
                     start={[0, 0]}
                     end={[1, 1]}
-                    className="rounded-[20] p-4 border border-white"
+                    style={{
+                        borderRadius: 20,
+                        padding: 16,
+                        borderWidth: 1,
+                        borderColor: "#ffffff",
+                    }}
                 >
                     {renderCardContent(plan, shcedule, price, members, clients, true)}
                 </LinearGradient>
