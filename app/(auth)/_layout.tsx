@@ -7,9 +7,12 @@ import { useEffect } from "react";
 import { IS_IOS } from "@/utils";
 
 const Layout = () => {
-  const { isAuthenticated = false, isSubscribed = false } = useAppSelector(
+  const { isAuthenticated = false, isSubscribed = false, user } = useAppSelector(
     (state) => state.auth ?? {}
   );
+
+  const isAffiliate = !!user?.sales_team;
+  const isAffiliateClient = isAffiliate && !!user?.user_roles?.length;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -18,21 +21,21 @@ const Layout = () => {
     }
 
     // Handle iOS specific logic for unsubscribed users
-    if (isAuthenticated && !isSubscribed && IS_IOS) {
+    if (isAuthenticated && !isSubscribed && !(isAffiliate || isAffiliateClient) && IS_IOS) {
       router.replace("/(auth)/go-pro");
       return;
     }
 
     // Normal flow for Android or subscribed iOS users
-    if (isAuthenticated && !isSubscribed) {
+    if (isAuthenticated && !isSubscribed && !(isAffiliate || isAffiliateClient)) {
       router.replace("/(auth)/go-pro");
       return;
     }
 
-    if (isAuthenticated && isSubscribed) {
+    if (isAuthenticated && (isSubscribed || isAffiliate || isAffiliateClient)) {
       router.replace(route.root.home as unknown as Href);
     }
-  }, [isAuthenticated, isSubscribed]);
+  }, [isAuthenticated, isSubscribed, isAffiliate, isAffiliateClient]);
 
   return (
     <Stack

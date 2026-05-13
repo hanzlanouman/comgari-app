@@ -19,6 +19,7 @@ export type OptionType = {
 export type ClientType =
   'General_contracting' |
   'Cleaning_services' |
+  'Window_cleaning' |
   'Landscaping' |
   'Plumbing' |
   'HVAC' |
@@ -31,6 +32,7 @@ export type ClientType =
 export const CLIENT_TYPES: ClientType[] = [
   'General_contracting',
   'Cleaning_services',
+  'Window_cleaning',
   'Landscaping',
   'Plumbing',
   'HVAC',

@@ -16,8 +16,7 @@ import OtpField from "@/common/components/OtpField";
 import { route } from "@/common";
 import { AppContainer, ErrorText } from "@/common/components";
 import { useAppDispatch } from "@/hooks/redux";
-import { login, setSubscribed } from "@/store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { login } from "@/store";
 export type TOtpProps =
   | {
     username: string;
@@ -75,22 +74,19 @@ const Otp = ({ afterVerifyRoute, resetPassworRoute }: TOtpComponentProps) => {
 
           if (parsedAuthResponse) {
             dispatch(login(parsedAuthResponse));
-            dispatch(setSubscribed(true));
+            // Do NOT setSubscribed — user must add a payment method first
           }
 
-          // Store flag in AsyncStorage to show trial modal
-          await AsyncStorage.setItem("showTrialStartModal", "true");
-
+          // Redirect to plan selection so user can add a card and start trial
           router.replace({
-            pathname: "/(root)/(tabs)/home",
+            pathname: "/(auth)/go-pro",
+            params: { authResponse: authResponse },
           });
         } catch (err) {
           console.error("Error parsing authResponse:", err);
           router.push({
             pathname: "/(auth)/go-pro",
-            params: {
-              authResponse: authResponse,
-            },
+            params: { authResponse: authResponse },
           });
         }
       }

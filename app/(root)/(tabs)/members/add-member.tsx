@@ -79,9 +79,7 @@ const AddMember = () => {
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
   const roleVisibilityMap: Record<string, string[]> = {
-    SuperAdmin: ["Admin", "Secretary", "Salesman"],
-    Admin: ["Admin", "Secretary", "Salesman"],
-    Secretary: ["Secretary", "Salesman"],
+    Secretary: ["Secretary", "Salesman", "General_contractor"],
     Salesman: ["Salesman"],
   };
 

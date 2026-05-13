@@ -95,9 +95,14 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
-  async getDashboard(){
+  async getDashboard(params?: { startDate?: string; endDate?: string }) {
     try {
-      const res = await get(`${BaseUrl + END_POINTS.Dashboard.GET_DASHBOARD.route}`, {
+      const query = params
+        ? '?' + new URLSearchParams(
+            Object.entries(params).filter(([, v]) => v != null) as [string, string][]
+          ).toString()
+        : '';
+      const res = await get(`${BaseUrl + END_POINTS.Dashboard.GET_DASHBOARD.route}${query}`, {
         show_loader: true,
       });
       return res.data;
@@ -105,6 +110,7 @@ export class MemberRepository implements IMemberRepository {
       throw getErrorMessage(e);
     }
   }
+
   async getAllRoles(): Promise<TReponse> {
     try {
       const res = await get(`${BaseUrl + END_POINTS.Member.GET_ROLE.route}`);

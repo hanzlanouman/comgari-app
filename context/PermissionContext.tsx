@@ -70,9 +70,11 @@ export const AuthorizationProvider: React.FC<AuthorizationProviderProps> = ({
     const isSuperAdmin = user?.user_roles?.some(
       (item) => item.role.name === "SuperAdmin"
     );
+    const isAffiliate = !!user?.sales_team;
+    const isAffiliateClient = isAffiliate && !!user?.user_roles?.length;
     let hasPermission = false;
 
-    if (isAdmin || isSecretary || isSuperAdmin) {
+    if (isAdmin || isSecretary || isSuperAdmin || isAffiliate) {
       return true;
     }
     if (permission.length > 0) {

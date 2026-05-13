@@ -22,4 +22,10 @@ export type TUSER = {
   authId: string;
   user_roles: TRole[];
   subscription: boolean;
+  sales_team?: {
+    id: number;
+    auth_id: number;
+    commission_type: string;
+    is_non_billable: boolean;
+  } | null;
 };

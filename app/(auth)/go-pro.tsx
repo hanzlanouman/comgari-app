@@ -16,8 +16,6 @@ import { CustomButton } from "@/common/components";
 import PlanCard from "./components/PlanCard";
 import { useQuery } from "@tanstack/react-query";
 import { PaymentRepository } from "@/repositories/payment/payment";
-import { IS_IOS } from "@/utils";
-import SubscriptionUnavailableMessage from "./components/noSubscriptionScreen";
 type TPlanProps = {
   authResponse?: string;
 };
@@ -29,28 +27,7 @@ const GoPro = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [priceId, setPriceId] = useState<string | undefined>(undefined);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isCheckingTrial, setIsCheckingTrial] = useState(IS_IOS);
   const paymentRepo = PaymentRepository.getInstance();
-
-  // Check trial status on iOS before showing subscription screen
-  useEffect(() => {
-    const checkTrialStatus = async () => {
-      if (!IS_IOS) return;
-
-      try {
-        const trialStatus = await paymentRepo.getTrialStatus();
-        if (trialStatus?.is_on_trial || trialStatus?.has_active_subscription) {
-          router.replace("/(root)/(tabs)/home");
-          return;
-        }
-      } catch (error) {
-        console.log("Trial status check failed on iOS");
-      }
-      setIsCheckingTrial(false);
-    };
-
-    checkTrialStatus();
-  }, []);
 
   const {
     data: subscriptions,
@@ -132,17 +109,6 @@ const GoPro = () => {
     });
   };
 
-
-  if (IS_IOS) {
-    if (isCheckingTrial) {
-      return (
-        <SafeAreaView className="flex-1 bg-white items-center justify-center">
-          <Text className="text-dark font-ManropeMedium">Checking subscription status...</Text>
-        </SafeAreaView>
-      );
-    }
-    return <SubscriptionUnavailableMessage />;
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">

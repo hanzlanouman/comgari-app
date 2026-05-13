@@ -55,10 +55,9 @@ const SignIn = () => {
     mutationFn: (payload: LoginPayload) => AuthRepo.login(payload),
   });
 
-  // Check if user has SuperAdmin role
   const isSuperAdmin = (userData: any) => {
-    return userData.user.user_roles.some(
-      (userRole: any) => userRole.role?.name === "SuperAdmin"
+    return userData.user.user_roles.some((userRole: any) =>
+      userRole.role?.name === "SuperAdmin"
     );
   };
 
@@ -97,8 +96,8 @@ const SignIn = () => {
         onSuccess: async (data) => {
           if (isSuperAdmin(data)) {
             Alert.alert(
-              "SuperAdmin Access",
-              "The SuperAdmin dashboard is not available on the app. Please go to the website to access the SuperAdmin dashboard.",
+              "Admin Access",
+              "Admin access is not available on the app. Please use the website to access the admin dashboard.",
               [
                 {
                   text: "OK",
@@ -285,6 +284,15 @@ const SignIn = () => {
         });
       } else {
         // Existing user - login
+        if (isSuperAdmin(payload)) {
+          Alert.alert(
+            "Admin Access",
+            "Admin access is not available on the app. Please use the website to access the admin dashboard.",
+            [{ text: "OK" }]
+          );
+          return;
+        }
+
         dispatch(login(payload));
 
         let hasSubscriptionAccess = payload.user.subscription;

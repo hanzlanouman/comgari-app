@@ -29,6 +29,7 @@ const authRepo = AuthRepository.getInstance();
 const Profile = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const isAffiliateClient = !!user?.sales_team && !!user?.user_roles?.length;
   const { uploadAsync } = useUpload();
 
   const [fullName, setFullName] = useState("");
@@ -146,7 +147,7 @@ const Profile = () => {
           </View>
         </View>
 
-        {IS_ANDROID && (
+        {IS_ANDROID && !isAffiliateClient && (
           <TouchableOpacity
             onPress={() => router.push("/(root)/(tabs)/profile/plan-details")}
             className="mt-6 border border-light rounded-xl"

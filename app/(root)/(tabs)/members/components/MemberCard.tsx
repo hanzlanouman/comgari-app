@@ -19,6 +19,8 @@ const getRoleName = (roleId: number | undefined) => {
       return "Secretary";
     case 4:
       return "Salesman";
+    case 5:
+      return "General Contractor";
     default:
       return "Member";
   }

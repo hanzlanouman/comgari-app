@@ -53,6 +53,9 @@ const Layout = () => {
       };
 
   const tabScreens = useMemo(() => {
+    const isAffiliate = !!user?.sales_team;
+    const isAffiliateClient = isAffiliate && !!user?.user_roles?.length;
+
     const screens = [
       {
         name: "home",
@@ -72,7 +75,6 @@ const Layout = () => {
         },
         headerShown: false,
       },
-
       {
         name: "Leads",
         title: "Leads",
@@ -83,21 +85,18 @@ const Layout = () => {
         name: "clients",
         title: "Clients",
         icon: UsersRound,
-
         headerShown: false,
       },
       {
         name: "appointment",
         title: "Appointment",
         icon: CalendarDays,
-
         headerShown: false,
       },
       {
         name: "profile",
         title: "Profile",
         icon: UserPen,
-
         headerShown: false,
       },
       {
@@ -112,37 +111,21 @@ const Layout = () => {
       if (screen.name === "proposal") {
         return { ...screen, href: null };
       }
-      if (screen.name === "clients") {
-        const hasPermission = screen.permissionRequired
-          ? getPermission(
-              screen.permissionRequired.user!,
-              screen.permissionRequired.permission,
-              screen.permissionRequired.resource
-            )
-          : true;
 
-        // Hide tab if no permission and no client data
-        const shouldHideTab =
-          !hasPermission && (!clientData || clientData.length === 0);
-
-        return {
-          ...screen,
-          href: shouldHideTab ? null : screen.name,
-        };
+      // Any affiliate (pure or with roles): full access to all tabs for product demo
+      if (isAffiliate) {
+        return { ...screen, href: screen.name };
       }
+
+      // Regular users: check permissions
       if (screen.permissionRequired) {
-        const { user, permission, resource } = screen.permissionRequired;
-        const hasPermission = getPermission(user!, permission, resource);
-
-        return {
-          ...screen,
-          href: hasPermission ? screen.name : null,
-        };
+        const { user: permUser, permission, resource } = screen.permissionRequired;
+        const hasPermission = getPermission(permUser!, permission, resource);
+        const href = hasPermission ? screen.name : null;
+        return { ...screen, href };
       }
-      return {
-        ...screen,
-        href: screen.name,
-      };
+
+      return { ...screen, href: screen.name };
     });
   }, [getPermission, user]);
 
