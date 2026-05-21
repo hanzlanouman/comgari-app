@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Image, TextInput, TouchableOpacity, View } from "react-native";
+import { TextInput, TouchableOpacity, View, Image } from "react-native";
 import { FormikProps } from "formik";
 import { Upload } from "lucide-react-native";
 import { vs } from "react-native-size-matters";
@@ -11,7 +11,8 @@ import {
 import { OptionType, ClientType, ClientStatus } from "@/common/types";
 import { Action } from "@/common/enum";
 import DropdownSelect from "@/common/components/Select";
-import { images, getImageUrl } from "@/constants";
+import { getImageUrl } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 import { useUpload } from "@/hooks/use-upload";
 import { pickImage, showErrorAlert } from "@/utils";
 
@@ -137,12 +138,16 @@ export default function AddClientForm({
         className="mt-2.5 relative mx-auto"
         style={{ width: vs(80), height: vs(80) }}
       >
-        <Image
-          source={imagePreview ? { uri: imagePreview } : images.user}
-          resizeMode="cover"
-          className="rounded-full mx-auto"
-          style={{ width: "100%", height: "100%" }}
-        />
+        {imagePreview ? (
+          <Image
+            source={{ uri: imagePreview }}
+            resizeMode="cover"
+            className="rounded-full mx-auto"
+            style={{ width: "100%", height: "100%" }}
+          />
+        ) : (
+          <UserAvatar name={formik.values.name || 'Client'} size={vs(80)} />
+        )}
         <TouchableOpacity
           onPress={handleImageUpload}
           className="bg-blue rounded-full flex-row items-center justify-center absolute bottom-0 right-0 pb-px"

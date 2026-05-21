@@ -28,7 +28,8 @@ import { ClientEditModal } from "../components/ClientEditModal";
 import { AppContainer } from "@/common/components";
 import { ClientRepository } from "@/repositories/client/client";
 import { useAppSelector } from "@/hooks/redux";
-import { images, icons, getImageUrl } from "@/constants";
+import { icons, getImageUrl } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 import { ClientStatus, ClientType } from "@/common/types";
 
 interface ClientUser {
@@ -268,16 +269,7 @@ const ClientDetailPage: React.FC = () => {
             {client && (
               <View className="bg-white border border-light p-2.5 rounded-[20] mt-2.5">
                 <View className="flex-row items-center border-b border-light pb-3.5">
-                  <Image
-                    source={
-                      client?.logo
-                        ? { uri: getImageUrl(client.logo) }
-                        : images.user
-                    }
-                    resizeMode="cover"
-                    className="rounded-full"
-                    style={{ width: vs(45), height: vs(45) }}
-                  />
+                  <UserAvatar imageUrl={client?.logo} name={client?.name || 'Client'} size={vs(45)} />
                   <View className="pl-3 flex-grow">
                     <Text className="text-base sm:text-lg font-ManropeBold text-dark">
                       {client?.name || "Unknown"}

@@ -13,6 +13,8 @@ import {
 import { NavigationState, useNavigationState } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
 import { useNotification } from "@/hooks/use-notification";
+import { useSubscriptionValidation } from "@/hooks/use-subscription-validation";
+import { IS_IOS } from "@/utils";
 
 const hide = ["job-details", "specifications", "review"];
 
@@ -42,9 +44,10 @@ const getFocusedRouteName = (
 
 const Layout = () => {
   const { getPermission } = useAuthorization();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isSubscribed, user } = useAppSelector((state) => state.auth);
   const focusedRouteName = useNavigationState(getFocusedRouteName);
   useNotification();
+  useSubscriptionValidation();
 
   const tabBarStyle = hide.includes(focusedRouteName || "")
     ? style.hide
@@ -129,9 +132,16 @@ const Layout = () => {
     });
   }, [getPermission, user]);
 
+  const isAffiliate = !!user?.sales_team;
+  const isAffiliateClient = isAffiliate && !!user?.user_roles?.length;
+
   // Only render <Redirect> after all hooks are called
   if (!isAuthenticated) {
     return <Redirect href={route.auth.login} />;
+  }
+
+  if (IS_IOS && !isSubscribed && !(isAffiliate || isAffiliateClient)) {
+    return <Redirect href="/(auth)/no-subscription" />;
   }
 
   return (

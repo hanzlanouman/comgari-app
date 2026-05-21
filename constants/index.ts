@@ -108,7 +108,7 @@ export const data = {
 };
 
 export const STRIPE_PUBLIC_KEY =
-  "pk_test_51QQYK5G8sQYF8V0vXjymMsGlVSlVZN9kNDoQmeeBu3OsR3TD4KS1MCQ2JUTKoVtKcdQ0hm0ec0dTdrSb0YzabtQ5009pBAjnaP";
+  "pk_live_51RKmQiKOl1xijwZ8bhjwjc15AXwZjkmRoGyR70u9WPJaUwA3ADjIeXMAPGwwDaYULUxtnXGzx9eZMjv0TjLUM3wG00CjLGXz9Z";
 
 export const getImageUrl = (url: string | null | undefined) => {
   if (!url) {

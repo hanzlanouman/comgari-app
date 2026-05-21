@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { AppImage, CustomButton, InputField } from "@/common/components";
+import UserAvatar from "@/common/components/UserAvatar";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { logout } from "@/store";
 import {
@@ -11,7 +12,6 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import { AuthRepository } from "@/repositories/auth/auth";
-import { images } from "@/constants";
 import {
   IS_ANDROID,
   pickImage,
@@ -129,13 +129,16 @@ const Profile = () => {
         <View className=" mt-4">
           <View className="items-center text-center">
             <View className="relative mb-4 mt-4" style={{ width: 96, height: 96 }}>
-              <AppImage
-                remote={avatar}
-                fallback={images.user}
-                className="rounded-full"
-                style={{ width: "100%", height: "100%" }}
-                resizeMode="cover"
-              />
+              {avatar ? (
+                <AppImage
+                  remote={avatar}
+                  className="rounded-full"
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <UserAvatar name={user?.full_name || 'User'} size={96} />
+              )}
               <TouchableOpacity
                 onPress={updateProfilePic}
                 className="absolute bg-blue bottom-0 right-0 bg-blue-500 rounded-full items-center justify-center"

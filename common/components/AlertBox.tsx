@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
         marginBottom: ms(20),
         fontWeight: "bold",
         textAlign: "center",
-        color: Colors.dark.shadowColor,
+        color: "black",
     },
 });

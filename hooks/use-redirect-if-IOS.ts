@@ -13,8 +13,7 @@ export const useRedirectIfIOS = () => {
 
     if (isAuthenticated) {
       if (!isSubscribed) {
-       
-        router.replace("/(auth)/go-pro");
+        router.replace("/(auth)/no-subscription");
       } else {
         
         router.replace("/(root)/(tabs)/home");

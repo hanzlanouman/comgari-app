@@ -110,8 +110,10 @@ export const PhoneField = ({
           }: {
             callingCode: string;
           }) => {
-            setCallingCode(String(cc).replace(/[^\d]/g, ""));
-            emitE164(nationalValue);
+            const newCc = String(cc).replace(/[^\d]/g, "");
+            setCallingCode(newCc);
+            const numericLocal = nationalValue.replace(/[^\d]/g, "");
+            onChangeText(newCc ? `+${newCc}${numericLocal}` : numericLocal);
           }}
           containerStyle={{
             paddingHorizontal: 16,

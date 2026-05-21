@@ -1,8 +1,8 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { vs } from "react-native-size-matters";
 import { ChevronsUp, ChevronDown, ChevronUp } from "lucide-react-native";
-import { images, getImageUrl } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 import { STATUS_OPTIONS, PRIORITY_OPTIONS } from "@/repositories/client/constants"; // Import options
 
 interface Member {
@@ -65,12 +65,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
               className={`${index > 0 ? "-ml-3" : ""}`}
               style={{ zIndex: maxVisibleMembers - index }}
             >
-              <Image
-                source={member.member.Auth.user.avatar ? { uri: getImageUrl(member.member.Auth.user.avatar) } : images.user}
-                resizeMode="cover"
-                className="rounded-full border-2 border-white"
-                style={{ width: vs(30), height: vs(30) }}
-              />
+              <UserAvatar imageUrl={member.member.Auth.user.avatar} name={member.member.Auth.username} size={vs(30)} />
             </View>
           ))}
           {remainingCount > 0 && (

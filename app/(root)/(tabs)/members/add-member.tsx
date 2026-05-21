@@ -75,7 +75,7 @@ const AddMember = () => {
   });
   const user = useAppSelector((state) => state.auth.user);
 
-  const userRole = user?.user_roles[0]?.role.name || "Salesman";
+  const userRole = user?.user_roles[0]?.role.name;
   const [roles, setRole] = useState<OptionType[]>([]);
   const [permissions, setPermission] = useState<OptionType[]>([]);
   const roleVisibilityMap: Record<string, string[]> = {
@@ -86,9 +86,11 @@ const AddMember = () => {
   useEffect(() => {
     if (role) {
       const filteredRoles = role?.data
-        ?.filter((item: any) =>
-          roleVisibilityMap[userRole]?.includes(item?.name)
-        )
+        ?.filter((item: any) => {
+          const allowed = userRole ? roleVisibilityMap[userRole] : undefined;
+          if (allowed) return allowed.includes(item?.name);
+          return item?.name !== "AffiliateClient";
+        })
         .map((item: any) => ({
           value: item?.name,
           key: Number(item?.id),

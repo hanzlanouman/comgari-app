@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { CalendarDays } from "lucide-react-native";
 import { vs } from "react-native-size-matters";
-import { images, getImageUrl } from "@/constants";
+import { getImageUrl } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 
 type ClientCardProps = {
   client: {
@@ -77,12 +78,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
       className="bg-white border border-light p-2.5 rounded-[20] mt-2.5"
     >
       <View className="flex-row items-center">
-        <Image
-          source={client.logo ? { uri: getImageUrl(client.logo) } : images.user}
-          resizeMode="cover"
-          className="rounded-2xl"
-          style={{ width: vs(50), height: vs(50) }}
-        />
+        <UserAvatar imageUrl={client.logo} name={client.name} size={vs(50)} />
         <View className="pl-3.5 flex-grow">
           <Text className="text-base sm:text-lg font-ManropeBold text-dark">
             {client.name}
@@ -109,21 +105,11 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
       </Text>
 
       <View className="flex-row items-center mt-3.5">
-        {(client.client_user || []).slice(0, 2).map((member, index) => {
-          const avatar = member.auth?.user?.avatar;
-          const source = avatar ? { uri: getImageUrl(avatar) } : images.user;
-          return (
-            <Image
-              key={member.id}
-              source={source}
-              resizeMode="cover"
-              className={`rounded-full border-2 border-white ${index > 0 ? "relative -ml-3.5" : ""
-                }`}
-              style={{ width: vs(35), height: vs(35) }}
-            />
-          )
-        })
-        }
+        {(client.client_user || []).slice(0, 2).map((member, index) => (
+          <View key={member.id} style={{ marginLeft: index > 0 ? -14 : 0 }}>
+            <UserAvatar imageUrl={member.auth?.user?.avatar} name={member.auth?.user?.full_name || 'M'} size={vs(35)} />
+          </View>
+        ))}
 
         <Text className="text-base font-ManropeMedium text-dark ml-3.5">
           Members

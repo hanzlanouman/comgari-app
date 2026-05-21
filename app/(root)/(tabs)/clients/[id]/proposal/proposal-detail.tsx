@@ -3,7 +3,6 @@ import {
   ScrollView,
   View,
   Text,
-  Image,
   TouchableOpacity,
   Alert,
   Platform,
@@ -20,7 +19,7 @@ import {
   Trash2,
   Settings,
 } from "lucide-react-native";
-import { images, getImageUrl } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { ClientRepository } from "@/repositories/client/client";
@@ -313,16 +312,7 @@ const Proposal = () => {
               <View className="bg-light w-full h-px my-3" />
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
-                  <Image
-                    source={
-                      (clientName as any)?.logo
-                        ? { uri: getImageUrl((clientName as any).logo) }
-                        : images.user
-                    }
-                    resizeMode="cover"
-                    className="rounded-full"
-                    style={{ width: vs(25), height: vs(25) }}
-                  />
+                  <UserAvatar name={clientName as string || 'Client'} size={vs(25)} />
                   <Text className="text-sm text-dark font-ManropeMedium ml-1.5">
                     {clientName || "Unknown Client"}
                   </Text>

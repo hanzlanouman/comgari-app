@@ -1,7 +1,8 @@
 import React from "react";
-import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
+import { ScrollView, View, Text, TouchableOpacity } from "react-native";
 import { scale, vs } from "react-native-size-matters";
-import { images, icons, getImageUrl } from "@/constants";
+import { icons } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 import { useEffect } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { CustomButton } from "@/common/components";
@@ -119,16 +120,7 @@ const Notes = () => {
                   </Text>
                   <View className="flex-row items-center justify-between mt-2.5">
                     <View className="flex-row items-center">
-                      <Image
-                        source={
-                          note?.author?.user?.avatar
-                            ? { uri: getImageUrl(note.author.user.avatar) }
-                            : images.user
-                        }
-                        resizeMode="cover"
-                        className="rounded-full"
-                        style={{ width: vs(30), height: vs(30) }}
-                      />
+                      <UserAvatar imageUrl={note?.author?.user?.avatar} name={note?.author?.user?.full_name || 'Unknown'} size={vs(30)} />
                       <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
                         {note?.author?.user?.full_name || "Unknown User"}
                       </Text>

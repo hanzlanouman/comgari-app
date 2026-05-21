@@ -16,6 +16,7 @@ export default function WithRole({
 }: WithRoleType) {
   const { getPermission } = useAuthorization();
   const [allow, setAllow] = useState(false);
+  console.log(user, "user in the role HOC")
   useEffect(() => {
     setAllow(getPermission(user, permission, resource));
   }, [getPermission, permission, resource, user]);

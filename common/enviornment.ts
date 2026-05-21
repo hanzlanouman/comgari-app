@@ -7,7 +7,7 @@ const isDev = environment === "development";
 
 const SERVER_HOST = isDev
 
-  ? "http://192.168.1.13"
+  ? "http://192.168.1.12"
 
   : "https://api.comgari.com";
 

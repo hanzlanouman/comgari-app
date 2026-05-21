@@ -1,14 +1,13 @@
 import {
   View,
   Text,
-  Image,
   Platform,
   TouchableOpacity,
   Linking,
 } from "react-native";
 import React from "react";
-import { getImageUrl, images } from "@/constants";
 import { vs } from "react-native-size-matters";
+import UserAvatar from "@/common/components/UserAvatar";
 import { TMember } from "../members";
 
 const getRoleName = (roleId: number | undefined) => {
@@ -30,14 +29,7 @@ export default function MemberCard({ member }: { member: TMember }) {
     <View>
       <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20] mt-2.5">
         <View className="relative items-center">
-          <Image
-            source={
-              member.image ? { uri: getImageUrl(member.image) } : images.user
-            }
-            resizeMode="cover"
-            className="rounded-full"
-            style={{ width: vs(70), height: vs(70) }}
-          />
+          <UserAvatar imageUrl={member.image} name={member.full_name || 'M'} size={vs(70)} />
           <View className="bg-purple rounded-3xl pb-[3] absolute bottom-0 left-1/2 -translate-x-1/2 px-3">
             <Text
               className="text-white text-sm text-center  font-ManropeMedium"

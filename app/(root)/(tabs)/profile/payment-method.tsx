@@ -125,6 +125,7 @@ export default function Paymentmethod() {
     },
     enabled: false,
     retry: 2,
+    gcTime: 0,
   });
 
   useEffect(() => {

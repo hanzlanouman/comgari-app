@@ -113,6 +113,8 @@ const Clients: React.FC = () => {
     });
   };
 
+  console.log(user, "User in the client")
+
   const renderEmptyState = () => (
     <View className="flex-grow flex-col items-center justify-center px-4 py-10">
       <Image

@@ -4,12 +4,11 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Image,
 } from "react-native";
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
-import { images, getImageUrl } from "@/constants";
+import UserAvatar from "@/common/components/UserAvatar";
 import { vs } from "react-native-size-matters";
 import {
   BottomSheetModalProvider,
@@ -126,16 +125,7 @@ const NoteDetails = () => {
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View className="px-4 mt-4">
               <View className="flex-row items-center">
-                <Image
-                  source={
-                    note?.author?.user?.avatar
-                      ? { uri: getImageUrl(note.author.user.avatar) }
-                      : images.user
-                  }
-                  resizeMode="cover"
-                  className="rounded-full"
-                  style={{ width: vs(50), height: vs(50) }}
-                />
+                <UserAvatar imageUrl={note?.author?.user?.avatar} name={note?.author?.user?.full_name || 'Unknown'} size={vs(50)} />
                 <View className="pl-4">
                   <Text className="text-base sm:text-lg font-ManropeBold text-dark">
                     {note?.author?.user?.full_name || "Unknown User"}

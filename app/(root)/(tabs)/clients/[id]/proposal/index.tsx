@@ -3,14 +3,14 @@ import {
   ScrollView,
   View,
   Text,
-  Image,
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { vs } from "react-native-size-matters";
-import { images, getImageUrl } from "@/constants";
+import { getImageUrl } from "@/constants";
 import { CustomButton, SimpleActivityIndicator } from "@/common/components";
+import UserAvatar from "@/common/components/UserAvatar";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { CalendarDays, NotepadText, Plus } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -241,16 +241,7 @@ const Proposal = () => {
               <View className="bg-light my-4" style={{ width: "100%", height: 1 }} />
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
-                  <Image
-                    source={
-                      proposal.client?.logo
-                        ? { uri: getImageUrl(proposal.client.logo) }
-                        : images.user
-                    }
-                    resizeMode="cover"
-                    className="rounded-full border-2 border-white"
-                    style={{ width: vs(30), height: vs(30) }}
-                  />
+                  <UserAvatar imageUrl={proposal.client?.logo} name={proposal.client?.name || 'Client'} size={vs(30)} />
                   <Text className="text-sm text-dark-100 font-ManropeMedium ml-1.5">
                     {proposal.client?.name || "Unknown Client"}
                   </Text>

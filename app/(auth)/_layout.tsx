@@ -20,13 +20,11 @@ const Layout = () => {
       return;
     }
 
-    // Handle iOS specific logic for unsubscribed users
     if (isAuthenticated && !isSubscribed && !(isAffiliate || isAffiliateClient) && IS_IOS) {
-      router.replace("/(auth)/go-pro");
+      router.replace("/(auth)/no-subscription");
       return;
     }
 
-    // Normal flow for Android or subscribed iOS users
     if (isAuthenticated && !isSubscribed && !(isAffiliate || isAffiliateClient)) {
       router.replace("/(auth)/go-pro");
       return;
@@ -101,6 +99,10 @@ const Layout = () => {
       <Stack.Screen
         name="go-pro"
         options={{ headerShown: true, title: "Upgrade to Pro!" }}
+      />
+      <Stack.Screen
+        name="no-subscription"
+        options={{ headerShown: false }}
       />
 
       <Stack.Screen
