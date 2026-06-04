@@ -4,6 +4,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { icons } from "@/constants";

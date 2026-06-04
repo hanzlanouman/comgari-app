@@ -173,12 +173,12 @@ const MediaDocuments = () => {
   };
 
   const handleShareDocument = async (doc: any) => {
-    bottomSheetModalRef.current?.close();
-
     try {
       const fileUrl = getImageUrl(doc.url);
-      const fileName = doc.url.split("/").pop() || "document";
-      const fileUri = FileSystem.cacheDirectory + fileName;
+      const rawFileName = (doc.url.split("/").pop() || "document").split("?")[0];
+      const fileName = decodeURIComponent(rawFileName);
+      const cacheDir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? "";
+      const fileUri = cacheDir + fileName;
 
       setIsDownloading(true);
 
@@ -188,21 +188,24 @@ const MediaDocuments = () => {
         throw new Error("Failed to download file for sharing");
       }
 
-      // Set isDownloading to false before showing the share dialog
       setIsDownloading(false);
 
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: doc.mimeType || "application/pdf",
-          dialogTitle: "Share Document",
-          UTI:
-            doc.mimeType && doc.mimeType.includes("pdf")
-              ? "com.adobe.pdf"
-              : "public.item",
-        });
-      } else {
-        showErrorAlert("Sharing is not available on this device");
-      }
+      // Close sheet and wait for its dismissal animation to finish before
+      // presenting the iOS share sheet — UIActivityViewController will be
+      // silently ignored if a modal is still animating out.
+      bottomSheetModalRef.current?.close();
+      await new Promise<void>((resolve) => setTimeout(resolve, 500));
+
+      const mimeType = doc.mimeType || "application/pdf";
+      const uti = mimeType.includes("pdf")
+        ? "com.adobe.pdf"
+        : mimeType.includes("msword")
+        ? "com.microsoft.word.doc"
+        : mimeType.includes("officedocument")
+        ? "org.openxmlformats.wordprocessingml.document"
+        : "public.item";
+
+      await Sharing.shareAsync(downloadResult.uri, { mimeType, UTI: uti });
     } catch (error) {
       showErrorAlert("Error sharing document");
       console.error("Share error:", error);

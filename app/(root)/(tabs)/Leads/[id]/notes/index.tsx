@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, View, Text, TouchableOpacity } from "react-native";
+import { ScrollView, View, Text, TouchableOpacity, Image } from "react-native";
 import { scale, vs } from "react-native-size-matters";
 import { icons } from "@/constants";
 import UserAvatar from "@/common/components/UserAvatar";
