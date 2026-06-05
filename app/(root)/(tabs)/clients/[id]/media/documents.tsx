@@ -176,9 +176,8 @@ const MediaDocuments = () => {
     try {
       const fileUrl = getImageUrl(doc.url);
       const rawFileName = (doc.url.split("/").pop() || "document").split("?")[0];
-      const fileName = decodeURIComponent(rawFileName);
       const cacheDir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? "";
-      const fileUri = cacheDir + fileName;
+      const fileUri = cacheDir + rawFileName;
 
       setIsDownloading(true);
 

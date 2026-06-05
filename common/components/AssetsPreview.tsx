@@ -161,9 +161,8 @@ export const AssetPreview = ({
     try {
       const fileUrl = getImageUrl(mediaUrl);
       const rawFileName = (mediaUrl.split("/").pop() || "document").split("?")[0];
-      const fileName = decodeURIComponent(rawFileName);
       const cacheDir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? "";
-      const fileUri = cacheDir + fileName;
+      const fileUri = cacheDir + rawFileName;
 
       setIsDownloading(true);
 
