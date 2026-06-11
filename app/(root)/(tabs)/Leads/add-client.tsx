@@ -169,7 +169,7 @@ const AddClient = () => {
       router.replace("/(root)/(tabs)/Leads/clients");
     } catch (error) {
       console.error("Error saving client:", error);
-      Alert.alert("Error", "Failed to save client. Please try again.");
+      Alert.alert("Error", "Failed to save lead. Please try again.");
     } finally {
       setIsLoading(false);
     }

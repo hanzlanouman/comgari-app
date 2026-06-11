@@ -30,10 +30,15 @@ export default function MemberCard({ member }: { member: TMember }) {
       <View className="bg-white border border-light flex-row items-center p-2.5 rounded-[20] mt-2.5">
         <View className="relative items-center">
           <UserAvatar imageUrl={member.image} name={member.full_name || 'M'} size={vs(70)} />
-          <View className="bg-purple rounded-3xl pb-[3] absolute bottom-0 left-1/2 -translate-x-1/2 px-3">
+          <View
+            className="bg-purple rounded-3xl pb-[3] absolute bottom-0 px-2"
+            style={{ maxWidth: vs(80) }}
+          >
             <Text
-              className="text-white text-sm text-center  font-ManropeMedium"
-              style={{ fontSize: Platform.OS === "ios" ? 14 : 11 }}
+              className="text-white text-center font-ManropeMedium"
+              style={{ fontSize: Platform.OS === "ios" ? 11 : 9 }}
+              numberOfLines={1}
+              adjustsFontSizeToFit
             >
               {getRoleName(member?.role_id)}
             </Text>

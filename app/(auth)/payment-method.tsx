@@ -3,8 +3,7 @@ import { View, Text, ActivityIndicator, Alert, Platform } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
-import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
-import { STRIPE_PUBLIC_KEY } from "@/constants";
+import { useStripe } from "@stripe/stripe-react-native";
 import Cards from "./components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -264,11 +263,6 @@ export default function Paymentmethod() {
 
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
-      <StripeProvider
-        publishableKey={STRIPE_PUBLIC_KEY}
-        merchantIdentifier="Comgari"
-        urlScheme="comgari"
-      >
         <View className="items-center">
           <Text className="text-grey-100 text-sm sm:text-base font-ManropeRegular mt-3">
             {isFree
@@ -361,7 +355,6 @@ export default function Paymentmethod() {
             </View>
           </View>
         )}
-      </StripeProvider>
     </SafeAreaView>
   );
 }

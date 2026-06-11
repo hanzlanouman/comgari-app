@@ -19,6 +19,7 @@ interface Client {
   description?: string | null;
   email?: string;
   phone?: string;
+  address?: string | null;
   type?: ClientType;
   status: ClientStatus;
   logo?: string | null;
@@ -117,6 +118,7 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
         description: clientData.description || "",
         email: clientData.email || "",
         phone: clientData.phone || "",
+        address: clientData.address || "",
         type: clientData.type || "",
         status: clientData.status || "",
         logo: clientData.logo || "",

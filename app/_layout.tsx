@@ -8,6 +8,8 @@ import { Fragment, useEffect } from "react";
 import "react-native-reanimated";
 import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StripeProvider } from "@stripe/stripe-react-native";
+import { STRIPE_PUBLIC_KEY } from "@/constants";
 import { store } from "@/store";
 import { useAppSelector } from "@/hooks/redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -70,13 +72,19 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <LayoutWrapper />
-        </GestureHandlerRootView>
-      </Provider>
-    </QueryClientProvider>
+    <StripeProvider
+      publishableKey={STRIPE_PUBLIC_KEY}
+      merchantIdentifier="Comgari"
+      urlScheme="comgari"
+    >
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <LayoutWrapper />
+          </GestureHandlerRootView>
+        </Provider>
+      </QueryClientProvider>
+    </StripeProvider>
   );
 }
 
