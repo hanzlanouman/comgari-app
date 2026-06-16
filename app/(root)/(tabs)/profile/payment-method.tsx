@@ -4,18 +4,20 @@ import {
   TextInput,
   Platform,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useStripe } from "@stripe/stripe-react-native";
+import { LogOut } from "lucide-react-native";
 import Cards from "@/app/(auth)/components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAppDispatch } from "@/hooks/redux";
-import { setSubscribed } from "@/store";
+import { logout, setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
-import { showErrorAlert } from "@/utils";
+import { showErrorAlert, logEvent, IS_ANDROID } from "@/utils";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TCoupon } from "@/repositories";
 import { CouponDuration, DiscountType } from "@/common";
@@ -30,6 +32,10 @@ export default function Paymentmethod() {
   useRedirectIfIOS();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    IS_ANDROID && logEvent("profile/payment-method: screen mounted", { platform: Platform.OS });
+  }, []);
 
   const searchParams = useLocalSearchParams<TPlanProps>();
   const selectedPlanPrice = searchParams.selectedPlanPrice;
@@ -111,14 +117,26 @@ export default function Paymentmethod() {
   } = useQuery({
     queryKey: ["create-buyer"],
     queryFn: async () => {
+      IS_ANDROID && logEvent("profile/payment-method: createBuyer requested");
       try {
         const response = await paymentRepo.createBuyer();
         if (!response?.data?.customer) {
+          IS_ANDROID && logEvent("profile/payment-method: createBuyer response missing customer", {
+            hasData: !!response?.data,
+          });
           throw new Error("Buyer creation response is missing customer ID");
         }
+        IS_ANDROID && logEvent("profile/payment-method: createBuyer succeeded", {
+          hasCustomer: !!response.data.customer,
+          hasSetupIntent: !!response.data.setupIntent,
+          hasEphemeralKeys: !!response.data.ephemeralKeys,
+        });
         return response;
       } catch (error) {
         console.error("Error creating buyer:", error);
+        IS_ANDROID && logEvent("profile/payment-method: createBuyer failed", {
+          message: (error as Error)?.message,
+        });
         throw error;
       }
     },
@@ -181,10 +199,16 @@ export default function Paymentmethod() {
   }, [isError, error]);
 
   const openPaymentSheet = async () => {
+    IS_ANDROID && logEvent("profile/payment-method: presentPaymentSheet called");
     const { error: sheetError } = await presentPaymentSheet();
     if (sheetError) {
       console.error("Payment sheet error:", sheetError);
+      IS_ANDROID && logEvent("profile/payment-method: presentPaymentSheet error", {
+        code: sheetError.code,
+        message: sheetError.message,
+      });
     } else {
+      IS_ANDROID && logEvent("profile/payment-method: presentPaymentSheet succeeded");
       queryClient.invalidateQueries({ queryKey: ["cards"] });
     }
   };
@@ -201,8 +225,14 @@ export default function Paymentmethod() {
         const { setupIntent, customer, ephemeralKeys } = res?.data ?? {};
         if (!setupIntent || !customer || !ephemeralKeys) {
           console.error("Missing customer data in buyerResponse:", res);
+          IS_ANDROID && logEvent("profile/payment-method: buyerResponse missing fields", {
+            hasSetupIntent: !!setupIntent,
+            hasCustomer: !!customer,
+            hasEphemeralKeys: !!ephemeralKeys,
+          });
           return;
         }
+        IS_ANDROID && logEvent("profile/payment-method: initPaymentSheet called");
         const { error: initError } = await initPaymentSheet({
           customerId: customer,
           customerEphemeralKeySecret: ephemeralKeys,
@@ -211,11 +241,19 @@ export default function Paymentmethod() {
         });
         if (initError) {
           console.error("Payment sheet initialization error:", initError);
+          IS_ANDROID && logEvent("profile/payment-method: initPaymentSheet error", {
+            code: initError.code,
+            message: initError.message,
+          });
         } else {
+          IS_ANDROID && logEvent("profile/payment-method: initPaymentSheet succeeded");
           openPaymentSheet();
         }
       } catch (e) {
         console.error("Payment process error:", e);
+        IS_ANDROID && logEvent("profile/payment-method: paymentProcess threw", {
+          message: (e as Error)?.message,
+        });
       }
     };
 
@@ -225,6 +263,7 @@ export default function Paymentmethod() {
   }, [buyerResponse, initPaymentSheet]);
 
   const onAddCard = () => {
+    IS_ANDROID && logEvent("profile/payment-method: Add Card pressed, refetching buyer");
     refetch();
   };
 
@@ -248,12 +287,31 @@ export default function Paymentmethod() {
     confirmPayment();
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  const LogoutButton = () => (
+    <TouchableOpacity
+      onPress={handleLogout}
+      className="absolute top-2 right-4 z-10 p-2"
+    >
+      <LogOut size={22} color="#374151" />
+    </TouchableOpacity>
+  );
+
   if (!cards || !subscriptions) {
-    return <SimpleActivityIndicator />;
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <LogoutButton />
+        <SimpleActivityIndicator />
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
+        <LogoutButton />
         <View className="items-center">
           <Text className="text-grey-100 text-sm sm:text-base font-ManropeRegular mt-3 text-center px-2">
             {isFree

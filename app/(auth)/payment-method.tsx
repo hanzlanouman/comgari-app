@@ -1,20 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { View, Text, ActivityIndicator, Alert, Platform } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import { useStripe } from "@stripe/stripe-react-native";
+import { LogOut } from "lucide-react-native";
 import Cards from "./components/Cards";
 import { PaymentRepository } from "@/repositories/payment/payment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { TCoupon, TLoginResponse } from "@/repositories";
 import { useAppDispatch } from "@/hooks/redux";
-import { login, setSubscribed } from "@/store";
+import { login, logout, setSubscribed } from "@/store";
 import { useRedirectIfIOS } from "@/hooks/use-redirect-if-IOS";
 import { TCreateSubscriptionPayload } from "@/repositories/payment/schema";
 import { TextInput } from "react-native";
-import { showErrorAlert } from "@/utils";
+import { showErrorAlert, logEvent, IS_ANDROID } from "@/utils";
 import { CouponDuration, DiscountType } from "@/common";
 import { CustomButton, SimpleActivityIndicator } from "@/common/components";
 
@@ -28,6 +36,10 @@ export default function Paymentmethod() {
   useRedirectIfIOS();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    IS_ANDROID && logEvent("auth/payment-method: screen mounted", { platform: Platform.OS });
+  }, []);
 
   const searchParams = useLocalSearchParams<TPlanProps>();
   const authResponse = searchParams.authResponse;
@@ -103,18 +115,32 @@ export default function Paymentmethod() {
   } = useQuery({
     queryKey: ["create-buyer"],
     queryFn: async () => {
+      IS_ANDROID && logEvent("auth/payment-method: createBuyer requested", {
+        hasParsedAuthResponse: !!parsedAuthResponse,
+      });
       try {
         const response = parsedAuthResponse
           ? await paymentRepo.createBuyer(parsedAuthResponse)
           : await paymentRepo.createBuyer();
 
         if (!response?.data?.customer) {
+          IS_ANDROID && logEvent("auth/payment-method: createBuyer response missing customer", {
+            hasData: !!response?.data,
+          });
           throw new Error("Buyer creation response is missing customer ID");
         }
 
+        IS_ANDROID && logEvent("auth/payment-method: createBuyer succeeded", {
+          hasCustomer: !!response.data.customer,
+          hasSetupIntent: !!response.data.setupIntent,
+          hasEphemeralKeys: !!response.data.ephemeralKeys,
+        });
         return response;
       } catch (error) {
         console.error("Error creating buyer:", error);
+        IS_ANDROID && logEvent("auth/payment-method: createBuyer failed", {
+          message: (error as Error)?.message,
+        });
         throw error;
       }
     },
@@ -172,10 +198,16 @@ export default function Paymentmethod() {
   }, [isError, mutationError]);
 
   const openPaymentSheet = async () => {
+    IS_ANDROID && logEvent("auth/payment-method: presentPaymentSheet called");
     const { error } = await presentPaymentSheet();
     if (error) {
       console.error("Payment sheet error:", error);
+      IS_ANDROID && logEvent("auth/payment-method: presentPaymentSheet error", {
+        code: error.code,
+        message: error.message,
+      });
     } else {
+      IS_ANDROID && logEvent("auth/payment-method: presentPaymentSheet succeeded");
       queryClient.invalidateQueries({ queryKey: ["cards"] });
     }
   };
@@ -184,6 +216,9 @@ export default function Paymentmethod() {
     try {
       if (!res?.data || !res?.data.customer) {
         console.error("Missing customer data in buyerResponse:", res);
+        IS_ANDROID && logEvent("auth/payment-method: buyerResponse missing customer data", {
+          hasData: !!res?.data,
+        });
         Alert.alert(
           "Payment Error",
           "Unable to initialize payment. Customer data is missing.",
@@ -193,6 +228,7 @@ export default function Paymentmethod() {
 
       const { setupIntent, customer, ephemeralKeys } = res?.data;
 
+      IS_ANDROID && logEvent("auth/payment-method: initPaymentSheet called");
       const { error } = await initPaymentSheet({
         customerId: customer,
         customerEphemeralKeySecret: ephemeralKeys,
@@ -202,15 +238,23 @@ export default function Paymentmethod() {
 
       if (error) {
         console.error("Payment sheet initialization error:", error);
+        IS_ANDROID && logEvent("auth/payment-method: initPaymentSheet error", {
+          code: error.code,
+          message: error.message,
+        });
         Alert.alert(
           "Payment Error",
           error.message || "Failed to initialize payment system",
         );
       } else {
+        IS_ANDROID && logEvent("auth/payment-method: initPaymentSheet succeeded");
         openPaymentSheet();
       }
     } catch (e) {
       console.error("Payment process error:", e);
+      IS_ANDROID && logEvent("auth/payment-method: paymentProcess threw", {
+        message: (e as Error)?.message,
+      });
       Alert.alert(
         "Payment Error",
         "An unexpected error occurred during payment setup",
@@ -234,6 +278,7 @@ export default function Paymentmethod() {
   }, [subscriptions]);
 
   const onAddCard = () => {
+    IS_ANDROID && logEvent("auth/payment-method: Add Card pressed, refetching buyer");
     refetch();
   };
 
@@ -257,12 +302,31 @@ export default function Paymentmethod() {
     confirmPayment();
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  const LogoutButton = () => (
+    <TouchableOpacity
+      onPress={handleLogout}
+      className="absolute top-2 right-4 z-10 p-2"
+    >
+      <LogOut size={22} color="#374151" />
+    </TouchableOpacity>
+  );
+
   if (!cards || !subscriptions) {
-    return <SimpleActivityIndicator />;
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <LogoutButton />
+        <SimpleActivityIndicator />
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
+        <LogoutButton />
         <View className="items-center">
           <Text className="text-grey-100 text-sm sm:text-base font-ManropeRegular mt-3">
             {isFree

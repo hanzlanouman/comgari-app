@@ -18,6 +18,7 @@ import {
   showErrorAlert,
   showSuccessAlert,
   updateUserProperty,
+  exportLogs,
 } from "@/utils";
 import { useUpload } from "@/hooks/use-upload";
 import { useMutation } from "@tanstack/react-query";
@@ -128,7 +129,12 @@ const Profile = () => {
         {/* Profile Picture */}
         <View className=" mt-4">
           <View className="items-center text-center">
-            <View className="relative mb-4 mt-4" style={{ width: 96, height: 96 }}>
+            <TouchableOpacity
+              activeOpacity={1}
+              onLongPress={exportLogs}
+              className="relative mb-4 mt-4"
+              style={{ width: 96, height: 96 }}
+            >
               {avatar ? (
                 <AppImage
                   remote={avatar}
@@ -146,7 +152,7 @@ const Profile = () => {
               >
                 <Upload size={16} color="#ffffff" />
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
 
