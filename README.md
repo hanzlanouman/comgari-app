@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# Comgari
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Comgari is a cross-platform CRM for managing leads, clients, team members, appointments, tasks, proposals, notes, media, invoices, and subscriptions.
 
-## Get started
+Built with Expo, React Native, Expo Router, TypeScript, Redux Toolkit, TanStack Query, NativeWind, and Stripe.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run locally
 
 ```bash
-npm run reset-project
+yarn install
+yarn start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Use `yarn android` or `yarn ios` for a native development build. The app expects the Comgari API and platform credentials to be configured before authentication, payments, notifications, or uploads will work.
 
-## Learn more
+## Structure
 
-To learn more about developing your project with Expo, look at the following resources:
+```text
+app/           Expo Router screens and navigation
+common/        Shared UI, API configuration, and routes
+repositories/  Auth, client, member, and payment data access
+store/         Redux state and persistence
+hooks/         Upload, notification, and subscription hooks
+assets/        Images and fonts
+docs/mocks/    Product mockups
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Product mockups
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<p align="center">
+  <img src="docs/mocks/sign-in.png" width="160" alt="Sign-in screen" />
+  <img src="docs/mocks/dashboard.png" width="160" alt="Dashboard screen" />
+  <img src="docs/mocks/clients.png" width="160" alt="Clients screen" />
+  <img src="docs/mocks/tasks.png" width="160" alt="Tasks screen" />
+  <img src="docs/mocks/subscription-plans.png" width="160" alt="Subscription plans screen" />
+</p>
