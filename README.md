@@ -1,6 +1,6 @@
 # Comgari
 
-Comgari is a cross-platform CRM for managing leads, clients, team members, appointments, tasks, proposals, notes, media, invoices, and subscriptions.
+Comgari is a cross-platform mobile CRM for managing leads, clients, team members, appointments, tasks, proposals, notes, media, invoices, and subscriptions.
 
 Built with Expo, React Native, Expo Router, TypeScript, Redux Toolkit, TanStack Query, NativeWind, and Stripe.
 
